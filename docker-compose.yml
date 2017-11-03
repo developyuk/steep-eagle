@@ -1,0 +1,48 @@
+version:          '2'
+services:
+  web-main:
+    build:      ./web-main
+    volumes:
+       - ./web-main:/project/app
+    working_dir: /project/app
+    ports:
+      - "81:8080"
+    command:    ["npm", "run", "dev"]
+  # web-op:
+  #   build:      ./web-main
+  #   volumes:
+  #      - /d/steep-eagle/web-op:/project/app
+  #   working_dir: /project/app
+  #   ports:
+  #     - "82:8080"
+  #   command:    npm run dev
+  # web-partner:
+  #   build:      ./web-main
+  #   volumes:
+  #      - /d/steep-eagle/web-partner:/project/app
+  #   working_dir: /project/app
+  #   ports:
+  #     - "83:8080"
+  #   command:    npm run dev
+  api-main:
+    build:        ./api-main
+    volumes:
+       - ./api-main:/project
+    working_dir:  /project
+    expose:
+      - "3000"
+    ports:
+      - "84:3000"
+    command:      gin run
+  db-main:
+    build:        ./db-main
+    expose:
+      - "5432"
+  # pgadmin4:
+  #   image:        fenglc/pgadmin4
+  #   ports:
+  #     - "5050:5050"
+  #   links:
+  #     - db-main:postgres
+  # redis:
+  #   image:      redis
