@@ -12,7 +12,7 @@ import (
 func main() {
 	e := echo.New()
   e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://192.168.99.100:81"},
+		AllowOrigins: []string{"http://192.168.99.100:81","http://localhost:81"},
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 

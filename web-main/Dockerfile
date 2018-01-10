@@ -12,7 +12,9 @@ RUN set -ex \
 RUN set -ex \
   && npm install \
     node-sass sass-loader \
+    normalize.css \
     materialize-css \
+    sass-bem \
     --save-dev
 
 RUN set -ex \

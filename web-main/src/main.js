@@ -5,7 +5,8 @@ import App from './App'
 import router from './router'
 
 Vue.config.productionTip = false
-require('materialize-css/dist/css/materialize.min.css')
+require('normalize.css/normalize.css')
+// require('materialize-css/dist/css/materialize.min.css')
 
 /* eslint-disable no-new */
 new Vue({

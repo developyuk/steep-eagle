@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'classDetail',
+  name: 'class-detail',
   data() {
     return {
       msg: 'Welcome to Your Vue.js PWA'

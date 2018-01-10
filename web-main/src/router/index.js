@@ -3,6 +3,7 @@ import Router from 'vue-router'
 // import Hello from '@/components/Hello'
 import Schedules from '@/pages/Schedules'
 import ClassDetail from '@/pages/ClassDetail'
+import ComingSoon from '@/components/ComingSoon'
 
 Vue.use(Router)
 
@@ -20,8 +21,23 @@ export default new Router({
     },
     {
       path: '/class/:id',
-      name: 'ClassDetail',
-      component: ClassDetail
+      name: 'ComingSoon',
+      component: ComingSoon
+    },
+    {
+      path: '/feedbacks',
+      name: 'ComingSoon',
+      component: ComingSoon
+    },
+    {
+      path: '/progress',
+      name: 'ComingSoon',
+      component: ComingSoon
+    },
+    {
+      path: '/profile',
+      name: 'ComingSoon',
+      component: ComingSoon
     }
   ]
 })

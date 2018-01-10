@@ -1,12 +1,5 @@
 <template>
-  <div id="app">
-    <header>
-      <span>Classbro</span>
-    </header>
-    <main>
-      <router-view></router-view>
-    </main>
-  </div>
+<router-view></router-view>
 </template>
 
 <script>
@@ -15,11 +8,15 @@ export default {
 }
 </script>
 
-<style>
-/* body {
-  margin: 0;
+<style lang="scss">
+$roboto-font-path:"~materialize-css/dist/fonts/roboto/";
+@import "~materialize-css/sass/materialize.scss";
+body,
+html {
+    height: 100%;
+    min-height: 100%;
 }
-
+/*
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
