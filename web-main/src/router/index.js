@@ -26,7 +26,7 @@ export default new Router({
       component: ComingSoon
     },
     {
-      path: '/feedbacks',
+      path: '/activities',
       component: ComingSoon
     },
     {

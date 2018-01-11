@@ -58,7 +58,7 @@ func Sign(c echo.Context) error {
 	// pwd := c.FormValue("pwd")
 
 	response, _ := myModels.GetUserEmailPwd(p)
-	if ! response.Id.IsZero() {
+	if !response.Id.IsZero() {
 		// Create token
 		token := jwt.New(jwt.SigningMethodHS256)
 
@@ -81,4 +81,14 @@ func Sign(c echo.Context) error {
 	return echo.ErrUnauthorized
 
 	// return c.JSON(http.StatusOK, response)
+}
+func Auth(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+	role := claims["role"].(string)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"name": name,
+		"role": role,
+	})
 }

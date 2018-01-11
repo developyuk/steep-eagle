@@ -6,20 +6,31 @@ import router from './router'
 
 Vue.config.productionTip = false
 require('normalize.css/normalize.css')
+import axios from 'axios'
 
 router.beforeEach((to, from, next) => {
   // ...
-  const isLogin = localStorage.getItem('token');
-  // console.log(isLogin, to.path,from.path, !isLogin && to.path !== '/sign');
-  if (!isLogin && to.path !== '/sign') {
-    next({
-      path: '/sign',
-      query: {
-        redirect: to.path
-      }
+
+  axios.get(`${process.env.API}/auth`)
+    .then(response => {
+      console.log(response.data);
+      // console.log(isLogin, to.path,from.path, !isLogin && to.path !== '/sign');
+
+      next();
     })
-  }
-  next();
+    .catch(error => {
+      console.log(error.response, to.path);
+      if (to.path !== '/sign') {
+        next({
+          path: '/sign',
+          query: {
+            redirect: to.path
+          }
+        })
+      }
+      next();
+    })
+
 })
 window.$ = window.jQuery = require('jquery')
 require('materialize-css/dist/js/materialize.min.js')

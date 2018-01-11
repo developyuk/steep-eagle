@@ -5,12 +5,19 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	// "github.com/dgrijalva/jwt-go"
 
 	myControllers "./controllers"
 )
 
+const (
+	jwtKey = "2ZPFtPJ5@kDe8m2ud%@eaH?ERaEw?c3"
+)
+
 func main() {
 	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://192.168.99.100:81", "http://localhost:81"},
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
@@ -19,8 +26,13 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-
 	e.POST("/sign", myControllers.Sign)
+
+	// e.Use(middleware.JWT([]byte(jwtKey)))
+
+	auth := e.Group("/auth")
+	auth.Use(middleware.JWT([]byte(jwtKey)))
+	auth.GET("", myControllers.Auth)
 
 	e.GET("/programs/types", myControllers.GetProgramTypes)
 	e.GET("/programs/types/:id", myControllers.GetProgramType)
@@ -38,10 +50,12 @@ func main() {
 	// e.PUT("/modules/:id", myControllers.updateModule)
 	// e.DELETE("/modules/:id", myControllers.deleteModule)
 
-	e.GET("/classes", myControllers.GetClasses)
-	e.GET("/classes/:id", myControllers.GetClass)
-	e.GET("/classes/:id/sessions", myControllers.GetClassSessionsFromId)
-	e.POST("/classes/:id/sessions", myControllers.CreateClassSessions)
+	classes := e.Group("/classes")
+	classes.Use(middleware.JWT([]byte(jwtKey)))
+	classes.GET("", myControllers.GetClasses)
+	classes.GET(":id", myControllers.GetClass)
+	classes.GET(":id/sessions", myControllers.GetClassSessionsFromId)
+	classes.POST(":id/sessions", myControllers.CreateClassSessions)
 	// e.GET("/classes/:id/students", myControllers.GetClassIdStudents)
 	// e.PUT("/classes/:id", updateClass)
 	// e.DELETE("/classes/:id", deleteClass)

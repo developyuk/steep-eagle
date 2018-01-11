@@ -12,7 +12,7 @@
       <div class="card small z-depth-1 class">
         <div class="card-image">
           <router-link :to="`/class/${v.id}`"><img :src="v.image"> </router-link>
-          <span class="card-title">{{v.name}}</span>
+          <span class="card-title">{{v.day}} {{v.time}} @{{v.module}}</span>
           <button @click="confirmActivate(v.id)" class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">check</i></button>
         </div>
         <div class="card-content">
@@ -62,13 +62,20 @@ export default {
       const url = `${process.env.API}/classes?day=today`;
 
       axios.get(url)
-        .then(response => this.classes = response.data._embedded)
+        .then(response => {
+          this.classes = response.data._embedded;
+          // this.classes.forEach((v,i,a) => {
+          //   axios.get(`${process.env.API}${v._links.module.href}`)
+          //     .then(response => this.classes[i].module = response.data);
+          //   // .catch(error => console.log(error))
+          // });
+          // console.log(this.classes[0].module.name);
+        })
         .catch(error => console.log(error))
 
     },
     confirmActivate(id, e) {
       this.id = id;
-      console.log(this, this.$modalElement);
       this.$modalElement = $(this.$el).find('.modal').modal();
       this.$modalElement.modal('open');
     },
@@ -94,6 +101,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "~materialize-css/sass/components/color";
 @import "~sass-bem";
 main,
 section {
@@ -114,10 +122,15 @@ main {
 }
 .card {
     height: auto;
+
     .card-image {
         max-height: 10rem;
         position: static;
-
+        .card-title {
+            bottom: 1.5rem;
+            text-shadow: 0 0 1.5rem #000;
+            text-transform: capitalize;
+        }
     }
     .btn-floating.halfway-fab {
         bottom: 2.5rem;

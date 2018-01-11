@@ -5,8 +5,8 @@
     <li :class="{col:true, s3:true, 'is-active': isActivePath('/')}">
       <router-link to="/"><i class="material-icons">calendar_today</i></router-link>
     </li>
-    <li :class="{col:true, s3:true, 'is-active': isActivePath('/feedbacks')}">
-      <router-link to="/feedbacks"><i class="material-icons">assignment</i></router-link>
+    <li :class="{col:true, s3:true, 'is-active': isActivePath('/activities')}">
+      <router-link to="/activities"><i class="material-icons">assignment</i></router-link>
     </li>
     <li :class="{col:true, s3:true, 'is-active': isActivePath('/progress')}">
       <router-link to="/progress"><i class="material-icons">assessment</i></router-link>
