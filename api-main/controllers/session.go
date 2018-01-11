@@ -111,6 +111,7 @@ func GetSessions(c echo.Context) error {
 	response := myModels.Hal{
 		Links:    LinksSelf{Self: Href{Href: pathSessions}},
 		Embedded: data,
+		Count:    len(data),
 	}
 	return c.JSON(http.StatusOK, response)
 }
@@ -158,5 +159,11 @@ func GetSessionTutorsFromIdTidSid(c echo.Context) error {
 	response := myModels.GetSessionStudentFromId(db, id, tid, sid)
 	response.Links = LinksSelf{Self: Href{Href: fmt.Sprintf("%v/%v%v/%v%v/%v", pathSessions, id, pathTutors, tid, pathStudents, sid)}}
 
+	return c.JSON(http.StatusOK, response)
+}
+
+func CreateClassSessions(c echo.Context) error {
+	id := c.Param("id")
+	response := myModels.CreateSessionClass(id)
 	return c.JSON(http.StatusOK, response)
 }

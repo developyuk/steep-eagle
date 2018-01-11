@@ -11,14 +11,16 @@ import (
 
 func main() {
 	e := echo.New()
-  e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://192.168.99.100:81","http://localhost:81"},
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://192.168.99.100:81", "http://localhost:81"},
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
+
+	e.POST("/sign", myControllers.Sign)
 
 	e.GET("/programs/types", myControllers.GetProgramTypes)
 	e.GET("/programs/types/:id", myControllers.GetProgramType)
@@ -38,6 +40,8 @@ func main() {
 
 	e.GET("/classes", myControllers.GetClasses)
 	e.GET("/classes/:id", myControllers.GetClass)
+	e.GET("/classes/:id/sessions", myControllers.GetClassSessionsFromId)
+	e.POST("/classes/:id/sessions", myControllers.CreateClassSessions)
 	// e.GET("/classes/:id/students", myControllers.GetClassIdStudents)
 	// e.PUT("/classes/:id", updateClass)
 	// e.DELETE("/classes/:id", deleteClass)

@@ -9,8 +9,10 @@ RUN set -ex \
   && go get -u github.com/labstack/echo/...
 
 RUN set -ex \
+  && go get github.com/dgrijalva/jwt-go \
   && go get github.com/lib/pq \
   && go get github.com/jmoiron/sqlx \
+  && go get gopkg.in/guregu/null.v3 \
   && go get github.com/codegangsta/gin
 
 ENV BIN_APP_PORT 1323

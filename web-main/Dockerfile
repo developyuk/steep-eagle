@@ -13,6 +13,7 @@ RUN set -ex \
   && npm install \
     node-sass sass-loader \
     normalize.css \
+    jquery \
     materialize-css \
     sass-bem \
     --save-dev

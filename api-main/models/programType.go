@@ -5,11 +5,10 @@ import (
 )
 
 type ProgramType struct {
-  Hal
+	Hal
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
-
 
 func GetProgramTypes() []ProgramType {
 	db, err := Connect()
@@ -39,12 +38,12 @@ func GetProgramType(id string) ProgramType {
 
 func CreateProgramType(name string) Response {
 	db, err := Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	db.MustExec(`INSERT INTO program_types(name)
 		VALUES ($1)`, name)
 
-	if err != nil {
-		log.Fatal(err)
-	}
 	return Response{Message: ""}
 }

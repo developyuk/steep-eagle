@@ -4,6 +4,9 @@ import Router from 'vue-router'
 import Schedules from '@/pages/Schedules'
 import ClassDetail from '@/pages/ClassDetail'
 import ComingSoon from '@/components/ComingSoon'
+import Sign from '@/pages/Sign'
+import Profile from '@/pages/Profile'
+import ProfileSettings from '@/pages/ProfileSettings'
 
 Vue.use(Router)
 
@@ -16,28 +19,39 @@ export default new Router({
     // }
     {
       path: '/',
-      name: 'Schedules',
       component: Schedules
     },
     {
       path: '/class/:id',
-      name: 'ComingSoon',
       component: ComingSoon
     },
     {
       path: '/feedbacks',
-      name: 'ComingSoon',
       component: ComingSoon
     },
     {
       path: '/progress',
-      name: 'ComingSoon',
       component: ComingSoon
     },
     {
       path: '/profile',
-      name: 'ComingSoon',
-      component: ComingSoon
+      component: Profile
+    },
+    {
+      path: '/profile/settings',
+      component: ProfileSettings,
+    },
+    {
+      path: '/notifications',
+      component: ComingSoon,
+    },
+    {
+      path: '/how-to-use',
+      component: ComingSoon,
+    },
+    {
+      path: '/sign',
+      component: Sign
     }
   ]
 })

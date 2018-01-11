@@ -6,8 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"net/http"
-	"time"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type ClassLinks struct {
@@ -51,6 +52,17 @@ func GenerateLinks(db *sqlx.DB, data myModels.Class_) ClassLinks {
 	return values
 }
 
+func GetClassSessionsFromId(c echo.Context) error {
+	db, _ := myModels.Connect()
+	id, _ := strconv.Atoi(c.Param("id"))
+	data := GetClassSessions(db, id)
+	response := myModels.Hal{
+		// Links:    LinksSelf{Self: Href{Href: pathClasses}},
+		Embedded: data,
+		// Count:    len(data),
+	}
+	return c.JSON(http.StatusOK, response)
+}
 func GetClasses(c echo.Context) error {
 	params := make(map[string]interface{})
 

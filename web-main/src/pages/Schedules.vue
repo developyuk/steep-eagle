@@ -13,7 +13,7 @@
         <div class="card-image">
           <router-link :to="`/class/${v.id}`"><img :src="v.image"> </router-link>
           <span class="card-title">{{v.name}}</span>
-          <button @click="activate(v.id,$event)" class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">check</i></button>
+          <button @click="confirmActivate(v.id)" class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">check</i></button>
         </div>
         <div class="card-content">
           <div class="row">
@@ -21,6 +21,15 @@
             <div class="col s6 class__time"><i class="material-icons">schedule</i>{{v.time}}</div>
           </div>
         </div>
+      </div>
+    </div>
+
+
+    <div id="modal1" class="modal bottom-sheet">
+      <div class="modal-content"> Are you sure ?</div>
+      <div class="modal-footer">
+        <button class="modal-action modal-close waves-effect waves-green btn-flat">No</button>
+        <button class="waves-effect waves-green btn-flat" @click="activate">Yes</button>
       </div>
     </div>
   </main>
@@ -42,7 +51,10 @@ export default {
   data() {
     return {
       msg: 'Welcome to Your Vue.js PWA',
-      classes: []
+      id: 0,
+      classes: [],
+
+      $modalElement: {},
     }
   },
   methods: {
@@ -54,12 +66,24 @@ export default {
         .catch(error => console.log(error))
 
     },
-    activate(id, e) {
-      const url = `${process.env.API}/classes/${id}/sessions`;
-      axios.post(url)
-        .then(response => console.log(response))
+    confirmActivate(id, e) {
+      this.id = id;
+      console.log(this, this.$modalElement);
+      this.$modalElement = $(this.$el).find('.modal').modal();
+      this.$modalElement.modal('open');
+    },
+    activate() {
+      const url = `${process.env.API}/classes/${this.id}/sessions`;
+      axios.post(url, {
+          id: 3
+        })
+        .then(response => {
+          console.log(response);
+          this.$modalElement.modal('close');
+          Materialize.toast('Class activated', 4000);
+        })
         .catch(error => console.log(error))
-      console.log(id, e);
+      console.log(this.id);
     }
   },
   mounted() {
@@ -76,50 +100,59 @@ section {
     min-height: 100%;
     height: 100%;
 }
-header {
-    input[type=text]:not(.browser-default) {
-        border-bottom: none;
-        margin-bottom: 0;
-    }
-}
+header {}
 main {
     padding: 0.75rem 0;
-    .card {
-        height: auto;
-        .card-image {
-            max-height: 10rem;
-            position: static;
-
-        }
-        .btn-floating.halfway-fab {
-            bottom: 2.5rem;
-        }
-        .card-content {
-            padding: 1rem;
-            font-size: 1rem;
-            line-height: 1.25rem;
-
-            .material-icons {
-                font-size: 1.25rem;
-                margin-right: 0.25rem;
-            }
-            .row {
-                margin-bottom: 0;
-                padding: 0 1rem;
-            }
-            .col {
-                padding: 0;
-                &:last-child {
-                    text-align: right;
-                }
-            }
-        }
-    }
-
 }
 .class {
     @include e(day) {
         text-transform: capitalize;
     }
+}
+.btn-floating i {
+    color: #fff;
+}
+.card {
+    height: auto;
+    .card-image {
+        max-height: 10rem;
+        position: static;
+
+    }
+    .btn-floating.halfway-fab {
+        bottom: 2.5rem;
+    }
+    .card-content {
+        padding: 1rem;
+        font-size: 1rem;
+        line-height: 1.25rem;
+        .row {
+            margin-bottom: 0;
+            padding: 0 1rem;
+        }
+        .col {
+            padding: 0;
+            &:last-child {
+                text-align: right;
+            }
+        }
+    }
+    .material-icons {
+        font-size: 1.25rem;
+        margin-right: 0.25rem;
+        vertical-align: middle;
+    }
+}
+
+.input-field {
+    margin: {
+        top: 1rem;
+        bottom: 1rem;
+    }
+}
+input[type=text]:not(.browser-default) {
+    border-bottom: none;
+    margin-bottom: 0;
+    height: 2rem;
 }
 </style>

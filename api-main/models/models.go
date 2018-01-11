@@ -32,6 +32,12 @@ type Hal struct {
 
 type Response struct {
 	Message string `json:"message"`
+	Id      int64 `json:"id,omitempty"`
+}
+
+type UserLoginRequest struct {
+	Email string `json:"email" xml:"email" form:"email" query:"email"`
+	Pwd   string `json:"pwd" xml:"pwd" form:"pwd" query:"email"`
 }
 
 func Connect() (*sqlx.DB, error) {

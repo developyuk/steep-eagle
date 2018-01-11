@@ -9,42 +9,23 @@ export default {
 </script>
 
 <style lang="scss">
-$roboto-font-path:"~materialize-css/dist/fonts/roboto/";
+$roboto-font-path: "~materialize-css/dist/fonts/roboto/";
+@import "~materialize-css/sass/components/color";
+$primary-color: color("grey", "base");
+$secondary-color: color("grey", "lighten-1");
 @import "~materialize-css/sass/materialize.scss";
+
 body,
 html {
     height: 100%;
     min-height: 100%;
+    &,
+    .material-icons,
+    a {
+        color: color("grey", "darken-1");
+    }
 }
-/*
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+.material-icons {
+    // color: $primary-color;
 }
-
-main {
-  text-align: center;
-  margin-top: 40px;
-}
-
-header {
-  margin: 0;
-  height: 56px;
-  padding: 0 16px 0 24px;
-  background-color: #35495E;
-  color: #ffffff;
-}
-
-header span {
-  display: block;
-  position: relative;
-  font-size: 20px;
-  line-height: 1;
-  letter-spacing: .02em;
-  font-weight: 400;
-  box-sizing: border-box;
-  padding-top: 16px;
-} */
 </style>
