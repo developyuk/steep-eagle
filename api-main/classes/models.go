@@ -1,6 +1,7 @@
-package models
+package classes
 
 import (
+	myShared "../shared"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"strings"
@@ -8,7 +9,7 @@ import (
 )
 
 type Class_ struct {
-	Hal
+	myShared.Hal
 	Id       int         `json:"id"`
 	Name     string      `json:"name"`
 	Image    *string     `json:"image"`
@@ -18,7 +19,7 @@ type Class_ struct {
 	BranchId interface{} `json:"-" db:"branch_id"`
 }
 
-func GetStudentFromId(db *sqlx.DB, id int) []int {
+func getStudentsById(db *sqlx.DB, id int) []int {
 
 	var data []int
 	err := db.Select(&data, `SELECT student_id
@@ -31,7 +32,7 @@ func GetStudentFromId(db *sqlx.DB, id int) []int {
 	return data
 }
 
-func GetSessionFromId(db *sqlx.DB, id int) []int {
+func getSessionsById(db *sqlx.DB, id int) []int {
 
 	var data []int
 	err := db.Select(&data, `SELECT id
@@ -44,8 +45,8 @@ func GetSessionFromId(db *sqlx.DB, id int) []int {
 	return data
 }
 
-func GetClasses(params map[string]interface{}) ([]Class_, *sqlx.DB) {
-	db := Connect()
+func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data []Class_
 	sql := []string{`SELECT id, name, image, day, time,
@@ -66,8 +67,8 @@ func GetClasses(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 	return data, db
 }
 
-func GetClass(id string) (Class_, *sqlx.DB) {
-	db := Connect()
+func ItemData(id string) (Class_, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data Class_
 	_ = db.Get(&data, `SELECT id, name, image, day, time, module_id, branch_id

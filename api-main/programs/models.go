@@ -1,23 +1,24 @@
-package models
+package programs
 
 import (
+	myShared "../shared"
 	"github.com/jmoiron/sqlx"
 	"log"
 )
 
 type Program struct {
-	Hal
+	myShared.Hal
 	Id     int         `json:"id"`
 	Name   string      `json:"name"`
 	TypeId interface{} `json:"-" db:"type_id"`
 }
 
-func GetModulesFromId(db *sqlx.DB, id int) []int {
+func ItemModulesHrefData(db *sqlx.DB, id int) []int {
 
 	var data []int
 	err := db.Select(&data, `SELECT module_id
 					FROM program_modules
-					where program_id = $1`, id)
+					WHERE program_id = $1`, id)
 
 	if err != nil {
 		log.Fatal(err)
@@ -26,11 +27,11 @@ func GetModulesFromId(db *sqlx.DB, id int) []int {
 	return data
 }
 
-func GetPrograms() ([]Program, *sqlx.DB) {
-	db := Connect()
+func ListData() ([]Program, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data []Program
-	err := db.Select(&data, `SELECT id,name,type_id
+	err := db.Select(&data, `SELECT id, name, type_id
     FROM programs`)
 	if err != nil {
 		log.Fatal(err)
@@ -39,11 +40,11 @@ func GetPrograms() ([]Program, *sqlx.DB) {
 	return data, db
 }
 
-func GetProgram(id string) (Program, *sqlx.DB) {
-	db := Connect()
+func ItemData(id string) (Program, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data Program
-	err := db.Get(&data, `SELECT id,name,type_id
+	err := db.Get(&data, `SELECT id, name, type_id
 	  FROM programs
 	  WHERE id = $1`, id)
 	if err != nil {

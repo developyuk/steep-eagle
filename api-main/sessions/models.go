@@ -1,6 +1,7 @@
-package models
+package sessions
 
 import (
+	myShared "../shared"
 	"github.com/jmoiron/sqlx"
 	"gopkg.in/guregu/null.v3"
 	"log"
@@ -8,17 +9,17 @@ import (
 )
 
 type Session struct {
-	Hal
+	myShared.Hal
 	Id        int       `json:"id"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	ClassId   int       `json:"-" db:"class_id"`
 }
 
-type SessionTutor struct {
-	Hal
-	Id      int `json:"-"`
-	TutorId int `json:"-" db:"tutor_id"`
-}
+// type SessionTutor struct {
+// 	myShared.Hal
+// 	Id      int `json:"-"`
+// 	TutorId int `json:"-" db:"tutor_id"`
+// }
 
 type SessionStudentRating struct {
 	Interaction null.Int `json:"interaction"`
@@ -26,7 +27,7 @@ type SessionStudentRating struct {
 	Creativity  null.Int `json:"creativity"`
 }
 type SessionStudent struct {
-	Hal
+	myShared.Hal
 	Id        null.Int             `json:"id"`
 	CreatedAt null.Time            `json:"created_at" db:"created_at"`
 	Status    null.Bool            `json:"status"`
@@ -36,10 +37,9 @@ type SessionStudent struct {
 	StudentId int `json:"-" db:"student_id"`
 }
 
-func GetSessionTutorsFromId(db *sqlx.DB, id int) []SessionTutor {
-
-	var data []SessionTutor
-	err := db.Select(&data, `SELECT id,tutor_id
+func getTutorsById(db *sqlx.DB, id int) []int64 {
+	var data []int64
+	err := db.Select(&data, `SELECT tutor_id
 			          FROM sessions_tutors
 			          WHERE session_id = $1`, id)
 	if err != nil {
@@ -49,7 +49,20 @@ func GetSessionTutorsFromId(db *sqlx.DB, id int) []SessionTutor {
 	return data
 }
 
-func GetSessionStudentsFromId(db *sqlx.DB, id int, tid int) []SessionStudent {
+// func getStudentsById(db *sqlx.DB, id int) []int64 {
+// 	var data []int64
+// 	err := db.Select(&data, `SELECT student_id
+//     FROM sessions s
+//     JOIN class_students c ON s.class_id = c.class_id
+//     WHERE s.id = $1`, id)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+//
+// 	return data
+// }
+
+func getTutorStudentsByIdTid(db *sqlx.DB, id string, tid string) []SessionStudent {
 
 	var data []SessionStudent
 	err := db.Select(&data, ` SELECT ss.id,
@@ -69,7 +82,7 @@ func GetSessionStudentsFromId(db *sqlx.DB, id int, tid int) []SessionStudent {
 	return data
 }
 
-func GetSessionStudentFromId(db *sqlx.DB, id int, tid int, sid int) SessionStudent {
+func getTutorStudentByIdTidSid(db *sqlx.DB, id string, tid string, sid string) SessionStudent {
 
 	var data SessionStudent
 	err := db.Get(&data, ` SELECT ss.id id, ss.created_at, ss.status, ss.feedback,
@@ -87,8 +100,8 @@ WHERE tutor_id IS NOT NULL AND cs.student_id = $3`, id, tid, sid)
 
 	return data
 }
-func GetSessions() ([]Session, *sqlx.DB) {
-	db := Connect()
+func ListData() ([]Session, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data []Session
 	err := db.Select(&data, `SELECT id, created_at, class_id
@@ -99,8 +112,8 @@ func GetSessions() ([]Session, *sqlx.DB) {
 
 	return data, db
 }
-func GetSession(id string) (Session, *sqlx.DB) {
-	db := Connect()
+func ItemData(id string) (Session, *sqlx.DB) {
+	db := myShared.Connect()
 
 	var data Session
 	err := db.Get(&data, `SELECT id, created_at, class_id
@@ -112,14 +125,11 @@ func GetSession(id string) (Session, *sqlx.DB) {
 
 	return data, db
 }
-func CreateSessionClass(id string) Response {
-	db := Connect()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+func CreateSessionClass(id string) myShared.Response {
+	db := myShared.Connect()
 	var lastInsertId int64
 	db.QueryRowx(`INSERT INTO sessions(class_id)
   		VALUES ($1) RETURNING id`, id).Scan(&lastInsertId)
 
-	return Response{Message: "", Id: lastInsertId}
+	return myShared.Response{Message: "", Id: lastInsertId}
 }

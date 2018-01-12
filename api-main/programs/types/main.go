@@ -1,39 +1,41 @@
-package controllers
+package types
 
 import (
-	myModels "../models"
+	myShared "../../shared"
+	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
-	"fmt"
 )
-var pathProgramsTypes string = "/programs/types"
 
-func GetProgramTypes(c echo.Context) error {
+func itemLinks(v ProgramType) myShared.LinksSelf {
+	return myShared.LinksSelf{Self: myShared.Href{
+		Href: fmt.Sprintf("%v/%v", myShared.PathProgramsTypes, v.Id),
+	}}
+}
+
+func List(c echo.Context) error {
 	// User ID from path `users/:id`
-	data := myModels.GetProgramTypes()
+	list := ListData()
 
-	for i, v := range data {
-		data[i].Links = LinksSelf{Self: Href{
-			Href: fmt.Sprintf("%v/%v", pathProgramsTypes, v.Id),
-		}}
+	for i, v := range list {
+		list[i].Links = itemLinks(v)
 	}
 
-	response := myModels.Hal{
-		Links:    LinksSelf{Self: Href{Href: pathProgramsTypes}},
-		Embedded: data,
+	response := myShared.Hal{
+		Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathProgramsTypes}},
+		Embedded: list,
+		Count:    len(list),
+		Total:    len(list),
 	}
 	return c.JSON(http.StatusOK, response)
 }
 
-func GetProgramType(c echo.Context) error {
+func Item(c echo.Context) error {
 	// User ID from path `users/:id`
 	// var data Program = GetProgramTypesData(c.Param("id"))
-	data := myModels.GetProgramType(c.Param("id"))
-  response := data
-	response.Links = LinksSelf{Self: Href{
-		Href: fmt.Sprintf("%v/%v", pathProgramsTypes, data.Id),
-	}}
-	return c.JSON(http.StatusOK, response)
+	item := ItemData(c.Param("id"))
+	item.Links = itemLinks(item)
+	return c.JSON(http.StatusOK, item)
 }
 
 // func CreateProgramType(c echo.Context) error {

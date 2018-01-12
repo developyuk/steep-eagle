@@ -7,7 +7,13 @@ import (
 	"github.com/labstack/echo/middleware"
 	// "github.com/dgrijalva/jwt-go"
 
-	myControllers "./controllers"
+	myClasses "./classes"
+	myModules "./modules"
+	myPrograms "./programs"
+	myProgramsTypes "./programs/types"
+	myUsers "./users"
+	myBranches "./branches"
+	mySessions "./sessions"
 )
 
 const (
@@ -23,54 +29,59 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.POST("/sign", myControllers.Sign)
+	e.POST("/sign", myUsers.Sign)
 
 	// e.Use(middleware.JWT([]byte(jwtKey)))
 
 	a := e.Group("/")
-	a.Use(middleware.JWT([]byte(jwtKey)))
-	a.GET("auth", myControllers.Auth)
+	// a.Use(middleware.JWT([]byte(jwtKey)))
+	a.GET("auth", myUsers.Auth)
 
-	a.GET("programs/types", myControllers.GetProgramTypes)
-	a.GET("programs/types/:id", myControllers.GetProgramType)
+	a.GET("programs/types", myProgramsTypes.List)
+	a.GET("programs/types/:id", myProgramsTypes.Item)
 	// e.POST("/programs/types", myControllers.CreateProgramType)
 	// e.PUT("/programs/types/:id", myControllers.UpdateProgramType)
 	// e.DELETE("/programs/types/:id", myControllers.DeleteProgramType)
 
-	a.GET("programs", myControllers.GetPrograms)
-	a.GET("programs/:id", myControllers.GetProgram)
+	a.GET("programs", myPrograms.List)
+	a.GET("programs/:id", myPrograms.Item)
 	// e.PUT("/programs/:id", myControllers.UpdateProgram)
 	// e.DELETE("/programs/:id", myControllers.DeleteProgram)
 
-	a.GET("modules", myControllers.GetModules)
-	a.GET("modules/:id", myControllers.GetModule)
+	a.GET("modules", myModules.List)
+	a.GET("modules/:id", myModules.Item)
 	// e.PUT("/modules/:id", myControllers.updateModule)
 	// e.DELETE("/modules/:id", myControllers.deleteModule)
 
-
-	a.GET("classes", myControllers.GetClasses)
-	a.GET("classes/:id", myControllers.GetClass)
-	a.GET("classes/:id/sessions", myControllers.GetClassSessionsFromId)
-	a.POST("classes/:id/sessions", myControllers.CreateClassSessions)
+	a.GET("classes", myClasses.List)
+	a.GET("classes/:id", myClasses.Item)
+	// a.GET("classes/:id/sessions", mySessions.ListByClassId)
+	// a.POST("classes/:id/sessions", myControllers.CreateClassSessions)
 	// e.GET("/classes/:id/students", myControllers.GetClassIdStudents)
 	// e.PUT("/classes/:id", updateClass)
 	// e.DELETE("/classes/:id", deleteClass)
 
-	a.GET("sessions/:id/tutors/:tid/students/:sid", myControllers.GetSessionTutorsFromIdTidSid)
-	a.GET("sessions/:id/tutors/:tid", myControllers.GetSessionTutorsFromIdTid)
-	a.GET("sessions", myControllers.GetSessions)
-	a.GET("sessions/:id", myControllers.GetSession)
+	a.GET("sessions/:id/tutors/:tid/students/:sid", mySessions.ItemTutorStudents)
+	a.GET("sessions/:id/tutors/:tid", mySessions.ItemTutor)
+	a.GET("sessions", mySessions.List)
+	a.GET("sessions/:id", mySessions.Item)
 
-	a.GET("branches", myControllers.GetBranches)
-	a.GET("branches/:id", myControllers.GetBranch)
+	a.GET("branches", myBranches.List)
+	a.GET("branches/:id", myBranches.Item)
 	// e.PUT("/branches/:id", updateBranch)
 	// e.DELETE("/branches/:id", deleteBranch)
-	//
-	a.GET("students", myControllers.GetUsers)
-	a.GET("students/:id", myControllers.GetUser)
+
+	a.GET("users", myUsers.List)
+	a.GET("users/:id", myUsers.Item)
+
+	a.GET("tutors", myUsers.List)
+	a.GET("tutors/:id", myUsers.Item)
+
+	a.GET("students", myUsers.List)
+	a.GET("students/:id", myUsers.Item)
 	// e.PUT("/users/students/:id", updateStudent)
 	// e.DELETE("/users/students/:id", deleteStudent)
 

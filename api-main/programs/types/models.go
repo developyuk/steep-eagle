@@ -1,31 +1,32 @@
-package models
+package types
 
 import (
+	myShared "../../shared"
 	"log"
 )
 
 type ProgramType struct {
-	Hal
+	myShared.Hal
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-func GetProgramTypes() []ProgramType {
-	db := Connect()
+func ListData() []ProgramType {
+	db := myShared.Connect()
 
 	var data []ProgramType
-	err := db.Select(&data, "SELECT id,name FROM program_types")
+	err := db.Select(&data, "SELECT id, name FROM program_types")
 	if err != nil {
 		log.Fatal(err)
 	}
 	return data
 }
 
-func GetProgramType(id string) ProgramType {
-	db := Connect()
+func ItemData(id string) ProgramType {
+	db := myShared.Connect()
 
 	var data ProgramType
-	err := db.Get(&data, `SELECT id,name
+	err := db.Get(&data, `SELECT id, name
     FROM program_types
     WHERE id = $1`, id)
 
@@ -36,8 +37,8 @@ func GetProgramType(id string) ProgramType {
 	return data
 }
 
-func CreateProgramType(name string) Response {
-	db := Connect()
+func CreateProgramType(name string) myShared.Response {
+	db := myShared.Connect()
 
 	db.MustExec(`INSERT INTO program_types(name)
 		VALUES ($1)`, name)
@@ -45,5 +46,5 @@ func CreateProgramType(name string) Response {
 	// 	log.Fatal(err)
 	// }
 
-	return Response{Message: ""}
+	return myShared.Response{Message: ""}
 }
