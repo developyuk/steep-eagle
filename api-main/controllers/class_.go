@@ -53,7 +53,7 @@ func GenerateLinks(db *sqlx.DB, data myModels.Class_) ClassLinks {
 }
 
 func GetClassSessionsFromId(c echo.Context) error {
-	db, _ := myModels.Connect()
+	db := myModels.Connect()
 	id, _ := strconv.Atoi(c.Param("id"))
 	data := GetClassSessions(db, id)
 	response := myModels.Hal{

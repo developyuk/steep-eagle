@@ -11,10 +11,10 @@ type ProgramType struct {
 }
 
 func GetProgramTypes() []ProgramType {
-	db, err := Connect()
+	db := Connect()
 
 	var data []ProgramType
-	err = db.Select(&data, "SELECT id,name FROM program_types")
+	err := db.Select(&data, "SELECT id,name FROM program_types")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,10 +22,10 @@ func GetProgramTypes() []ProgramType {
 }
 
 func GetProgramType(id string) ProgramType {
-	db, err := Connect()
+	db := Connect()
 
 	var data ProgramType
-	err = db.Get(&data, `SELECT id,name
+	err := db.Get(&data, `SELECT id,name
     FROM program_types
     WHERE id = $1`, id)
 
@@ -37,13 +37,13 @@ func GetProgramType(id string) ProgramType {
 }
 
 func CreateProgramType(name string) Response {
-	db, err := Connect()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := Connect()
 
 	db.MustExec(`INSERT INTO program_types(name)
 		VALUES ($1)`, name)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	return Response{Message: ""}
 }

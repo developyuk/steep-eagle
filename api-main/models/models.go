@@ -40,10 +40,10 @@ type UserLoginRequest struct {
 	Pwd   string `json:"pwd" xml:"pwd" form:"pwd" query:"email"`
 }
 
-func Connect() (*sqlx.DB, error) {
+func Connect() (*sqlx.DB) {
 	db, err := sqlx.Connect("postgres", OPERATION_CONN)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return db, err
+	return db
 }

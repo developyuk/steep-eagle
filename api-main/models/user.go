@@ -20,10 +20,10 @@ type User struct {
 }
 
 func GetUsers() ([]User, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data []User
-	err = db.Select(&data, `SELECT id, name, first_name,
+	err := db.Select(&data, `SELECT id, name, first_name,
     last_name, email, photo, role
     FROM users`)
 	if err != nil {
@@ -34,10 +34,10 @@ func GetUsers() ([]User, *sqlx.DB) {
 }
 
 func GetUser(id string) (User, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data User
-	err = db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
+	err := db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
      photo, role
     FROM users
     WHERE id = $1`, id)
@@ -49,10 +49,10 @@ func GetUser(id string) (User, *sqlx.DB) {
 }
 
 func GetUserEmailPwd(param *UserLoginRequest) (User, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data User
-	err = db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
+	err := db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
      photo, role
     FROM users
     WHERE email = $1 AND pwd = $2`, param.Email, param.Pwd)

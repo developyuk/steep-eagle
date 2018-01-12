@@ -88,10 +88,10 @@ WHERE tutor_id IS NOT NULL AND cs.student_id = $3`, id, tid, sid)
 	return data
 }
 func GetSessions() ([]Session, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data []Session
-	err = db.Select(&data, `SELECT id, created_at, class_id
+	err := db.Select(&data, `SELECT id, created_at, class_id
     FROM sessions`)
 	if err != nil {
 		log.Fatal(err)
@@ -100,10 +100,10 @@ func GetSessions() ([]Session, *sqlx.DB) {
 	return data, db
 }
 func GetSession(id string) (Session, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data Session
-	err = db.Get(&data, `SELECT id, created_at, class_id
+	err := db.Get(&data, `SELECT id, created_at, class_id
     FROM sessions
     WHERE id = $1`, id)
 	if err != nil {
@@ -113,10 +113,10 @@ func GetSession(id string) (Session, *sqlx.DB) {
 	return data, db
 }
 func CreateSessionClass(id string) Response {
-	db, err := Connect()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := Connect()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	var lastInsertId int64
 	db.QueryRowx(`INSERT INTO sessions(class_id)
   		VALUES ($1) RETURNING id`, id).Scan(&lastInsertId)

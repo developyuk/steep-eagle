@@ -45,7 +45,7 @@ func GetSessionFromId(db *sqlx.DB, id int) []int {
 }
 
 func GetClasses(params map[string]interface{}) ([]Class_, *sqlx.DB) {
-	db, _ := Connect()
+	db := Connect()
 
 	var data []Class_
 	sql := []string{`SELECT id, name, image, day, time,
@@ -67,7 +67,7 @@ func GetClasses(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 }
 
 func GetClass(id string) (Class_, *sqlx.DB) {
-	db, _ := Connect()
+	db := Connect()
 
 	var data Class_
 	_ = db.Get(&data, `SELECT id, name, image, day, time, module_id, branch_id
@@ -78,7 +78,7 @@ func GetClass(id string) (Class_, *sqlx.DB) {
 }
 
 // func GetClassIdStudents(id string) []Href {
-// 	db, _ := Connect()
+// 	db := Connect()
 // 	i, _ := strconv.ParseInt(id, 0, 0)
 // 	return GetStudentFromId(db, int(i))
 // }

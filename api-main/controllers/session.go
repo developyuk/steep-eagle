@@ -131,7 +131,7 @@ func GetSession(c echo.Context) error {
 }
 
 func GetSessionTutorsFromIdTid(c echo.Context) error {
-	db, _ := myModels.Connect()
+	db := myModels.Connect()
 	id, _ := strconv.Atoi(c.Param("id"))
 	tid, _ := strconv.Atoi(c.Param("tid"))
 	data := GetSessionStudentsEmbedded(db, id, tid)
@@ -152,7 +152,7 @@ func GetSessionTutorsFromIdTid(c echo.Context) error {
 }
 
 func GetSessionTutorsFromIdTidSid(c echo.Context) error {
-	db, _ := myModels.Connect()
+	db := myModels.Connect()
 	id, _ := strconv.Atoi(c.Param("id"))
 	tid, _ := strconv.Atoi(c.Param("tid"))
 	sid, _ := strconv.Atoi(c.Param("sid"))

@@ -27,10 +27,10 @@ func GetModulesFromId(db *sqlx.DB, id int) []int {
 }
 
 func GetPrograms() ([]Program, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data []Program
-	err = db.Select(&data, `SELECT id,name,type_id
+	err := db.Select(&data, `SELECT id,name,type_id
     FROM programs`)
 	if err != nil {
 		log.Fatal(err)
@@ -40,10 +40,10 @@ func GetPrograms() ([]Program, *sqlx.DB) {
 }
 
 func GetProgram(id string) (Program, *sqlx.DB) {
-	db, err := Connect()
+	db := Connect()
 
 	var data Program
-	err = db.Get(&data, `SELECT id,name,type_id
+	err := db.Get(&data, `SELECT id,name,type_id
 	  FROM programs
 	  WHERE id = $1`, id)
 	if err != nil {
