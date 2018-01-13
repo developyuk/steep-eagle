@@ -1,23 +1,24 @@
 <template>
-  <div id="app">
-    <header>
-      <span>Vue.js PWA</span>
-    </header>
-    <main>
-      <img src="./assets/logo.png" alt="Vue.js PWA">
-      <router-view></router-view>
-    </main>
-  </div>
+<div id="app">
+  <router-view></router-view>
+</div>
 </template>
 
 <script>
+import axios from 'axios'
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 export default {
   name: 'app'
 }
 </script>
 
-<style>
-body {
+<style lang="scss">
+$roboto-font-path: "~materialize-css/dist/fonts/roboto/";
+@import "~materialize-css/sass/components/color";
+$primary-color: color("grey", "base");
+$secondary-color: color("grey", "lighten-1");
+@import "~materialize-css/sass/materialize.scss";
+/* body {
   margin: 0;
 }
 
@@ -50,5 +51,5 @@ header span {
   font-weight: 400;
   box-sizing: border-box;
   padding-top: 16px;
-}
+} */
 </style>
