@@ -3,6 +3,7 @@ package users
 import (
 	// "fmt"
 	// "github.com/jmoiron/sqlx"
+	myShared "../shared"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"net/http"
@@ -29,12 +30,14 @@ func Sign(c echo.Context) error {
 
 		// Set claims
 		claims := token.Claims.(jwt.MapClaims)
-		claims["name"] = item.Email
+		claims["id"] = item.Id
+		// claims["name"] = item.Email
 		claims["role"] = item.Role
+		// claims["photo"] = item.Photo
 		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("2ZPFtPJ5@kDe8m2ud%@eaH?ERaEw?c3"))
+		t, err := token.SignedString([]byte(myShared.JwtKey))
 		if err != nil {
 			return err
 		}
@@ -48,10 +51,14 @@ func Sign(c echo.Context) error {
 func Auth(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
+	id := claims["id"].(float64)
+	// name := claims["name"].(string)
 	role := claims["role"].(string)
+	// photo := claims["photo"].(string)
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"name": name,
+		"id":   id,
+		// "name": name,
 		"role": role,
+		// "photo": photo,
 	})
 }

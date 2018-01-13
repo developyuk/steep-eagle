@@ -91,6 +91,12 @@ VALUES
   ),
   (
     '', 2, 1, 'wednesday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+  ),
+  (
+    '', 3, 1, 'saturday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+  ),
+  (
+    '', 1, 2, 'saturday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   );
 CREATE TYPE roles AS ENUM (
   'operation', 'tutor', 'student', 'parent',

@@ -15,7 +15,16 @@ const (
 )
 
 func Connect() *sqlx.DB {
-	db, err := sqlx.Connect("postgres", OPERATION_CONN)
+	log.Println(currentAuth)
+	var conn string
+
+	switch currentAuth.Role {
+	case "tutor":
+		conn = TUTOR_CONN
+	default:
+		conn = OPERATION_CONN
+	}
+	db, err := sqlx.Connect("postgres", conn)
 	if err != nil {
 		log.Fatal(err)
 	}

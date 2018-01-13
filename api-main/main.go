@@ -7,17 +7,14 @@ import (
 	"github.com/labstack/echo/middleware"
 	// "github.com/dgrijalva/jwt-go"
 
+	myBranches "./branches"
 	myClasses "./classes"
 	myModules "./modules"
 	myPrograms "./programs"
 	myProgramsTypes "./programs/types"
-	myUsers "./users"
-	myBranches "./branches"
 	mySessions "./sessions"
-)
-
-const (
-	jwtKey = "2ZPFtPJ5@kDe8m2ud%@eaH?ERaEw?c3"
+	myShared "./shared"
+	myUsers "./users"
 )
 
 func main() {
@@ -37,7 +34,9 @@ func main() {
 	// e.Use(middleware.JWT([]byte(jwtKey)))
 
 	a := e.Group("/")
-	// a.Use(middleware.JWT([]byte(jwtKey)))
+	a.Use(middleware.JWT([]byte(myShared.JwtKey)))
+	a.Use(myShared.GetAuthMiddleware)
+
 	a.GET("auth", myUsers.Auth)
 
 	a.GET("programs/types", myProgramsTypes.List)
@@ -58,8 +57,8 @@ func main() {
 
 	a.GET("classes", myClasses.List)
 	a.GET("classes/:id", myClasses.Item)
-	// a.GET("classes/:id/sessions", mySessions.ListByClassId)
-	// a.POST("classes/:id/sessions", myControllers.CreateClassSessions)
+	a.GET("classes/:id/sessions", mySessions.ListByClassId)
+	a.POST("classes/:id/sessions", mySessions.CreateByClassId)
 	// e.GET("/classes/:id/students", myControllers.GetClassIdStudents)
 	// e.PUT("/classes/:id", updateClass)
 	// e.DELETE("/classes/:id", deleteClass)

@@ -11,3 +11,7 @@ const (
 	PathSessions      string = "/sessions"
 	PathBranches      string = "/branches"
 )
+
+const (
+	JwtKey = "2ZPFtPJ5@kDe8m2ud%@eaH?ERaEw?c3"
+)

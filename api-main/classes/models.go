@@ -61,6 +61,7 @@ func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 		}
 	}
 
+	// log.Println(strings.Join(sql, " "), params)
 	stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
 	_ = stmt.Select(&data, params)
 

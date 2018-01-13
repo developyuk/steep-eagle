@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"gopkg.in/guregu/null.v3"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -100,18 +101,28 @@ WHERE tutor_id IS NOT NULL AND cs.student_id = $3`, id, tid, sid)
 
 	return data
 }
-func ListData() ([]Session, *sqlx.DB) {
+func ListData(params map[string]interface{}) ([]Session, *sqlx.DB) {
 	db := myShared.Connect()
 
 	var data []Session
-	err := db.Select(&data, `SELECT id, created_at, class_id
-    FROM sessions`)
+	sql := []string{`SELECT id, created_at, class_id
+    FROM sessions`}
+	if len(params) > 0 {
+		sql = append(sql, "WHERE")
+
+		if _, ok := params["class_id"]; ok {
+			sql = append(sql, "class_id = :class_id")
+		}
+	}
+	stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
+	err := stmt.Select(&data, params)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return data, db
 }
+
 func ItemData(id string) (Session, *sqlx.DB) {
 	db := myShared.Connect()
 
@@ -125,7 +136,7 @@ func ItemData(id string) (Session, *sqlx.DB) {
 
 	return data, db
 }
-func CreateSessionClass(id string) myShared.Response {
+func CreateByClassIdData(id string) myShared.Response {
 	db := myShared.Connect()
 	var lastInsertId int64
 	db.QueryRowx(`INSERT INTO sessions(class_id)

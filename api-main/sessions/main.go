@@ -20,7 +20,7 @@ type SessionLinks struct {
 // }
 type SessionTutorLinks struct {
 	myShared.LinksSelf
-	Tutor    myShared.Href   `json:"tutor"`
+	Tutor myShared.Href `json:"tutor"`
 	// Students []myShared.Href `json:"students,omitempty"`
 }
 
@@ -89,9 +89,8 @@ func itemLinks(v Session) SessionLinks {
 		// Students:  itemLinksStudents(v.Id),
 	}
 }
-
-func List(c echo.Context) error {
-	list, db = ListData()
+func listParams(params map[string]interface{}) []Session {
+	list, db = ListData(params)
 
 	for i, v := range list {
 		list[i].Links = itemLinks(v)
@@ -100,8 +99,27 @@ func List(c echo.Context) error {
 		// }
 	}
 
+	return list
+}
+func List(c echo.Context) error {
+	list := listParams(map[string]interface{}{})
 	response := myShared.Hal{
 		Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathSessions}},
+		Embedded: list,
+		Count:    len(list),
+		Total:    len(list),
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+func ListByClassId(c echo.Context) error {
+	cid := c.Param("id")
+	params := map[string]interface{}{
+		"class_id": cid,
+	}
+	list := listParams(params)
+	response := myShared.Hal{
+		Links:    myShared.LinksSelf{Self: myShared.Href{Href: fmt.Sprintf("%v/%v%v", myShared.PathClasses, cid, myShared.PathSessions)}},
 		Embedded: list,
 		Count:    len(list),
 		Total:    len(list),
@@ -167,7 +185,7 @@ func ItemTutor(c echo.Context) error {
 
 func ItemTutorStudents(c echo.Context) error {
 	db := myShared.Connect()
-	id:= c.Param("id")
+	id := c.Param("id")
 	tid := c.Param("tid")
 	sid := c.Param("sid")
 	response := getTutorStudentByIdTidSid(db, id, tid, sid)
@@ -176,8 +194,8 @@ func ItemTutorStudents(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func CreateClassSessions(c echo.Context) error {
+func CreateByClassId(c echo.Context) error {
 	id := c.Param("id")
-	response := CreateSessionClass(id)
+	response := CreateByClassIdData(id)
 	return c.JSON(http.StatusOK, response)
 }
