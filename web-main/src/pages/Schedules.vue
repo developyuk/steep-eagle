@@ -65,6 +65,7 @@ export default {
         .then(response => {
           this.classes = response.data._embedded;
           this.classes.forEach((v, i, a) => {
+            a[i]['branch'] = {'name':''}
             axios.get(`${process.env.API}${v._links.branch.href}`)
               .then(response => this.$set(a[i], 'branch', response.data))
               .catch(error => console.log(error))
@@ -134,7 +135,8 @@ main {
         }
     }
     .btn-floating.halfway-fab {
-        bottom: 2.5rem;
+        bottom: 0.5rem;
+        right: 0.5rem;
     }
     .card-content {
         padding: 1rem;
