@@ -132,7 +132,7 @@ VALUES
     'parent', 'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
   ),
   (
-    'user7', '', 'asdqwe', 'operation',
+    'user7', 'user7@ex.com', 'asdqwe', 'operation',
     'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
   ),
   (

@@ -9,17 +9,13 @@ require('normalize.css/normalize.css')
 import axios from 'axios'
 
 router.beforeEach((to, from, next) => {
-  // ...
-
   axios.get(`${process.env.API}/auth`)
     .then(response => {
-      console.log(response.data);
-      // console.log(isLogin, to.path,from.path, !isLogin && to.path !== '/sign');
-
+      // console.log(response.data);
       next();
     })
     .catch(error => {
-      console.log(error.response, to.path);
+      // console.log(error.response, to.path);
       if (to.path !== '/sign') {
         next({
           path: '/sign',
@@ -30,7 +26,6 @@ router.beforeEach((to, from, next) => {
       }
       next();
     })
-
 })
 window.$ = window.jQuery = require('jquery')
 require('materialize-css/dist/js/materialize.min.js')

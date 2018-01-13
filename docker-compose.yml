@@ -1,21 +1,21 @@
 version:          '2'
 services:
   web-main:
-    build:      ./web-main
+    build:        ./web-main
     volumes:
        - ./web-main:/project/app
-    working_dir: /project/app
+    working_dir:  /project/app
     ports:
       - "81:8080"
-    command:    ["npm", "run", "dev"]
-  # web-op:
-  #   build:      ./web-main
-  #   volumes:
-  #      - /d/steep-eagle/web-op:/project/app
-  #   working_dir: /project/app
-  #   ports:
-  #     - "82:8080"
-  #   command:    npm run dev
+    command:      ["npm", "run", "dev"]
+  web-operation:
+    build:        ./web-main
+    volumes:
+       - ./web-operation:/project/app
+    working_dir:  /project/app
+    ports:
+      - "82:8080"
+    command:      ["npm", "run", "dev"]
   # web-partner:
   #   build:      ./web-main
   #   volumes:
@@ -39,7 +39,7 @@ services:
     expose:
       - "5432"
   # pgadmin4:
-  #   image:        fenglc/pgadmin4
+  #   image:      fenglc/pgadmin4
   #   ports:
   #     - "5050:5050"
   #   links:
