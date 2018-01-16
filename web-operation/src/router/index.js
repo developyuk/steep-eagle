@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 // import Hello from '@/components/Hello'
-import Classes from '@/pages/Classes'
+import Dashboard from '@/pages/Dashboard'
 import Sign from '@/pages/Sign'
 import ComingSoon from '@/components/ComingSoon'
 
@@ -17,7 +17,35 @@ export default new Router({
 
     {
       path: '/',
-      component: Classes
+      component: Dashboard
+    },
+    {
+      path: '/schedules',
+      component: ComingSoon
+    },
+    {
+      path: '/activities',
+      component: ComingSoon
+    },
+    {
+      path: '/modules',
+      component: ComingSoon
+    },
+    {
+      path: '/branches',
+      component: ComingSoon
+    },
+    {
+      path: '/classes',
+      component: ComingSoon
+    },
+    {
+      path: '/students',
+      component: ComingSoon
+    },
+    {
+      path: '/tutors',
+      component: ComingSoon
     },
     {
       path: '/Sign',

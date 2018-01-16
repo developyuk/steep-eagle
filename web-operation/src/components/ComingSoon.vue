@@ -1,12 +1,16 @@
-<template>
-<section>
-  <h3>coming soon</h3>
-</section>
+<template lang="pug">
+section
+	nav-side
+	h3 coming soon
 </template>
 
 <script>
+import NavSide from '@/components/NavSide'
 export default {
   name: 'coming-soon',
+  components: {
+    'nav-side': NavSide
+  },
   data() {
     return {
       msg: 'Welcome to Your Vue.js PWA'

@@ -12,10 +12,12 @@ RUN set -ex \
 RUN set -ex \
   && npm install \
     node-sass sass-loader \
+    pug pug-loader \
     normalize.css \
+    sass-bem \
     jquery \
     materialize-css \
-    sass-bem \
+    material-components-web \
     --save-dev
 
 RUN set -ex \
