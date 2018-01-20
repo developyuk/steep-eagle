@@ -6,7 +6,6 @@ import router from "./router";
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
-require("material-components-web/dist/material-components-web.min.css");
 import axios from "axios";
 
 router.beforeEach((to, from, next) => {
@@ -30,8 +29,7 @@ router.beforeEach((to, from, next) => {
     });
 });
 window.$ = window.jQuery = require("jquery");
-// require('materialize-css/dist/js/materialize.min.js')
-require("material-components-web/dist/material-components-web.js");
+require("materialize-css/dist/js/materialize.min.js");
 
 /* eslint-disable no-new */
 new Vue({

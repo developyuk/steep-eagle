@@ -19,8 +19,3 @@ RUN set -ex \
     materialize-css \
     material-components-web \
     --save-dev
-
-RUN set -ex \
-  && npm install \
-    axios \
-    --save
