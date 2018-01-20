@@ -22,7 +22,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://192.168.99.100:81", "http://192.168.99.100:82", "http://localhost:81", "http://localhost:82"},
+		AllowOrigins: []string{"http://localhost", "http://localhost:81", "http://localhost:82", "http://35.187.234.36","http://35.187.234.36:81","http://35.187.234.36:82"},
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 

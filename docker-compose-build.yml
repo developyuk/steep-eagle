@@ -5,21 +5,17 @@ services:
     volumes:
        - ./web-main:/project/app
     working_dir:  /project/app
-    ports:
-      - "81:8080"
     depends_on:
       - api-main
-    command:      ["npm", "run", "dev"]
+    command:      ["npm", "run", "build"]
   web-operation:
     build:        ./web-main
     volumes:
        - ./web-operation:/project/app
     working_dir:  /project/app
-    ports:
-      - "82:8080"
     depends_on:
       - api-main
-    command:      ["npm", "run", "dev"]
+    command:      ["npm", "run", "build"]
   # web-partner:
   #   build:      ./web-main
   #   volumes:
@@ -27,7 +23,7 @@ services:
   #   working_dir: /project/app
   #   ports:
   #     - "83:8080"
-  #   command:    ["npm", "run", "dev"]
+  #   command:    ["npm", "run", "build"]
   api-main:
     build:        ./api-main
     volumes:
@@ -35,15 +31,26 @@ services:
     working_dir:  /project
     expose:
       - "3000"
-    ports:
-     - "84:3000"
+    restart: unless-stopped
     depends_on:
       - db-main
-    command:      gin run
+    command: bash -c "go build main.go && ./main"
+    restart: unless-stopped
   db-main:
     build:        ./db-main
     expose:
       - "5432"
+  web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    ports:
+      - "80:80"
+      - "81:81"
+      - "82:82"
+    depends_on:
+      - web-main
+      - web-operation
   # pgadmin4:
   #   image:      fenglc/pgadmin4
   #   ports:
