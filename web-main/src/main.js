@@ -8,6 +8,7 @@ Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
 import axios from "axios";
 
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 router.beforeEach((to, from, next) => {
   axios
     .get(`${process.env.API}/auth`)
