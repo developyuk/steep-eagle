@@ -14,7 +14,7 @@
         <li class="collection-item">
           <router-link :to="'/how-to-use'">How to use</router-link>
         </li>
-        <li class="collection-item"><a @click.prevent="signout">Sign out</a></li>
+        <li class="collection-item"><a :href="'#'" @click.prevent="signout">Sign out</a></li>
       </ul>
     </div>
   </main>
