@@ -1,3 +1,6 @@
+.idea
+.env
+
 gin-bin
 /*.old*
 api-main/main
