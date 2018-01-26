@@ -32,6 +32,8 @@ services:
     expose:
       - "3000"
     restart: unless-stopped
+    environment:
+      - JWT_KEY=${JWT_KEY}
     depends_on:
       - db-main
     command: bash -c "go build main.go && ./main"

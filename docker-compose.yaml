@@ -37,6 +37,8 @@ services:
       - "3000"
     ports:
      - "84:3000"
+    environment:
+      - JWT_KEY=${JWT_KEY}
     depends_on:
       - db-main
     command:      gin run

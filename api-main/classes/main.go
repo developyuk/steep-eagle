@@ -1,89 +1,91 @@
 package classes
 
 import (
-	myShared "../shared"
-	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/labstack/echo"
-	"net/http"
-	"strings"
-	"time"
+  myShared "../shared"
+  "fmt"
+  "github.com/jmoiron/sqlx"
+  "github.com/labstack/echo"
+  "net/http"
+  "strings"
+  "time"
 )
 
 type ClassLinks struct {
-	myShared.LinksSelf
-	Module   myShared.Href   `json:"module"`
-	Branch   myShared.Href   `json:"branch"`
-	Students []myShared.Href `json:"students,omitempty"`
-	Sessions []myShared.Href `json:"sessions,omitempty"`
+  myShared.LinksSelf
+  Module   myShared.Href   `json:"module"`
+  Branch   myShared.Href   `json:"branch"`
+  Students []myShared.Href `json:"students,omitempty"`
+  Sessions []myShared.Href `json:"sessions,omitempty"`
 }
 
 var (
-	db   *sqlx.DB
-	data []Class_
-	item Class_
+  db   *sqlx.DB
+  data []Class_
+  item Class_
 )
 
 func itemSessionsHref(db *sqlx.DB, id int) []myShared.Href {
-	sessions := getSessionsById(db, id)
-	var data []myShared.Href
-	for _, v := range sessions {
-		data = append(data, myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathSessions, v)))
-	}
+  sessions := getSessionsById(db, id)
+  var data []myShared.Href
+  for _, v := range sessions {
+    data = append(data, myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathSessions, v)))
+  }
 
-	return data
+  return data
 }
 func itemStudentsHref(id int) []myShared.Href {
-	students := getStudentsById(db, id)
-	var data []myShared.Href
-	for _, v := range students {
-		data = append(data, myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathStudents, v)))
-	}
+  students := getStudentsById(db, id)
+  var data []myShared.Href
+  for _, v := range students {
+    data = append(data, myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathStudents, v)))
+  }
 
-	return data
+  return data
 }
 
 func itemLinks(data Class_) ClassLinks {
-	return ClassLinks{
-		LinksSelf: myShared.LinksSelf{Self: myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathClasses, data.Id))},
-		Module:    myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathModules, data.ModuleId)),
-		Branch:    myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathBranches, data.BranchId)),
-		Students:  itemStudentsHref(data.Id),
-		Sessions:  itemSessionsHref(db, data.Id),
-	}
+  return ClassLinks{
+    LinksSelf: myShared.LinksSelf{Self: myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathClasses, data.Id))},
+    Module:    myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathModules, data.ModuleId)),
+    Branch:    myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathBranches, data.BranchId)),
+    Students:  itemStudentsHref(data.Id),
+    Sessions:  itemSessionsHref(db, data.Id),
+  }
 }
 
 func List(c echo.Context) error {
-	params := make(map[string]interface{})
+  params := make(map[string]interface{})
 
-	day := c.QueryParam("day")
-	// fmt.Printf("%#v", day)
-	if day != "" {
-		if day == "today" {
-			params["day"] = strings.ToLower(time.Now().Weekday().String())
-		}
-	}
-	data, db = ListData(params)
+  day := c.QueryParam("day")
+  // fmt.Printf("%#v", day)
+  if day != "" {
+    if day == "today" {
+      loc, _ := time.LoadLocation(myShared.TimeZone)
+      params["day"] = strings.ToLower(time.Now().In(loc).Weekday().String())
+      fmt.Println(params)
+    }
+  }
+  data, db = ListData(params)
 
-	for i, v := range data {
-		data[i].Links = itemLinks(v)
-	}
+  for i, v := range data {
+    data[i].Links = itemLinks(v)
+  }
 
-	response := myShared.Hal{
-		Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
-		Embedded: data,
-		Count:    len(data),
-		Total:    len(data),
-	}
-	return c.JSON(http.StatusOK, response)
+  response := myShared.Hal{
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
+    Embedded: data,
+    Count:    len(data),
+    Total:    len(data),
+  }
+  return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
-	// User ID from path `users/:id`
-	// var data Program = GetProgramTypesData(c.Param("id"))
-	item, db = ItemData(c.Param("id"))
-	item.Links = itemLinks(item)
-	return c.JSON(http.StatusOK, item)
+  // User ID from path `users/:id`
+  // var data Program = GetProgramTypesData(c.Param("id"))
+  item, db = ItemData(c.Param("id"))
+  item.Links = itemLinks(item)
+  return c.JSON(http.StatusOK, item)
 }
 
 // func UpdateClass(c echo.Context) error {
