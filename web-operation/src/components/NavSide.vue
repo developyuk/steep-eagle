@@ -13,34 +13,34 @@
 			router-link(to="/activities")
 				i.material-icons assignment
 				span Activities
-		li
-			i.material-icons assignment
-			span Data Space
-			ul
-				li
-					router-link(to="/branches")
-						i.material-icons assignment
-						span Branches
-				li
-					router-link(to="/modules")
-						i.material-icons assignment
-						span Modules
-				li
-					router-link(to="/classes")
-						i.material-icons assignment
-						span Classes
-		li
-			i.material-icons assignment
-			span User Space
-			ul
-				li
-					router-link(to="/students")
-						i.material-icons assignment
-						span Students
-				li
-					router-link(to="/tutors")
-						i.material-icons assignment
-						span Tutors
+		<!--li-->
+			<!--i.material-icons assignment-->
+			<!--span Data Space-->
+			<!--ul-->
+				<!--li-->
+					<!--router-link(to="/branches")-->
+						<!--i.material-icons assignment-->
+						<!--span Branches-->
+				<!--li-->
+					<!--router-link(to="/modules")-->
+						<!--i.material-icons assignment-->
+						<!--span Modules-->
+				<!--li-->
+					<!--router-link(to="/classes")-->
+						<!--i.material-icons assignment-->
+						<!--span Classes-->
+		<!--li-->
+			<!--i.material-icons assignment-->
+			<!--span User Space-->
+			<!--ul-->
+				<!--li-->
+					<!--router-link(to="/students")-->
+						<!--i.material-icons assignment-->
+						<!--span Students-->
+				<!--li-->
+					<!--router-link(to="/tutors")-->
+						<!--i.material-icons assignment-->
+						<!--span Tutors-->
 </template>
 
 <script>

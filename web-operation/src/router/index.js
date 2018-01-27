@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 // import Hello from '@/components/Hello'
 import Dashboard from '@/pages/Dashboard'
+import Schedules from '@/pages/Schedules'
 import Sign from '@/pages/Sign'
 import ComingSoon from '@/components/ComingSoon'
 
@@ -21,7 +22,7 @@ export default new Router({
     },
     {
       path: '/schedules',
-      component: ComingSoon
+      component: Schedules
     },
     {
       path: '/activities',

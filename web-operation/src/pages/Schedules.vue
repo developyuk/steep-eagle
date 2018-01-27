@@ -4,7 +4,7 @@
       nav-side
     section.col.s10
       header-menu
-      section: h1 Dashboard
+      section: h1 Schedules
 </template>
 
 <script>
@@ -12,7 +12,7 @@
   import Header from '@/components/Header'
 
   export default {
-    name: 'dashboard',
+    name: 'schedules',
     components: {
       'nav-side': NavSide,
       'header-menu': Header
