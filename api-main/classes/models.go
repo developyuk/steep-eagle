@@ -51,19 +51,29 @@ func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 	var data []Class_
 	sql := []string{`SELECT id, name, image, day, time,
       module_id, branch_id
-    FROM classes`}
+	  FROM (
+      SELECT g.series, to_char(g.series,'FMday') dow
+      FROM (
+	      SELECT GENERATE_SERIES(
+          NOW() AT TIME ZONE 'Asia/Jakarta', NOW() AT TIME ZONE 'Asia/Jakarta'+'6 DAYS','1 DAY'
+        )
+	    ) g(series)
+	  ) a
+    JOIN classes c ON c.day = a.dow
+    ORDER BY a.series ASC`}
 
-	if len(params) > 0 {
-		sql = append(sql, "WHERE")
-
-		if _, ok := params["day"]; ok {
-			sql = append(sql, "day = :day")
-		}
-	}
+	//if len(params) > 0 {
+	//	sql = append(sql, "WHERE")
+	//
+	//	if _, ok := params["day"]; ok {
+	//		sql = append(sql, "day = :day")
+	//	}
+	//}
 
 	// log.Println(strings.Join(sql, " "), params)
-	stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
-	_ = stmt.Select(&data, params)
+	//stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
+	//_ = stmt.Select(&data, params)
+	_ = db.Select(&data,strings.Join(sql, " "))
 
 	return data, db
 }

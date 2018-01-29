@@ -57,19 +57,16 @@ VALUES
     'branch2', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
     ''
   );
-CREATE TYPE days AS ENUM (
-  'monday', 'tuesday', 'wednesday',
-  'thursday', 'friday', 'saturday',
-  'sunday'
-);
 CREATE TABLE classes (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
   image TEXT,
-  day days NOT NULL,
+  day TEXT NOT NULL,
   time TEXT NOT NULL,
   module_id BIGSERIAL REFERENCES program_modules (id),
   branch_id BIGSERIAL REFERENCES branches (id)
+
+ CHECK (day IN ( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ))
 );
 INSERT INTO classes (
   name, module_id, branch_id, day, time,
