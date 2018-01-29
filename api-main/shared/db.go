@@ -15,10 +15,10 @@ const (
 )
 
 func Connect() *sqlx.DB {
-	log.Println(currentAuth)
+	log.Println(CurrentAuth)
 	var conn string
 
-	switch currentAuth.Role {
+	switch CurrentAuth.Role {
 	case "tutor":
 		conn = TUTOR_CONN
 	default:

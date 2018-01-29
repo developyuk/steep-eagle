@@ -1,6 +1,6 @@
 CREATE TABLE sessions (
   id BIGSERIAL PRIMARY KEY NOT NULL,
-  created_at timestamp DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   class_id BIGSERIAL REFERENCES classes (id)
 );
 INSERT INTO sessions (class_id)

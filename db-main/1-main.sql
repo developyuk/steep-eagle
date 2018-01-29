@@ -1,5 +1,6 @@
 CREATE TABLE program_types (
-  id BIGSERIAL PRIMARY KEY NOT NULL, name TEXT NOT NULL
+  id BIGSERIAL PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL
 );
 INSERT INTO program_types (name)
 VALUES
@@ -22,8 +23,10 @@ VALUES
   ('program5', 5),
   ('program3', 2);
 CREATE TABLE modules (
-  id BIGSERIAL PRIMARY KEY NOT NULL, name TEXT NOT NULL,
-  image TEXT, session_total SMALLSERIAL
+  id BIGSERIAL PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  image TEXT,
+  session_total SMALLSERIAL
 );
 INSERT INTO modules (name, image, session_total)
 VALUES
@@ -47,8 +50,10 @@ VALUES
   (1, 2),
   (2, 2);
 CREATE TABLE branches (
-  id BIGSERIAL PRIMARY KEY NOT NULL, name TEXT NOT NULL,
-  image TEXT, address TEXT
+  id BIGSERIAL PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  image TEXT,
+  address TEXT
 );
 INSERT INTO branches (name, image, address)
 VALUES
@@ -61,12 +66,13 @@ CREATE TABLE classes (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
   image TEXT,
+
   day TEXT NOT NULL,
   time TEXT NOT NULL,
   module_id BIGSERIAL REFERENCES program_modules (id),
   branch_id BIGSERIAL REFERENCES branches (id)
 
- CHECK (day IN ( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ))
+  CHECK (day IN ( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ))
 );
 INSERT INTO classes (
   name, module_id, branch_id, day, time,
@@ -100,17 +106,23 @@ CREATE TYPE roles AS ENUM (
   'partner'
 );
 CREATE TABLE users (
-  id BIGSERIAL PRIMARY KEY NOT NULL, name TEXT NOT NULL,
-  first_name TEXT, last_name TEXT, email TEXT,
-  pwd TEXT, dob TEXT, photo TEXT, role roles NOT NULL
+  id BIGSERIAL PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT NOT NULL,
+  pwd TEXT NOT NULL,
+  dob TEXT,
+  photo TEXT,
+  role roles NOT NULL
 );
 INSERT INTO users (name, email, pwd, role, photo)
 VALUES
   (
-    'user1', '', 'asdqwe', 'student', ''
+    'user1', 'user1@ex.com', 'asdqwe', 'student', ''
   ),
   (
-    'user2', '', 'asdqwe', 'student', 'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
+    'user2', 'user2@ex.com', 'asdqwe', 'student', 'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
   ),
   (
     'user3', 'user3@ex.com', 'asdqwe',
@@ -133,7 +145,7 @@ VALUES
     'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
   ),
   (
-    'user8', '', 'asdqwe', 'operation',
+    'user8', 'user8@ex.com', 'asdqwe', 'operation',
     'https://resources.kamernet.nl/Content/images/placeholder/no-pic-user.png'
   );
 CREATE TABLE class_students (

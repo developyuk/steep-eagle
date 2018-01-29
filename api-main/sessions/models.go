@@ -138,9 +138,11 @@ func ItemData(id string) (Session, *sqlx.DB) {
 }
 func CreateByClassIdData(id string) myShared.Response {
 	db := myShared.Connect()
-	var lastInsertId int64
+	var lastSessionId int64
 	db.QueryRowx(`INSERT INTO sessions(class_id)
-  		VALUES ($1) RETURNING id`, id).Scan(&lastInsertId)
+  		VALUES ($1) RETURNING id`, id).Scan(&lastSessionId)
+  db.QueryRowx(`INSERT INTO sessions_tutors(session_id,tutor_id)
+  		VALUES ($1, $2) RETURNING id`, lastSessionId, myShared.CurrentAuth.Id)
 
-	return myShared.Response{Message: "", Id: lastInsertId}
+	return myShared.Response{Message: "", Id: lastSessionId}
 }

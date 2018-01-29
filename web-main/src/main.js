@@ -3,13 +3,13 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
+import axios from "axios";
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
-import axios from "axios";
 
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 router.beforeEach((to, from, next) => {
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
   axios
     .get(`${process.env.API}/auth`)
     .then(response => {

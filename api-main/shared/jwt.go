@@ -10,7 +10,7 @@ type Auth struct {
 	Role string
 }
 
-var currentAuth Auth
+var CurrentAuth Auth
 
 func GetAuth(c echo.Context) Auth {
 	user := c.Get("user").(*jwt.Token)
@@ -24,7 +24,7 @@ func GetAuth(c echo.Context) Auth {
 func GetAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
-		currentAuth = GetAuth(c)
+    CurrentAuth = GetAuth(c)
 		// c.Response().Header().Set(echo.HeaderServer, "Echo/3.0")
 		return next(c)
 	}
