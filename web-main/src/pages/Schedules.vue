@@ -17,10 +17,11 @@
               class="material-icons">check</i></button>
           </div>
           <div class="card-content">
-            <div class="row">
-              <div class="col s6 class__day"><i class="material-icons">date_range</i> {{v.day}}</div>
-              <div class="col s6 class__time"><i class="material-icons">schedule</i>{{v.time}}</div>
+            <div class="class__daytime">
+              <i class="material-icons">date_range</i> {{v.day}}
+              <i class="material-icons">schedule</i>{{v.time}}
             </div>
+            <div class="class__location"><i class="material-icons">place</i>{{v.branch.name}}</div>
           </div>
         </div>
       </div>
@@ -67,7 +68,7 @@
             this.classes = response.data._embedded;
 
             this.classes.forEach((v, i, a) => {
-              this.$set(a[i], 'branch', {'name':''});
+              this.$set(a[i], 'branch', {'name': ''});
               axios.get(`${process.env.API}${v._links.branch.href}`)
                 .then(response => {
                   this.$set(a[i], 'branch', response.data);
@@ -123,7 +124,7 @@
   }
 
   .class {
-    @include e(day) {
+    @include e(daytime) {
       text-transform: capitalize;
     }
   }

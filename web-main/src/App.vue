@@ -43,7 +43,7 @@ header {
     // border: thin solid color('grey', 'lighten-1');
     &,
     * {
-        max-width: 678px;
+        max-width: 480px;
     }
 }
 .modal {
