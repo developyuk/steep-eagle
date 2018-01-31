@@ -79,27 +79,27 @@ INSERT INTO classes (
   image
 )
 VALUES
-  ('', 1, 2, 'monday', '12.00', ''),
+  ('', 1, 2, 'monday', '12:00', ''),
   (
     '', 2, 1, 'thursday', '13.30', 'http://www.provideashelter.org/charity/images/group.png'
   ),
   (
-    '', 3, 1, 'friday', '9.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 3, 1, 'friday', '9:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 2, 'tuesday', '19.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 1, 2, 'tuesday', '19:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 2, 'wednesday', '8.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 1, 2, 'wednesday', '8:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 2, 1, 'wednesday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 2, 1, 'wednesday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 3, 1, 'saturday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 3, 1, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 2, 'saturday', '12.30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 1, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   );
 CREATE TYPE roles AS ENUM (
   'operation', 'tutor', 'student', 'parent',

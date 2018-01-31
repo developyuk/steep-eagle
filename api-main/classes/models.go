@@ -49,18 +49,25 @@ func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 	db := myShared.Connect()
 
 	var data []Class_
-	sql := []string{`SELECT id, name, image, day, time,
-      module_id, branch_id
-	  FROM (
-      SELECT g.series, to_char(g.series,'FMday') dow
-      FROM (
-	      SELECT GENERATE_SERIES(
-          NOW() AT TIME ZONE 'Asia/Jakarta', NOW() AT TIME ZONE 'Asia/Jakarta'+'6 DAYS','1 DAY'
-        )
-	    ) g(series)
-	  ) a
-    JOIN classes c ON c.day = a.dow
-    ORDER BY a.series ASC`}
+	sql := []string{`SELECT id,
+       name,
+       image,
+       DAY,
+       TIME,
+       module_id,
+       branch_id
+FROM
+  (SELECT c.*,
+          to_timestamp(a.series::date::text || ' ' ||c.time, 'YYYY-MM-DD hh24:mi') ts
+   FROM
+     ( SELECT g.series,
+              to_char(g.series,'FMday') dow
+      FROM
+        ( SELECT GENERATE_SERIES( NOW() AT TIME ZONE 'Asia/Jakarta', NOW() AT TIME ZONE 'Asia/Jakarta'+'7 DAYS','1 DAY' ) ) g(series) ) a
+   JOIN classes c ON c.day = a.dow) d
+WHERE ts > (now() - interval '1 hour')
+  AND ts < (now() - interval '1 hour' + interval '7 days')
+ORDER BY d.ts ASC `}
 
 	//if len(params) > 0 {
 	//	sql = append(sql, "WHERE")
