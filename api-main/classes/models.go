@@ -84,7 +84,7 @@ WHERE ts > (now() - interval '1 hour')
       sql = append(sql, "d.ts DESC")
     }
   }
-  log.Println(strings.Join(sql, " "), params)
+  //log.Println(strings.Join(sql, " "), params)
   if len(params) > 0 {
     stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
     _ = stmt.Select(&data, params)

@@ -54,8 +54,6 @@ func itemLinks(data Class_) ClassLinks {
 func List(c echo.Context) error {
   params := make(map[string]interface{})
 
-
-  // fmt.Printf("%#v", day)
   if sort := c.QueryParam("sort"); sort != "" {
     params["sort"] = sort
   }
