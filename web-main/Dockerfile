@@ -18,4 +18,7 @@ RUN set -ex \
     jquery \
     materialize-css \
     material-components-web \
+    fullcalendar \
+    jquery \
+    moment \
     --save-dev
