@@ -6,8 +6,6 @@ import (
   "github.com/jmoiron/sqlx"
   "github.com/labstack/echo"
   "net/http"
-  "strings"
-  "time"
 )
 
 type ClassLinks struct {
@@ -56,14 +54,14 @@ func itemLinks(data Class_) ClassLinks {
 func List(c echo.Context) error {
   params := make(map[string]interface{})
 
-  day := c.QueryParam("day")
+
   // fmt.Printf("%#v", day)
-  if day != "" {
-    if day == "today" {
-      loc, _ := time.LoadLocation(myShared.TimeZone)
-      params["day"] = strings.ToLower(time.Now().In(loc).Weekday().String())
-      fmt.Println(params)
-    }
+  if sort := c.QueryParam("sort"); sort != "" {
+    params["sort"] = sort
+  }
+
+  if q := c.QueryParam("q"); q != "" {
+    params["q"] = q
   }
   data, db = ListData(params)
 

@@ -3,7 +3,7 @@
     <header>
       <div class="input-field container">
         <i class="material-icons prefix">search</i>
-        <input id="search" type="text" class="validate" placeholder='Try "Pondok Indah"'>
+        <input id="search" type="text" class="validate" placeholder='Try "Pondok Indah"' v-model="q" @keyup="search">
         <!-- <label for="search">Search</label> -->
       </div>
     </header>
@@ -57,25 +57,38 @@
         classes: [],
 
         $modalElement: {},
+        q: ''
       }
     },
     methods: {
+      _mergeBranch(classes) {
+        classes.forEach((v, i, a) => {
+          this.$set(a[i], 'branch', {'name': ''});
+          axios.get(`${process.env.API}${v._links.branch.href}`)
+            .then(response => {
+              this.$set(a[i], 'branch', response.data);
+            })
+            .catch(error => console.log(error))
+        });
+      },
+      search(event) {
+        console.log(event, this.q);
+
+        const url = `${process.env.API}/classes?sort=datetime&q=${this.q}`;
+        axios.get(url)
+          .then(response => {
+            this.classes = response.data._embedded;
+            this._mergeBranch(this.classes);
+          })
+          .catch(error => console.log(error))
+      },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes?day=today`;
+        const url = `${process.env.API}/classes?sort=datetime`;
 
         axios.get(url)
           .then(response => {
             this.classes = response.data._embedded;
-
-            this.classes.forEach((v, i, a) => {
-              this.$set(a[i], 'branch', {'name': ''});
-              axios.get(`${process.env.API}${v._links.branch.href}`)
-                .then(response => {
-                  this.$set(a[i], 'branch', response.data);
-                })
-                .catch(error => console.log(error))
-            });
-            // console.log(this.classes[0].module.name);
+            this._mergeBranch(this.classes);
           })
           .catch(error => console.log(error))
 

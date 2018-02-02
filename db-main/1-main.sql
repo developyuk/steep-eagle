@@ -59,9 +59,13 @@ INSERT INTO branches (name, image, address)
 VALUES
   ('branch1', '', 'address1'),
   (
-    'branch2', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
+    'location2', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
     ''
-  );
+  ),
+     (
+       'lokasi3', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
+       'adress3'
+     );
 CREATE TABLE classes (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
@@ -84,19 +88,19 @@ VALUES
     '', 2, 1, 'thursday', '13.30', 'http://www.provideashelter.org/charity/images/group.png'
   ),
   (
-    '', 3, 1, 'friday', '9:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 3, 3, 'friday', '9:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
     '', 1, 2, 'tuesday', '19:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 2, 'wednesday', '8:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 1, 3, 'wednesday', '8:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
     '', 2, 1, 'wednesday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 3, 1, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 3, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
     '', 1, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
