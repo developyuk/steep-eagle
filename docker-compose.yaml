@@ -46,14 +46,11 @@ services:
     build:       ./db-main
     expose:
       - "5432"
-  pgadmin4:
-    image:      fenglc/pgadmin4
+  db-admin:
+    image:      adminer
     ports:
-      - "5050:5050"
+      - "5050:8080"
     links:
-      - db-main:postgres
-    environment:
-      - DEFAULT_USER=${PGA_USER}
-      - DEFAULT_PASSWORD=${PGA_PASS}
+      - db-main:db
   # redis:
   #   image:      redis
