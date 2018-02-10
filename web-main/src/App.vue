@@ -1,53 +1,35 @@
-<template>
-<main id="app">
-  <router-view></router-view>
-</main>
+<template lang="pug">
+  #app
+    .mdc-layout-grid
+      router-view
 </template>
 
 <script>
-export default {
-  name: 'app'
-}
+  export default {
+    name: 'app',
+    mounted() {
+      window.mdc.autoInit();
+    }
+  }
 </script>
 
 <style lang="scss">
-$roboto-font-path: "~materialize-css/dist/fonts/roboto/";
-@import "~materialize-css/sass/components/color";
-$primary-color: color("grey", "base");
-$secondary-color: color("grey", "lighten-1");
-@import "~materialize-css/sass/materialize.scss";
+  :root {
+    --mdc-theme-primary: #ED235C;
+  }
+  #app {
+    background-color: #f9f9f9;
+  }
 
-#app,
-body,
-html {
-    height: 100%;
-    min-height: 100%;
-}
-body,
-html {
-    &,
-    .material-icons,
-    a {
-        color: color("grey", "darken-1");
-    }
-}
-body {
-    background-color: color('grey','lighten-5');
-}
-header {
+  .mdc-layout-grid {
     background-color: #fff;
-    overflow: auto;
-}
-#app {
-    margin: 0 auto;
-    // border: thin solid color('grey', 'lighten-1');
-    &,
-    * {
-        max-width: 480px;
-    }
-}
-.modal {
-    left: 50%;
-    transform: translateX(-50%);
-}
+    max-width: 30rem;
+    padding: 0;
+  }
+  h1.title{
+    background-color: var(--mdc-theme-primary,#6200ee);
+    color:#fff;
+    text-align: center;
+    padding:1rem 0;
+  }
 </style>
