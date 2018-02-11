@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Sign from '@/pages/Sign'
 import Schedules from '@/pages/Schedules'
-import Profile from '@/pages/Profile'
+import Students from '@/pages/Students'
 // import Hello from '@/components/Hello'
 
 Vue.use(Router);
@@ -15,9 +15,9 @@ export default new Router({
       component: Schedules
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: Profile
+      path: '/students',
+      name: 'Students',
+      component: Students
     },
     {
       path: '/sign',

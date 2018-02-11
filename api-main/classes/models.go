@@ -16,6 +16,7 @@ type Class_ struct {
   Image    *string     `json:"image"`
   Day      string      `json:"day"`
   Time     string      `json:"time"`
+  Ts       string      `json:"ts"`
   ModuleId interface{} `json:"-" db:"module_id"`
   BranchId interface{} `json:"-" db:"branch_id"`
 }
@@ -51,10 +52,9 @@ func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
 
   var data []Class_
   sql := []string{`SELECT d.id,
-       d.name,
-       d.image,
        d.day,
        d.time,
+       d.ts,
        d.module_id,
        d.branch_id
 FROM
@@ -66,7 +66,6 @@ FROM
       FROM
         ( SELECT GENERATE_SERIES( NOW() AT TIME ZONE 'Asia/Jakarta', NOW() AT TIME ZONE 'Asia/Jakarta'+'7 DAYS','1 DAY' ) ) g(series) ) a
    JOIN classes c ON c.day = a.dow) d
-  JOIN branches b ON b.id = d.branch_id
 WHERE ts > (now() - interval '1 hour')
   AND ts < (now() - interval '1 hour' + interval '7 days') `}
 

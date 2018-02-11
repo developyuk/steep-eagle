@@ -1,13 +1,14 @@
 <template lang="pug">
-    #profile.mdc-typography
-      h1.title Profile
+    #students.mdc-typography
+      header
+        img.logo(src="static/img/logo.svg")
       tab-bottom
 </template>
 
 <script>
   import TabBottom from '@/components/TabBottom';
   export default {
-    name: 'profile',
+    name: 'students',
     components: {
       'tab-bottom': TabBottom
     },
@@ -21,8 +22,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  #profile{
+  #students{
     position: relative;
-    height: calc(100vh - 2rem);
+    height: 100vh;
   }
 </style>

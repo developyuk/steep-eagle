@@ -31,14 +31,18 @@ CREATE TABLE modules (
 INSERT INTO modules (name, image, session_total)
 VALUES
   (
-    'module1', 'http://www.dewsoftoverseas.com/img/e-learning_icon.jpg',
+    'Web Lit', 'https://dl.dropboxusercontent.com/s/hg9zq2gra407viw/web_lit.jpg',
     11
   ),
-  ('module2', '', 16),
+  ('App Inv', 'https://dl.dropboxusercontent.com/s/uk3xqoeipn6anm3/app_inv.jpg', 16),
   (
-    'module3', 'http://www.dewsoftoverseas.com/img/e-learning_icon.jpg',
+    'HW1', 'https://dl.dropboxusercontent.com/s/3cdzkqbcxwbrymv/hw1.jpg',
     16
-  );
+  ),
+   (
+     'HW2', 'https://dl.dropboxusercontent.com/s/f7jwyg517ymu47x/hw2.jpg',
+     16
+   );
 CREATE TABLE program_modules (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   module_id BIGSERIAL REFERENCES modules (id),
@@ -48,7 +52,9 @@ INSERT INTO program_modules (module_id, program_id)
 VALUES
   (1, 1),
   (1, 2),
-  (2, 2);
+  (2, 2),
+  (3, 2),
+  (4, 1);
 CREATE TABLE branches (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
@@ -83,9 +89,11 @@ INSERT INTO classes (
   image
 )
 VALUES
+  ('', 1, 2, 'sunday', '12:00', ''),
+  ('', 3, 2, 'sunday', '13:00', ''),
   ('', 1, 2, 'monday', '12:00', ''),
   (
-    '', 2, 1, 'thursday', '13.30', 'http://www.provideashelter.org/charity/images/group.png'
+    '', 4, 1, 'thursday', '13.30', 'http://www.provideashelter.org/charity/images/group.png'
   ),
   (
     '', 3, 3, 'friday', '9:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
@@ -94,7 +102,7 @@ VALUES
     '', 1, 2, 'tuesday', '19:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 3, 'wednesday', '8:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 4, 3, 'wednesday', '8:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
     '', 2, 1, 'wednesday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
@@ -103,7 +111,7 @@ VALUES
     '', 3, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   ),
   (
-    '', 1, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
+    '', 2, 2, 'saturday', '12:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'
   );
 CREATE TYPE roles AS ENUM (
   'operation', 'tutor', 'student', 'parent',

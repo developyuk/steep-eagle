@@ -13,7 +13,8 @@
           input#pwd.mdc-text-field__input(v-model.trim="pwd" type="password" required)
           label.mdc-text-field__label.mdc-text-field__label--float-above(for="pwd") Enter your password
           .mdc-line-ripple
-      button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Sign in
+      .mdc-form-field
+        button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Sign in
 </template>
 
 <script>
@@ -30,7 +31,7 @@
       }
     },
     mounted() {
-      Array.from(document.querySelectorAll('.mdc-text-field')).forEach(v => MDCRipple.attachTo(v));
+//      Array.from(document.querySelectorAll('.mdc-text-field')).forEach(v => MDCRipple.attachTo(v));
       MDCRipple.attachTo(document.querySelector('.mdc-button'));
     },
     methods: {
@@ -77,14 +78,14 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 30rem;
+    max-width: 30rem;
   }
 
   .mdc-form-field {
     display: block;
   }
 
-  .mdc-text-field, .mdc-button {
+  form, .mdc-text-field, .mdc-button {
     width: 100%;
   }
 
