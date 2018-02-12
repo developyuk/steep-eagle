@@ -55,6 +55,6 @@ $ docker rm $(docker ps -qa --no-trunc --filter "status=exited")
 - [Axios](https://github.com/axios/axios) Promise based HTTP client for the browser and node.js
 - [Sass](http://sass-lang.com/) CSS with superpowers
 - [Pug](https://pugjs.org/api/getting-started.html) Robust, elegant, feature rich template engine for Node.js 
-- [Webpack](https://webpack.js.org/) Ppen-source JavaScript module bundler
+- [Webpack](https://webpack.js.org/) Open-source JavaScript module bundler
 - [Imagesweserv](https://images.weserv.nl/) Image cache & resize proxy
 - [Docker](https://www.docker.com/) Operating-system-level virtualization also known as containers
