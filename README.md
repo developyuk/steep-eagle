@@ -46,6 +46,15 @@ $ docker rm $(docker ps -qa --no-trunc --filter "status=exited")
 
 # Powered by
 
-- [vue.js](https://vuejs.org/)
-- [golang echo](https://echo.labstack.com/)
-- [postgresql](https://www.postgresql.org/)
+- [Echo](https://echo.labstack.com/) High performance, extensible, minimalist Go web framework
+- [Postgresql](https://www.postgresql.org/) The world's most advanced open source database
+- [Vue.js](https://vuejs.org/) The Progressive JavaScript Framework
+- [Material Components for the Web](https://material.io/components/web/) Create beautiful apps with modular and customizable UI components.
+- [Normalize.css](https://necolas.github.io/normalize.css/) A modern, HTML5-ready alternative to CSS resets
+- [Moment.js](http://momentjs.com/) Parse, validate, manipulate, and display dates and times in JavaScript.
+- [Axios](https://github.com/axios/axios) Promise based HTTP client for the browser and node.js
+- [Sass](http://sass-lang.com/) CSS with superpowers
+- [Pug](https://pugjs.org/api/getting-started.html) Robust, elegant, feature rich template engine for Node.js 
+- [Webpack](https://webpack.js.org/) Ppen-source JavaScript module bundler
+- [Imagesweserv](https://images.weserv.nl/) Image cache & resize proxy
+- [Docker](https://www.docker.com/) Operating-system-level virtualization also known as containers
