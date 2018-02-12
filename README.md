@@ -47,7 +47,7 @@ $ docker container prune
 # Powered by
 
 - [Echo](https://echo.labstack.com/) High performance, extensible, minimalist Go web framework
-- [Postgresql](https://www.postgresql.org/) The world's most advanced open source database
+- [PostgreSQL](https://www.postgresql.org/) The world's most advanced open source database
 - [Vue.js](https://vuejs.org/) The Progressive JavaScript Framework
 - [Material Components for the Web](https://material.io/components/web/) Create beautiful apps with modular and customizable UI components.
 - [Normalize.css](https://necolas.github.io/normalize.css/) A modern, HTML5-ready alternative to CSS resets
