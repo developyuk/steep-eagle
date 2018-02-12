@@ -41,7 +41,7 @@ make sure you have exits postgres container first
 ```
 $ cd /path/to/project
 $ docker-compose down
-$ docker rm $(docker ps -qa --no-trunc --filter "status=exited")
+$ docker container prune
 ```
 
 # Powered by
