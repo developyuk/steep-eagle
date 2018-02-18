@@ -51,27 +51,37 @@ func ListData(params map[string]interface{}) ([]Class_, *sqlx.DB) {
   db := myShared.Connect()
 
   var data []Class_
-  sql := []string{`SELECT d.id,
-       d.day,
-       d.time,
-       d.ts,
-       d.module_id,
-       d.branch_id
-FROM
-  (SELECT c.*,
-          to_timestamp(cast(cast(a.series as date) as text) || ' ' ||c.time, 'YYYY-MM-DD HH24.MI') ts
-   FROM
-     ( SELECT g.series,
-              to_char(g.series,'FMday') dow
-      FROM
-        ( SELECT GENERATE_SERIES( NOW() AT TIME ZONE 'Asia/Jakarta', NOW() AT TIME ZONE 'Asia/Jakarta'+'7 DAYS','1 DAY' ) ) g(series) ) a
-   JOIN classes c ON c.day = a.dow) d
-WHERE ts > (now() - interval '1 hour')
-  AND ts < (now() - interval '1 hour' + interval '7 days') `}
+  var sqlParams []interface{}
+  sqlParams = append(sqlParams, params["authId"])
+
+  sql := []string{fmt.Sprintf(`SELECT d.id
+	,d.day
+	,d.TIME
+	,d.ts
+	,d.module_id
+	,d.branch_id
+FROM (
+	SELECT c.*
+		,(a.dw::DATE::TEXT || ' ' || c.TIME || ':00')::TIMESTAMP AT TIME ZONE 'Asia/Jakarta' ts
+	FROM (
+		SELECT ts AT TIME ZONE 'Asia/Jakarta' dw
+		FROM GENERATE_SERIES(NOW(), NOW() AT TIME ZONE 'Asia/Jakarta' + '7 DAYS', '1 DAY') g(ts)
+		) a
+	INNER JOIN classes c ON c.day = to_char(dw, 'FMday')
+	) d
+WHERE d.ts > (NOW() - INTERVAL '1 hour')
+	AND d.ts < (NOW() - INTERVAL '1 hour' + INTERVAL '7 days')
+	AND d.id NOT IN (
+		SELECT s.class_id
+		FROM sessions s
+		WHERE s.created_at::DATE >= CURRENT_DATE
+			AND tutor_id = $%v
+		) `,len(sqlParams))}
 
   if _, ok := params["q"]; ok {
-    params["q"] = fmt.Sprintf("%%%v%%", params["q"])
-    sql = append(sql, `AND b.name LIKE :q`)
+    //params["q"] = fmt.Sprintf("%%%v%%", params["q"])
+    sqlParams = append(sqlParams, fmt.Sprintf("%%%v%%", params["q"]))
+    sql = append(sql, fmt.Sprintf(`AND b.name LIKE $%v`, len(sqlParams)))
   }
 
   if _, ok := params["sort"]; ok {
@@ -83,14 +93,9 @@ WHERE ts > (now() - interval '1 hour')
       sql = append(sql, "d.ts DESC")
     }
   }
-  //log.Println(strings.Join(sql, " "), params)
-  if len(params) > 0 {
-    stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
-    _ = stmt.Select(&data, params)
-    //_ = db.Select(&data, strings.Join(sql, " "), params[:])
-  } else {
-    _ = db.Select(&data, strings.Join(sql, " "))
-  }
+  //log.Println(strings.Join(sql, " "), params, sqlParams)
+
+  _ = db.Select(&data, strings.Join(sql, " "), sqlParams...)
 
   return data, db
 }

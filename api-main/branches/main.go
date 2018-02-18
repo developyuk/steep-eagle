@@ -32,7 +32,7 @@ func itemClassesHref(id int) []myShared.Href {
 func itemLinks(v Branch) BranchLinks {
 	return BranchLinks{
 		LinksSelf: myShared.LinksSelf{Self: myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathBranches, v.Id))},
-		Classes:   itemClassesHref(v.Id),
+		//Classes:   itemClassesHref(v.Id),
 	}
 }
 func List(c echo.Context) error {

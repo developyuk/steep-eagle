@@ -1,7 +1,6 @@
 <template lang="pug">
-  #app
-    .mdc-layout-grid
-      router-view
+  #app.mdc-layout-grid
+    router-view
 </template>
 
 <script>
@@ -14,9 +13,10 @@
 </script>
 
 <style lang="scss">
-  html,body{
+  html, body {
     font-family: 'Roboto', sans-serif;
   }
+
   :root {
     --mdc-theme-primary: #ED235C;
     /*--mdc-theme-text-primary-on-background:#ED235C;*/
@@ -27,6 +27,13 @@
     background-color: #f9f9f9;
   }
 
+  .errMsg {
+    background-color: pink;
+    color: red;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
   .mdc-layout-grid {
     background-color: #fff;
     max-width: 30rem;
@@ -34,15 +41,6 @@
     /*height: 100vh;*/
   }
 
-  header {
-    background-color: var(--mdc-theme-primary, #6200ee);
-    img.logo {
-      width: 1.5rem;
-      padding: 1rem;
-
-      filter: drop-shadow(1px 3px 1px rgba(0, 0, 0, .5));
-    }
-  }
 
   h1.title {
     background-color: var(--mdc-theme-primary, #6200ee);

@@ -1,9 +1,9 @@
 <template lang="pug">
   nav#icon-text-tab-bar.mdc-tab-bar.mdc-tab-bar--icons-with-text.mdc-elevation--z8(data-mdc-auto-init="MDCTabBar")
-    router-link(to="/").mdc-tab.mdc-tab--with-icon-and-text(:class="{'mdc-tab--active': isActivePath('/')}")
+    router-link(to="/" :class="{'mdc-tab--active': isActivePath('/')}").mdc-tab.mdc-tab--with-icon-and-text
       i.material-icons.mdc-tab__icon(aria-hidden="true") home
       span.mdc-tab__icon-text Home
-    router-link(to="/students").mdc-tab.mdc-tab--with-icon-and-text(:class="{'mdc-tab--active': isActivePath('/students')}")
+    router-link(to="/students" :class="{'mdc-tab--active': isActivePath('/students')}").mdc-tab.mdc-tab--with-icon-and-text
       i.material-icons.mdc-tab__icon(aria-hidden="true") face
       span.mdc-tab__icon-text Student
 

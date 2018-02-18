@@ -1,6 +1,7 @@
 <template lang="pug">
   #sign.mdc-typography
     form(@submit.prevent="sign")
+      img.logo(src="https://images.weserv.nl/?crop=110,100,87,105&url=dl.dropbox.com/s/psvta5uwq4s0m5y/logo2.jpg")
       .mdc-form-field
         .mdc-text-field.mdc-text-field--box.mdc-text-field--with-leading-icon(data-mdc-auto-init="MDCTextField")
           i.material-icons.mdc-text-field__icon(tabindex="0") account_circle
@@ -14,6 +15,7 @@
           label.mdc-text-field__label.mdc-text-field__label--float-above(for="pwd") Enter your password
           .mdc-line-ripple
       .mdc-form-field
+        .errMsg(v-if="errMsg") {{errMsg}}
         button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Sign in
 </template>
 
@@ -27,7 +29,8 @@
       return {
         msg: 'Welcome to Your Vue.js PWA',
         id: 'user3@ex.com',
-        pwd: 'asdqwes'
+        pwd: 'asdqwes',
+        errMsg: ''
       }
     },
     mounted() {
@@ -55,8 +58,8 @@
               data
             } = error.response;
             if (status === 401) {
-              const message = `${data.message}<br/> Check your authentication.`;
-
+              const message = `${data.message}. Re-check your authentication.`;
+              this.errMsg = message;
 //              $(this.$el).find('.modal').modal()
 //                .find('.modal-content').html(message).end()
 //                .modal('open');
@@ -73,10 +76,15 @@
 <style lang="scss" scoped>
   /*@import '~@material/textfield/mdc-text-field';*/
   /*@import '~@material/button/mdc-button';*/
+  .logo {
+    width: 5rem;
+    margin: 0 auto 3rem auto;
+    display: block;
+  }
 
   form {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 2rem) ;
     transform: translateY(-50%);
     max-width: 30rem;
   }

@@ -1,28 +1,17 @@
 CREATE TABLE sessions (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  class_id BIGSERIAL REFERENCES classes (id)
+  class_id BIGSERIAL REFERENCES classes (id),
+  tutor_id BIGSERIAL REFERENCES users (id)
 );
-INSERT INTO sessions (class_id)
+INSERT INTO sessions (class_id,tutor_id)
 VALUES
-  (1),
-  (2),
-  (2),
-  (3),
-  (3),
-  (3);
-CREATE TABLE sessions_tutors (
-  id BIGSERIAL PRIMARY KEY NOT NULL,
-  session_id BIGSERIAL REFERENCES sessions (id),
-  tutor_id BIGSERIAL REFERENCES users (id),
-  unique (session_id, tutor_id)
-);
-INSERT INTO sessions_tutors (session_id, tutor_id)
-VALUES
-  (1, 3),
-  (2, 3),
-  (2, 4),
-  (3, 4);
+  (1,4),
+  (2,3),
+  (2,4),
+  (3,3),
+  (3,4),
+  (3,3);
 CREATE TABLE sessions_students (
   id BIGSERIAL PRIMARY KEY NOT NULL,
   created_at timestamp DEFAULT NOW(),
@@ -31,13 +20,13 @@ CREATE TABLE sessions_students (
   rating_interaction SMALLSERIAL,
   rating_cognition SMALLSERIAL,
   rating_creativity SMALLSERIAL,
-  sessions_tutors_id BIGSERIAL REFERENCES sessions_tutors (id),
+  session_id BIGSERIAL REFERENCES sessions (id),
   student_id BIGSERIAL REFERENCES users (id)
 );
 INSERT INTO sessions_students (
   status, feedback, rating_interaction,
   rating_cognition, rating_creativity,
-  sessions_tutors_id, student_id
+  session_id, student_id
 )
 VALUES
   (TRUE, 'feedback1', 1, 2, 3, 1, 1),

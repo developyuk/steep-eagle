@@ -54,6 +54,8 @@ func itemLinks(data Class_) ClassLinks {
 func List(c echo.Context) error {
   params := make(map[string]interface{})
 
+  params["authId"] = myShared.CurrentAuth.Id
+
   if sort := c.QueryParam("sort"); sort != "" {
     params["sort"] = sort
   }

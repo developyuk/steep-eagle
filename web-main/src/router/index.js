@@ -12,12 +12,14 @@ export default new Router({
     {
       path: '/',
       name: 'Schedules',
-      component: Schedules
+      component: Schedules,
+      meta: { requiresAuth: true }
     },
     {
       path: '/students',
       name: 'Students',
-      component: Students
+      component: Students,
+      meta: { requiresAuth: true }
     },
     {
       path: '/sign',

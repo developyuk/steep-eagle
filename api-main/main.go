@@ -63,10 +63,9 @@ func main() {
 	// e.PUT("/classes/:id", updateClass)
 	// e.DELETE("/classes/:id", deleteClass)
 
-	a.GET("sessions/:id/tutors/:tid/students/:sid", mySessions.ItemTutorStudents)
-	a.GET("sessions/:id/tutors/:tid", mySessions.ItemTutor)
 	a.GET("sessions", mySessions.List)
 	a.GET("sessions/:id", mySessions.Item)
+  a.GET("sessions/:id/students/:sid", mySessions.ItemTutorStudents)
 
 	a.GET("branches", myBranches.List)
 	a.GET("branches/:id", myBranches.Item)
@@ -78,6 +77,7 @@ func main() {
 
 	a.GET("tutors", myUsers.List)
 	a.GET("tutors/:id", myUsers.Item)
+  a.GET("tutors/:id/sessions", mySessions.ListByTutorId)
 
 	a.GET("students", myUsers.List)
 	a.GET("students/:id", myUsers.Item)

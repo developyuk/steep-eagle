@@ -93,7 +93,7 @@ VALUES
   ('', 3, 2, 'sunday', '13:00', ''),
   ('', 1, 2, 'monday', '12:00', ''),
   (
-    '', 4, 1, 'thursday', '13.30', 'http://www.provideashelter.org/charity/images/group.png'
+    '', 4, 1, 'thursday', '13:30', 'http://www.provideashelter.org/charity/images/group.png'
   ),
   (
     '', 3, 3, 'friday', '9:30', 'https://thumbs.dreamstime.com/z/group-little-kids-early-development-class-happy-drawing-filling-letters-paper-reading-48811717.jpg'

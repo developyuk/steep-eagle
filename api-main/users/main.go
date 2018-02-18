@@ -12,7 +12,7 @@ import (
 
 type StudentLinks struct {
 	myShared.LinksSelf
-	Class myShared.Href `json:"class,omitempty"`
+	//Class myShared.Href `json:"class,omitempty"`
 }
 
 var (
@@ -49,9 +49,9 @@ func itemLinks(v User, role string) StudentLinks {
 	path := getPath(role)
 	var studentLinks StudentLinks
 	studentLinks.LinksSelf = myShared.LinksSelf{Self: myShared.CreateHref(fmt.Sprintf("%v/%v", path, v.Id.Int64))}
-	if role == "student" {
-		studentLinks.Class = itemClassHref(v.Id)
-	}
+	//if role == "student" {
+	//	studentLinks.Class = itemClassHref(v.Id)
+	//}
 
 	return studentLinks
 }
