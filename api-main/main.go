@@ -22,8 +22,8 @@ func main() {
 	//e.Use(middleware.Logger())
 	//e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost", "http://localhost:81", "http://localhost:82", "http://35.187.234.36","http://35.187.234.36:81","http://35.187.234.36:82"},
-		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
+		//AllowOrigins: []string{"http://localhost", "http://localhost:81", "http://localhost:82", "http://35.187.234.36","http://35.187.234.36:81","http://35.187.234.36:82"},
+		//AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
 	e.GET("/hello", func(c echo.Context) error {
