@@ -50,6 +50,8 @@ services:
       - "80:80"
       - "81:81"
       - "82:82"
+    links:
+      - api-main
 #    depends_on:
 #      - web-main
 #      - web-operation
