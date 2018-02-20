@@ -30,9 +30,6 @@
     <meta name="msapplication-config" content="<%= htmlWebpackPlugin.files.publicPath %>static/browserconfig.xml?v=00Q3O3wRj9">
     <meta name="theme-color" content="#ffffff">
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
   </head>
   <body>
     <noscript>
@@ -42,5 +39,12 @@
     <!-- Todo: only include in production -->
     <%= htmlWebpackPlugin.options.serviceWorkerLoader %>
     <!-- built files will be auto injected -->
+
+    <noscript id="deferred-styles">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
+    </noscript>
+    <script> var loadDeferredStyles = function() {var addStylesNode = document.getElementById("deferred-styles");var replacement = document.createElement("div");replacement.innerHTML = addStylesNode.textContent;document.body.appendChild(replacement);addStylesNode.parentElement.removeChild(addStylesNode);};var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); }); else window.addEventListener('load', loadDeferredStyles);</script>
   </body>
 </html>
