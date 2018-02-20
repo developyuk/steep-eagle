@@ -50,9 +50,9 @@ services:
       - "80:80"
       - "81:81"
       - "82:82"
-    depends_on:
-      - web-main
-      - web-operation
+#    depends_on:
+#      - web-main
+#      - web-operation
   db-admin:
     image:      adminer
     ports:
