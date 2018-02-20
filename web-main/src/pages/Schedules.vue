@@ -33,7 +33,7 @@
 </template>
 
 <script>
-  import {MDCRipple} from '@material/ripple';
+//  import {MDCRipple} from '@material/ripple';
   import TabBottom from '@/components/TabBottom';
   import Header from '@/components/Header';
   import moment from 'moment';
@@ -133,7 +133,7 @@
     },
     mounted() {
       const cls = this;
-      Array.from(document.querySelectorAll('.mdc-tab, .mdc-button')).forEach(v => MDCRipple.attachTo(v));
+      Array.from(document.querySelectorAll('.mdc-tab, .mdc-button')).forEach(v => mdc.ripple.MDCRipple.attachTo(v));
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.dialog.listen('MDCDialog:accept', () => {

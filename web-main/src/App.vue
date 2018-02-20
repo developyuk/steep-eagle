@@ -13,12 +13,15 @@
 </script>
 
 <style lang="scss">
+  $mdc-theme-primary: #ED235C;
+  @import "~material-components-web/material-components-web";
+
   html, body {
     font-family: 'Roboto', sans-serif;
   }
 
   :root {
-    --mdc-theme-primary: #ED235C;
+    /*--mdc-theme-primary: #ED235C;*/
     /*--mdc-theme-text-primary-on-background:#ED235C;*/
     /*color: var(,rgba(0,0,0,.87));*/
   }
@@ -42,11 +45,11 @@
   }
 
 
-  h1.title {
-    background-color: var(--mdc-theme-primary, #6200ee);
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-    margin: 0;
-  }
+  /*h1.title {*/
+    /*background-color: var(--mdc-theme-primary, #6200ee);*/
+    /*color: #fff;*/
+    /*text-align: center;*/
+    /*padding: 1rem 0;*/
+    /*margin: 0;*/
+  /*}*/
 </style>

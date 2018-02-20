@@ -11,7 +11,7 @@
 </template>
 
 <script>
-  import {MDCRipple} from '@material/ripple';
+//  import {MDCRipple} from '@material/ripple';
 
   export default {
     name: 'tabBottom',
@@ -27,7 +27,7 @@
     },
     mounted() {
 //      mdc.tabs.MDCTabBar.attachTo(document.querySelector('#icon-text-tab-bar'));
-      MDCRipple.attachTo(document.querySelector('.mdc-tab-bar'));
+      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-tab-bar'));
     }
   }
 </script>

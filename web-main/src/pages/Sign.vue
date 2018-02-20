@@ -21,7 +21,7 @@
 
 <script>
   import axios from 'axios';
-  import {MDCRipple} from '@material/ripple';
+//  import {MDCRipple} from '@material/ripple';
 
   export default {
     name: 'sign',
@@ -35,7 +35,7 @@
     },
     mounted() {
 //      Array.from(document.querySelectorAll('.mdc-text-field')).forEach(v => MDCRipple.attachTo(v));
-      MDCRipple.attachTo(document.querySelector('.mdc-button'));
+      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
     },
     methods: {
       sign() {
@@ -58,8 +58,7 @@
               data
             } = error.response;
             if (status === 401) {
-              const message = `${data.message}. Re-check your authentication.`;
-              this.errMsg = message;
+              this.errMsg = `${data.message}. Re-check your authentication.`;
 //              $(this.$el).find('.modal').modal()
 //                .find('.modal-content').html(message).end()
 //                .modal('open');

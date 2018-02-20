@@ -3,14 +3,14 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import * as mdc from 'material-components-web';
 import axios from "axios";
 // import EventBus from './event-bus.js';
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
-require("material-components-web/dist/material-components-web.min.css");
-require("material-components-web/dist/material-components-web.min.js");
+// require("material-components-web/dist/material-components-web.min.css");
+// require("material-components-web/dist/material-components-web.min.js");
+import * as mdc from 'material-components-web/dist/material-components-web';
 window.mdc = mdc;
 
 router.beforeEach((to, from, next) => {
