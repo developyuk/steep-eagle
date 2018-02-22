@@ -20,5 +20,4 @@ var JwtKey = os.Getenv("JWT_KEY")
 
 const (
   TimeZone = "Asia/Jakarta"
-  DbApiUrl = "http://db-api:3000"
 )

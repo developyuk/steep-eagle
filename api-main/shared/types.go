@@ -6,18 +6,18 @@ package shared
 // }
 
 type Href struct {
-	Href string `json:"href"`
+  Href string `json:"href"`
 }
 
 type LinksSelf struct {
-	Self Href `json:"self"`
+  Self Href `json:"self"`
 }
 
 type Hal struct {
-	Links    interface{} `json:"_links,omitempty"`
-	Embedded interface{} `json:"_embedded,omitempty"`
-	Total    int         `json:"total,omitempty"`
-	Count    int         `json:"count,omitempty"`
+  Links    interface{} `json:"_links,omitempty"`
+  Embedded interface{} `json:"_embedded,omitempty"`
+  Total    int         `json:"total,omitempty"`
+  Count    int         `json:"count,omitempty"`
 }
 
 //
@@ -30,10 +30,14 @@ type Hal struct {
 // }
 
 type Response struct {
-	Message string `json:"message"`
-	Id      int64  `json:"id,omitempty"`
+  Message string `json:"message"`
+  Id      int64  `json:"id,omitempty"`
+}
+
+func CreateSelfHref(href string) LinksSelf {
+  return LinksSelf{Self: CreateHref(href)}
 }
 
 func CreateHref(href string) Href {
-	return Href{Href: href}
+  return Href{Href: href}
 }

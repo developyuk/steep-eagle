@@ -6,7 +6,6 @@ import (
   "fmt"
   "github.com/labstack/echo"
   "net/http"
-  "gopkg.in/resty.v1"
   "encoding/json"
   "strconv"
 )
@@ -16,21 +15,17 @@ type BranchLinks struct {
   Classes []myShared.Href `json:"classes,omitempty"`
 }
 
-var (
-  auth string
-)
-
 func itemClassesHref(id int) []myShared.Href {
   //classes := getClassesById(db, id)
   var classes []myClasses.Class_
-  resp, _ := resty.R().
-    SetQueryParams(map[string]string{
-    "branch_id": "eq." + strconv.Itoa(id),
-    "select":    "id",
-  }).
-    SetHeader("Accept", "application/json").
-    SetHeader("Authorization", auth).
-    Get(myShared.DbApiUrl + "/classes")
+
+  resp := myShared.RestItems(map[string]interface{}{
+    "path": myShared.PathClasses,
+    "query": map[string]string{
+      "branch_id": "eq." + strconv.Itoa(id),
+      "select":    "id",
+    },
+  })
   _ = json.Unmarshal(resp.Body(), &classes)
 
   var data []myShared.Href
@@ -42,26 +37,23 @@ func itemClassesHref(id int) []myShared.Href {
 }
 
 func itemLinks(v Branch) BranchLinks {
-  return BranchLinks{
-    LinksSelf: myShared.LinksSelf{Self: myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathBranches, v.Id))},
-    Classes:   itemClassesHref(v.Id),
-  }
+  var links BranchLinks
+  links.Self = myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathBranches, v.Id))
+  //links.Classes = itemClassesHref(v.Id)
+  return links
 }
 func List(c echo.Context) error {
-  auth = c.Request().Header.Get("Authorization")
-
   var data []Branch
-  resp, _ := resty.R().
-    SetHeader("Accept", "application/json").
-    SetHeader("Authorization", auth).
-    Get(myShared.DbApiUrl + "/branches")
+  resp := myShared.RestItems(map[string]interface{}{
+    "path": myShared.PathBranches,
+  })
   _ = json.Unmarshal(resp.Body(), &data)
 
   for i, v := range data {
     data[i].Links = itemLinks(v)
   }
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathBranches}},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathBranches)},
     Embedded: data,
     Count:    len(data),
     Total:    len(data),
@@ -70,16 +62,13 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  auth = c.Request().Header.Get("Authorization")
-
   var item Branch
-  resp, _ := resty.R().
-    SetQueryParams(map[string]string{
-    "id": "eq." + c.Param("id"),
-  }).
-    SetHeader("Accept", "application/vnd.pgrst.object+json").
-    SetHeader("Authorization", auth).
-    Get(myShared.DbApiUrl + "/branches")
+  resp := myShared.RestItem(map[string]interface{}{
+    "path": myShared.PathBranches,
+    "query": map[string]string{
+      "id": "eq." + c.Param("id"),
+    },
+  })
   _ = json.Unmarshal(resp.Body(), &item)
 
   item.Links = itemLinks(item)

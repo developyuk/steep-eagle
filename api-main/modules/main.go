@@ -2,32 +2,52 @@ package modules
 
 import (
   myShared "../shared"
+  myPrograms "../programs"
   "fmt"
   "github.com/labstack/echo"
   "net/http"
-  "gopkg.in/resty.v1"
   "encoding/json"
+  "strconv"
+  "log"
 )
 
-func itemLinks(v Module) myShared.LinksSelf {
-  return myShared.LinksSelf{Self: myShared.Href{
-    Href: fmt.Sprintf("%v/%v", myShared.PathModules, v.Id),
-  }}
+type ModuleLinks struct {
+  myShared.LinksSelf
+  Programs []myShared.Href `json:"programs,omitempty"`
 }
 
-var (
-  auth string
-)
+func itemLinksPrograms(id int) []myShared.Href {
+  var list []myPrograms.ProgramModules
+  // program_modules?module_id=eq.1&select=program_id
+  resp := myShared.RestItems(map[string]interface{}{
+    "path": "program_modules",
+    "query": map[string]string{
+      "module_id": "eq." + strconv.Itoa(id),
+      "select":    "program_id",
+    },
+  })
+  _ = json.Unmarshal(resp.Body(), &list)
+  log.Println(resp)
+
+  var data []myShared.Href
+  for _, v := range list {
+    data = append(data, myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathPrograms, v.ProgramId)))
+  }
+  return data
+}
+
+func itemLinks(v Module) ModuleLinks {
+  var links ModuleLinks
+  links.Self = myShared.CreateHref(fmt.Sprintf("%v/%v", myShared.PathModules, v.Id))
+  links.Programs = itemLinksPrograms(v.Id)
+  return links
+}
 
 func List(c echo.Context) error {
-  auth = c.Request().Header.Get("Authorization")
-
   var list []Module
-
-  resp, _ := resty.R().
-    SetHeader("Accept", "application/json").
-    SetHeader("Authorization", auth).
-    Get(myShared.DbApiUrl + "/modules")
+  resp := myShared.RestItems(map[string]interface{}{
+    "path": myShared.PathModules,
+  })
   _ = json.Unmarshal(resp.Body(), &list)
 
   for i, v := range list {
@@ -35,7 +55,7 @@ func List(c echo.Context) error {
   }
 
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathModules}},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathModules)},
     Embedded: list,
     Count:    len(list),
     Total:    len(list),
@@ -45,17 +65,14 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  auth = c.Request().Header.Get("Authorization")
-
   // var data Program = GetProgramTypesData(c.Param("id"))
   var item Module
-  resp, _ := resty.R().
-    SetQueryParams(map[string]string{
-    "id": "eq." + c.Param("id"),
-  }).
-    SetHeader("Accept", "application/vnd.pgrst.object+json").
-    SetHeader("Authorization", c.Request().Header.Get("Authorization")).
-    Get(myShared.DbApiUrl + "/modules")
+  resp := myShared.RestItem(map[string]interface{}{
+    "path": myShared.PathModules,
+    "query": map[string]string{
+      "id": "eq." + c.Param("id"),
+    },
+  })
   _ = json.Unmarshal(resp.Body(), &item)
 
   item.Links = itemLinks(item)
