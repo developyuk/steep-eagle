@@ -1,6 +1,3 @@
 FROM postgres
 
-ENV POSTGRES_USER postgres
-ENV POSTGRES_PASSWORD mysecretpassword
-
 COPY ./ /docker-entrypoint-initdb.d/

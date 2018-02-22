@@ -14,7 +14,6 @@ func itemLinks(v ProgramType) myShared.LinksSelf {
 }
 
 func List(c echo.Context) error {
-	// User ID from path `users/:id`
 	list := ListData()
 
 	for i, v := range list {
@@ -31,7 +30,6 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-	// User ID from path `users/:id`
 	// var data Program = GetProgramTypesData(c.Param("id"))
 	item := ItemData(c.Param("id"))
 	item.Links = itemLinks(item)
@@ -39,20 +37,17 @@ func Item(c echo.Context) error {
 }
 
 // func CreateProgramType(c echo.Context) error {
-// 	// User ID from path `users/:id`
 // 	// var data Program = GetProgramTypesData(c.Param("id"))
 // 	var data myModels.Response = myModels.CreateProgramType(c.FormValue("name"))
 // 	return c.JSON(http.StatusOK, data)
 // }
 //
 // func UpdateProgramType(c echo.Context) error {
-// 	// User ID from path `users/:id`
 // 	var data myModels.ProgramType
 // 	return c.JSON(http.StatusOK, data)
 // }
 //
 // func DeleteProgramType(c echo.Context) error {
-// 	// User ID from path `users/:id`
 // 	// id := c.Param("id")
 // 	var data myModels.ProgramType
 // 	return c.JSON(http.StatusOK, data)

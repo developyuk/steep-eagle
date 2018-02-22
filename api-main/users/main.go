@@ -57,7 +57,6 @@ func itemLinks(v User, role string) StudentLinks {
 }
 
 func List(c echo.Context) error {
-	// User ID from path `users/:id`
 	params := make(map[string]interface{})
 	role := getRole(c.Path())
 	if role != "user" {
@@ -81,7 +80,6 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-	// User ID from path `users/:id`
 	// var data Program = GetProgramTypesData(c.Param("id"))
 	params := make(map[string]interface{})
 	params["id"] = c.Param("id")

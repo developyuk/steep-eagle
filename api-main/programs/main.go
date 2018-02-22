@@ -39,8 +39,6 @@ func itemLinks(v Program) ProgramLinks {
 }
 
 func List(c echo.Context) error {
-	// User ID from path `users/:id`
-	// User ID from path `users/:id`
 	list, db = ListData()
 
 	for i, v := range list {
@@ -57,7 +55,6 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-	// User ID from path `users/:id`
 	// id := c.Param("id")
 	item, db = ItemData(c.Param("id"))
 
@@ -66,13 +63,11 @@ func Item(c echo.Context) error {
 }
 
 // func UpdateProgram(c echo.Context) error {
-// 	// User ID from path `users/:id`
 // 	var data myModels.Program
 // 	return c.JSON(http.StatusOK, data)
 // }
 //
 // func DeleteProgram(c echo.Context) error {
-// 	// User ID from path `users/:id`
 // 	// id := c.Param("id")
 // 	var data myModels.Program
 // 	return c.JSON(http.StatusOK, data)

@@ -89,7 +89,7 @@ func UserByEmailPwdData(param *UserLoginRequest) (User, *sqlx.DB) {
 	err := db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
      photo, role
     FROM users
-    WHERE email = $1 AND pwd = $2`, param.Email, param.Pwd)
+    WHERE email = $1 AND pass = $2`, param.Email, param.Pwd)
 	if err != nil {
 		// log.Fatal(err)
 		return User{}, db
