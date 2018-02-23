@@ -31,7 +31,7 @@ type Hal struct {
 
 type Response struct {
   Message string `json:"message"`
-  Id      int64  `json:"id,omitempty"`
+  Id      uint64  `json:"id,omitempty"`
 }
 
 func CreateSelfHref(href string) LinksSelf {

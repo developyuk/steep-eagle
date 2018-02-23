@@ -21,3 +21,11 @@ var JwtKey = os.Getenv("JWT_KEY")
 const (
   TimeZone = "Asia/Jakarta"
 )
+
+type (
+  ClassStudents struct {
+    Id        uint64 `json:"id"`
+    ClassId   uint64 `json:"class_id"`
+    StudentId uint64 `json:"student_id"`
+  }
+)

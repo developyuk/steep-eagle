@@ -23,29 +23,30 @@ func Sign(c echo.Context) error {
   // email := c.FormValue("email")
   // pwd := c.FormValue("pwd")
 
-  item, _ := UserByEmailPwdData(p)
-  if !item.Id.IsZero() {
-    // Create token
-    token := jwt.New(jwt.SigningMethodHS256)
-
-    // Set claims
-    claims := token.Claims.(jwt.MapClaims)
-    claims["id"] = item.Id
-    claims["name"] = item.Name
-    claims["role"] = item.Role
-    claims["photo"] = item.Photo
-    claims["email"] = item.Email
-    claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-    // Generate encoded token and send it as response.
-    t, err := token.SignedString([]byte(myShared.JwtKey))
-    if err != nil {
-      return err
-    }
-    return c.JSON(http.StatusOK, map[string]string{
-      "token": t,
-    })
+  item, err := itemByEmailPass(p)
+  if err != nil {
+    return err
   }
+  // Create token
+  token := jwt.New(jwt.SigningMethodHS256)
+
+  // Set claims
+  claims := token.Claims.(jwt.MapClaims)
+  claims["id"] = item.Id
+  claims["name"] = item.Name
+  claims["role"] = item.Role
+  claims["photo"] = item.Photo
+  claims["email"] = item.Email
+  claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+  // Generate encoded token and send it as response.
+  t, err2 := token.SignedString([]byte(myShared.JwtKey))
+  if err2 != nil {
+    return err2
+  }
+  return c.JSON(http.StatusOK, map[string]string{
+    "token": t,
+  })
 
   return echo.ErrUnauthorized
 }

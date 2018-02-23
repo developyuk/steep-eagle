@@ -1,39 +1,53 @@
 package types
 
 import (
-	myShared "../../shared"
-	"fmt"
-	"github.com/labstack/echo"
-	"net/http"
+  myShared "../../shared"
+  "github.com/labstack/echo"
+  "net/http"
 )
 
-func itemLinks(v ProgramType) myShared.LinksSelf {
-	return myShared.LinksSelf{Self: myShared.Href{
-		Href: fmt.Sprintf("%v/%v", myShared.PathProgramsTypes, v.Id),
-	}}
-}
-
 func List(c echo.Context) error {
-	list := ListData()
+  var list []ProgramType
+  resp, err := myShared.GetItems(map[string]interface{}{
+    "data": &list,
+    "path": "/program_types",
+  })
+  if err != nil {
+    return c.JSON(resp.StatusCode, myShared.Response{
+      Message: err.Error(),
+    })
+  }
 
-	for i, v := range list {
-		list[i].Links = itemLinks(v)
-	}
+  for i, v := range list {
+    list[i].Links = itemLinks(v)
+  }
 
-	response := myShared.Hal{
-		Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathProgramsTypes}},
-		Embedded: list,
-		Count:    len(list),
-		Total:    len(list),
-	}
-	return c.JSON(http.StatusOK, response)
+  response := myShared.Hal{
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathProgramsTypes)},
+    Embedded: list,
+    Count:    len(list),
+    Total:    len(list),
+  }
+  return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
-	// var data Program = GetProgramTypesData(c.Param("id"))
-	item := ItemData(c.Param("id"))
-	item.Links = itemLinks(item)
-	return c.JSON(http.StatusOK, item)
+  var item ProgramType
+  resp, err := myShared.GetItem(map[string]interface{}{
+    "data": &item,
+    "path": "/program_types",
+    "query": map[string]string{
+      "id": "eq." + c.Param("id"),
+    },
+  })
+  if err != nil {
+    return c.JSON(resp.StatusCode, myShared.Response{
+      Message: err.Error(),
+    })
+  }
+
+  item.Links = itemLinks(item)
+  return c.JSON(http.StatusOK, item)
 }
 
 // func CreateProgramType(c echo.Context) error {

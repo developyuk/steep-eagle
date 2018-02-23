@@ -1,50 +1,44 @@
 package types
 
 import (
-	myShared "../../shared"
-	"log"
+  myShared "../../shared"
+  myPrograms "../../programs"
+  "strconv"
 )
 
-type ProgramType struct {
-	myShared.Hal
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+type (
+  ProgramType struct {
+    myShared.Hal
+    Id   uint64 `json:"id"`
+    Name string `json:"name"`
+  }
+  ProgramLinks struct {
+    myShared.LinksSelf
+    Programs []myShared.Href `json:"programs,omitempty"`
+  }
+)
+
+func itemLinksPrograms(id uint64) []myShared.Href {
+  var list []myPrograms.ProgramModules
+  myShared.GetItems(map[string]interface{}{
+    "data": &list,
+    "path": "/programs",
+    "query": map[string]string{
+      "type_id": "eq." + strconv.FormatUint(id, 10),
+      "select":  "id",
+    },
+  })
+
+  var data []myShared.Href
+  for _, v := range list {
+    data = append(data, myShared.CreateHref(myShared.PathPrograms+"/"+strconv.FormatUint(v.Id, 10)))
+  }
+  return data
 }
 
-func ListData() []ProgramType {
-	db := myShared.Connect()
-
-	var data []ProgramType
-	err := db.Select(&data, "SELECT id, name FROM program_types")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return data
-}
-
-func ItemData(id string) ProgramType {
-	db := myShared.Connect()
-
-	var data ProgramType
-	err := db.Get(&data, `SELECT id, name
-    FROM program_types
-    WHERE id = $1`, id)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return data
-}
-
-func CreateProgramType(name string) myShared.Response {
-	db := myShared.Connect()
-
-	db.MustExec(`INSERT INTO program_types(name)
-		VALUES ($1)`, name)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	return myShared.Response{Message: ""}
+func itemLinks(v ProgramType) ProgramLinks {
+  var links ProgramLinks
+  links.Self = myShared.CreateHref(myShared.PathProgramsTypes + "/" + strconv.FormatUint(v.Id, 10))
+  links.Programs = itemLinksPrograms(v.Id)
+  return links
 }

@@ -1,31 +1,57 @@
 package shared
 
 import (
-  "gopkg.in/resty.v1"
+  "github.com/parnurzeal/gorequest"
+  "net/http"
+  "errors"
 )
 
 const (
   DbApiUrl = "http://db-api:3000"
 )
 
-func RestItems(params map[string]interface{}) *resty.Response {
-  req := resty.R().
-    SetHeader("Accept", "application/json").
-    SetHeader("Authorization", AuthHeader)
+func GetItems(params map[string]interface{}) (*http.Response, error) {
+  req := gorequest.New()
+  req.Get(DbApiUrl + params["path"].(string)).
+    Set("Accept", "application/json").
+    Set("Authorization", AuthHeader)
 
-  if val, ok := params["query"].(map[string]string); ok {
-    req.SetQueryParams(val)
+  if val, ok := params["query"]; ok {
+    req.Query(val.(map[string]string))
   }
-  resp, _ := req.Get(DbApiUrl + params["path"].(string))
-  return resp
+  resp, _, errs := req.EndStruct(params["data"])
+  //log.Println(errs)
+  if errs != nil {
+    return resp, errs[0]
+  }
+  if resp.StatusCode != 200 {
+    return resp, errors.New(resp.Status)
+  }
+
+  if errs != nil {
+    return resp, errs[0]
+  }
+  return resp, nil
 
 }
 
-func RestItem(params map[string]interface{}) *resty.Response {
-  resp, _ := resty.R().
-    SetQueryParams(params["query"].(map[string]string)).
-    SetHeader("Accept", "application/vnd.pgrst.object+json").
-    SetHeader("Authorization", AuthHeader).
-    Get(DbApiUrl + params["path"].(string))
-  return resp
+func GetItem(params map[string]interface{}) (*http.Response, error) {
+  resp, _, errs := gorequest.New().
+    Get(DbApiUrl + params["path"].(string)).
+    Query(params["query"].(map[string]string)).
+    Set("Accept", "application/vnd.pgrst.object+json").
+    Set("Authorization", AuthHeader).
+    EndStruct(params["data"])
+  if errs != nil {
+    return resp, errs[0]
+  }
+  if resp.StatusCode != 200 {
+    return resp, errors.New(resp.Status)
+  }
+  
+  if errs != nil {
+    return resp, errs[0]
+  }
+
+  return resp, nil
 }

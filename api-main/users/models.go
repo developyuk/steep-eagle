@@ -1,100 +1,110 @@
 package users
 
 import (
-	myShared "../shared"
-	"github.com/jmoiron/sqlx"
-	"gopkg.in/guregu/null.v3"
-	"log"
-	"strings"
+  myShared "../shared"
+  mySessions "../sessions"
+  "time"
+  "strconv"
 )
 
-type User struct {
-	myShared.Hal
-	Id        null.Int    `json:"id"`
-	Name      null.String `json:"name"`
-	FirstName null.String `json:"first_name"  db:"first_name"`
-	LastName  null.String `json:"last_name"  db:"last_name"`
-	Email     null.String `json:"email"`
-	Dob       null.Time   `json:"dob"`
-	Photo     null.String `json:"photo"`
-	Role      null.String `json:"role"`
+type (
+  User struct {
+    myShared.Hal
+    Id        uint64    `json:"id"`
+    Name      string    `json:"name"`
+    FirstName string    `json:"first_name"  db:"first_name"`
+    LastName  string    `json:"last_name"  db:"last_name"`
+    Email     string    `json:"email"`
+    Dob       time.Time `json:"dob"`
+    Photo     string    `json:"photo"`
+    Role      string    `json:"role"`
+  }
+
+  TutorLinks struct {
+    myShared.LinksSelf
+    Sessions []myShared.Href `json:"sessions,omitempty"`
+  }
+
+  StudentLinks struct {
+    myShared.LinksSelf
+    Classes []myShared.Href `json:"classes,omitempty"`
+  }
+)
+
+func itemLinksSessions(id uint64) []myShared.Href {
+
+  var list []mySessions.Session
+  myShared.GetItems(map[string]interface{}{
+    "data": &list,
+    "path": "/sessions",
+    "query": map[string]string{
+      "tutor_id": "eq." + strconv.FormatUint(id, 10),
+      "select":   "id",
+    },
+  })
+
+  var data []myShared.Href
+  for _, v := range list {
+    data = append(data, myShared.CreateHref(myShared.PathSessions+"/"+strconv.FormatUint(v.Id, 10)))
+  }
+
+  return data
 }
 
-func getClassById(db *sqlx.DB, id null.Int) int64 {
-	var data int64
-	err := db.Get(&data, `SELECT class_id
-  			          FROM class_students
-  			          where id = $1`, id)
-	if err != nil {
-		log.Fatal(err)
-	}
+func itemLinksClass(id uint64) []myShared.Href {
+  var list []myShared.ClassStudents
+  myShared.GetItems(map[string]interface{}{
+    "data": &list,
+    "path": "/class_students",
+    "query": map[string]string{
+      "student_id": "eq." + strconv.FormatUint(id, 10),
+      "select":     "class_id",
+    },
+  })
 
-	return data
-}
-func ListData(params map[string]interface{}) ([]User, *sqlx.DB) {
-	db := myShared.Connect()
-	sql := []string{`SELECT id, name, first_name, last_name, email,
-      photo, role
-    FROM users`}
+  var data []myShared.Href
+  for _, v := range list {
+    data = append(data, myShared.CreateHref(myShared.PathClasses+"/"+strconv.FormatUint(v.ClassId, 10)))
+  }
 
-	if len(params) > 0 {
-		sql = append(sql, "WHERE")
-
-		if _, ok := params["role"]; ok {
-			sql = append(sql, "role = :role")
-		}
-	}
-	var data []User
-	// log.Println(strings.Join(sql, " "))
-	stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
-	err := stmt.Select(&data, params)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return data, db
+  return data
 }
 
-func ItemData(params map[string]interface{}) (User, *sqlx.DB) {
-	db := myShared.Connect()
-	sql := []string{`SELECT id, name, first_name, last_name, email, dob,
-     photo, role
-    FROM users`}
-	if len(params) > 0 {
-		sql = append(sql, "WHERE")
+func itemLinks(v User, role string) interface{} {
+  path := getPath(role)
+  //log.Println(role)
+  if role == "student" {
+    var studentLinks StudentLinks
+    studentLinks.Self = myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))
+    studentLinks.Classes = itemLinksClass(v.Id)
+    return studentLinks
+  }
+  if role == "tutor" {
+    var tutorLinks TutorLinks
+    tutorLinks.Self = myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))
+    tutorLinks.Sessions = itemLinksSessions(v.Id)
+    return tutorLinks
+  }
 
-		if _, ok := params["id"]; ok {
-			sql = append(sql, "id = :id")
-		}
-
-		if _, ok := params["role"]; ok {
-			sql = append(sql, "AND")
-			sql = append(sql, "role = :role")
-		}
-	}
-	var data User
-	stmt, _ := db.PrepareNamed(strings.Join(sql, " "))
-	err := stmt.Get(&data, params)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return data, db
+  return myShared.LinksSelf{Self: myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))}
 }
 
-func UserByEmailPwdData(param *UserLoginRequest) (User, *sqlx.DB) {
-	db := myShared.Connect()
+func itemByEmailPass(param *UserLoginRequest) (User, error) {
 
-	var data User
-	err := db.Get(&data, `SELECT id, name, first_name, last_name, email, dob,
-     photo, role
-    FROM users
-    WHERE email = $1 AND pass = $2`, param.Email, param.Pwd)
-	if err != nil {
-		// log.Fatal(err)
-		return User{}, db
-	}
+  var item User
+  _, err := myShared.GetItem(map[string]interface{}{
+    "data": &item,
+    "path": myShared.PathUsers,
+    "query": map[string]string{
+      "email": "eq." + param.Email,
+      "pass":  "eq." + param.Pwd,
+    },
+  })
 
-	return data, db
+  if err != nil {
+    return item, err
+  }
+
+  return item, err
 
 }
