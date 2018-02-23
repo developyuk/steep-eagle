@@ -1,42 +1,30 @@
-CREATE ROLE anon NOLOGIN;
-CREATE ROLE operation NOLOGIN;
-CREATE ROLE tutor NOLOGIN;
-CREATE ROLE student NOLOGIN;
-CREATE ROLE parent NOLOGIN;
-CREATE ROLE partner NOLOGIN;
-
-GRANT anon TO postgres;
-
-GRANT USAGE
-	ON SCHEMA public
-	TO anon;
-
-
-REVOKE ALL
-	ON ALL TABLES IN SCHEMA public
-	FROM PUBLIC;
-
-GRANT USAGE
-	,SELECT
-	ON ALL SEQUENCES IN SCHEMA public
-	TO operation
-		,tutor;
-
-GRANT SELECT
-	,INSERT
-	,UPDATE
-	,DELETE
-	ON ALL TABLES IN SCHEMA public
-	TO operation;
-
-GRANT INSERT
-	ON TABLE sessions
-		,sessions_students
-	TO tutor;
-
-GRANT SELECT
-	ON ALL TABLES IN SCHEMA public
-	TO tutor
-		,student
-		,parent
-		,partner;
+create role anon nologin;
+create role operation nologin;
+create role tutor nologin;
+create role student nologin;
+create role parent nologin;
+create role partner nologin;
+grant anon to postgres;
+grant usage on schema public to anon;
+revoke all on all tables in schema public
+from
+  public;
+grant usage,
+select
+  on all sequences in schema public to operation,
+  tutor;
+grant
+select
+  ,
+  insert,
+update
+  ,
+  delete on all tables in schema public to operation;
+grant insert on table sessions,
+sessions_students to tutor;
+grant
+select
+  on all tables in schema public to tutor,
+  student,
+  parent,
+  partner;
