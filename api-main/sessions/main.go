@@ -4,12 +4,13 @@ import (
   myShared "../shared"
   "github.com/labstack/echo"
   "net/http"
+  "strconv"
 )
 
 func List(c echo.Context) error {
   //params := make(map[string]interface{})
 
-  var list []Session
+  var list []myShared.Session
   resp, err := myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
@@ -21,7 +22,8 @@ func List(c echo.Context) error {
   }
 
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = ItemLinks(v)
+    list[i].Embedded = itemEmbedded(v)
   }
 
   response := myShared.Hal{
@@ -35,7 +37,7 @@ func List(c echo.Context) error {
 
 func ListByTutorId(c echo.Context) error {
   tid := c.Param("id")
-  var list []Session
+  var list []myShared.Session
   resp, err := myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
@@ -50,11 +52,12 @@ func ListByTutorId(c echo.Context) error {
   }
 
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = ItemLinks(v)
+    list[i].Embedded = itemEmbedded(v)
   }
 
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathTutors + "/" + tid + "/" + myShared.PathSessions)},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathTutors + "/" + tid + myShared.PathSessions)},
     Embedded: list,
     Count:    len(list),
     Total:    len(list),
@@ -68,7 +71,7 @@ func ListByClassId(c echo.Context) error {
   params := make(map[string]interface{})
   params["cid"] = cid
 
-  var list []Session
+  var list []myShared.Session
   resp, err := myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
@@ -83,10 +86,11 @@ func ListByClassId(c echo.Context) error {
   }
 
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = ItemLinks(v)
+    list[i].Embedded = itemEmbedded(v)
   }
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses + "/" + cid + "/" + myShared.PathSessions)},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses + "/" + cid + myShared.PathSessions)},
     Embedded: list,
     Count:    len(list),
     Total:    len(list),
@@ -95,7 +99,7 @@ func ListByClassId(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  var item Session
+  var item myShared.Session
   resp, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathSessions,
@@ -108,7 +112,8 @@ func Item(c echo.Context) error {
       Message: err.Error(),
     })
   }
-  item.Links = itemLinks(item)
+  item.Links = ItemLinks(item)
+  item.Embedded = itemEmbedded(item)
 
   return c.JSON(http.StatusOK, item)
 }
@@ -138,7 +143,22 @@ func ItemStudentsBySessionId(c echo.Context) error {
 }
 
 func CreateByClassId(c echo.Context) error {
-  id := c.Param("id")
-  response := CreateByClassIdData(id)
-  return c.JSON(http.StatusOK, response)
+  var list []myShared.Session
+  resp, err := myShared.PostItem(map[string]interface{}{
+    "data": &list,
+    "path": myShared.PathSessions,
+    "query": map[string]string{
+      "class_id": c.Param("id"),
+      "tutor_id": strconv.FormatFloat(myShared.CurrentAuth.Id, 'f', 0, 64),
+    },
+  })
+  if err != nil {
+    return c.JSON(resp.StatusCode, myShared.Response{
+      Message: err.Error(),
+    })
+  }
+  item := list[0]
+  item.Links = ItemLinks(item)
+  item.Embedded = itemEmbedded(item)
+  return c.JSON(http.StatusOK, item)
 }

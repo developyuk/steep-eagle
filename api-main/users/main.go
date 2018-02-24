@@ -31,7 +31,7 @@ func List(c echo.Context) error {
   if role != "user" {
     params["role"] = "eq." + role
   }
-  var list []User
+  var list []myShared.User
   resp, err := myShared.GetItems(map[string]interface{}{
     "data":  &list,
     "path":  myShared.PathUsers,
@@ -45,7 +45,7 @@ func List(c echo.Context) error {
 
   // log.Fatal()
   for i, v := range list {
-    list[i].Links = itemLinks(v, role)
+    list[i].Links = ItemLinks(v, role)
   }
 
   response := myShared.Hal{
@@ -67,7 +67,7 @@ func Item(c echo.Context) error {
     params["role"] = "eq." + role
   }
 
-  var item User
+  var item myShared.User
   resp, err := myShared.GetItem(map[string]interface{}{
     "data":  &item,
     "path":  myShared.PathUsers,
@@ -80,6 +80,6 @@ func Item(c echo.Context) error {
     })
   }
 
-  item.Links = itemLinks(item, role)
+  item.Links = ItemLinks(item, role)
   return c.JSON(http.StatusOK, item)
 }

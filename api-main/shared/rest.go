@@ -48,7 +48,30 @@ func GetItem(params map[string]interface{}) (*http.Response, error) {
   if resp.StatusCode != 200 {
     return resp, errors.New(resp.Status)
   }
-  
+
+  if errs != nil {
+    return resp, errs[0]
+  }
+
+  return resp, nil
+}
+
+func PostItem(params map[string]interface{}) (*http.Response, error) {
+
+  resp, _, errs := gorequest.New().
+    Post(DbApiUrl + params["path"].(string)).
+    Send(params["query"].(map[string]string)).
+    Set("Accept", "application/json").
+    Set("Authorization", AuthHeader).
+    Set("Prefer", "return=representation").
+    EndStruct(params["data"])
+  if errs != nil {
+    return resp, errs[0]
+  }
+  if resp.StatusCode != 201 {
+    return resp, errors.New(resp.Status)
+  }
+
   if errs != nil {
     return resp, errs[0]
   }

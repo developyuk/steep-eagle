@@ -3,7 +3,6 @@ package modules
 import (
   myShared "../shared"
   myPrograms "../programs"
-  myClasses "../classes"
   "strconv"
 )
 
@@ -24,7 +23,7 @@ type (
 )
 
 func itemLinksClasses(id uint64) []myShared.Href {
-  var list []myClasses.Class_
+  var list []myShared.Class_
   myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/classes",
@@ -60,7 +59,7 @@ func itemLinksPrograms(id uint64) []myShared.Href {
   return data
 }
 
-func itemLinks(v Module) ModuleLinks {
+func ItemLinks(v Module) ModuleLinks {
   var links ModuleLinks
   links.Self = myShared.CreateHref(myShared.PathModules + "/" + strconv.FormatUint(v.Id, 10))
   links.Programs = itemLinksPrograms(v.Id)

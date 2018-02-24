@@ -19,7 +19,7 @@ func List(c echo.Context) error {
   }
 
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = ItemLinks(v)
   }
 
   response := myShared.Hal{
@@ -48,7 +48,7 @@ func Item(c echo.Context) error {
     })
   }
 
-  item.Links = itemLinks(item)
+  item.Links = ItemLinks(item)
   return c.JSON(http.StatusOK, item)
 }
 

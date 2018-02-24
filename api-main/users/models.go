@@ -2,24 +2,10 @@ package users
 
 import (
   myShared "../shared"
-  mySessions "../sessions"
-  "time"
   "strconv"
 )
 
 type (
-  User struct {
-    myShared.Hal
-    Id        uint64    `json:"id"`
-    Name      string    `json:"name"`
-    FirstName string    `json:"first_name"  db:"first_name"`
-    LastName  string    `json:"last_name"  db:"last_name"`
-    Email     string    `json:"email"`
-    Dob       time.Time `json:"dob"`
-    Photo     string    `json:"photo"`
-    Role      string    `json:"role"`
-  }
-
   TutorLinks struct {
     myShared.LinksSelf
     Sessions []myShared.Href `json:"sessions,omitempty"`
@@ -33,7 +19,7 @@ type (
 
 func itemLinksSessions(id uint64) []myShared.Href {
 
-  var list []mySessions.Session
+  var list []myShared.Session
   myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/sessions",
@@ -70,7 +56,7 @@ func itemLinksClass(id uint64) []myShared.Href {
   return data
 }
 
-func itemLinks(v User, role string) interface{} {
+func ItemLinks(v myShared.User, role string) interface{} {
   path := getPath(role)
   //log.Println(role)
   if role == "student" {
@@ -89,9 +75,9 @@ func itemLinks(v User, role string) interface{} {
   return myShared.LinksSelf{Self: myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))}
 }
 
-func itemByEmailPass(param *UserLoginRequest) (User, error) {
+func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
 
-  var item User
+  var item myShared.User
   _, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathUsers,

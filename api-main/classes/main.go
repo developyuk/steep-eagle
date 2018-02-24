@@ -4,27 +4,38 @@ import (
   myShared "../shared"
   "github.com/labstack/echo"
   "net/http"
+  "log"
 )
 
 func List(c echo.Context) error {
-  //params := make(map[string]string)
+  params := make(map[string]string)
 
-  var list []Class_
+  if val := c.QueryParam("sort"); len(val) > 0 {
+    params["order"] = val
+  }
+  log.Println(params)
+  var list []myShared.Class_
   resp, err := myShared.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": "/classes_",
-    "query": map[string]string{
-      "order": "ts.asc",
-    },
+    "data":  &list,
+    "path":  "/classes_",
+    "query": params,
   })
   if err != nil {
     return c.JSON(resp.StatusCode, myShared.Response{
       Message: err.Error(),
     })
   }
-
+  //list2 := list
+  //d := 24 * time.Hour
+  //list2 := list[:0]
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = myShared.ClassItemLinks(v)
+    list[i].Embedded = itemEmbedded(v)
+
+    //embedded := list[i].Embedded.(ClassEmbedded)
+    //if !(embedded.LastSession != nil && embedded.LastSession.CreatedAt.Truncate(d).Equal(time.Now().Truncate(d)) ) {
+    //  list2 = append(list2, list[i])
+    //}
   }
 
   response := myShared.Hal{
@@ -37,7 +48,7 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  var item Class_
+  var item myShared.Class_
   resp, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": "/classes_",
@@ -51,7 +62,8 @@ func Item(c echo.Context) error {
     })
   }
 
-  item.Links = itemLinks(item)
+  item.Links = myShared.ClassItemLinks(item)
+  item.Embedded = itemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }
 

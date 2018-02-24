@@ -3,102 +3,89 @@ package classes
 import (
   myShared "../shared"
   mySessions "../sessions"
-  myUsers "../users"
+  myModules "../modules"
+  myBranches "../branches"
   "strconv"
 )
 
 type (
-  Class_ struct {
-    myShared.Hal
-    Id       uint64 `json:"id"`
-    Name     string `json:"name"`
-    Image    string `json:"image"`
-    Day      string `json:"day"`
-    Time     string `json:"time"`
-    Ts       string `json:"ts"`
-    ModuleId uint64 `json:"module_id"`
-    BranchId uint64 `json:"branch_id"`
-    //Module   myModules.Module  `json:"module"`
-    //Branch   myBranches.Branch `json:"branch"`
-  }
-
-  ClassLinks struct {
-    myShared.LinksSelf
-    Module      *myShared.Href  `json:"module,omitempty"`
-    Branch      *myShared.Href  `json:"branch,omitempty"`
-    Students    []myShared.Href `json:"students,omitempty"`
-    LastSession *myShared.Href  `json:"last_session,omitempty"`
-    Sessions    []myShared.Href `json:"sessions,omitempty"`
+  ClassEmbedded struct {
+    LastSession *myShared.Session  `json:"last_session,omitempty"`
+    Module      *myModules.Module  `json:"module,omitempty"`
+    Branch      *myBranches.Branch `json:"branch,omitempty"`
   }
 )
 
-func itemLinksLastSessions(id uint64) myShared.Href {
-  var session mySessions.Session
+func itemEmbeddedLastSessions(id uint64) myShared.Session {
+  var session myShared.Session
 
-  myShared.GetItem(map[string]interface{}{
-    "path": "/sessions",
+  _, err := myShared.GetItem(map[string]interface{}{
+    "data": &session,
+    "path": myShared.PathSessions,
     "query": map[string]string{
       "class_id": "eq." + strconv.FormatUint(id, 10),
       "order":    "created_at.desc",
       "limit":    "1",
-      "select":   "id",
+      //"select":   "id,created_at",
     },
   })
+  if err != nil {
+    return myShared.Session{}
+  }
+  session.Links = mySessions.ItemLinks(session)
 
-  return myShared.CreateHref(myShared.PathSessions + "/" + strconv.FormatUint(session.Id, 10))
+  return session
 }
-func itemLinksSessions(id uint64) []myShared.Href {
-  var list []mySessions.Session
 
-  myShared.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": "/sessions",
+func itemEmbeddedModule(id uint64) myModules.Module {
+  var module myModules.Module
+
+  _, err := myShared.GetItem(map[string]interface{}{
+    "data": &module,
+    "path": myShared.PathModules,
     "query": map[string]string{
-      "class_id": "eq." + strconv.FormatUint(id, 10),
-      "order":    "created_at.desc",
-      "select":   "id",
+      "id":    "eq." + strconv.FormatUint(id, 10),
+      "limit": "1",
+      //"select":   "id,created_at",
     },
   })
-
-  var data []myShared.Href
-  for _, v := range list {
-    data = append(data, myShared.CreateHref(myShared.PathSessions+"/"+strconv.FormatUint(v.Id, 10)))
+  if err != nil {
+    return myModules.Module{}
   }
+  module.Links = myModules.ItemLinks(module)
 
-  return data
+  return module
 }
-func itemLinksStudents(id uint64) []myShared.Href {
-  var list []myUsers.User
-  myShared.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": "/class_students",
+func itemEmbeddedBranch(id uint64) myBranches.Branch {
+  var branch myBranches.Branch
+
+  _, err := myShared.GetItem(map[string]interface{}{
+    "data": &branch,
+    "path": myShared.PathBranches,
     "query": map[string]string{
-      "class_id": "eq." + strconv.FormatUint(id, 10),
-      "select":   "id",
+      "id":    "eq." + strconv.FormatUint(id, 10),
+      "limit": "1",
+      //"select":   "id,created_at",
     },
   })
-
-  var data []myShared.Href
-  for _, v := range list {
-    data = append(data, myShared.CreateHref(myShared.PathStudents+"/"+strconv.FormatUint(v.Id, 10)))
+  if err != nil {
+    return myBranches.Branch{}
   }
+  branch.Links = myBranches.ItemLinks(branch)
 
-  return data
+  return branch
 }
-
-func itemLinks(data Class_) ClassLinks {
-  var links ClassLinks
-  links.Self = myShared.CreateHref(myShared.PathClasses + "/" + strconv.FormatUint(data.Id, 10))
-  linksModule := myShared.CreateHref(myShared.PathModules + "/" + strconv.FormatUint(data.ModuleId, 10))
-  links.Module = &linksModule
-  linksBranch := myShared.CreateHref(myShared.PathBranches + "/" + strconv.FormatUint(data.BranchId, 10))
-  links.Branch = &linksBranch
-  links.Students = itemLinksStudents(data.Id)
-  links.Sessions = itemLinksSessions(data.Id)
-  if len(links.Sessions) > 0 {
-    lastSession := itemLinksLastSessions(data.Id)
-    links.LastSession = &lastSession
+func itemEmbedded(data myShared.Class_) ClassEmbedded {
+  var embedded ClassEmbedded
+  lastSession := itemEmbeddedLastSessions(data.Id)
+  //  links.LastSession = &lastSession
+  if lastSession.Id > 0 {
+    embedded.LastSession = &lastSession
   }
-  return links
+  module := itemEmbeddedModule(data.ModuleId)
+  embedded.Module = &module
+  branch := itemEmbeddedBranch(data.BranchId)
+  embedded.Branch = &branch
 
+  return embedded
 }

@@ -2,7 +2,6 @@ package branches
 
 import (
   myShared "../shared"
-  myClasses "../classes"
   "strconv"
 )
 
@@ -23,7 +22,7 @@ type (
 
 func itemLinksClasses(id uint64) []myShared.Href {
   //list := getClassesById(db, id)
-  var list []myClasses.Class_
+  var list []myShared.Class_
 
   myShared.GetItems(map[string]interface{}{
     "data": &list,
@@ -42,7 +41,7 @@ func itemLinksClasses(id uint64) []myShared.Href {
   return data
 }
 
-func itemLinks(v Branch) BranchLinks {
+func ItemLinks(v Branch) BranchLinks {
   var links BranchLinks
   links.Self = myShared.CreateHref(myShared.PathBranches + "/" + strconv.FormatUint(v.Id, 10))
   links.Classes = itemLinksClasses(v.Id)
