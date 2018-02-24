@@ -11,7 +11,7 @@
 </template>
 
 <script>
-//  import {MDCRipple} from '@material/ripple';
+  //  import {MDCRipple} from '@material/ripple';
 
   export default {
     name: 'tabBottom',
@@ -40,17 +40,26 @@
     max-width: 30rem;
     width: 100%;
     background-color: #fff;
+    z-index: 4;
   }
-  .mdc-tab--active, .mdc-tab--active .mdc-tab__icon{
-    color:#ED235C;
+
+  .mdc-tab--active, .mdc-tab--active .mdc-tab__icon {
+    color: #ED235C;
   }
-  .mdc-tab__icon{
-    font-size: 2rem;
+  .mdc-tab {
+    padding:0 2rem;
+  }
+
+  .mdc-tab__icon {
+    font-size: 2.5rem;
     width: auto;
     height: auto;
     line-height: 1.25rem;
+    vertical-align: middle;
+    margin-top: 1rem;
   }
-  .mdc-tab__icon-text{
-    font-size: .75rem;
+
+  .mdc-tab__icon-text {
+    font-size: .625rem;
   }
 </style>

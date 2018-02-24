@@ -4,13 +4,13 @@
     ul.mdc-list
       li.mdc-list-item(v-for="(v,i) in classes")
         .mdc-list-item__graphic
-          img(':src'="v.module.image")
-        span.mdc-list-item__text {{v.module.name}}
-          span.mdc-list-item__secondary-text {{v.branch.name}} {{v.day}} {{v.time}}
-        button(v-if="buttonStatus(v.ts) === 'start'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-        button(v-if="buttonStatus(v.ts) === 'disabled'" disabled data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-        button(v-if="buttonStatus(v.ts) === 'late'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
-        span.ongoing(v-if="buttonStatus(v.ts)==='ongoing'") ongoing
+          img(':src'="v._embedded.module.image")
+        span.mdc-list-item__text {{v._embedded.module.name}}
+          span.mdc-list-item__secondary-text {{v._embedded.branch.name}} {{v.day}} {{v.time}}
+        button(v-if="buttonStatus(v) === 'start'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+        button(v-if="buttonStatus(v) === 'disabled'" disabled data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+        button(v-if="buttonStatus(v) === 'late'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
+        span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       .mdc-dialog__surface
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-//  import {MDCRipple} from '@material/ripple';
+  //  import {MDCRipple} from '@material/ripple';
   import TabBottom from '@/components/TabBottom';
   import Header from '@/components/Header';
   import moment from 'moment';
@@ -59,24 +59,34 @@
       comingSoon(e) {
         e.target.innerText = 'coming soon';
       },
-      buttonStatus(ts) {
+      buttonStatus(class_) {
+        const ts = class_.ts;
+        let ls = class_._embedded;
+        ls = ls.last_session ? ls.last_session.created_at : ls.last_session;
+
         const mts = moment(ts);
+//        console.log('ts', mts.toString(), '---', ts);
         const mnow = moment();
         const mdiff = mts.diff(mnow, 'minutes');
-//        console.log(mts.toString(), '---', ts);
-//        console.log(mnow.toString());
+//        console.log('now', mnow.toString());
 //        console.log(mts.isAfter(mnow));
-//        console.log(mts.diff(mnow, 'minutes'));
-        if (mts.diff(mnow, 'days') >= 1) {
-          return 'disabled';
+//        console.log('diff', mdiff);
+        if (ls) {
+          const mls = moment(ls);
+//          console.log('ls',mls.toString(), '-', ls);
+//          console.log('mlsdiff',mls.diff(mnow,'minutes'));
+          if (mnow.isAfter(mls) && mls.diff(mnow,'minutes') > -1 * (2 * 60)) {
+            return 'ongoing';
+          }
         }
-//        if (mdiff < -5) {
-//          return 'ongoing';
-//        }
-        if (mdiff < 0) {
+        if (mdiff < -5) {
           return 'late';
         }
-        return 'start';
+//        console.log('diff day', mts.diff(mnow, 'days'));
+        if (mts.diff(mnow, 'days') === 0) {
+          return 'start';
+        }
+        return 'disabled';
       },
       activate(cid) {
         const url = `${process.env.API}/classes/${cid}/sessions`;
@@ -87,7 +97,8 @@
         })
           .then(response => {
 //            console.log(response);
-            this.$delete(this.classes, this.classes.findIndex(el => el.id === cid));
+//            this.$delete(this.classes, this.classes.findIndex(el => el.id === cid));
+            this.getSchedules();
           })
           .catch(error => console.log(error))
       },
@@ -97,36 +108,18 @@
         this.dialog.lastFocusedTarget = e.target;
         this.dialog.show();
       },
-      _mergeBranch(classes) {
-        classes.forEach((v, i, a) => {
-          this.$set(a[i], 'branch', {'name': ''});
-          axios.get(`${process.env.API}${v._links.branch.href}`)
-            .then(response => {
-              this.$set(a[i], 'branch', response.data);
-            })
-            .catch(error => console.log(error))
-        });
-      },
-      _mergeModule(classes) {
-        classes.forEach((v, i, a) => {
-          this.$set(a[i], 'module', {'name': ''});
-          axios.get(`${process.env.API}${v._links.module.href}`)
-            .then(response => {
-              response.data.image = response.data.image.replace('https://', '').replace('http://', '');
-              response.data.image = `//images.weserv.nl/?output=jpg&il&q=100&w=64&h=64&t=square&url=${response.data.image}`;
-              this.$set(a[i], 'module', response.data);
-            })
-            .catch(error => console.log(error))
-        });
-      },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes?sort=datetime`;
+        const url = `${process.env.API}/classes?sort=ts.asc`;
 
         axios.get(url)
           .then(response => {
             this.classes = response.data._embedded;
-            this._mergeBranch(this.classes);
-            this._mergeModule(this.classes);
+
+            this.classes.forEach((v, i, a) => {
+              let image = v._embedded.module.image.replace('https://', '').replace('http://', '');
+              image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
+              this.$set(a[i]['_embedded']['module'], 'image', image);
+            });
           })
           .catch(error => console.log(error))
       },
@@ -195,10 +188,15 @@
   }
 
   .mdc-list-item__graphic {
-    overflow: hidden;
-    width: $size;
-    height: $size;
-    border-radius: .5rem;
+    /*overflow: hidden;*/
+    width: 64px;
+    height: 64px;
+    img {
+      width: 64px;
+      height: 64px;
+      border-radius: .5rem;
+    }
+
     margin-right: 1rem;
   }
 

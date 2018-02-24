@@ -16,11 +16,11 @@ create table programs (
 insert into programs (name, type_id)
 values
   ('program1', 1),
-  ('program2', 1),
-  ('program3', 3),
+  ('program2', 3),
+  ('program3', 2),
   ('program4', 4),
   ('program5', 5),
-  ('program3', 2);
+  ('program6', 1);
 create table modules (
   id bigserial primary key, name text not null,
   image text, session_total smallserial
@@ -36,11 +36,11 @@ values
     16
   ),
   (
-    'hw1', 'https://dl.dropboxusercontent.com/s/3cdzkqbcxwbrymv/hw1.jpg',
+    'hw 1', 'https://dl.dropboxusercontent.com/s/3cdzkqbcxwbrymv/hw1.jpg',
     16
   ),
   (
-    'hw2', 'https://dl.dropboxusercontent.com/s/f7jwyg517ymu47x/hw2.jpg',
+    'hw 2', 'https://dl.dropboxusercontent.com/s/f7jwyg517ymu47x/hw2.jpg',
     16
   );
 create table program_modules (
@@ -51,28 +51,24 @@ create table program_modules (
 insert into program_modules (module_id, program_id)
 values
   (1, 1),
-  (1, 2),
-  (2, 2),
   (3, 2),
-  (4, 1);
+  (2, 2),
+  (4, 3),
+  (1, 1);
 create table branches (
-  id bigserial primary key, name text not null,
-  image text, address text
+  id bigserial primary key, name text not null, address text
 );
-insert into branches (name, image, address)
+insert into branches (name, address)
 values
-  ('branch1', '', 'address1'),
+  ('pondok indah', 'pondok indah address'),
   (
-    'location2', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
-    ''
+    'kemang', 'kemang address'
   ),
   (
-    'lokasi3', 'https://www.shareicon.net/data/128x128/2016/05/24/769782_map_512x512.png',
-    'adress3'
+    'pondok', 'pondok address'
   );
 create table classes (
   id bigserial primary key,
-  name text not null,
   day text not null,
   time text not null,
   module_id bigserial references program_modules(id),
@@ -85,19 +81,13 @@ create table classes (
   )
 );
 insert into classes (
-  name, module_id, branch_id, day, time
+  module_id, branch_id, day, time
 )
 values
-  ('', 1, 2, 'sunday', '12:00'),
-  ('', 3, 2, 'sunday', '13:00'),
-  ('', 1, 2, 'monday', '12:00'),
-  ('', 4, 1, 'thursday', '13:30'),
-  ('', 3, 3, 'friday', '9:30'),
-  ('', 1, 2, 'tuesday', '19:30'),
-  ('', 4, 3, 'wednesday', '8:30'),
-  ('', 2, 1, 'wednesday', '12:30'),
-  ('', 3, 2, 'saturday', '12:30'),
-  ('', 2, 2, 'saturday', '12:30');
+  (4, 1, 'saturday', '13:00'),
+  (3, 2, 'saturday', '13:00'),
+  (1, 3, 'saturday', '15:00'),
+  (1, 1, 'saturday', '20:00');
 create
 or replace view classes_ as
 select
@@ -141,13 +131,98 @@ create table users (
 insert into users (name, email, pass, role, photo)
 values
   (
-    'user1', 'user1@ex.com', 'asdqwe',
-    'student', ''
-  ),
-  (
-    'user2', 'user2@ex.com', 'asdqwe',
+    'john snow', 'john.snow@ex.com', 'asdqwe',
     'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
   ),
+  (
+    'daenarys targaryen', 'daenarys.targaryen@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'tyrion lannister', 'tyrion.lannister@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'jamie lannister', 'jamie.lannister@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+
+
+  (
+    'aristotle', 'aristotle@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'plato', 'plato@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'pythagoras', 'pythagoras@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'socrates', 'socrates@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'parminedes', 'parminedes@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+
+  (
+    'tony stark', 'tony.stark@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'steve rogers', 'steve.rogers@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'bruce banner', 'bruce.banner@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'natasha romanoff', 'natasha.romanoff@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'peter parker', 'peter.parker@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'scott lang', 'scott.lang@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'stephen strange', 'stephen.strange@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'james rhodes', 'james.rhodes@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'maria hill', 'maria.hill@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+
+  (
+    'thomas alva edison', 'thomas.alva.edison@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'tesla', 'tesla@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'isaac newton', 'isaac.newton@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+  (
+    'michael faraday', 'michael.faraday@ex.com', 'asdqwe',
+    'student', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
+  ),
+
   (
     'user3', 'user3@ex.com', 'asdqwe',
     'tutor', 'https://resources.kamernet.nl/content/images/placeholder/no-pic-user.png'
@@ -180,6 +255,24 @@ create table class_students (
 insert into class_students (class_id, student_id)
 values
   (1, 1),
-  (2, 1),
-  (2, 2),
-  (3, 2);
+  (1, 2),
+  (1, 3),
+  (1, 4),
+  (2, 5),
+  (2, 6),
+  (2, 7),
+  (2, 8),
+  (2, 9),
+  (3, 10),
+  (3, 11),
+  (3, 12),
+  (3, 13),
+  (3, 14),
+  (3, 15),
+  (3, 16),
+  (3, 17),
+  (3, 18),
+  (4, 19),
+  (4, 20),
+  (4, 21),
+  (4, 22);

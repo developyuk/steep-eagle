@@ -55,7 +55,6 @@
       let drawer = new mdc.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
       document.querySelector('img.logo').addEventListener('click', () => {
         drawer.open = true;
-
       });
       this.$bus.$on('currentAuth', (auth) => {
         auth.photo = auth.photo.replace('https://', '').replace('http://', '');

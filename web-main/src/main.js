@@ -4,13 +4,14 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from "axios";
+// require("material-components-web/dist/material-components-web.min.js");
+import * as mdc from 'material-components-web/dist/material-components-web';
 // import EventBus from './event-bus.js';
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
-// require("material-components-web/dist/material-components-web.min.css");
-// require("material-components-web/dist/material-components-web.min.js");
-import * as mdc from 'material-components-web/dist/material-components-web';
+require("hammerjs");
+
 window.mdc = mdc;
 
 router.beforeEach((to, from, next) => {
@@ -20,7 +21,7 @@ router.beforeEach((to, from, next) => {
     .get(`${process.env.API}/auth`)
     .then(response => {
       // console.log(response.data);
-      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 144);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99*8);
       next();
     })
     .catch(error => {
