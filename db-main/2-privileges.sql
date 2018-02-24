@@ -12,7 +12,7 @@ from
 grant usage,
 select
   on all sequences in schema public to operation,
-  tutor;
+  tutor,anon;
 grant
 select
   ,
@@ -26,5 +26,6 @@ grant
 select
   on all tables in schema public to tutor,
   student,
+  anon,
   parent,
   partner;
