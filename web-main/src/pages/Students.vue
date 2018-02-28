@@ -166,7 +166,7 @@
           });
         });
         console.log('add hammer event');
-      }, 999);
+      }, 999*2);
     }
   }
 </script>
