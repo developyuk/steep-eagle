@@ -8,6 +8,7 @@ import (
   "github.com/labstack/echo"
   "net/http"
   "time"
+  "log"
 )
 
 type UserLoginRequest struct {
@@ -33,16 +34,17 @@ func Sign(c echo.Context) error {
   // Set claims
   claims := token.Claims.(jwt.MapClaims)
   claims["id"] = item.Id
-  claims["name"] = item.Name
+  //claims["name"] = item.Name
   claims["role"] = item.Role
-  claims["photo"] = item.Photo
+  //claims["photo"] = item.Photo
   claims["email"] = item.Email
   claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
   // Generate encoded token and send it as response.
   t, err2 := token.SignedString([]byte(myShared.JwtKey))
+  log.Println(t)
   if err2 != nil {
-    return err2
+    return c.JSON(http.StatusUnauthorized, err2)
   }
   return c.JSON(http.StatusOK, map[string]string{
     "token": t,

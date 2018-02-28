@@ -17,7 +17,7 @@ func List(c echo.Context) error {
   var list []myShared.Class_
   resp, err := myShared.GetItems(map[string]interface{}{
     "data":  &list,
-    "path":  "/classes_",
+    "path":  "/classes_ts",
     "query": params,
   })
   if err != nil {
@@ -51,7 +51,7 @@ func Item(c echo.Context) error {
   var item myShared.Class_
   resp, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
-    "path": "/classes_",
+    "path": "/classes_ts",
     "query": map[string]string{
       "id": "eq." + c.Param("id"),
     },

@@ -63,6 +63,6 @@ func ItemLinks(v Module) ModuleLinks {
   var links ModuleLinks
   links.Self = myShared.CreateHref(myShared.PathModules + "/" + strconv.FormatUint(v.Id, 10))
   links.Programs = itemLinksPrograms(v.Id)
-  links.Classes = itemLinksClasses(v.Id)
+  //links.Classes = itemLinksClasses(v.Id)
   return links
 }

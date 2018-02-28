@@ -15,13 +15,14 @@ require("hammerjs");
 window.mdc = mdc;
 
 router.beforeEach((to, from, next) => {
-
-  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+  if (localStorage.getItem('token')) {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+  }
   axios
     .get(`${process.env.API}/auth`)
     .then(response => {
       // console.log(response.data);
-      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99*8);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 8);
       next();
     })
     .catch(error => {

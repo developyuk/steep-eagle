@@ -44,6 +44,6 @@ func itemLinksClasses(id uint64) []myShared.Href {
 func ItemLinks(v Branch) BranchLinks {
   var links BranchLinks
   links.Self = myShared.CreateHref(myShared.PathBranches + "/" + strconv.FormatUint(v.Id, 10))
-  links.Classes = itemLinksClasses(v.Id)
+  //links.Classes = itemLinksClasses(v.Id)
   return links
 }

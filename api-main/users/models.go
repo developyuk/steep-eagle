@@ -78,12 +78,12 @@ func ItemLinks(v myShared.User, role string) interface{} {
 func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
 
   var item myShared.User
-  _, err := myShared.GetItem(map[string]interface{}{
+  _, err := myShared.PostItem(map[string]interface{}{
     "data": &item,
-    "path": myShared.PathUsers,
+    "path": "/rpc/user_by_email_pass",
     "query": map[string]string{
-      "email": "eq." + param.Email,
-      "pass":  "eq." + param.Pwd,
+      "_email": param.Email,
+      "_pass":  param.Pwd,
     },
   })
 

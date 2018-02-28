@@ -61,7 +61,7 @@ func PostItem(params map[string]interface{}) (*http.Response, error) {
   resp, _, errs := gorequest.New().
     Post(DbApiUrl + params["path"].(string)).
     Send(params["query"].(map[string]string)).
-    Set("Accept", "application/json").
+    Set("Accept", "application/vnd.pgrst.object+json").
     Set("Authorization", AuthHeader).
     Set("Prefer", "return=representation").
     EndStruct(params["data"])
