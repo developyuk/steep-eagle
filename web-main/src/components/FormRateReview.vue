@@ -73,6 +73,9 @@
   .rate {
     .cognition, .creativity, .imagination {
       text-transform: capitalize;
+      .title{
+        font-weight: 500;
+      }
     }
     .title .title {
       float: left;

@@ -22,20 +22,23 @@
 </template>
 
 <script>
-  //  import TabBottom from '@/components/TabBottom';
-  //  import Header from '@/components/Header';
-  //  import FormRateReview from '@/components/FormRateReview';
+    import TabBottom from '@/components/TabBottom';
+    import Header from '@/components/Header';
+    import FormRateReview from '@/components/FormRateReview';
+    import Empty from '@/components/Empty';
   import axios from 'axios';
 
   export default {
     name: 'students',
     components: {
-//      TabBottom,
-      'tab-bottom': () => import('@/components/TabBottom'),
-//      'header1': Header,
-      'header1': () => import('@/components/Header'),
-      'form-rate-review': () => import('@/components/FormRateReview'),
-      'empty': () => import('@/components/Empty')
+      TabBottom,
+//      'tab-bottom': () => import('@/components/TabBottom'),
+      'header1': Header,
+//      'header1': () => import('@/components/Header'),
+      'form-rate-review': FormRateReview,
+      'empty': Empty
+//      'form-rate-review': () => import('@/components/FormRateReview'),
+//      'empty': () => import('@/components/Empty')
     },
     data() {
       return {
@@ -52,17 +55,24 @@
       onClickList(e) {
         const $el = e.target.nextSibling.nextSibling;
         console.log('clicked', $el);
-        const sid = $el.getAttribute('sid');
-        const uid = $el.getAttribute('uid');
+        let sid;
+        let uid;
         const is = $el.getAttribute('id');
-        console.log('clicked', sid, uid, is);
-        if (is === 'form-rate-review') {
+        if (this.lastId) {
           const lastId = this.lastId.split('-');
-          this.$set(this.currentView[lastId[0]], lastId[1], 'empty');
-        } else {
+          sid = lastId[0];
+          uid = lastId[1];
+          this.$set(this.currentView[sid], uid, 'empty');
+        }
+        sid = $el.getAttribute('sid');
+        uid = $el.getAttribute('uid');
+        if(is === 'empty') {
           this.$set(this.currentView[sid], uid, 'form-rate-review');
           this.lastId = `${sid}-${uid}`
         }
+        console.log('clicked', sid, uid,this.lastId);
+//        else {
+//        }
 //        this.currentView[sid][uid] = 'form-rate-review';
       },
       getStudentsSessions() {
@@ -115,7 +125,7 @@
   }
 
   #form-rate-review {
-    transition: mdc-animation-enter(height,300ms);
+    transition: mdc-animation-enter(height, 300ms);
   }
 
   .mdc-list-item {
