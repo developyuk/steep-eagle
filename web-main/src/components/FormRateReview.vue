@@ -9,7 +9,7 @@
           span.title cognition
           span.stars
             .rating
-              select(v-model="ratingCognition")
+              select(v-model="ratingCognition").hide
                 option(v-for="v in [0,1,2,3,4,5]" :value=v) {{v}}
               i.material-icons(v-for="v in [1,2,3,4,5]")
         .creativity.clearfix
@@ -80,7 +80,7 @@
     .stars {
       float: right;
     }
-    .rating{
+    .rating {
       unicode-bidi: bidi-override;
       direction: rtl;
     }
@@ -92,7 +92,7 @@
         content: 'star_outline';
       }
       &:hover:before,
-      &:hover ~ i:before{
+      &:hover ~ i:before {
         content: 'star'
       }
     }
@@ -101,6 +101,8 @@
 
   .rate, .review {
     > .title {
+      color: #BDBDBD;
+      font-size: .75rem;
       .name {
         text-transform: capitalize;
       }
