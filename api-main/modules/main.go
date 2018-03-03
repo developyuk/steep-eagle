@@ -7,7 +7,7 @@ import (
 )
 
 func List(c echo.Context) error {
-  var list []Module
+  var list []myShared.Module
   resp, err := myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathModules,
@@ -34,7 +34,7 @@ func List(c echo.Context) error {
 
 func Item(c echo.Context) error {
   // var data Program = GetProgramTypesData(c.Param("id"))
-  var item Module
+  var item myShared.Module
   resp, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathModules,

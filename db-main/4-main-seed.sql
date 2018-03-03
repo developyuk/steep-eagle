@@ -50,7 +50,13 @@ values
   (4, 1, 'saturday', '13:00', '15:00'),
   (3, 2, 'saturday', '13:00', '15:00'),
   (1, 3, 'saturday', '15:00', '17:00'),
-  (1, 1, 'saturday', '20:00', '20:00');
+  (1, 1, 'saturday', '20:00', '22:00'),
+  (4, 2, 'sunday', '11:00', '13:00'),
+  (2, 3, 'sunday', '15:00', '17:00'),
+  (1, 2, 'wednesday', '17:00', '19:00'),
+  (3, 1, 'wednesday', '14:00', '16:00'),
+  (4, 1, 'thursday', '18:00', '20:00'),
+  (2, 2, 'thursday', '16:00', '18:00');
 insert into users (email, pass, role)
 values
   (
@@ -277,6 +283,37 @@ values
     ),
     'operation'
   );
+
+insert into users_profile (name,photo,user_id)
+values
+  ('john snow','https://image.flaticon.com/icons/png/128/201/201818.png',1),
+  ('daenarys targaryen','https://image.flaticon.com/icons/png/128/201/201818.png',2),
+  ('tyrion lannister','https://image.flaticon.com/icons/png/128/201/201818.png',3),
+  ('jamie lannister','https://image.flaticon.com/icons/png/128/201/201818.png',4),
+  ('aristotle','https://image.flaticon.com/icons/png/128/201/201818.png',5),
+  ('plato','https://image.flaticon.com/icons/png/128/201/201818.png',6),
+  ('pythagoras','https://image.flaticon.com/icons/png/128/201/201818.png',7),
+  ('socrates','https://image.flaticon.com/icons/png/128/201/201818.png',8),
+  ('parminedes','https://image.flaticon.com/icons/png/128/201/201818.png',9),
+  ('tony stark','https://image.flaticon.com/icons/png/128/201/201818.png',10),
+  ('steve rogers','https://image.flaticon.com/icons/png/128/201/201818.png',11),
+  ('bruce banner','https://image.flaticon.com/icons/png/128/201/201818.png',12),
+  ('natasha romanoff','https://image.flaticon.com/icons/png/128/201/201818.png',13),
+  ('peter parker','https://image.flaticon.com/icons/png/128/201/201818.png',14),
+  ('scott lang','https://image.flaticon.com/icons/png/128/201/201818.png',15),
+  ('stephen strange','https://image.flaticon.com/icons/png/128/201/201818.png',16),
+  ('james rhodes','https://image.flaticon.com/icons/png/128/201/201818.png',17),
+  ('maria hill','https://image.flaticon.com/icons/png/128/201/201818.png',18),
+  ('thomas alva edison','https://image.flaticon.com/icons/png/128/201/201818.png',19),
+  ('tesla','https://image.flaticon.com/icons/png/128/201/201818.png',20),
+  ('isaac newton','https://image.flaticon.com/icons/png/128/201/201818.png',21),
+  ('michael faraday','https://image.flaticon.com/icons/png/128/201/201818.png',22),
+  ('user3','https://image.flaticon.com/icons/png/128/201/201818.png',23),
+  ('user4','https://image.flaticon.com/icons/png/128/201/201818.png',24),
+  ('user5','https://image.flaticon.com/icons/png/128/201/201818.png',25),
+  ('user6','https://image.flaticon.com/icons/png/128/201/201818.png',26),
+  ('user7','https://image.flaticon.com/icons/png/128/201/201818.png',27),
+  ('user8','https://image.flaticon.com/icons/png/128/201/201818.png',28);
 insert into class_students (class_id, student_id)
 values
   (1, 1),

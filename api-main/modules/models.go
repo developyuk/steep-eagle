@@ -7,13 +7,6 @@ import (
 )
 
 type (
-  Module struct {
-    myShared.Hal
-    Id           uint64 `json:"id"`
-    Name         string `json:"name"`
-    Image        string `json:"image"`
-    SessionTotal uint   `json:"session_total" db:"session_total"`
-  }
 
   ModuleLinks struct {
     myShared.LinksSelf
@@ -59,7 +52,7 @@ func itemLinksPrograms(id uint64) []myShared.Href {
   return data
 }
 
-func ItemLinks(v Module) ModuleLinks {
+func ItemLinks(v myShared.Module) ModuleLinks {
   var links ModuleLinks
   links.Self = myShared.CreateHref(myShared.PathModules + "/" + strconv.FormatUint(v.Id, 10))
   links.Programs = itemLinksPrograms(v.Id)
