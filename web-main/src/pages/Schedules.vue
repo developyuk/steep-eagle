@@ -15,9 +15,9 @@
             span.mdc-list-item__text {{v._embedded.module.name}}
               span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-            button(v-if="buttonStatus(v) === 'start'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'disabled'" disabled data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'late'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
+            button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
             span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
             span.late-ongoing(v-if="buttonStatus(v)==='late-ongoing'") activated
 
@@ -43,8 +43,8 @@
 
 <script>
   //  import {MDCRipple} from '@material/ripple';
-//  import TabBottom from '@/components/TabBottom';
-//  import Header from '@/components/Header';
+  //  import TabBottom from '@/components/TabBottom';
+  //  import Header from '@/components/Header';
   import moment from 'moment';
   import axios from 'axios';
 
@@ -114,8 +114,12 @@
           })
           .catch(error => console.log(error))
       },
-      start(e, id, i) {
-        this.thisClass = this.classes[i];
+      start(e, id, ii, i) {
+//        this.classes.forEach(v => {
+//          console.log(v.items.filter(v2 => v2.id = id));
+//        });
+//        console.log(this.classes[ii],this.classes[ii].items[i]);
+        this.thisClass = this.classes[ii].items[i];
 
         this.dialog.lastFocusedTarget = e.target;
         this.dialog.show();
