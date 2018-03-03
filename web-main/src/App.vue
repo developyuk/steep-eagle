@@ -48,13 +48,26 @@
     height: calc(100vh - 8rem);
     overflow: auto;
   }
+
   .mdc-list-item {
     padding: .25rem 1rem;
   }
+
   .mdc-list-group__subheader {
     background-color: #E0E0E0;
     margin: 0;
     padding: 0.75rem 16px;
+  }
+
+  .hide {
+    display: none;
+  }
+  .clearfix{
+    &::before,&::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
   }
 
   /*h1.title {*/

@@ -43,16 +43,18 @@
 
 <script>
   //  import {MDCRipple} from '@material/ripple';
-  import TabBottom from '@/components/TabBottom';
-  import Header from '@/components/Header';
+//  import TabBottom from '@/components/TabBottom';
+//  import Header from '@/components/Header';
   import moment from 'moment';
   import axios from 'axios';
 
   export default {
     name: 'schedules',
     components: {
-      TabBottom,
-      'header1': Header
+//      TabBottom,
+      'tab-bottom': () => import('@/components/TabBottom'),
+      'header1': () => import('@/components/Header'),
+//      'header1': Header
     },
     data() {
       return {

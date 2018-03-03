@@ -5,31 +5,37 @@
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
           span.module {{v._embedded.class._embedded.module.name}}
-          | &nbsp;&nbsp;
+          | &nbsp;-&nbsp;
           span.branch {{v._embedded.class._embedded.branch.name}}
           | &nbsp;&nbsp;
           span.day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
         ul.mdc-list
           template(v-for="(vv,ii) in v._embedded.class._embedded.students")
-            li.mdc-list-item
+            li.mdc-list-item(@click="onClickList($event)")
               .mdc-list-item__graphic
                 img(':src'="vv.photo")
               span.mdc-list-item__text {{vv.name}}
                 //span.mdc-list-item__secondary-text {{v._embedded.class.day}} {{v._embedded.class.time}}
             hr.mdc-list-divider
+            component(:is="currentView[`${v.id}`][`${vv.users.id}`]" :sid="v.id" :uid="vv.users.id"  :name="vv.name")
     tab-bottom
 </template>
 
 <script>
-  import TabBottom from '@/components/TabBottom';
-  import Header from '@/components/Header';
+  //  import TabBottom from '@/components/TabBottom';
+  //  import Header from '@/components/Header';
+  //  import FormRateReview from '@/components/FormRateReview';
   import axios from 'axios';
 
   export default {
     name: 'students',
     components: {
-      TabBottom,
-      'header1': Header
+//      TabBottom,
+      'tab-bottom': () => import('@/components/TabBottom'),
+//      'header1': Header,
+      'header1': () => import('@/components/Header'),
+      'form-rate-review': () => import('@/components/FormRateReview'),
+      'empty': () => import('@/components/Empty')
     },
     data() {
       return {
@@ -37,9 +43,28 @@
         students: [],
         sessions: [],
         currentAuth: null,
+        currentView: {},
+
+        lastId: ''
       }
     },
     methods: {
+      onClickList(e) {
+        const $el = e.target.nextSibling.nextSibling;
+        console.log('clicked', $el);
+        const sid = $el.getAttribute('sid');
+        const uid = $el.getAttribute('uid');
+        const is = $el.getAttribute('id');
+        console.log('clicked', sid, uid, is);
+        if (is === 'form-rate-review') {
+          const lastId = this.lastId.split('-');
+          this.$set(this.currentView[lastId[0]], lastId[1], 'empty');
+        } else {
+          this.$set(this.currentView[sid], uid, 'form-rate-review');
+          this.lastId = `${sid}-${uid}`
+        }
+//        this.currentView[sid][uid] = 'form-rate-review';
+      },
       getStudentsSessions() {
 
         this.$bus.$on('currentAuth', (auth) => {
@@ -48,6 +73,22 @@
           axios.get(url)
             .then(response => {
               this.sessions = response.data._embedded;
+              const currentView = [];
+              this.sessions.forEach(v => {
+                v._embedded.class._embedded.students.forEach(v2 => {
+//                  this.$set(this.currentView, `x${v.id}`, {});
+                  if (!currentView[v.id]) {
+                    currentView[v.id] = [];
+                  }
+                  currentView[v.id][v2.users.id] = 'empty';
+//                  this.$set(this.currentView[`x${v.id}`], `x${v2.users.id}`, 'empty');
+//                  this.currentView[v.id] = [];
+//                  this.currentView[v.id][v2.users.id] = 'empty'
+                });
+
+              });
+              console.log(currentView);
+              this.currentView = currentView;
             })
             .catch(error => console.log(error))
 
@@ -66,12 +107,16 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "@material/animation/functions";
+
   #students {
     position: relative;
     height: 100vh;
   }
 
-
+  #form-rate-review {
+    transition: mdc-animation-enter(height,300ms);
+  }
 
   .mdc-list-item {
     padding: .5rem 1rem;

@@ -96,14 +96,15 @@ type (
 type (
   User struct {
     Hal
-    Id        uint64    `json:"id"`
-    Name      string    `json:"name"`
-    FirstName string    `json:"first_name"`
-    LastName  string    `json:"last_name"`
-    Email     string    `json:"email"`
-    Dob       time.Time `json:"dob"`
-    Photo     string    `json:"photo"`
-    Role      string    `json:"role"`
+    Id        uint64      `json:"id"`
+    Name      string      `json:"name"`
+    FirstName string      `json:"first_name"`
+    LastName  string      `json:"last_name"`
+    Email     string      `json:"email"`
+    Dob       time.Time   `json:"dob"`
+    Photo     string      `json:"photo"`
+    Role      string      `json:"role"`
+    Users     interface{} `json:"users"`
   }
 )
 
@@ -253,6 +254,7 @@ func ClassItemEmbeddedStudents(id uint64) []User {
     //  data = append(data, item)
   }
   params["user_id"] = "in.(" + strings.Join(in, ",") + ")"
+  params["select"] = "*,users(id)"
   GetItems(map[string]interface{}{
     "data":  &data,
     "path":  "/users_profile",
