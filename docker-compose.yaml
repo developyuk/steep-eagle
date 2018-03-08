@@ -33,8 +33,6 @@ services:
     volumes:
        - ./api-main:/project
     working_dir:  /project
-    expose:
-      - "3000"
     ports:
      - "84:3000"
     environment:
@@ -44,8 +42,6 @@ services:
     command:      gin run
   db-main:
     build:       ./db-main
-    expose:
-      - "5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
