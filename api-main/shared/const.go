@@ -39,8 +39,8 @@ type (
     Day        string `json:"day"`
     StartAt    string `json:"start_at"`
     FinishAt   string `json:"finish_at"`
-    StartAtTs  string `json:"start_at_ts"`
-    FinishAtTs string `json:"finish_at_ts"`
+    StartAtTs  time.Time `json:"start_at_ts"`
+    FinishAtTs time.Time `json:"finish_at_ts"`
     //Time     string `json:"time"`
     //Ts       string `json:"ts"`
     ModuleId uint64 `json:"module_id"`

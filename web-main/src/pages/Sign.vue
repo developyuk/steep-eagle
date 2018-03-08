@@ -22,7 +22,7 @@
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        id: 'user3@ex.com',
+        id: 'user3@ex.co',
         errMsg: ''
       }
     },
@@ -45,15 +45,9 @@
           })
           .catch(error => {
             console.log(error);
-            const {
-              status,
-              data
-            } = error.response;
-            if (status === 401) {
+            const {status, data} = error.response;
+            if (status !== 200) {
               this.errMsg = `${data.message}. Re-check your authentication.`;
-//              $(this.$el).find('.modal').modal()
-//                .find('.modal-content').html(message).end()
-//                .modal('open');
             } else {
               console.log(error);
             }
