@@ -23,8 +23,7 @@ func Sign(c echo.Context) error {
   }
   // email := c.FormValue("email")
   // pwd := c.FormValue("pwd")
-
-  item, err := itemByEmailPass(p)
+  item, err := itemByEmail(p)
   if err != nil {
     return err
   }
@@ -34,9 +33,9 @@ func Sign(c echo.Context) error {
   // Set claims
   claims := token.Claims.(jwt.MapClaims)
   claims["id"] = item.Id
-  //claims["name"] = item.Name
+  claims["name"] = item.UsersProfile[0].Name
   claims["role"] = item.Role
-  //claims["photo"] = item.Photo
+  claims["photo"] = item.UsersProfile[0].Photo
   claims["email"] = item.Email
   claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
@@ -55,16 +54,12 @@ func Sign(c echo.Context) error {
 func Auth(c echo.Context) error {
   user := c.Get("user").(*jwt.Token)
   claims := user.Claims.(jwt.MapClaims)
-  id := claims["id"].(float64)
-  name := claims["name"].(string)
-  role := claims["role"].(string)
-  photo := claims["photo"].(string)
-  email := claims["email"].(string)
+  log.Println(claims)
   return c.JSON(http.StatusOK, map[string]interface{}{
-    "id":    id,
-    "name":  name,
-    "role":  role,
-    "photo": photo,
-    "email": email,
+    "id": claims["id"].(float64),
+    "name":  claims["name"].(string),
+    "role": claims["role"].(string),
+    "photo": claims["photo"].(string),
+    "email": claims["email"].(string),
   })
 }

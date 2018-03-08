@@ -1,8 +1,8 @@
 create table sessions (
   id bigserial primary key,
   created_at timestamp with time zone not null default now(),
-  class_id bigserial references classes(id),
-  tutor_id bigserial references users(id)
+  class_id integer references classes(id),
+  tutor_id integer references users(id)
 );
 create table sessions_students (
   id bigserial primary key,
@@ -12,6 +12,6 @@ create table sessions_students (
   rating_interaction smallserial,
   rating_cognition smallserial,
   rating_creativity smallserial,
-  session_id bigserial references sessions(id),
-  student_id bigserial references users(id)
+  session_id integer references sessions(id),
+  student_id integer references users(id)
 );

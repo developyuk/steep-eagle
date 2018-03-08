@@ -277,6 +277,93 @@ values
     ),
     'operation'
   );
+
+insert into users_profile (name, photo, users_id)
+values
+  (
+    'john snow','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',1
+  ),
+  (
+    'daenarys targaryen','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',2
+  ),
+  (
+    'tyrion lannister','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',3
+  ),
+  (
+    'jamie lannister','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',4
+  ),
+  (
+    'aristotle','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',5
+  ),
+  (
+    'plato','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',6
+  ),
+  (
+    'pythagoras','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',7
+  ),
+  (
+    'socrates','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',8
+  ),
+  (
+    'parminedes','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',9
+  ),
+  (
+    'tony stark','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',10
+  ),
+  (
+    'steve rogers','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',11
+  ),
+  (
+    'bruce banner','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',12
+  ),
+  (
+    'natasha romanoff','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',13
+  ),
+  (
+    'peter parker','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',14
+  ),
+  (
+    'scott lang','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',15
+  ),
+  (
+    'stephen strange','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',16
+  ),
+  (
+    'james rhodes','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',17
+  ),
+  (
+    'maria hill','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',18
+  ),
+  (
+    'thomas alva edison','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',19
+  ),
+  (
+    'tesla','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',20
+  ),
+  (
+    'isaac newton','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',21
+  ),
+  (
+    'michael faraday','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',22
+  ),
+  (
+    'user3','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',23
+  ),
+  (
+    'user4','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',24
+  ),
+  (
+    'user5','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',25
+  ),
+  (
+    'user6','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',26
+  ),
+  (
+    'user7','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',27
+  ),
+  (
+    'user8','https://upload.wikimedia.org/wikipedia/commons/9/97/Student_icon.png',28
+  );
 insert into class_students (class_id, student_id)
 values
   (1, 1),

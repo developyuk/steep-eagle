@@ -4,7 +4,7 @@ create table program_types (
 create table programs (
   id bigserial primary key,
   name text not null,
-  type_id bigserial references program_types(id)
+  type_id integer references program_types(id)
 );
 create table modules (
   id bigserial primary key, name text not null,
@@ -12,8 +12,8 @@ create table modules (
 );
 create table program_modules (
   id bigserial primary key,
-  module_id bigserial references modules(id),
-  program_id bigserial references programs(id)
+  module_id integer references modules(id),
+  program_id integer references programs(id)
 );
 create table branches (
   id bigserial primary key, name text not null,
@@ -29,8 +29,8 @@ create table classes (
   day days not null,
   start_at text not null,
   finish_at text not null,
-  module_id bigserial references program_modules(id),
-  branch_id bigserial references branches(id)
+  module_id integer references program_modules(id),
+  branch_id integer references branches(id)
 );
 create
 or replace view classes_ts as
@@ -90,10 +90,10 @@ create table users_profile (
   name text null,
   dob text null,
   photo text null,
-  users_id bigserial references users(id)
+  users_id integer references users(id)
 );
 create table class_students (
   id bigserial primary key,
-  class_id bigserial references classes(id),
-  student_id bigserial references users(id)
+  class_id integer references classes(id),
+  student_id integer references users(id)
 );

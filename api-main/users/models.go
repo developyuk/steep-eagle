@@ -75,6 +75,26 @@ func ItemLinks(v myShared.User, role string) interface{} {
   return myShared.LinksSelf{Self: myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))}
 }
 
+func itemByEmail(param *UserLoginRequest) (myShared.User, error) {
+
+  var item myShared.User
+  _, err := myShared.GetItem(map[string]interface{}{
+    "data": &item,
+    "path": myShared.PathUsers,
+    "query": map[string]string{
+      "email": "eq." + param.Email,
+      "select": "id,email,role,users_profile(*)",
+    },
+  })
+
+  if err != nil {
+    return item, err
+  }
+
+  return item, err
+
+}
+
 func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
 
   var item myShared.User

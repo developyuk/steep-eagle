@@ -1,7 +1,7 @@
 <template lang="pug">
   #sign.mdc-typography
     form(@submit.prevent="sign")
-      img.logo(src="https://images.weserv.nl/?crop=110,100,87,105&url=dl.dropbox.com/s/psvta5uwq4s0m5y/logo2.jpg")
+      img.logo(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/a6mfkumhayvm7o4/Character_CodingCamp.png")
       .mdc-form-field
         .mdc-text-field.mdc-text-field--box.mdc-text-field--with-leading-icon(data-mdc-auto-init="MDCTextField")
           i.material-icons.mdc-text-field__icon(tabindex="0") account_circle
@@ -9,14 +9,8 @@
           label.mdc-text-field__label.mdc-text-field__label--float-above(for="id") Enter your email
           .mdc-line-ripple
       .mdc-form-field
-        .mdc-text-field.mdc-text-field--box.mdc-text-field--with-leading-icon(data-mdc-auto-init="MDCTextField")
-          i.material-icons.mdc-text-field__icon(tabindex="1") lock_outline
-          input#pwd.mdc-text-field__input(v-model.trim="pwd" type="password" required)
-          label.mdc-text-field__label.mdc-text-field__label--float-above(for="pwd") Enter your password
-          .mdc-line-ripple
-      .mdc-form-field
         .errMsg(v-if="errMsg") {{errMsg}}
-        button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Sign in
+        button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Login
 </template>
 
 <script>
@@ -29,7 +23,6 @@
       return {
         msg: 'Welcome to Your Vue.js PWA',
         id: 'user3@ex.com',
-        pwd: 'asdqwes',
         errMsg: ''
       }
     },
@@ -42,7 +35,6 @@
         const url = `${process.env.API}/sign`;
         const data = {
           email: this.id,
-          pwd: this.pwd,
         };
 
         axios.post(url, data)
@@ -76,8 +68,8 @@
   /*@import '~@material/textfield/mdc-text-field';*/
   /*@import '~@material/button/mdc-button';*/
   .logo {
-    width: 5rem;
-    margin: 0 auto 3rem auto;
+    width: 300px;
+    margin: 0 auto 1rem auto;
     display: block;
   }
 
@@ -86,6 +78,9 @@
     top: calc(50% - 2rem) ;
     transform: translateY(-50%);
     max-width: 30rem;
+  }
+  button{
+    margin-top: 2rem;
   }
 
   .mdc-form-field {

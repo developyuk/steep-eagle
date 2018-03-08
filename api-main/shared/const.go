@@ -63,16 +63,18 @@ type (
 )
 
 type (
+  UsersProfile struct {
+    Name   string    `json:"name"`
+    Dob    time.Time `json:"dob"`
+    Photo  string    `json:"photo"`
+    UserId uint64    `json:"users_id"`
+  }
   User struct {
     Hal
-    Id        uint64    `json:"id"`
-    Name      string    `json:"name"`
-    FirstName string    `json:"first_name"  db:"first_name"`
-    LastName  string    `json:"last_name"  db:"last_name"`
-    Email     string    `json:"email"`
-    Dob       time.Time `json:"dob"`
-    Photo     string    `json:"photo"`
-    Role      string    `json:"role"`
+    Id           uint64       `json:"id"`
+    Email        string       `json:"email"`
+    Role         string       `json:"role"`
+    UsersProfile []UsersProfile `json:"users_profile"`
   }
 )
 
