@@ -1,6 +1,7 @@
 <template lang="pug">
   #schedules.mdc-typography
     header1
+    .loading(v-if="Object.keys(classes).length === 0") loading...
     .mdc-list-group
       template(v-for="(vv,ii) in classes")
         h3.mdc-list-group__subheader

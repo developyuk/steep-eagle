@@ -17,15 +17,15 @@
               span.mdc-list-item__text {{vv.name}}
                 //span.mdc-list-item__secondary-text {{v._embedded.class.day}} {{v._embedded.class.time}}
             hr.mdc-list-divider
-            component(:is="currentView[`${v.id}`][`${vv.users.id}`]" :sid="v.id" :uid="vv.users.id"  :name="vv.name")
+            component(:is="currentView[`${v.id}`][`${vv.user_id}`]" :sid="v.id" :uid="vv.user_id"  :name="vv.name")
     tab-bottom
 </template>
 
 <script>
-    import TabBottom from '@/components/TabBottom';
-    import Header from '@/components/Header';
-    import FormRateReview from '@/components/FormRateReview';
-    import Empty from '@/components/Empty';
+  import TabBottom from '@/components/TabBottom';
+  import Header from '@/components/Header';
+  import FormRateReview from '@/components/FormRateReview';
+  import Empty from '@/components/Empty';
   import axios from 'axios';
 
   export default {
@@ -66,11 +66,11 @@
         }
         sid = $el.getAttribute('sid');
         uid = $el.getAttribute('uid');
-        if(is === 'empty') {
+        if (is === 'empty') {
           this.$set(this.currentView[sid], uid, 'form-rate-review');
           this.lastId = `${sid}-${uid}`
         }
-        console.log('clicked', sid, uid,this.lastId);
+        console.log('clicked', sid, uid, this.lastId);
 //        else {
 //        }
 //        this.currentView[sid][uid] = 'form-rate-review';
@@ -90,7 +90,9 @@
                   if (!currentView[v.id]) {
                     currentView[v.id] = [];
                   }
-                  currentView[v.id][v2.users.id] = 'empty';
+
+                  currentView[v.id][v2.user_id] = 'empty';
+
 //                  this.$set(this.currentView[`x${v.id}`], `x${v2.users.id}`, 'empty');
 //                  this.currentView[v.id] = [];
 //                  this.currentView[v.id][v2.users.id] = 'empty'

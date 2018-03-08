@@ -33,12 +33,12 @@ type (
   }
   Class_ struct {
     Hal
-    Id         uint64 `json:"id"`
-    Name       string `json:"name"`
-    Image      string `json:"image"`
-    Day        string `json:"day"`
-    StartAt    string `json:"start_at"`
-    FinishAt   string `json:"finish_at"`
+    Id         uint64    `json:"id"`
+    Name       string    `json:"name"`
+    Image      string    `json:"image"`
+    Day        string    `json:"day"`
+    StartAt    string    `json:"start_at"`
+    FinishAt   string    `json:"finish_at"`
     StartAtTs  time.Time `json:"start_at_ts"`
     FinishAtTs time.Time `json:"finish_at_ts"`
     //Time     string `json:"time"`
@@ -56,10 +56,10 @@ type (
     Sessions []Href `json:"sessions,omitempty"`
   }
   ClassEmbedded struct {
-    LastSession *Session `json:"last_session,omitempty"`
-    Module      *Module  `json:"module,omitempty"`
-    Branch      *Branch  `json:"branch,omitempty"`
-    Students    []User   `json:"students,omitempty"`
+    LastSession *Session       `json:"last_session,omitempty"`
+    Module      *Module        `json:"module,omitempty"`
+    Branch      *Branch        `json:"branch,omitempty"`
+    Students    []UsersProfile `json:"students,omitempty"`
   }
 )
 
@@ -98,13 +98,13 @@ type (
     Name   string    `json:"name"`
     Dob    time.Time `json:"dob"`
     Photo  string    `json:"photo"`
-    UserId uint64    `json:"users_id"`
+    UserId uint64    `json:"user_id"`
   }
   User struct {
     Hal
-    Id           uint64       `json:"id"`
-    Email        string       `json:"email"`
-    Role         string       `json:"role"`
+    Id           uint64         `json:"id"`
+    Email        string         `json:"email"`
+    Role         string         `json:"role"`
     UsersProfile []UsersProfile `json:"users_profile"`
   }
 )
@@ -224,7 +224,7 @@ func ClassItemEmbeddedLastSessions(id uint64) Session {
 
   return session
 }
-func ClassItemEmbeddedStudents(id uint64) []User {
+func ClassItemEmbeddedStudents(id uint64) []UsersProfile {
   var list []ClassStudents
   GetItems(map[string]interface{}{
     "data": &list,
@@ -235,7 +235,7 @@ func ClassItemEmbeddedStudents(id uint64) []User {
     },
   })
 
-  var data []User
+  var data []UsersProfile
   var in []string
   params := make(map[string]string)
   for _, v := range list {
@@ -261,6 +261,7 @@ func ClassItemEmbeddedStudents(id uint64) []User {
     "path":  "/users_profile",
     "query": params,
   })
+  //log.Println(data,strings.Join(in, ","))
   return data
 }
 func ClassItemEmbedded(data Class_) ClassEmbedded {

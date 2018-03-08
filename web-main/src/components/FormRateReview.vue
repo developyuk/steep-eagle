@@ -66,6 +66,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+  $mdc-theme-primary: #ED235C;
   #form-rate-review {
     padding: 0rem 2rem;
   }
@@ -91,6 +92,7 @@
       display: inline-block;
       position: relative;
       width: 1.1em;
+      color:$mdc-theme-primary;
       &:before {
         content: 'star_outline';
       }
