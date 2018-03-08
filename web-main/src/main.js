@@ -10,7 +10,6 @@ import * as mdc from 'material-components-web/dist/material-components-web';
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
-require("hammerjs");
 
 window.mdc = mdc;
 
@@ -18,6 +17,7 @@ router.beforeEach((to, from, next) => {
   if (localStorage.getItem('token')) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
   }
+  // axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
   axios
     .get(`${process.env.API}/auth`)
     .then(response => {

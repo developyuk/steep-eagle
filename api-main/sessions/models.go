@@ -83,13 +83,13 @@ func itemEmbeddedClass(id uint64) myShared.Class_ {
   var item myShared.Class_
   myShared.GetItem(map[string]interface{}{
     "data": &item,
-    "path": "/classes_",
+    "path": "/classes_ts",
     "query": map[string]string{
       "id": "eq." + strconv.FormatUint(id, 10),
     },
   })
   item.Links = myShared.ClassItemLinks(item)
-  //item.Embedded = itemEmbedded(item)
+  item.Embedded = myShared.ClassItemEmbedded(item)
   return item
 }
 func itemEmbeddedStudents(id uint64) []myShared.User {

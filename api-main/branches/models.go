@@ -6,13 +6,6 @@ import (
 )
 
 type (
-  Branch struct {
-    myShared.Hal
-    Id      uint64 `json:"id"`
-    Name    string `json:"name"`
-    Image   string `json:"image"`
-    Address string `json:"address"`
-  }
 
   BranchLinks struct {
     myShared.LinksSelf
@@ -41,7 +34,7 @@ func itemLinksClasses(id uint64) []myShared.Href {
   return data
 }
 
-func ItemLinks(v Branch) BranchLinks {
+func ItemLinks(v myShared.Branch) BranchLinks {
   var links BranchLinks
   links.Self = myShared.CreateHref(myShared.PathBranches + "/" + strconv.FormatUint(v.Id, 10))
   //links.Classes = itemLinksClasses(v.Id)

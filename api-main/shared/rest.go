@@ -4,6 +4,7 @@ import (
   "github.com/parnurzeal/gorequest"
   "net/http"
   "errors"
+  "strings"
 )
 
 const (
@@ -68,6 +69,12 @@ func PostItem(params map[string]interface{}) (*http.Response, error) {
   if errs != nil {
     return resp, errs[0]
   }
+  if strings.HasPrefix(params["path"].(string), "/rpc"){
+    if resp.StatusCode != 200 {
+      return resp, errors.New(resp.Status)
+    }
+  }
+
   if resp.StatusCode != 201 {
     return resp, errors.New(resp.Status)
   }

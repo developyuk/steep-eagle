@@ -27,8 +27,8 @@ create type days as enum (
 create table classes (
   id bigserial primary key,
   day days not null,
-  start_at text not null,
-  finish_at text not null,
+  start_at char(5) not null,
+  finish_at char(5) not null,
   module_id integer references program_modules(id),
   branch_id integer references branches(id)
 );
@@ -52,15 +52,15 @@ from
           ts at time zone 'asia/jakarta' dw
         from
           generate_series(
-            now(), now() at time zone 'asia/jakarta' + '7 days',
+            now(), now()  + '7 days',
             '1 day'
           ) g(ts)
       ) a
       inner join classes c on c.day :: text = to_char(dw, 'fmday')
   ) d
 where
-  d.start_at_ts > now()
-  and d.finish_at_ts < now()  + interval '7 days'
+  d.finish_at_ts + interval '2 hours' > now()
+  and d.finish_at_ts + interval '2 hours' < now()  + interval '7 days'
 order by
   d.id asc;
 create type roles as enum (
@@ -71,14 +71,23 @@ create table users (
   id bigserial primary key, email text not null unique,
   pass text not null, role roles not null
 );
+create table users_profile (
+  name text null,
+  dob text null,
+  photo text null,
+  user_id bigserial references users(id)
+);
 create
-or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text) as $$ begin return query
+or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
 select
   users.id,
   users.email,
-  users.role :: text
+  users.role :: text,
+  users_profile.name,
+  users_profile.photo
 from
   users
+left join users_profile on users.id = users_profile.user_id
 where
   users.email = user_by_email_pass._email
   and users.pass = crypt(
@@ -86,12 +95,6 @@ where
   );
 end;
 $$ LANGUAGE 'plpgsql';
-create table users_profile (
-  name text null,
-  dob text null,
-  photo text null,
-  users_id integer references users(id)
-);
 create table class_students (
   id bigserial primary key,
   class_id integer references classes(id),

@@ -7,7 +7,7 @@ import (
 )
 
 func List(c echo.Context) error {
-  var list []Branch
+  var list []myShared.Branch
   resp, err := myShared.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathBranches,
@@ -31,7 +31,7 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  var item Branch
+  var item myShared.Branch
   resp, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathBranches,

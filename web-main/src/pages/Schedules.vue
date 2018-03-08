@@ -1,16 +1,25 @@
 <template lang="pug">
   #schedules.mdc-typography
     header1
-    ul.mdc-list
-      li.mdc-list-item(v-for="(v,i) in classes")
-        .mdc-list-item__graphic
-          img(':src'="v._embedded.module.image")
-        span.mdc-list-item__text {{v._embedded.module.name}}
-          span.mdc-list-item__secondary-text {{v._embedded.branch.name}} {{v.day}} {{v.time}}
-        button(v-if="buttonStatus(v) === 'start'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-        button(v-if="buttonStatus(v) === 'disabled'" disabled data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-        button(v-if="buttonStatus(v) === 'late'" data-mdc-auto-init="MDCRipple" @click='start($event,v.id,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
-        span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
+    .mdc-list-group
+      template(v-for="(vv,ii) in classes")
+        h3.mdc-list-group__subheader
+          span.date-day
+            .date {{vv.date}}
+            .day {{vv.day}}
+          span.text {{vv.text}}
+        ul.mdc-list
+          li.mdc-list-item(v-for="(v,i) in vv.items")
+            .mdc-list-item__graphic
+              img(':src'="v._embedded.module.image")
+            span.mdc-list-item__text {{v._embedded.module.name}}
+              span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
+              span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
+            button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
+            span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
+            span.late-ongoing(v-if="buttonStatus(v)==='late-ongoing'") activated
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       .mdc-dialog__surface
@@ -34,8 +43,8 @@
 
 <script>
   //  import {MDCRipple} from '@material/ripple';
-  import TabBottom from '@/components/TabBottom';
-  import Header from '@/components/Header';
+    import TabBottom from '@/components/TabBottom';
+    import Header from '@/components/Header';
   import moment from 'moment';
   import axios from 'axios';
 
@@ -43,6 +52,8 @@
     name: 'schedules',
     components: {
       TabBottom,
+//      'tab-bottom': () => import('@/components/TabBottom'),
+//      'header1': () => import('@/components/Header'),
       'header1': Header
     },
     data() {
@@ -60,30 +71,31 @@
         e.target.innerText = 'coming soon';
       },
       buttonStatus(class_) {
-        const ts = class_.ts;
+        const msts = moment(class_.start_at_ts);
+        const mfts = moment(class_.finish_at_ts);
         let ls = class_._embedded;
         ls = ls.last_session ? ls.last_session.created_at : ls.last_session;
 
-        const mts = moment(ts);
-//        console.log('ts', mts.toString(), '---', ts);
         const mnow = moment();
-        const mdiff = mts.diff(mnow, 'minutes');
 //        console.log('now', mnow.toString());
 //        console.log(mts.isAfter(mnow));
-//        console.log('diff', mdiff);
-        if (ls) {
+
+        if (ls && mnow.diff(mfts, 'days') === 0) {
           const mls = moment(ls);
 //          console.log('ls',mls.toString(), '-', ls);
 //          console.log('mlsdiff',mls.diff(mnow,'minutes'));
-          if (mnow.isAfter(mls) && mls.diff(mnow,'minutes') > -1 * (2 * 60)) {
+          if (mnow.isAfter(mls) && mls.isBefore(mfts)) {
             return 'ongoing';
           }
+          if (mnow.isAfter(mls) && mls.isAfter(mfts)) {
+            return 'late-ongoing';
+          }
         }
-        if (mdiff < -5) {
+        if (mnow.isAfter(mfts)) {
           return 'late';
         }
 //        console.log('diff day', mts.diff(mnow, 'days'));
-        if (mts.diff(mnow, 'days') === 0) {
+        if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
           return 'start';
         }
         return 'disabled';
@@ -102,24 +114,48 @@
           })
           .catch(error => console.log(error))
       },
-      start(e, id, i) {
-        this.thisClass = this.classes[i];
+      start(e, id, ii, i) {
+//        this.classes.forEach(v => {
+//          console.log(v.items.filter(v2 => v2.id = id));
+//        });
+//        console.log(this.classes[ii],this.classes[ii].items[i]);
+        this.thisClass = this.classes[ii].items[i];
 
         this.dialog.lastFocusedTarget = e.target;
         this.dialog.show();
       },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes?sort=ts.asc`;
+        const url = `${process.env.API}/classes?sort=start_at_ts.asc`;
 
         axios.get(url)
           .then(response => {
-            this.classes = response.data._embedded;
+            const data = response.data._embedded;
 
-            this.classes.forEach((v, i, a) => {
+            data.forEach((v, i, a) => {
               let image = v._embedded.module.image.replace('https://', '').replace('http://', '');
               image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
               this.$set(a[i]['_embedded']['module'], 'image', image);
             });
+            let dataGroup = {};
+            data.forEach(v => {
+              const msts = moment(v.start_at_ts);
+              const doy = msts.dayOfYear();
+              if (!dataGroup[doy]) {
+                let day = msts.fromNow();
+                day = day === 'in a day' ? 'tomorrow' : day;
+                dataGroup[doy] = {
+                  date: msts.date(),
+                  day: msts.format('dddd'),
+                  text: day,
+                  items: [],
+                };
+              }
+              dataGroup[doy].items.push(v)
+            });
+            dataGroup = Object.keys(dataGroup).map(key => dataGroup[key]);
+            dataGroup[0].text = 'today';
+//            console.log(dataGroup);
+            this.classes = dataGroup;
           })
           .catch(error => console.log(error))
       },
@@ -157,15 +193,35 @@
 
   .mdc-list {
     padding: 0;
-    height: calc(100vh - 8rem);
-    overflow-y: auto;
+  }
+
+  .mdc-list-group__subheader {
+    height: 1.5rem;
+    .date-day {
+      float: left;
+      * {
+        text-align: center;
+        line-height: 1rem;
+      }
+      .date {
+        font-size: 1.5rem;
+      }
+      .day {
+        font-size: .5625rem;
+      }
+    }
+    .text {
+      float: right;
+      font-size: .75rem;
+      text-transform: capitalize;
+    }
   }
 
   $size: 3rem;
   .mdc-list-item {
     height: $size+2rem;
     border-bottom: thin solid rgba(0, 0, 0, .12);
-    .mdc-button, span.ongoing {
+    .mdc-button, span.ongoing, span.late-ongoing {
       position: absolute;
       right: 1rem;
       font-size: .675rem;
@@ -178,7 +234,7 @@
         color: #fff;
       }
     }
-    span.ongoing {
+    span.ongoing, span.late-ongoing {
       text-transform: uppercase;
       background-color: #56CCF2;
       color: #fff;

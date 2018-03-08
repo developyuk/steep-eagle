@@ -13,7 +13,7 @@ import (
 
 type UserLoginRequest struct {
   Email string `json:"email" xml:"email" form:"email" query:"email"`
-  Pwd   string `json:"pwd" xml:"pwd" form:"pwd" query:"email"`
+  Pwd   string `json:"pwd" xml:"pwd" form:"pwd" query:"pwd"`
 }
 
 func Sign(c echo.Context) error {

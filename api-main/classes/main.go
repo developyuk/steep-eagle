@@ -30,7 +30,7 @@ func List(c echo.Context) error {
   //list2 := list[:0]
   for i, v := range list {
     list[i].Links = myShared.ClassItemLinks(v)
-    list[i].Embedded = itemEmbedded(v)
+    list[i].Embedded = myShared.ClassItemEmbedded(v)
 
     //embedded := list[i].Embedded.(ClassEmbedded)
     //if !(embedded.LastSession != nil && embedded.LastSession.CreatedAt.Truncate(d).Equal(time.Now().Truncate(d)) ) {
@@ -63,7 +63,7 @@ func Item(c echo.Context) error {
   }
 
   item.Links = myShared.ClassItemLinks(item)
-  item.Embedded = itemEmbedded(item)
+  item.Embedded = myShared.ClassItemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }
 
