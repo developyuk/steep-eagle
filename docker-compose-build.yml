@@ -38,7 +38,7 @@ services:
       - PGRST_DB_SCHEMA=public
       - PGRST_DB_ANON_ROLE=anon
       - PGRST_JWT_SECRET=${JWT_KEY}
-  varnish:
+  varnish-db-api:
     image: eeacms/varnish
     ports:
     - "3000:6081"
