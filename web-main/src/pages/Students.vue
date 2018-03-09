@@ -1,6 +1,10 @@
 <template lang="pug">
   #students.mdc-typography
     header1
+    spinner(v-if="!sessions")
+    .empty(v-if="!!sessions && !sessions.length")
+      img(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/6wrsi1smelwdhj7/face-2.png")
+      p It’s holiday time, man! #[br]Pls enjoy yout time by being away from your phone.
     .mdc-list-group
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
@@ -22,29 +26,22 @@
 </template>
 
 <script>
-  import TabBottom from '@/components/TabBottom';
-  import Header from '@/components/Header';
-  import FormRateReview from '@/components/FormRateReview';
-  import Empty from '@/components/Empty';
   import axios from 'axios';
 
   export default {
     name: 'students',
     components: {
-      TabBottom,
-//      'tab-bottom': () => import('@/components/TabBottom'),
-      'header1': Header,
-//      'header1': () => import('@/components/Header'),
-      'form-rate-review': FormRateReview,
-      'empty': Empty
-//      'form-rate-review': () => import('@/components/FormRateReview'),
-//      'empty': () => import('@/components/Empty')
+      'spinner': () => import('@/components/Spinner'),
+      'tab-bottom': () => import('@/components/TabBottom'),
+      'header1': () => import('@/components/Header'),
+      'form-rate-review': () => import('@/components/FormRateReview'),
+      'empty': () => import('@/components/Empty')
     },
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
         students: [],
-        sessions: [],
+        sessions: '',
         currentAuth: null,
         currentView: {},
 
@@ -53,7 +50,7 @@
     },
     methods: {
       onClickList(e) {
-        const $el = e.target.nextSibling.nextSibling;
+        const $el = e.target.closest('.mdc-list-item').nextSibling.nextSibling;
         console.log('clicked', $el);
         let sid;
         let uid;
@@ -128,6 +125,14 @@
 
   #form-rate-review {
     transition: mdc-animation-enter(height, 300ms);
+  }
+
+  .empty {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-70%);
+    width: 100%;
   }
 
   .mdc-list-item {

@@ -16,6 +16,8 @@ window.mdc = mdc;
 router.beforeEach((to, from, next) => {
   if (localStorage.getItem('token')) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+  } else {
+    axios.defaults.headers.common['Authorization'] = '';
   }
   // axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
   axios
@@ -23,16 +25,14 @@ router.beforeEach((to, from, next) => {
     .then(response => {
       // console.log(response.data);
       setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 8);
-      next();
     })
     .catch(error => {
       // console.log(error.response, to.path);
       if (to.matched.some(record => record.meta.requiresAuth)) {
         next({path: "/sign", query: {redirect: to.path}});
-      } else {
-        next();
       }
     });
+  next();
 });
 
 Vue.prototype.$bus = new Vue({});

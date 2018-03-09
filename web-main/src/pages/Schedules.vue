@@ -1,7 +1,7 @@
 <template lang="pug">
   #schedules.mdc-typography
     header1
-    .loading(v-if="Object.keys(classes).length === 0") loading...
+    spinner(v-if="!classes")
     .mdc-list-group
       template(v-for="(vv,ii) in classes")
         h3.mdc-list-group__subheader
@@ -44,23 +44,20 @@
 
 <script>
   //  import {MDCRipple} from '@material/ripple';
-  import TabBottom from '@/components/TabBottom';
-  import Header from '@/components/Header';
   import moment from 'moment';
   import axios from 'axios';
 
   export default {
     name: 'schedules',
     components: {
-      TabBottom,
-//      'tab-bottom': () => import('@/components/TabBottom'),
-//      'header1': () => import('@/components/Header'),
-      'header1': Header
+      'spinner': () => import('@/components/Spinner'),
+      'tab-bottom': () => import('@/components/TabBottom'),
+      'header1': () => import('@/components/Header'),
     },
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        classes: [],
+        classes: null,
         dialog: null,
         snackbar: null,
         thisClass: {id: 0},
@@ -192,12 +189,14 @@
       }
       .day {
         font-size: .5625rem;
+        text-transform: capitalize;
       }
     }
     .text {
       float: right;
       font-size: .75rem;
       text-transform: capitalize;
+      color: #6FCF97;
     }
   }
 
