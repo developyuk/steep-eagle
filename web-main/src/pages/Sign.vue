@@ -3,10 +3,9 @@
     form(@submit.prevent="sign")
       img.logo(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/a6mfkumhayvm7o4/Character_CodingCamp.png")
       .mdc-form-field
-        .mdc-text-field.mdc-text-field--box.mdc-text-field--with-leading-icon(data-mdc-auto-init="MDCTextField")
-          i.material-icons.mdc-text-field__icon(tabindex="0") account_circle
+        .mdc-text-field
           input#id.mdc-text-field__input(v-model.trim="id" type="text" required)
-          label.mdc-text-field__label.mdc-text-field__label--float-above(for="id") Enter your email
+          label.mdc-text-field__label(for="id") Yourname
           .mdc-line-ripple
       .mdc-form-field
         .errMsg(v-if="errMsg") {{errMsg}}
@@ -15,14 +14,15 @@
 
 <script>
   import axios from 'axios';
-//  import {MDCRipple} from '@material/ripple';
+  //  import {MDCRipple} from '@material/ripple';
 
   export default {
     name: 'sign',
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        id: 'user3@ex.co',
+//        id: 'user3@ex.co',
+        id: '',
         errMsg: ''
       }
     },
@@ -61,19 +61,25 @@
 <style lang="scss" scoped>
   /*@import '~@material/textfield/mdc-text-field';*/
   /*@import '~@material/button/mdc-button';*/
+  #sign {
+  }
+
   .logo {
-    width: 300px;
-    margin: 0 auto 1rem auto;
+    /*width: 300px;*/
+
+    margin: 0 auto 4rem auto;
     display: block;
   }
 
   form {
     position: absolute;
-    top: calc(50% - 2rem) ;
-    transform: translateY(-50%);
-    max-width: 30rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    width: 80%;
   }
-  button{
+
+  button {
     margin-top: 2rem;
   }
 
@@ -81,7 +87,7 @@
     display: block;
   }
 
-  form, .mdc-text-field, .mdc-button {
+  .logo, .mdc-text-field, .mdc-button {
     width: 100%;
   }
 
