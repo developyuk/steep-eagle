@@ -46,6 +46,7 @@ func main() {
 	a.GET("modules/:id", myModules.Item)
 
 	a.GET("classes", myClasses.List)
+	a.GET("classes/group/:by", myClasses.ListGroup)
 	a.GET("classes/:id", myClasses.Item)
 	a.GET("classes/:id/sessions", mySessions.ListByClassId)
 	a.POST("classes/:id/sessions", mySessions.CreateByClassId)

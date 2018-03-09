@@ -7,7 +7,7 @@
       nav.mdc-drawer__drawer
         header.mdc-drawer__header
           .mdc-drawer__header-content
-            .photo: img(:src="'https://images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url='+currentAuth.photo")
+            .photo: img(:src="currentAuth.photo")
             .name {{currentAuth.name}}
             .email {{currentAuth.email}}
         nav#icon-with-text-demo.mdc-drawer__content.mdc-list
@@ -58,6 +58,7 @@
       });
       this.$bus.$on('currentAuth', (auth) => {
         auth.photo = auth.photo.replace('https://', '').replace('http://', '');
+        auth.photo = `https://images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
         this.currentAuth = auth;
       });
 
@@ -89,6 +90,7 @@
     font-weight: 500;
     text-transform: capitalize;
   }
+
   .mdc-drawer {
     .mdc-drawer__header-content {
       display: block;

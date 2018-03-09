@@ -1,6 +1,7 @@
 <template lang="pug">
   #schedules.mdc-typography
     header1
+    .loading(v-if="Object.keys(classes).length === 0") loading...
     .mdc-list-group
       template(v-for="(vv,ii) in classes")
         h3.mdc-list-group__subheader
@@ -43,8 +44,8 @@
 
 <script>
   //  import {MDCRipple} from '@material/ripple';
-    import TabBottom from '@/components/TabBottom';
-    import Header from '@/components/Header';
+  import TabBottom from '@/components/TabBottom';
+  import Header from '@/components/Header';
   import moment from 'moment';
   import axios from 'axios';
 
@@ -125,37 +126,20 @@
         this.dialog.show();
       },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes?sort=start_at_ts.asc`;
+        const url = `${process.env.API}/classes/group/date?sort=start_at_ts.asc`;
 
         axios.get(url)
           .then(response => {
             const data = response.data._embedded;
 
             data.forEach((v, i, a) => {
-              let image = v._embedded.module.image.replace('https://', '').replace('http://', '');
-              image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
-              this.$set(a[i]['_embedded']['module'], 'image', image);
+              v.items.forEach((v2, i2, a2) => {
+                let image = v2._embedded.module.image.replace('https://', '').replace('http://', '');
+                image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
+                this.$set(a[i]['items'][i2]['_embedded']['module'], 'image', image);
+              })
             });
-            let dataGroup = {};
-            data.forEach(v => {
-              const msts = moment(v.start_at_ts);
-              const doy = msts.dayOfYear();
-              if (!dataGroup[doy]) {
-                let day = msts.fromNow();
-                day = day === 'in a day' ? 'tomorrow' : day;
-                dataGroup[doy] = {
-                  date: msts.date(),
-                  day: msts.format('dddd'),
-                  text: day,
-                  items: [],
-                };
-              }
-              dataGroup[doy].items.push(v)
-            });
-            dataGroup = Object.keys(dataGroup).map(key => dataGroup[key]);
-            dataGroup[0].text = 'today';
-//            console.log(dataGroup);
-            this.classes = dataGroup;
+            this.classes = data;
           })
           .catch(error => console.log(error))
       },

@@ -21,11 +21,10 @@ func Sign(c echo.Context) error {
   if err := c.Bind(p); err != nil {
     return err
   }
-  // email := c.FormValue("email")
-  // pwd := c.FormValue("pwd")
   item, err := itemByEmail(p)
+  log.Println(err)
   if err != nil {
-    return err
+    return c.JSON(http.StatusUnauthorized, myShared.Response{Message: err.Error()})
   }
   // Create token
   token := jwt.New(jwt.SigningMethodHS256)
@@ -56,9 +55,9 @@ func Auth(c echo.Context) error {
   claims := user.Claims.(jwt.MapClaims)
   log.Println(claims)
   return c.JSON(http.StatusOK, map[string]interface{}{
-    "id": claims["id"].(float64),
+    "id":    claims["id"].(float64),
     "name":  claims["name"].(string),
-    "role": claims["role"].(string),
+    "role":  claims["role"].(string),
     "photo": claims["photo"].(string),
     "email": claims["email"].(string),
   })

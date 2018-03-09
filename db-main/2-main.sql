@@ -75,7 +75,7 @@ create table users_profile (
   name text null,
   dob text null,
   photo text null,
-  user_id bigserial references users(id)
+  user_id integer references users(id)
 );
 create
 or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
