@@ -8,8 +8,8 @@ import (
 )
 
 const (
-  //DbApiUrl = "http://varnish-db-api:6081"
-  DbApiUrl = "http://db-api:3000"
+  DbApiUrl = "http://varnish-db-api:6081"
+  //DbApiUrl = "http://db-api:3000"
 )
 
 func GetItems(params map[string]interface{}) (*http.Response, error) {
