@@ -12,8 +12,7 @@ import (
 )
 
 type UserLoginRequest struct {
-  Email string `json:"email" xml:"email" form:"email" query:"email"`
-  Pwd   string `json:"pwd" xml:"pwd" form:"pwd" query:"pwd"`
+  Username string `json:"username" xml:"username" form:"username" query:"username"`
 }
 
 func Sign(c echo.Context) error {
@@ -21,7 +20,7 @@ func Sign(c echo.Context) error {
   if err := c.Bind(p); err != nil {
     return err
   }
-  item, err := itemByEmail(p)
+  item, err := itemByUsername(p)
   log.Println(err)
   if err != nil {
     return c.JSON(http.StatusUnauthorized, myShared.Response{Message: err.Error()})

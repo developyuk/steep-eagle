@@ -28,19 +28,23 @@ func list(params map[string]string) ([]myShared.Class_, error) {
   if err != nil {
     return list, err
   }
-  //list2 := list
-  //d := 24 * time.Hour
-  //list2 := list[:0]
   for i, v := range list {
     list[i].Links = myShared.ClassItemLinks(v)
     list[i].Embedded = myShared.ClassItemEmbedded(v)
-
-    //embedded := list[i].Embedded.(ClassEmbedded)
-    //if !(embedded.LastSession != nil && embedded.LastSession.CreatedAt.Truncate(d).Equal(time.Now().Truncate(d)) ) {
-    //  list2 = append(list2, list[i])
-    //}
   }
   return list, err
+}
+func timeToRelativeText(timeTs time.Time) string {
+
+  text := strconv.FormatFloat(time.Until(timeTs).Round(time.Hour).Hours()/24, 'f', 0, 64)
+  if text == "0" {
+    text = "Today"
+  } else if text == "1" {
+    text = "Tomorrow"
+  } else {
+    text = "in " + text + " days"
+  }
+  return text
 }
 func ListGroup(c echo.Context) error {
   params := make(map[string]string)
@@ -49,27 +53,29 @@ func ListGroup(c echo.Context) error {
     params["by"] = val
   }
   list, err := list(params)
-  var classGroupDate []ClassGroupDate
+  var classGroupDates []ClassGroupDate
   var t ClassGroupDate
+
   for _, v := range list {
-    if v.Day != t.Day {
-      if t.Day != "" {
-        classGroupDate = append(classGroupDate, t)
+    found := false
+    for i2, v2 := range classGroupDates {
+      if v.Day == v2.Day {
+        // Found!
+        classGroupDates[i2].Items = append(classGroupDates[i2].Items,v)
+        found=true
+        break
       }
+    }
+    if !found {
       t.Date = strconv.Itoa(v.StartAtTs.Day())
       t.Day = v.Day
-      t.Text = strconv.FormatFloat(time.Until(v.StartAtTs).Round(time.Hour).Hours()/24, 'f', 0, 64)
-      if t.Text == "0" {
-        t.Text = "Today"
-      } else if t.Text == "1" {
-        t.Text = "Tomorrow"
-      } else {
-        t.Text = "in " + t.Text + " days"
-      }
+      t.Text = timeToRelativeText(v.StartAtTs)
       t.Items = []myShared.Class_{}
+      t.Items = append(t.Items, v)
+      classGroupDates = append(classGroupDates, t)
     }
-    t.Items = append(t.Items, v)
   }
+
   if err != nil {
     return c.JSON(400, myShared.Response{
       Message: err.Error(),
@@ -77,9 +83,9 @@ func ListGroup(c echo.Context) error {
   }
   response := myShared.Hal{
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
-    Embedded: classGroupDate,
-    Count:    len(classGroupDate),
-    Total:    len(classGroupDate),
+    Embedded: classGroupDates,
+    Count:    len(classGroupDates),
+    Total:    len(classGroupDates),
   }
   return c.JSON(http.StatusOK, response)
 }

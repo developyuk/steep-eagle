@@ -75,28 +75,27 @@
       getStudentsSessions() {
 
         this.$bus.$on('currentAuth', (auth) => {
-          const url = `${process.env.API}/tutors/${auth.id}/sessions`;
+          const url = `${process.env.API}/sessions`;
 
           axios.get(url)
             .then(response => {
               this.sessions = response.data._embedded;
               const currentView = [];
-              this.sessions.forEach(v => {
-                v._embedded.class._embedded.students.forEach(v2 => {
-//                  this.$set(this.currentView, `x${v.id}`, {});
+              this.sessions.forEach((v,i,a) => {
+                v['_embedded']['class']['_embedded']['students'].forEach((v2,i2,a2) => {
+                  console.log(v2);
                   if (!currentView[v.id]) {
                     currentView[v.id] = [];
                   }
-
                   currentView[v.id][v2.user_id] = 'empty';
 
-//                  this.$set(this.currentView[`x${v.id}`], `x${v2.users.id}`, 'empty');
-//                  this.currentView[v.id] = [];
-//                  this.currentView[v.id][v2.users.id] = 'empty'
+                  let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
+                  image = image.replace('https://', '').replace('http://', '');
+                  image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
+                  this.$set(a[i]['_embedded']['class']['_embedded']['students'][i2], 'photo', image);
                 });
 
               });
-              console.log(currentView);
               this.currentView = currentView;
             })
             .catch(error => console.log(error))

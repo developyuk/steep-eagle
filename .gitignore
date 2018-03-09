@@ -1,5 +1,5 @@
 .idea
 .env
-gin-bin
 *.old*
+api-main/gin-bin
 api-main/main

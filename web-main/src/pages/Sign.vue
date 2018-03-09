@@ -34,7 +34,7 @@
       sign() {
         const url = `${process.env.API}/sign`;
         const data = {
-          email: this.id,
+          username: this.id,
         };
 
         axios.post(url, data)
@@ -76,7 +76,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -55%);
-    width: 80%;
+    max-width: 30rem;
+    width: 100%;
   }
 
   button {

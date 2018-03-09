@@ -10,31 +10,13 @@ services:
     depends_on:
       - api-main
     command: npm run dev
-#  web-operation:
-#    build:        ./web-main
-#    volumes:
-#       - ./web-operation:/project/app
-#    working_dir:  /project/app
-#    ports:
-#      - "82:8080"
-#    depends_on:
-#      - api-main
-#    command:      ["npm", "run", "dev"]
-#  web-partner:
-#    build:      ./web-main
-#    volumes:
-#       - ./web-partner:/project/app
-#    working_dir: /project/app
-#    ports:
-#      - "83:8080"
-#    command:    ["npm", "run", "dev"]
   api-main:
     build:        ./api-main
     volumes:
        - ./api-main:/project
     working_dir:  /project
     ports:
-     - "84:3000"
+     - "82:3000"
     environment:
       - JWT_KEY=${JWT_KEY}
     depends_on:
@@ -63,5 +45,3 @@ services:
       - "5050:8080"
     links:
       - db-main:db
-  # redis:
-  #   image:      redis

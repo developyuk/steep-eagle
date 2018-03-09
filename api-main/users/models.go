@@ -3,6 +3,7 @@ package users
 import (
   myShared "../shared"
   "strconv"
+  "log"
 )
 
 type (
@@ -75,17 +76,18 @@ func ItemLinks(v myShared.User, role string) interface{} {
   return myShared.LinksSelf{Self: myShared.CreateHref(path + "/" + strconv.FormatUint(v.Id, 10))}
 }
 
-func itemByEmail(param *UserLoginRequest) (myShared.User, error) {
+func itemByUsername(param *UserLoginRequest) (myShared.User, error) {
 
   var item myShared.User
   _, err := myShared.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathUsers,
     "query": map[string]string{
-      "email": "eq." + param.Email,
-      "select": "id,email,role,users_profile(*)",
+      "username": "eq." + param.Username,
+      "select": "id,email,role,users_profile(name,photo)",
     },
   })
+  log.Println(item,param)
 
   if err != nil {
     return item, err
@@ -95,22 +97,22 @@ func itemByEmail(param *UserLoginRequest) (myShared.User, error) {
 
 }
 
-func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
-
-  var item myShared.User
-  _, err := myShared.PostItem(map[string]interface{}{
-    "data": &item,
-    "path": "/rpc/user_by_email_pass",
-    "query": map[string]string{
-      "_email": param.Email,
-      "_pass":  param.Pwd,
-    },
-  })
-
-  if err != nil {
-    return item, err
-  }
-
-  return item, err
-
-}
+//func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
+//
+//  var item myShared.User
+//  _, err := myShared.PostItem(map[string]interface{}{
+//    "data": &item,
+//    "path": "/rpc/user_by_email_pass",
+//    "query": map[string]string{
+//      "_email": param.Email,
+//      "_pass":  param.Pwd,
+//    },
+//  })
+//
+//  if err != nil {
+//    return item, err
+//  }
+//
+//  return item, err
+//
+//}

@@ -16,6 +16,8 @@
             span.mdc-list-item__text {{v._embedded.module.name}}
               span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session") Tutor : {{v._embedded.tutor.users_profile[0].name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session") Class started by {{v._embedded.last_session.users.username}}
             button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
@@ -123,15 +125,22 @@
         this.dialog.show();
       },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes/group/date?sort=start_at_ts.asc`;
+        const url = `${process.env.API}/classes/group/date`;
 
-        axios.get(url)
+        axios.get(url, {
+          params: {
+            'sort': 'start_at_ts.asc',
+            'embed': 'module,branch,tutor'
+          },
+        })
           .then(response => {
             const data = response.data._embedded;
 
             data.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {
-                let image = v2._embedded.module.image.replace('https://', '').replace('http://', '');
+//                https://image.flaticon.com/icons/png/128/201/201818.png
+                let image = !!v2['_embedded']['module']['image'] ? v2['_embedded']['module']['image'] : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
+                image = image.replace('https://', '').replace('http://', '');
                 image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
                 this.$set(a[i]['items'][i2]['_embedded']['module'], 'image', image);
               })
@@ -210,6 +219,7 @@
       font-size: .675rem;
       background-color: #1FEEB2;
       width: 5rem;
+      top: 1.5rem;
     }
     .mdc-button {
       &:disabled {
@@ -239,12 +249,17 @@
     margin-right: 1rem;
   }
 
-  .mdc-list-item__text, .mdc-list-item__secondary-text {
-    text-transform: capitalize;
+  .mdc-list-item__text {
+    text-transform: uppercase;
   }
 
   .mdc-list-item__secondary-text {
+    text-transform: capitalize;
     font-size: .75rem;
+    &.tutor {
+      color: #BB6BD9;
+      font-weight: bold;
+    }
   }
 
   .mdc-dialog__header__title {

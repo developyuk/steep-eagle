@@ -17,7 +17,7 @@ services:
        - ./api-main:/project
     working_dir:  /project
     ports:
-      - "82:1323"
+      - "81:1323"
     restart: unless-stopped
     environment:
       - JWT_KEY=${JWT_KEY}
@@ -40,8 +40,6 @@ services:
       - PGRST_JWT_SECRET=${JWT_KEY}
   varnish-db-api:
     image: eeacms/varnish
-    ports:
-    - "3000:6081"
     depends_on:
     - db-api
     environment:

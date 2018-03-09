@@ -57,8 +57,9 @@
         drawer.open = true;
       });
       this.$bus.$on('currentAuth', (auth) => {
+        auth.photo = !!auth.photo ? auth.photo : 'https://image.flaticon.com/icons/png/128/201/201818.png';
         auth.photo = auth.photo.replace('https://', '').replace('http://', '');
-        auth.photo = `https://images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
+        auth.photo = `//images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
         this.currentAuth = auth;
       });
 

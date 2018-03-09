@@ -45,6 +45,7 @@ type (
     //Ts       string `json:"ts"`
     ModuleId uint64 `json:"module_id"`
     BranchId uint64 `json:"branch_id"`
+    TutorId  uint64 `json:"tutor_id"`
     //Module   myModules.Module  `json:"module"`
     //Branch   myBranches.Branch `json:"branch"`
   }
@@ -52,6 +53,7 @@ type (
     LinksSelf
     Module   *Href  `json:"module,omitempty"`
     Branch   *Href  `json:"branch,omitempty"`
+    Tutor    *Href  `json:"tutor,omitempty"`
     Students []Href `json:"students,omitempty"`
     Sessions []Href `json:"sessions,omitempty"`
   }
@@ -59,6 +61,7 @@ type (
     LastSession *Session       `json:"last_session,omitempty"`
     Module      *Module        `json:"module,omitempty"`
     Branch      *Branch        `json:"branch,omitempty"`
+    Tutor       *User          `json:"tutor,omitempty"`
     Students    []UsersProfile `json:"students,omitempty"`
   }
 )
@@ -90,6 +93,7 @@ type (
     CreatedAt time.Time `json:"created_at"`
     ClassId   uint64    `json:"class_id"`
     TutorId   uint64    `json:"tutor_id"`
+    Users     User      `json:"users"`
   }
 )
 
@@ -103,6 +107,7 @@ type (
   User struct {
     Hal
     Id           uint64         `json:"id"`
+    Username     string         `json:"username"`
     Email        string         `json:"email"`
     Role         string         `json:"role"`
     UsersProfile []UsersProfile `json:"users_profile"`
@@ -154,6 +159,8 @@ func ClassItemLinks(data Class_) ClassLinks {
   links.Module = &linksModule
   linksBranch := CreateHref(PathBranches + "/" + strconv.FormatUint(data.BranchId, 10))
   links.Branch = &linksBranch
+  linksTutor := CreateHref(PathTutors + "/" + strconv.FormatUint(data.TutorId, 10))
+  links.Tutor = &linksTutor
   links.Students = ClassLinksStudents(data.Id)
   links.Sessions = ClassLinksSessions(data.Id)
   //if len(links.Sessions) > 0 {
@@ -183,6 +190,25 @@ func ClassItemEmbeddedModule(id uint64) Module {
 
   return module
 }
+func ClassItemEmbeddedTutor(id uint64) User {
+  var tutor User
+
+  _, err := GetItem(map[string]interface{}{
+    "data": &tutor,
+    "path": PathUsers,
+    "query": map[string]string{
+      "id":     "eq." + strconv.FormatUint(id, 10),
+      "limit":  "1",
+      "select": "*,users_profile(*)",
+    },
+  })
+  if err != nil {
+    return User{}
+  }
+  //tutor.Links = myBranches.ItemLinks(tutor)
+
+  return tutor
+}
 func ClassItemEmbeddedBranch(id uint64) Branch {
   var branch Branch
 
@@ -211,10 +237,10 @@ func ClassItemEmbeddedLastSessions(id uint64) Session {
     "path": PathSessions,
     "query": map[string]string{
       "class_id": "eq." + strconv.FormatUint(id, 10),
-      "tutor_id": "eq." + strconv.FormatFloat(CurrentAuth.Id, 'f', 0, 64),
-      "order":    "created_at.desc",
-      "limit":    "1",
-      //"select":   "id,created_at",
+      //"tutor_id": "eq." + strconv.FormatFloat(CurrentAuth.Id, 'f', 0, 64),
+      "order":  "created_at.desc",
+      "limit":  "1",
+      "select": "*,users(*)",
     },
   })
   if err != nil {
@@ -275,6 +301,8 @@ func ClassItemEmbedded(data Class_) ClassEmbedded {
   embedded.Module = &module
   branch := ClassItemEmbeddedBranch(data.BranchId)
   embedded.Branch = &branch
+  tutor := ClassItemEmbeddedTutor(data.TutorId)
+  embedded.Tutor = &tutor
 
   embedded.Students = ClassItemEmbeddedStudents(data.Id)
 

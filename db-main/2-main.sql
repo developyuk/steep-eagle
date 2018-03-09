@@ -8,7 +8,7 @@ create table programs (
 );
 create table modules (
   id bigserial primary key, name text not null,
-  image text, session_total smallserial
+  image text null
 );
 create table program_modules (
   id bigserial primary key,
@@ -17,20 +17,55 @@ create table program_modules (
 );
 create table branches (
   id bigserial primary key, name text not null,
-  address text
+  address text null
 );
 create type days as enum (
   'monday', 'tuesday', 'wednesday',
   'thursday', 'friday', 'saturday',
   'sunday'
 );
+create type roles as enum (
+  'operation', 'tutor', 'student', 'parent',
+  'partner'
+);
+create table users (
+  id bigserial primary key,
+  username text not null,
+  email text null,
+  pass text null, role roles not null
+);
+create table users_profile (
+  name text null,
+  dob text null,
+  photo text null,
+  user_id integer references users(id)
+);
+create
+or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
+select
+  users.id,
+  users.email,
+  users.role :: text,
+  users_profile.name,
+  users_profile.photo
+from
+  users
+left join users_profile on users.id = users_profile.user_id
+where
+  users.email = user_by_email_pass._email
+  and users.pass = crypt(
+    user_by_email_pass._pass, users.pass
+  );
+end;
+$$ LANGUAGE 'plpgsql';
 create table classes (
   id bigserial primary key,
   day days not null,
   start_at char(5) not null,
   finish_at char(5) not null,
   module_id integer references program_modules(id),
-  branch_id integer references branches(id)
+  branch_id integer references branches(id),
+  tutor_id integer references users(id)
 );
 create
 or replace view classes_ts as
@@ -63,38 +98,6 @@ where
   and d.finish_at_ts + interval '2 hours' < now()  + interval '7 days'
 order by
   d.id asc;
-create type roles as enum (
-  'operation', 'tutor', 'student', 'parent',
-  'partner'
-);
-create table users (
-  id bigserial primary key, email text not null unique,
-  pass text not null, role roles not null
-);
-create table users_profile (
-  name text null,
-  dob text null,
-  photo text null,
-  user_id integer references users(id)
-);
-create
-or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
-select
-  users.id,
-  users.email,
-  users.role :: text,
-  users_profile.name,
-  users_profile.photo
-from
-  users
-left join users_profile on users.id = users_profile.user_id
-where
-  users.email = user_by_email_pass._email
-  and users.pass = crypt(
-    user_by_email_pass._pass, users.pass
-  );
-end;
-$$ LANGUAGE 'plpgsql';
 create table class_students (
   id bigserial primary key,
   class_id integer references classes(id),

@@ -9,30 +9,24 @@
           span.title cognition
           span.stars
             .rating
-              select(v-model="ratingCognition").hide
-                option(v-for="v in [0,1,2,3,4,5]" :value=v) {{v}}
-              i.material-icons(v-for="v in [1,2,3,4,5]")
+              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
         .creativity.clearfix
           span.title creativity
           span.stars
             .rating
-              select(v-model="ratingCreativity").hide
-                option(v-for="v in [0,1,2,3,4,5]" :value=v) {{v}}
-              i.material-icons(v-for="v in [1,2,3,4,5]")
-        .imagination.clearfix
-          span.title imagination
+              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
+        .interaction.clearfix
+          span.title interaction
           span.stars
             .rating
-              select(v-model="ratingImagination").hide
-                option(v-for="v in [0,1,2,3,4,5]" :value=v) {{v}}
-              i.material-icons(v-for="v in [1,2,3,4,5]")
+              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
       .review
         h4.title Comment for
           span.name  {{name}}
         .mdc-text-field.mdc-text-field--textarea.mdc-text-field--fullwidth
           textarea(v-model="review").mdc-text-field__input
       .submit: button(type='submit').mdc-button.mdc-button--raised submit
-      .absence: a(href='#' @click.prevent="absence") or absence ?
+      .absence: a(href="#" @click.prevent="absence") or absence ?
 </template>
 
 <script>
@@ -42,16 +36,37 @@
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        ratingImagination: 0,
+        ratingInteraction: 0,
         ratingCreativity: 0,
         ratingCognition: 0,
         review: '',
       }
     },
     methods: {
+      onClickRating(e) {
+        const value = e.target.dataset.value;
+        const ParentClassList = e.target.closest('.clearfix').classList;
+        const $rating = e.target.closest('.rating');
+        const isInteraction = ParentClassList.contains('interaction');
+        const isCognition = ParentClassList.contains('cognition');
+        const isCreativity = ParentClassList.contains('creativity');
+        if (isInteraction) {
+          this.ratingInteraction = value;
+        }
+        if (isCognition) {
+          this.ratingCognition = value;
+        }
+        if (isCreativity) {
+          this.ratingCreativity = value;
+        }
+        $rating.querySelectorAll(`.material-icons`).forEach(v=> v.classList.remove('is-active'));
+        [...Array(parseInt(value)).keys()].forEach(v => {
+          $rating.querySelector(`.material-icons[data-value='${v+1}']`).classList.add('is-active')
+        });
+      },
       submit() {
         console.log(this.sid, this.uid,
-          parseInt(this.ratingImagination), parseInt(this.ratingCreativity), parseInt(this.ratingCognition),
+          parseInt(this.ratingInteraction), parseInt(this.ratingCreativity), parseInt(this.ratingCognition),
           this.review);
       },
       absence() {
@@ -72,9 +87,9 @@
   }
 
   .rate {
-    .cognition, .creativity, .imagination {
+    .cognition, .creativity, .interaction {
       text-transform: capitalize;
-      .title{
+      .title {
         font-weight: 500;
       }
     }
@@ -92,7 +107,13 @@
       display: inline-block;
       position: relative;
       width: 1.1em;
-      color:$mdc-theme-primary;
+      color: $mdc-theme-primary;
+      &.is-active{
+
+        &:before {
+          content: 'star';
+        }
+      }
       &:before {
         content: 'star_outline';
       }
@@ -128,5 +149,9 @@
   .absence a {
     color: #EB5757;
     margin-bottom: 1rem;
+  }
+
+  .mdc-text-field--textarea .mdc-text-field__input {
+    padding-top: 16px;
   }
 </style>
