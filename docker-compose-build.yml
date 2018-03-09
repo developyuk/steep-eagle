@@ -45,6 +45,7 @@ services:
     depends_on:
     - db-api
     environment:
+      CACHE_SIZE: "1G"
       BACKENDS: "db-api"
       BACKENDS_PORT: "3000"
       DNS_ENABLED: "true"
