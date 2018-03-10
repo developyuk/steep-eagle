@@ -18,9 +18,9 @@
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
               span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session") Tutor : {{v._embedded.tutor.users_profile[0].name}}
               span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session") Class started by {{v._embedded.last_session.users.username}}
-            button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)').mdc-button.mdc-button--raised.mdc-button--compact Activate
+            button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
             span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
             span.late-ongoing(v-if="buttonStatus(v)==='late-ongoing'") activated
 
@@ -152,7 +152,6 @@
     },
     mounted() {
       const cls = this;
-      Array.from(document.querySelectorAll('.mdc-tab, .mdc-button')).forEach(v => mdc.ripple.MDCRipple.attachTo(v));
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.dialog.listen('MDCDialog:accept', () => {
@@ -170,6 +169,8 @@
       this.$bus.$on('currentAuth', (auth) => {
         this.currentAuth = auth;
       });
+
+      window.mdc.autoInit();
     }
   }
 </script>

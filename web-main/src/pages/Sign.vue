@@ -3,7 +3,7 @@
     form(@submit.prevent="sign")
       img.logo(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/a6mfkumhayvm7o4/Character_CodingCamp.png")
       .mdc-form-field
-        .mdc-text-field
+        .mdc-text-field(data-mdc-auto-init="MDCTextField")
           input#id.mdc-text-field__input(v-model.trim="id" type="text" required)
           label.mdc-text-field__label(for="id") Yourname
           .mdc-line-ripple
@@ -28,7 +28,7 @@
     },
     mounted() {
 //      Array.from(document.querySelectorAll('.mdc-text-field')).forEach(v => MDCRipple.attachTo(v));
-      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
+      window.mdc.autoInit();
     },
     methods: {
       sign() {

@@ -26,8 +26,7 @@
       }
     },
     mounted() {
-//      mdc.tabs.MDCTabBar.attachTo(document.querySelector('#icon-text-tab-bar'));
-      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-tab-bar'));
+      window.mdc.autoInit();
     }
   }
 </script>
