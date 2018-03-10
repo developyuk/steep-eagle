@@ -77,7 +77,7 @@
     left: 50%;
     transform: translate(-50%, -55%);
     max-width: 30rem;
-    width: 100%;
+    width: calc(100% - 5rem);
   }
 
   button {
