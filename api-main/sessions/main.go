@@ -5,6 +5,7 @@ import (
   "github.com/labstack/echo"
   "net/http"
   "strconv"
+  "log"
 )
 
 func List(c echo.Context) error {
@@ -142,6 +143,30 @@ func ItemStudentsBySessionId(c echo.Context) error {
   return c.JSON(http.StatusOK, item)
 }
 
+func CreateByStudentId(c echo.Context) error {
+  data := make(map[string]interface{});
+  if err := c.Bind(&data); err != nil {
+    return c.JSON(400, myShared.Response{
+      Message: err.Error(),
+    })
+  }
+  log.Println(data["status"].(bool),strconv.FormatBool(data["status"].(bool)))
+  myShared.PostItem(map[string]interface{}{
+    //"data": &list,
+    "path": "/sessions_students",
+    "query": map[string]string{
+      "session_id": c.Param("id"),
+      "student_id": c.Param("sid"),
+      "tutor_id": strconv.FormatFloat(myShared.CurrentAuth.Id, 'f', 0, 64),
+      "feedback": data["review"].(string),
+      "rating_cognition": strconv.FormatFloat(data["cognition"].(float64), 'f', 0, 64),
+      "rating_creativity": strconv.FormatFloat(data["creativity"].(float64), 'f', 0, 64),
+      "rating_interaction": strconv.FormatFloat(data["interaction"].(float64), 'f', 0, 64),
+      "status": strconv.FormatBool(data["status"].(bool)),
+    },
+  })
+  return c.JSON(http.StatusOK, myShared.Response{})
+}
 func CreateByClassId(c echo.Context) error {
   var list []myShared.Session
   resp, err := myShared.PostItem(map[string]interface{}{

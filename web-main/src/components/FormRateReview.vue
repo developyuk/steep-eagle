@@ -30,6 +30,8 @@
 </template>
 
 <script>
+  import axios from 'axios';
+
   export default {
     name: 'form-rate-review',
     props: ['sid', 'uid', 'name'],
@@ -59,17 +61,39 @@
         if (isCreativity) {
           this.ratingCreativity = value;
         }
-        $rating.querySelectorAll(`.material-icons`).forEach(v=> v.classList.remove('is-active'));
+        $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
         [...Array(parseInt(value)).keys()].forEach(v => {
-          $rating.querySelector(`.material-icons[data-value='${v+1}']`).classList.add('is-active')
+          $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
         });
       },
       submit() {
-        console.log(this.sid, this.uid,
-          parseInt(this.ratingInteraction), parseInt(this.ratingCreativity), parseInt(this.ratingCognition),
-          this.review);
+        const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
+        axios.post(url, {
+          interaction: parseInt(this.ratingInteraction),
+          creativity: parseInt(this.ratingCreativity),
+          cognition: parseInt(this.ratingCognition),
+          review: this.review,
+          status: true,
+        })
+          .then(response => {
+            this.$bus.$emit('onAfterSubmitRateReview', response.data);
+          })
+          .catch(error => console.log(error))
       },
       absence() {
+        const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
+
+        axios.post(url, {
+          interaction: parseInt(this.ratingInteraction),
+          creativity: parseInt(this.ratingCreativity),
+          cognition: parseInt(this.ratingCognition),
+          review: this.review,
+          status: false,
+        })
+          .then(response => {
+            this.$bus.$emit('onAfterSubmitRateReview', response.data);
+          })
+          .catch(error => console.log(error));
         console.log(this.sid, this.uid);
       }
     },
@@ -108,7 +132,7 @@
       position: relative;
       width: 1.1em;
       color: $mdc-theme-primary;
-      &.is-active{
+      &.is-active {
 
         &:before {
           content: 'star';

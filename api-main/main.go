@@ -53,6 +53,7 @@ func main() {
 
 	a.GET("sessions", mySessions.List)
 	a.GET("sessions/:id", mySessions.Item)
+	a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
   a.GET("sessions/:id/students/:sid", mySessions.ItemStudentsBySessionId)
 
 	a.GET("branches", myBranches.List)

@@ -73,41 +73,41 @@
 //        this.currentView[sid][uid] = 'form-rate-review';
       },
       getStudentsSessions() {
+        const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
+        axios.get(url)
+          .then(response => {
+            this.sessions = response.data._embedded;
+            const currentView = [];
+            this.sessions.forEach((v, i, a) => {
+              v['_embedded']['class']['_embedded']['students'].forEach((v2, i2, a2) => {
+                console.log(v2);
+                if (!currentView[v.id]) {
+                  currentView[v.id] = [];
+                }
+                currentView[v.id][v2.user_id] = 'empty';
 
-        this.$bus.$on('currentAuth', (auth) => {
-          const url = `${process.env.API}/sessions`;
-
-          axios.get(url)
-            .then(response => {
-              this.sessions = response.data._embedded;
-              const currentView = [];
-              this.sessions.forEach((v,i,a) => {
-                v['_embedded']['class']['_embedded']['students'].forEach((v2,i2,a2) => {
-                  console.log(v2);
-                  if (!currentView[v.id]) {
-                    currentView[v.id] = [];
-                  }
-                  currentView[v.id][v2.user_id] = 'empty';
-
-                  let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
-                  image = image.replace('https://', '').replace('http://', '');
-                  image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
-                  this.$set(a[i]['_embedded']['class']['_embedded']['students'][i2], 'photo', image);
-                });
-
+                let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
+                image = image.replace('https://', '').replace('http://', '');
+                image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
+                this.$set(a[i]['_embedded']['class']['_embedded']['students'][i2], 'photo', image);
               });
-              this.currentView = currentView;
-            })
-            .catch(error => console.log(error))
 
-        });
+            });
+            this.currentView = currentView;
+          })
+          .catch(error => console.log(error));
+
+
       }
     },
     mounted() {
-      this.getStudentsSessions();
       this.$bus.$on('currentAuth', (auth) => {
 //        console.log(auth);
         this.currentAuth = auth;
+        this.getStudentsSessions();
+      });
+      this.$bus.$on('onAfterSubmitRateReview', (resp) => {
+        this.getStudentsSessions();
       });
     }
   }
