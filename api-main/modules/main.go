@@ -2,63 +2,53 @@ package modules
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
-  var list []myShared.Module
-  resp, err := myShared.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": myShared.PathModules,
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  req := new(myShared.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
+  var list []Module
+  rest := myRest.New().GetItems(Path).ParseRequest(req)
+  if resp, err := rest.
+  SetQuery(myShared.RequestRest{
+    Select: req.Select,
+  }).End(&list); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   for i, v := range list {
-    list[i].Links = ItemLinks(v)
+    list[i].Links = itemLinks(v)
   }
 
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathModules)},
-    Embedded: list,
-    Count:    len(list),
-    Total:    len(list),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI, c.Path(), rest.Total, req),
+    Embedded: myShared.CreateEmbeddedItems(list),
+    Count:    rest.Count,
+    Total:    rest.Total,
   }
 
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
-  // var data Program = GetProgramTypesData(c.Param("id"))
-  var item myShared.Module
-  resp, err := myShared.GetItem(map[string]interface{}{
-    "data": &item,
-    "path": myShared.PathModules,
-    "query": map[string]string{
-      "id": "eq." + c.Param("id"),
-    },
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  req := new(myShared.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
+  var item Module
+  if resp, err := myRest.New().GetItem(Path).ParseRequest(req).
+    SetQuery(myShared.RequestRest{
+    Id:     "eq." + c.Param("id"),
+    Select: req.Select,
+  }).End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = ItemLinks(item)
+  item.Links = itemLinks(item)
   return c.JSON(http.StatusOK, item)
 }
-
-// func UpdateModule(c echo.Context) error {
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func DeleteModule(c echo.Context) error {
-// 	// id := c.Param("id")
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }

@@ -1,8 +1,9 @@
-package shared
+package jwt
 
 import (
   "github.com/dgrijalva/jwt-go"
   "github.com/labstack/echo"
+  "os"
 )
 
 type Auth struct {
@@ -11,6 +12,7 @@ type Auth struct {
 }
 
 var (
+  Key         = os.Getenv("JWT_KEY")
   CurrentAuth Auth
   AuthHeader  string
 )

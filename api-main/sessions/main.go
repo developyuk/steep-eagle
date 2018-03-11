@@ -2,6 +2,8 @@ package sessions
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
+  myJwt "../shared/jwt"
   "github.com/labstack/echo"
   "net/http"
   "strconv"
@@ -12,7 +14,7 @@ func List(c echo.Context) error {
   //params := make(map[string]interface{})
 
   var list []myShared.Session
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
   })
@@ -31,7 +33,7 @@ func List(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathSessions)},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
@@ -39,7 +41,7 @@ func List(c echo.Context) error {
 func ListByTutorId(c echo.Context) error {
   tid := c.Param("id")
   var list []myShared.Session
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
     "query": map[string]string{
@@ -61,7 +63,7 @@ func ListByTutorId(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathTutors + "/" + tid + myShared.PathSessions)},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
@@ -73,7 +75,7 @@ func ListByClassId(c echo.Context) error {
   params["cid"] = cid
 
   var list []myShared.Session
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
     "query": map[string]string{
@@ -94,14 +96,14 @@ func ListByClassId(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses + "/" + cid + myShared.PathSessions)},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
   var item myShared.Session
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathSessions,
     "query": map[string]string{
@@ -124,7 +126,7 @@ func ItemStudentsBySessionId(c echo.Context) error {
   sid := c.Param("sid")
 
   var item SessionStudent
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": "/sessions_students",
     "query": map[string]string{
@@ -151,13 +153,13 @@ func CreateByStudentId(c echo.Context) error {
     })
   }
   log.Println(data["status"].(bool),strconv.FormatBool(data["status"].(bool)))
-  myShared.PostItem(map[string]interface{}{
+  myRest.PostItem(map[string]interface{}{
     //"data": &list,
     "path": "/sessions_students",
     "query": map[string]string{
       "session_id": c.Param("id"),
       "student_id": c.Param("sid"),
-      "tutor_id": strconv.FormatFloat(myShared.CurrentAuth.Id, 'f', 0, 64),
+      "tutor_id": strconv.FormatFloat(myJwt.CurrentAuth.Id, 'f', 0, 64),
       "feedback": data["review"].(string),
       "rating_cognition": strconv.FormatFloat(data["cognition"].(float64), 'f', 0, 64),
       "rating_creativity": strconv.FormatFloat(data["creativity"].(float64), 'f', 0, 64),
@@ -169,12 +171,12 @@ func CreateByStudentId(c echo.Context) error {
 }
 func CreateByClassId(c echo.Context) error {
   var list []myShared.Session
-  resp, err := myShared.PostItem(map[string]interface{}{
+  resp, err := myRest.PostItem(map[string]interface{}{
     "data": &list,
     "path": myShared.PathSessions,
     "query": map[string]string{
       "class_id": c.Param("id"),
-      "tutor_id": strconv.FormatFloat(myShared.CurrentAuth.Id, 'f', 0, 64),
+      "tutor_id": strconv.FormatFloat(myJwt.CurrentAuth.Id, 'f', 0, 64),
     },
   })
   if err != nil {

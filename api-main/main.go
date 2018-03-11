@@ -8,13 +8,13 @@ import (
 	// "github.com/dgrijalva/jwt-go"
 
 	myBranches "./branches"
-	myClasses "./classes"
+	//myClasses "./classes"
 	myModules "./modules"
-	myPrograms "./programs"
-	myProgramsTypes "./programs/types"
-	mySessions "./sessions"
-	myShared "./shared"
-	myUsers "./users"
+	//myPrograms "./programs"
+	//myProgramsTypes "./programs/types"
+	//mySessions "./sessions"
+  myJwt "./shared/jwt"
+	//myUsers "./users"
 )
 
 func main() {
@@ -26,52 +26,48 @@ func main() {
 	e.GET("/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.POST("/sign", myUsers.Sign)
+	//e.POST("/sign", myUsers.Sign)
 
 	// e.Use(middleware.JWT([]byte(jwtKey)))
 
 	a := e.Group("/")
-	a.Use(middleware.JWT([]byte(myShared.JwtKey)))
-	a.Use(myShared.GetAuthMiddleware)
+	a.Use(middleware.JWT([]byte(myJwt.Key)))
+	a.Use(myJwt.GetAuthMiddleware)
 
-	a.GET("auth", myUsers.Auth)
+	//a.GET("auth", myUsers.Auth)
 
-	a.GET("programs/types", myProgramsTypes.List)
-	a.GET("programs/types/:id", myProgramsTypes.Item)
-
-	a.GET("programs", myPrograms.List)
-	a.GET("programs/:id", myPrograms.Item)
+	//a.GET("programs/types", myProgramsTypes.List)
+	//a.GET("programs/types/:id", myProgramsTypes.Item)
+	//
+	//a.GET("programs", myPrograms.List)
+	//a.GET("programs/:id", myPrograms.Item)
 
 	a.GET("modules", myModules.List)
 	a.GET("modules/:id", myModules.Item)
 
-	a.GET("classes", myClasses.List)
-	a.GET("classes/group/:by", myClasses.ListGroup)
-	a.GET("classes/:id", myClasses.Item)
-	a.GET("classes/:id/sessions", mySessions.ListByClassId)
-	a.POST("classes/:id/sessions", mySessions.CreateByClassId)
-
-	a.GET("sessions", mySessions.List)
-	a.GET("sessions/:id", mySessions.Item)
-	a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
-  a.GET("sessions/:id/students/:sid", mySessions.ItemStudentsBySessionId)
+	//a.GET("classes", myClasses.List)
+	//a.GET("classes/group/:by", myClasses.ListGroup)
+	//a.GET("classes/:id", myClasses.Item)
+	//a.GET("classes/:id/sessions", mySessions.ListByClassId)
+	//a.POST("classes/:id/sessions", mySessions.CreateByClassId)
+	//
+	//a.GET("sessions", mySessions.List)
+	//a.GET("sessions/:id", mySessions.Item)
+	//a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
+  //a.GET("sessions/:id/students/:sid", mySessions.ItemStudentsBySessionId)
 
 	a.GET("branches", myBranches.List)
 	a.GET("branches/:id", myBranches.Item)
 
-	a.GET("users", myUsers.List)
-	a.GET("users/:id", myUsers.Item)
-
-	a.GET("tutors", myUsers.List)
-	a.GET("tutors/:id", myUsers.Item)
-  a.GET("tutors/:id/sessions", mySessions.ListByTutorId)
-
-	a.GET("students", myUsers.List)
-	a.GET("students/:id", myUsers.Item)
+	//a.GET("users", myUsers.List)
+	//a.GET("users/:id", myUsers.Item)
+  //
+	//a.GET("tutors", myUsers.List)
+	//a.GET("tutors/:id", myUsers.Item)
+  //a.GET("tutors/:id/sessions", mySessions.ListByTutorId)
+  //
+	//a.GET("students", myUsers.List)
+	//a.GET("students/:id", myUsers.Item)
 
 	e.Logger.Fatal(e.Start(":1323"))
-}
-
-type Response struct {
-	Message string `json:"id"`
 }

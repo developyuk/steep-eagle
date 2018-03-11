@@ -2,7 +2,9 @@ package sessions
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   myUsers "../users"
+  myClass "../classes"
   "time"
   "strconv"
 )
@@ -38,7 +40,7 @@ type (
 
 func itemLinksStudentsSessions(id uint64) []myShared.Href {
   var list []myShared.ClassStudents
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/sessions_students",
     "query": map[string]string{
@@ -54,7 +56,7 @@ func itemLinksStudentsSessions(id uint64) []myShared.Href {
 }
 func itemLinksStudents(id uint64) []myShared.Href {
   var list []myShared.ClassStudents
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/class_students",
     "query": map[string]string{
@@ -80,7 +82,7 @@ func ItemLinks(v myShared.Session) SessionLinks {
 
 func itemEmbeddedClassEmbeddedStudents(id uint64) []myShared.UsersProfile {
   var list []myShared.ClassStudents
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/class_students",
     "query": map[string]string{
@@ -106,7 +108,7 @@ func itemEmbeddedClassEmbeddedStudents(id uint64) []myShared.UsersProfile {
         "user_id": "eq." + strconv.FormatUint(v.StudentId, 10),
       }
       var item myShared.UsersProfile
-      myShared.GetItem(map[string]interface{}{
+      myRest.GetItem(map[string]interface{}{
         "data":  &item,
         "path":  "/users_profile",
         "query": params,
@@ -126,8 +128,8 @@ func itemEmbeddedClassEmbeddedStudents(id uint64) []myShared.UsersProfile {
   //log.Println(data,strings.Join(in, ","))
   return data
 }
-func itemEmbeddedClassEmbedded(data myShared.Class_) myShared.ClassEmbedded {
-  var embedded myShared.ClassEmbedded
+func itemEmbeddedClassEmbedded(data myShared.Class_) myClass.Embedded {
+  var embedded myClass.Embedded
   lastSession := myShared.ClassItemEmbeddedLastSessions(data.Id)
   //  links.LastSession = &lastSession
   if lastSession.Id > 0 {
@@ -135,7 +137,7 @@ func itemEmbeddedClassEmbedded(data myShared.Class_) myShared.ClassEmbedded {
   }
   module := myShared.ClassItemEmbeddedModule(data.ModuleId)
   embedded.Module = &module
-  branch := myShared.ClassItemEmbeddedBranch(data.BranchId)
+  branch := myClass.ItemEmbeddedBranch(data.BranchId)
   embedded.Branch = &branch
   tutor := myShared.ClassItemEmbeddedTutor(data.TutorId)
   embedded.Tutor = &tutor
@@ -146,20 +148,20 @@ func itemEmbeddedClassEmbedded(data myShared.Class_) myShared.ClassEmbedded {
 }
 func itemEmbeddedClass(id uint64) myShared.Class_ {
   var item myShared.Class_
-  myShared.GetItem(map[string]interface{}{
+  myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": "/classes_ts",
     "query": map[string]string{
       "id": "eq." + strconv.FormatUint(id, 10),
     },
   })
-  item.Links = myShared.ClassItemLinks(item)
+  item.Links = myClass.ItemLinks(item)
   item.Embedded = itemEmbeddedClassEmbedded(item)
   return item
 }
 func itemEmbeddedStudents(id uint64) []myShared.User {
   var list []myShared.ClassStudents
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/class_students",
     "query": map[string]string{
@@ -171,7 +173,7 @@ func itemEmbeddedStudents(id uint64) []myShared.User {
   for _, v := range list {
 
     var item myShared.User
-    myShared.GetItem(map[string]interface{}{
+    myRest.GetItem(map[string]interface{}{
       "data": &item,
       "path": myShared.PathUsers,
       "query": map[string]string{

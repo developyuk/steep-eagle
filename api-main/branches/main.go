@@ -1,61 +1,53 @@
 package branches
 
 import (
+  myRest "../shared/rest"
   myShared "../shared"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
-  var list []myShared.Branch
-  resp, err := myShared.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": myShared.PathBranches,
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  req := new(myShared.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
+  var list []Branch
+  rest := myRest.New().GetItems(Path).ParseRequest(req)
+  if resp, err := rest.
+  SetQuery(myShared.RequestRest{
+    Select: req.Select,
+  }).End(&list); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   for i, v := range list {
-    list[i].Links = ItemLinks(v)
+    list[i].Links = itemLinks(v)
   }
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathBranches)},
-    Embedded: list,
-    Count:    len(list),
-    Total:    len(list),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI, c.Path(), rest.Total, req),
+    Embedded: myShared.CreateEmbeddedItems(list),
+    Count:    rest.Count,
+    Total:    rest.Total,
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
-  var item myShared.Branch
-  resp, err := myShared.GetItem(map[string]interface{}{
-    "data": &item,
-    "path": myShared.PathBranches,
-    "query": map[string]string{
-      "id": "eq." + c.Param("id"),
-    },
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  req := new(myShared.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = ItemLinks(item)
+  var item Branch
+  if resp, err := myRest.New().GetItem(Path).ParseRequest(req).
+    SetQuery(myShared.RequestRest{
+    Id: "eq." + c.Param("id"),
+    Select: req.Select,
+  }).End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
+  }
+
+  item.Links = itemLinks(item)
   return c.JSON(http.StatusOK, item)
 }
-
-// func UpdateBranch(c echo.Context) error {
-// 	var data Branch
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func DeleteBranch(c echo.Context) error {
-// 	// id := c.Param("id")
-// 	var data Branch
-// 	return c.JSON(http.StatusOK, data)
-// }

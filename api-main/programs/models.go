@@ -2,6 +2,7 @@ package programs
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "strconv"
 )
 
@@ -28,7 +29,7 @@ type (
 
 func itemLinksModules(id uint64) []myShared.Href {
   var list []ProgramModules
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/program_modules",
     "query": map[string]string{

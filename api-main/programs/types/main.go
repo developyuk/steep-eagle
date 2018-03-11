@@ -2,13 +2,14 @@ package types
 
 import (
   myShared "../../shared"
+  myRest "../../shared/rest"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
   var list []ProgramType
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/program_types",
   })
@@ -26,14 +27,14 @@ func List(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathProgramsTypes)},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
   var item ProgramType
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": "/program_types",
     "query": map[string]string{
@@ -49,20 +50,3 @@ func Item(c echo.Context) error {
   item.Links = itemLinks(item)
   return c.JSON(http.StatusOK, item)
 }
-
-// func CreateProgramType(c echo.Context) error {
-// 	// var data Program = GetProgramTypesData(c.Param("id"))
-// 	var data myModels.Response = myModels.CreateProgramType(c.FormValue("name"))
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func UpdateProgramType(c echo.Context) error {
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func DeleteProgramType(c echo.Context) error {
-// 	// id := c.Param("id")
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }

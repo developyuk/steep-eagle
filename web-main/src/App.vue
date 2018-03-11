@@ -6,9 +6,6 @@
 <script>
   export default {
     name: 'app',
-    mounted() {
-      window.mdc.autoInit();
-    }
   }
 </script>
 

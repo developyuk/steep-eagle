@@ -47,7 +47,7 @@
             console.log(error);
             const {status, data} = error.response;
             if (status !== 200) {
-              this.errMsg = `${data.message}. Re-check your authentication.`;
+              this.errMsg = `${data.message}.<br/> Re-check your authentication.`;
             } else {
               console.log(error);
             }

@@ -2,6 +2,7 @@ package classes
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
   "strconv"
@@ -20,7 +21,7 @@ type (
 
 func list(params map[string]string) ([]myShared.Class_, error) {
   var list []myShared.Class_
-  _, err := myShared.GetItems(map[string]interface{}{
+  _, err := myRest.GetItems(map[string]interface{}{
     "data":  &list,
     "path":  "/classes_ts",
     "query": params,
@@ -29,8 +30,8 @@ func list(params map[string]string) ([]myShared.Class_, error) {
     return list, err
   }
   for i, v := range list {
-    list[i].Links = myShared.ClassItemLinks(v)
-    list[i].Embedded = myShared.ClassItemEmbedded(v)
+    list[i].Links = ItemLinks(v)
+    list[i].Embedded = ItemEmbedded(v)
   }
   return list, err
 }
@@ -85,7 +86,7 @@ func ListGroup(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
     Embedded: classGroupDates,
     Count:    len(classGroupDates),
-    Total:    len(classGroupDates),
+    Total:    uint64(len(classGroupDates)),
   }
   return c.JSON(http.StatusOK, response)
 }
@@ -106,14 +107,14 @@ func List(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
   var item myShared.Class_
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": "/classes_ts",
     "query": map[string]string{
@@ -126,18 +127,7 @@ func Item(c echo.Context) error {
     })
   }
 
-  item.Links = myShared.ClassItemLinks(item)
-  item.Embedded = myShared.ClassItemEmbedded(item)
+  item.Links = ItemLinks(item)
+  item.Embedded = ItemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }
-
-// func UpdateClass(c echo.Context) error {
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func DeleteClass(c echo.Context) error {
-// 	// id := c.Param("id")
-// 	var data myModels.ProgramType
-// 	return c.JSON(http.StatusOK, data)
-// }

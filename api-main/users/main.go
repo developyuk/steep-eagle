@@ -2,6 +2,7 @@ package users
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
   "strings"
@@ -32,7 +33,7 @@ func List(c echo.Context) error {
     params["role"] = "eq." + role
   }
   var list []myShared.User
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data":  &list,
     "path":  myShared.PathUsers,
     "query": params,
@@ -52,7 +53,7 @@ func List(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(getPath(role))},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
   return c.JSON(http.StatusOK, response)
 }
@@ -68,7 +69,7 @@ func Item(c echo.Context) error {
   }
 
   var item myShared.User
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data":  &item,
     "path":  myShared.PathUsers,
     "query": params,

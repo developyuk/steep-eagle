@@ -2,13 +2,14 @@ package programs
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
   var list []Program
-  resp, err := myShared.GetItems(map[string]interface{}{
+  resp, err := myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": myShared.PathPrograms,
   })
@@ -25,7 +26,7 @@ func List(c echo.Context) error {
     Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathPrograms}},
     Embedded: list,
     Count:    len(list),
-    Total:    len(list),
+    Total:    uint64(len(list)),
   }
 
   return c.JSON(http.StatusOK, response)
@@ -33,7 +34,7 @@ func List(c echo.Context) error {
 
 func Item(c echo.Context) error {
   var item Program
-  resp, err := myShared.GetItem(map[string]interface{}{
+  resp, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathPrograms,
     "query": map[string]string{
@@ -49,14 +50,3 @@ func Item(c echo.Context) error {
   item.Links = itemLinks(item)
   return c.JSON(http.StatusOK, item)
 }
-
-// func UpdateProgram(c echo.Context) error {
-// 	var data myModels.Program
-// 	return c.JSON(http.StatusOK, data)
-// }
-//
-// func DeleteProgram(c echo.Context) error {
-// 	// id := c.Param("id")
-// 	var data myModels.Program
-// 	return c.JSON(http.StatusOK, data)
-// }

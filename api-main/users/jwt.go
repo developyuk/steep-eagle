@@ -4,6 +4,7 @@ import (
   // "fmt"
   // "github.com/jmoiron/sqlx"
   myShared "../shared"
+  myJwt "../shared/jwt"
   "github.com/dgrijalva/jwt-go"
   "github.com/labstack/echo"
   "net/http"
@@ -21,7 +22,7 @@ func Sign(c echo.Context) error {
     return err
   }
   item, err := itemByUsername(p)
-  log.Println(err)
+
   if err != nil {
     return c.JSON(http.StatusUnauthorized, myShared.Response{Message: err.Error()})
   }
@@ -38,7 +39,7 @@ func Sign(c echo.Context) error {
   claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
   // Generate encoded token and send it as response.
-  t, err2 := token.SignedString([]byte(myShared.JwtKey))
+  t, err2 := token.SignedString([]byte(myJwt.Key))
   log.Println(t)
   if err2 != nil {
     return c.JSON(http.StatusUnauthorized, err2)

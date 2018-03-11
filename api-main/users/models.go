@@ -2,6 +2,7 @@ package users
 
 import (
   myShared "../shared"
+  myRest "../shared/rest"
   "strconv"
   "log"
 )
@@ -21,7 +22,7 @@ type (
 func itemLinksSessions(id uint64) []myShared.Href {
 
   var list []myShared.Session
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/sessions",
     "query": map[string]string{
@@ -40,7 +41,7 @@ func itemLinksSessions(id uint64) []myShared.Href {
 
 func itemLinksClass(id uint64) []myShared.Href {
   var list []myShared.ClassStudents
-  myShared.GetItems(map[string]interface{}{
+  myRest.GetItems(map[string]interface{}{
     "data": &list,
     "path": "/class_students",
     "query": map[string]string{
@@ -79,7 +80,7 @@ func ItemLinks(v myShared.User, role string) interface{} {
 func itemByUsername(param *UserLoginRequest) (myShared.User, error) {
 
   var item myShared.User
-  _, err := myShared.GetItem(map[string]interface{}{
+  _, err := myRest.GetItem(map[string]interface{}{
     "data": &item,
     "path": myShared.PathUsers,
     "query": map[string]string{
