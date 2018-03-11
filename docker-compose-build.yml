@@ -21,6 +21,7 @@ services:
     restart: unless-stopped
     environment:
       - JWT_KEY=${JWT_KEY}
+      - DB_API=${DB_API}
     depends_on:
       - db-main
     links:

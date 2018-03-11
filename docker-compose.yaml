@@ -19,6 +19,7 @@ services:
      - "82:3000"
     environment:
       - JWT_KEY=${JWT_KEY}
+      - DB_API=${DB_API}
     depends_on:
       - db-main
     command:      gin run
