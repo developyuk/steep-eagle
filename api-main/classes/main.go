@@ -19,21 +19,18 @@ type (
   }
 )
 
-func list(params map[string]string) ([]myShared.Class_, error) {
+func list(params map[string]string) (*http.Response, *myRest.MyRest, []myShared.Class_, error) {
   var list []myShared.Class_
-  _, err := myRest.GetItems(map[string]interface{}{
-    "data":  &list,
-    "path":  "/classes_ts",
-    "query": params,
-  })
+  rest := myRest.New().GetItems("/classes_ts")
+  resp, err := rest.SetQuery(params).End(&list)
   if err != nil {
-    return list, err
+    return resp, rest, list, err
   }
   for i, v := range list {
     list[i].Links = ItemLinks(v)
-    list[i].Embedded = ItemEmbedded(v)
+    //list[i].Embedded = ItemEmbedded(v)
   }
-  return list, err
+  return resp, rest, list, nil
 }
 func timeToRelativeText(timeTs time.Time) string {
 
@@ -53,7 +50,7 @@ func ListGroup(c echo.Context) error {
   if val := c.QueryParam("by"); len(val) > 0 {
     params["by"] = val
   }
-  list, err := list(params)
+  _, _, list, err := list(params)
   var classGroupDates []ClassGroupDate
   var t ClassGroupDate
 
@@ -62,8 +59,8 @@ func ListGroup(c echo.Context) error {
     for i2, v2 := range classGroupDates {
       if v.Day == v2.Day {
         // Found!
-        classGroupDates[i2].Items = append(classGroupDates[i2].Items,v)
-        found=true
+        classGroupDates[i2].Items = append(classGroupDates[i2].Items, v)
+        found = true
         break
       }
     }
@@ -78,14 +75,12 @@ func ListGroup(c echo.Context) error {
   }
 
   if err != nil {
-    return c.JSON(400, myShared.Response{
-      Message: err.Error(),
-    })
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
   }
   response := myShared.Hal{
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
-    Embedded: classGroupDates,
-    Count:    len(classGroupDates),
+    Embedded: myShared.CreateEmbeddedItems(classGroupDates),
+    Count:    uint64(len(classGroupDates)),
     Total:    uint64(len(classGroupDates)),
   }
   return c.JSON(http.StatusOK, response)
@@ -96,38 +91,30 @@ func List(c echo.Context) error {
   if val := c.QueryParam("sort"); len(val) > 0 {
     params["order"] = val
   }
-  list, err := list(params)
+  _, rest, list, err := list(params)
   if err != nil {
-    return c.JSON(400, myShared.Response{
-      Message: err.Error(),
-    })
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
   }
 
   response := myShared.Hal{
     Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
-    Embedded: list,
-    Count:    len(list),
-    Total:    uint64(len(list)),
+    Embedded: myShared.CreateEmbeddedItems(list),
+    Count:    rest.Total,
+    Total:    rest.Count,
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
   var item myShared.Class_
-  resp, err := myRest.GetItem(map[string]interface{}{
-    "data": &item,
-    "path": "/classes_ts",
-    "query": map[string]string{
-      "id": "eq." + c.Param("id"),
-    },
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+
+  if resp, err := myRest.New().GetItem("/classes_ts").
+    SetQuery("id=eq." + c.Param("id")).
+    End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   item.Links = ItemLinks(item)
-  item.Embedded = ItemEmbedded(item)
+  //item.Embedded = ItemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }
