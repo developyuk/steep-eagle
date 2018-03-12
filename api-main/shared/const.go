@@ -8,12 +8,8 @@ import (
 )
 
 const (
-  PathPrograms      string = "/programs"
   PathProgramsTypes string = "/programs/types"
   PathClasses       string = "/classes"
-  PathUsers         string = "/users"
-  PathStudents      string = "/students"
-  PathTutors        string = "/tutors"
   PathSessions      string = "/sessions"
 )
 
@@ -67,19 +63,18 @@ type (
 )
 
 type (
-  UsersProfile struct {
-    Name   string    `json:"name"`
-    Dob    time.Time `json:"dob"`
-    Photo  string    `json:"photo"`
-    UserId uint64    `json:"user_id"`
-  }
   User struct {
     Hal
-    Id           uint64         `json:"id"`
-    Username     string         `json:"username"`
-    Email        string         `json:"email"`
-    Role         string         `json:"role"`
-    UsersProfile []UsersProfile `json:"users_profile"`
+    Id       uint64    `json:"id"`
+    Username string    `json:"username,omitempty"`
+    Email    string    `json:"email,omitempty"`
+    Pass     string    `json:"pass,omitempty"`
+    Role     string    `json:"role,omitempty"`
+    Name     string    `json:"name,omitempty"`
+    Dob      time.Time `json:"dob,omitempty"`
+    Photo    string    `json:"photo,omitempty"`
+    UserId   uint64    `json:"user_id,omitempty"`
+    //UsersProfile []UsersProfile `json:"users_profile"`
   }
 )
 

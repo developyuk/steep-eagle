@@ -1,31 +1,40 @@
 package rest
 
 import (
-  myShared "../../shared"
-  myJwt "../jwt"
+  mySharedJwt "../../shared/jwt"
   "github.com/parnurzeal/gorequest"
   "net/http"
   "errors"
   "strings"
   "fmt"
   "strconv"
-  "log"
   "reflect"
+  "log"
 )
 
-type myRest struct {
-  limit    uint64
-  offset   uint64
-  Total    uint64
-  Count    uint64
-  value    interface{}
-  response *http.Response
-  request  *gorequest.SuperAgent
-  errors   []error
-}
+type (
+  MyRest struct {
+    Limit    uint64
+    Offset   uint64
+    Total    uint64
+    Count    uint64
+    value    interface{}
+    response *http.Response
+    request  *gorequest.SuperAgent
+    errors   []error
+  }
 
-func (r *myRest) Clear() *myRest {
-  r.limit = 10
+  Request struct {
+    Page   string `json:"page" form:"page" query:"page"`
+    Limit  string `json:"limit" form:"limit" query:"limit"`
+    Sort   string `json:"sort" form:"sort" query:"sort"`
+    Embed  string `json:"embed" form:"embed" query:"embed"`
+    Select string `json:"select" form:"select" query:"select"`
+  }
+)
+
+func (r *MyRest) Clear() *MyRest {
+  //r.Limit = 10
   r.errors = nil
   r.request = nil
   r.response = nil
@@ -33,16 +42,19 @@ func (r *myRest) Clear() *myRest {
 
   return r
 }
-func New() *myRest {
-  r := &myRest{}
+func New() *MyRest {
+  r := &MyRest{}
   r.Clear()
   r.request = gorequest.New()
   return r
 }
-func (r *myRest) End(v interface{}) (*http.Response, error) {
+func (r *MyRest) End(v interface{}) (*http.Response, error) {
 
+  log.Println(r.errors)
   r.response, _, r.errors = r.request.EndStruct(v)
-  //log.Println(errs)
+  //fmt.Printf("%+v\n", r.request)
+  //fmt.Printf("%+v\n", r.response)
+  //log.Println(r.errors)
   if r.response.StatusCode < 200 || r.response.StatusCode >= 300 {
     r.errors = append(r.errors, errors.New(r.response.Status))
   }
@@ -56,7 +68,7 @@ func (r *myRest) End(v interface{}) (*http.Response, error) {
 
     r.Count = uint64(s.Len())
   }
-  log.Println(r.Total, r.Count)
+
   if len(r.errors) > 0 && r.errors[0] != nil {
     return r.response, r.errors[0]
   }
@@ -64,9 +76,10 @@ func (r *myRest) End(v interface{}) (*http.Response, error) {
   return r.response, nil
 }
 
-func (r *myRest) ParseRequest(v *myShared.Request) *myRest {
+func (r *MyRest) ParseRequest(v *Request) *MyRest {
   if v, err := strconv.ParseUint(v.Limit, 10, 64); err != nil {
-    r.errors = append(r.errors, err)
+    //r.errors = append(r.errors, err)
+    r.SetLimit(10)
   } else {
     r.SetLimit(v)
   }
@@ -75,38 +88,41 @@ func (r *myRest) ParseRequest(v *myShared.Request) *myRest {
   } else {
     r.SetPage(v)
   }
+  if len(v.Select) > 0 {
+    r.SetQuery("select=" + v.Select)
+  }
   return r
 }
-func (r *myRest) SetLimit(v uint64) *myRest {
-  r.request.Query("limit="+ fmt.Sprint(v))
-  r.limit = v
+func (r *MyRest) SetLimit(v uint64) *MyRest {
+  r.request.Query("limit=" + fmt.Sprint(v))
+  r.Limit = v
   return r
 }
-func (r *myRest) SetPage(v uint64) *myRest {
-  offset := (v - 1) * r.limit
-  r.request.Query("offset="+ fmt.Sprint(offset))
-  r.offset = offset
+func (r *MyRest) SetPage(v uint64) *MyRest {
+  offset := (v - 1) * r.Limit
+  r.request.Query("offset=" + fmt.Sprint(offset))
+  r.Offset = offset
   return r
 }
 
-func (r *myRest) SetQuery(q interface{}) *myRest {
+func (r *MyRest) SetQuery(q interface{}) *MyRest {
   r.request.Query(q)
   return r
 }
 
-func (r *myRest) GetItems(path string) *myRest {
+func (r *MyRest) GetItems(path string) *MyRest {
   r.request.Get(DbApiUrl + path).
     Set("Accept", "application/json").
-    Set("Authorization", myJwt.AuthHeader).
+    Set("Authorization", mySharedJwt.AuthHeader).
     Set("Prefer", "count=exact")
 
   return r
 }
 
-func (r *myRest) GetItem(path string) *myRest {
+func (r *MyRest) GetItem(path string) *MyRest {
   r.request.Get(DbApiUrl + path).
     Set("Accept", "application/vnd.pgrst.object+json").
-    Set("Authorization", myJwt.AuthHeader)
+    Set("Authorization", mySharedJwt.AuthHeader)
 
   return r
 }

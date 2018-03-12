@@ -41,6 +41,10 @@ create table users_profile (
   user_id integer references users(id)
 );
 create
+or replace view users_full as
+select *
+from users u join users_profile up on u.id = up.user_id
+create
 or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
 select
   users.id,

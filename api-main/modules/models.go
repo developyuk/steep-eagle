@@ -23,19 +23,6 @@ type (
 
 var Path string = "/modules"
 
-//func itemLinksPrograms(id uint64) []myShared.Href {
-//  var list []myPrograms.ProgramModules
-//  myRest.New().Get("/program_modules").SetQuery(myShared.RequestRest{
-//    Select: "program_id",
-//  }).SetQuery("module_id=eq." + fmt.Sprint(id)).GetItems().End(&list)
-//
-//  var data []myShared.Href
-//  for _, v := range list {
-//    data = append(data, myShared.CreateHref(myShared.PathPrograms+"/"+fmt.Sprint(v.ProgramId)))
-//  }
-//  return data
-//}
-
 func itemLinks(v Module) ModuleLinks {
   var links ModuleLinks
   links.Self = myShared.CreateHref(Path+ "/" + fmt.Sprint(v.Id))

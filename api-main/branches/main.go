@@ -1,19 +1,19 @@
 package branches
 
 import (
-  myRest "../shared/rest"
+  mySharedRest "../shared/rest"
   myShared "../shared"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
-  req := new(myShared.Request)
+  req := new(mySharedRest.Request)
   if err := c.Bind(req); err != nil {
     return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
   var list []Branch
-  rest := myRest.New().GetItems(Path).ParseRequest(req)
+  rest := mySharedRest.New().GetItems(Path).ParseRequest(req)
   if resp, err := rest.
   SetQuery(myShared.RequestRest{
     Select: req.Select,
@@ -25,7 +25,7 @@ func List(c echo.Context) error {
     list[i].Links = itemLinks(v)
   }
   response := myShared.Hal{
-    Links:    myShared.CreateHalLinks(c.Request().RequestURI, c.Path(), rest.Total, req),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI, c.Path(), rest),
     Embedded: myShared.CreateEmbeddedItems(list),
     Count:    rest.Count,
     Total:    rest.Total,
@@ -34,13 +34,13 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  req := new(myShared.Request)
+  req := new(mySharedRest.Request)
   if err := c.Bind(req); err != nil {
     return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
 
   var item Branch
-  if resp, err := myRest.New().GetItem(Path).ParseRequest(req).
+  if resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
     SetQuery(myShared.RequestRest{
     Id: "eq." + c.Param("id"),
     Select: req.Select,

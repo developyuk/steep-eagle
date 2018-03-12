@@ -2,7 +2,7 @@ package users
 
 import (
   myShared "../shared"
-  myRest "../shared/rest"
+  mySharedRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
   "strings"
@@ -15,72 +15,62 @@ func getRole(path string) string {
 }
 
 func getPath(role string) string {
-  path := myShared.PathUsers
+  path := PathUsers
   if role == "student" {
-    path = myShared.PathStudents
+    path = PathStudents
   }
   if role == "tutor" {
-    path = myShared.PathTutors
+    path = PathTutors
   }
   return path
 }
 
 func List(c echo.Context) error {
-  params := make(map[string]string)
-  role := getRole(c.Path())
-
-  if role != "user" {
-    params["role"] = "eq." + role
+  req := new(mySharedRest.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
+  rest := mySharedRest.New().GetItems("/users_full").ParseRequest(req)
+  role := getRole(c.Path())
+  if role != "user" {
+    rest.SetQuery("role=eq." + role)
+  }
+
   var list []myShared.User
-  resp, err := myRest.GetItems(map[string]interface{}{
-    "data":  &list,
-    "path":  myShared.PathUsers,
-    "query": params,
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  if resp, err := rest.End(&list); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   // log.Fatal()
   for i, v := range list {
-    list[i].Links = ItemLinks(v, role)
+    list[i].Links = itemLinks(v, role)
   }
 
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(getPath(role))},
-    Embedded: list,
-    Count:    len(list),
-    Total:    uint64(len(list)),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI, c.Path(), rest),
+    Embedded: myShared.CreateEmbeddedItems(list),
+    Count:    rest.Count,
+    Total:    rest.Total,
   }
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
-  // var data Program = GetProgramTypesData(c.Param("id"))
-  params := make(map[string]string)
-  params["id"] = "eq." + c.Param("id")
-
+  req := new(mySharedRest.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
+  rest := mySharedRest.New().GetItem("/users_full").ParseRequest(req)
   role := getRole(c.Path())
   if role != "user" {
-    params["role"] = "eq." + role
+    rest.SetQuery("role=eq." + role)
   }
 
   var item myShared.User
-  resp, err := myRest.GetItem(map[string]interface{}{
-    "data":  &item,
-    "path":  myShared.PathUsers,
-    "query": params,
-  })
-
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  if resp, err := rest.SetQuery("id=eq." + c.Param("id")).End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = ItemLinks(item, role)
+  item.Links = itemLinks(item, role)
   return c.JSON(http.StatusOK, item)
 }

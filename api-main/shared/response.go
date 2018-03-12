@@ -1,8 +1,8 @@
 package shared
 
 import (
+  mySharedRest "../shared/rest"
   "fmt"
-  "strconv"
 )
 
 type (
@@ -46,12 +46,13 @@ func CreateResponse(message string) response {
 func CreateHrefSelf(v string) LinksSelf {
   return LinksSelf{Self: CreateHref(v)}
 }
-func CreateHalLinks(uri string, path string, total uint64, req *Request) LinksPagination {
+func CreateHalLinks(uri string, path string, rest *mySharedRest.MyRest) LinksPagination {
   var links LinksPagination
   links.Self = CreateHref(uri)
 
-  page, _ := strconv.ParseUint(req.Page, 10, 64)
-  limit, _ := strconv.ParseUint(req.Limit, 10, 64)
+  limit := rest.Limit
+  page := (rest.Offset / limit)+1
+  //log.Println(rest.Offset,rest.Limit,page,rest.Total)
   if page > 0 {
     if limit == 0 {
       limit = 10
@@ -61,7 +62,7 @@ func CreateHalLinks(uri string, path string, total uint64, req *Request) LinksPa
     if prev < 1 {
       prev = 1
     }
-    last := total / limit
+    last := (rest.Total / limit)+1
     if last < 1 {
       last = 1
     }
@@ -69,11 +70,14 @@ func CreateHalLinks(uri string, path string, total uint64, req *Request) LinksPa
     if next > last {
       next = last
     }
+    if(1 != last){
 
-    links.First = CreateHref(path + "?page=1")
-    links.Prev = CreateHref(path + "?page=" + fmt.Sprint(prev))
-    links.Next = CreateHref(path + "?page=" + fmt.Sprint(next))
-    links.Last = CreateHref(path + "?page=" + fmt.Sprint(last))
+      links.First = CreateHref(path + "?page=1")
+      links.Prev = CreateHref(path + "?page=" + fmt.Sprint(prev))
+      links.Next = CreateHref(path + "?page=" + fmt.Sprint(next))
+      links.Last = CreateHref(path + "?page=" + fmt.Sprint(last))
+    }
+
   }
   return links
 }

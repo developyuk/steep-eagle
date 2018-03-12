@@ -2,49 +2,46 @@ package programs
 
 import (
   myShared "../shared"
-  myRest "../shared/rest"
+  mySharedRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
 )
 
 func List(c echo.Context) error {
+  req := new(mySharedRest.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
   var list []Program
-  resp, err := myRest.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": myShared.PathPrograms,
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+  rest := mySharedRest.New().GetItems(Path).ParseRequest(req)
+  if resp, err := rest.End(&list); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   for i, v := range list {
     list[i].Links = itemLinks(v)
   }
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.Href{Href: myShared.PathPrograms}},
-    Embedded: list,
-    Count:    len(list),
-    Total:    uint64(len(list)),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI,Path,rest),
+    Embedded: myShared.CreateEmbeddedItems(list),
+    Count:    rest.Total,
+    Total:    rest.Count,
   }
 
   return c.JSON(http.StatusOK, response)
 }
 
 func Item(c echo.Context) error {
+  req := new(mySharedRest.Request)
+  if err := c.Bind(req); err != nil {
+    return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
+  }
   var item Program
-  resp, err := myRest.GetItem(map[string]interface{}{
-    "data": &item,
-    "path": myShared.PathPrograms,
-    "query": map[string]string{
-      "id": "eq." + c.Param("id"),
-    },
-  })
-  if err != nil {
-    return c.JSON(resp.StatusCode, myShared.Response{
-      Message: err.Error(),
-    })
+
+  if resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
+    SetQuery(myShared.RequestRest{Id: "eq." + c.Param("id")}).
+    End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
   item.Links = itemLinks(item)

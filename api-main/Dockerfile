@@ -10,8 +10,6 @@ RUN set -ex \
 
 RUN set -ex \
   && go get github.com/dgrijalva/jwt-go \
-  && go get github.com/lib/pq \
-  && go get github.com/jmoiron/sqlx \
   && go get github.com/parnurzeal/gorequest \
   && go get github.com/codegangsta/gin
 

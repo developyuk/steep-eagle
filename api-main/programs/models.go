@@ -2,15 +2,16 @@ package programs
 
 import (
   myShared "../shared"
-  myRest "../shared/rest"
-  "strconv"
+  "fmt"
 )
+
+const Path string = "/programs"
 
 type (
   Program struct {
     myShared.Hal
     Id     uint64 `json:"id"`
-    Name   string `json:"name"`
+    Name   string `json:"name,omitempty"`
     TypeId uint64 `json:"type_id"`
   }
 
@@ -22,34 +23,13 @@ type (
 
   ProgramLinks struct {
     myShared.LinksSelf
-    Type    myShared.Href   `json:"type"`
-    Modules []myShared.Href `json:"modules,omitempty"`
+    Type    *myShared.Href  `json:"type"`
   }
 )
 
-func itemLinksModules(id uint64) []myShared.Href {
-  var list []ProgramModules
-  myRest.GetItems(map[string]interface{}{
-    "data": &list,
-    "path": "/program_modules",
-    "query": map[string]string{
-      "program_id": "eq." + strconv.FormatUint(id, 10),
-      "select":     "module_id",
-    },
-  })
-
-  var data []myShared.Href
-  for _, v := range list {
-    data = append(data, myShared.CreateHref(myShared.PathModules+"/"+strconv.FormatUint(v.ModuleId, 10)))
-  }
-
-  return data
-}
-
 func itemLinks(v Program) ProgramLinks {
   var links ProgramLinks
-  links.Self = myShared.CreateHref(myShared.PathPrograms + "/" + strconv.FormatUint(v.Id, 10))
-  links.Type = myShared.CreateHref(myShared.PathProgramsTypes + "/" + strconv.FormatUint(v.TypeId, 10))
-  links.Modules = itemLinksModules(v.Id)
+  links.Self = myShared.CreateHref(Path + "/" + fmt.Sprint(v.Id))
+  links.Type = myShared.CreateHref(myShared.PathProgramsTypes + "/" + fmt.Sprint(v.TypeId))
   return links
 }
