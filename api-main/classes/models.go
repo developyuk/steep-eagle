@@ -5,24 +5,24 @@ import (
   myModule "../modules"
   myBranch "../branches"
   myUser "../users"
-  myRest "../shared/rest"
+  mySharedRest "../shared/rest"
   "fmt"
 )
 
 type (
-  Embedded struct {
-    LastSession *myShared.Session `json:"last_session,omitempty"`
-    Module      *myModule.Module  `json:"module,omitempty"`
-    Branch      *myBranch.Branch  `json:"branch,omitempty"`
-    Tutor       *myShared.User    `json:"tutor,omitempty"`
-    Students    []myShared.User   `json:"students,omitempty"`
+  embedded struct {
+    //LastSession *myShared.Session `json:"last_session,omitempty"`
+    Module      myModule.Module  `json:"module,omitempty"`
+    Branch      myBranch.Branch  `json:"branch,omitempty"`
+    Tutor       myUser.User    `json:"tutor,omitempty"`
+    //Students    []myUser.User   `json:"students,omitempty"`
   }
 )
 
 func ItemEmbeddedBranch(id uint64) myBranch.Branch {
   var branch myBranch.Branch
 
-  if _, err := myRest.New().GetItem(myBranch.Path).
+  if _, err := mySharedRest.New().GetItem(myBranch.Path).
     SetQuery("id=eq." + fmt.Sprint(id)).
     SetQuery("limit=1").
     End(&branch); err != nil {

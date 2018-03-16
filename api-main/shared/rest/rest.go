@@ -9,7 +9,7 @@ import (
   "fmt"
   "strconv"
   "reflect"
-  "log"
+  //"github.com/davecgh/go-spew/spew"
 )
 
 type (
@@ -50,11 +50,9 @@ func New() *MyRest {
 }
 func (r *MyRest) End(v interface{}) (*http.Response, error) {
 
-  log.Println(r.errors)
   r.response, _, r.errors = r.request.EndStruct(v)
-  //fmt.Printf("%+v\n", r.request)
-  //fmt.Printf("%+v\n", r.response)
-  //log.Println(r.errors)
+  //spew.Dump(r.request)
+
   if r.response.StatusCode < 200 || r.response.StatusCode >= 300 {
     r.errors = append(r.errors, errors.New(r.response.Status))
   }

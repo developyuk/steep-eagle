@@ -2,9 +2,9 @@ package modules
 
 import (
   myShared "../shared"
-  //myRest "../shared/rest"
-  //myPrograms "../programs"
+  mySharedRest "../shared/rest"
   "fmt"
+  "net/http"
 )
 
 type (
@@ -14,18 +14,27 @@ type (
     Name  string `json:"name,omitempty"`
     Image string `json:"image,omitempty"`
   }
-  ModuleLinks struct {
-    myShared.LinksSelf
-    //Programs []myShared.Href `json:"programs,omitempty"`
-    //Classes  []myShared.Href `json:"classes,omitempty"`
-  }
 )
 
 var Path string = "/modules"
 
-func itemLinks(v Module) ModuleLinks {
-  var links ModuleLinks
-  links.Self = myShared.CreateHref(Path+ "/" + fmt.Sprint(v.Id))
-  //links.Programs = itemLinksPrograms(v.Id)
-  return links
+func ItemRest(req *mySharedRest.Request, id string, item *Module) (*http.Response, error) {
+  resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
+    SetQuery(myShared.RequestRest{
+    Id:     "eq." + id,
+    Select: req.Select,
+  }).End(&item)
+  if err != nil {
+    return resp, err
+  }
+  item.setItemLinks()
+  return resp, nil
+}
+
+func (v *Module) setItemLinks() *Module {
+  v.Links = myShared.LinksSelf{
+    Self: myShared.CreateHref(Path + "/" + fmt.Sprint(v.Id)),
+  }
+  return v
+
 }

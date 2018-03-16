@@ -16,7 +16,7 @@
             span.mdc-list-item__text {{v._embedded.module.name}}
               span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session") Tutor : {{v._embedded.tutor.users_profile[0].name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session") Tutor : {{v._embedded.tutor.name}}
               span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session") Class started by {{v._embedded.last_session.users.username}}
             button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
@@ -134,7 +134,7 @@
           },
         })
           .then(response => {
-            const data = response.data._embedded;
+            const data = response.data._embedded.items;
 
             data.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {

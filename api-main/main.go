@@ -12,8 +12,8 @@ import (
 	myModules "./modules"
 	myPrograms "./programs"
 	myProgramsTypes "./programs/types"
+	mySharedJwt "./shared/jwt"
 	//mySessions "./sessions"
-  myJwt "./shared/jwt"
 	myUsers "./users"
 )
 
@@ -28,11 +28,9 @@ func main() {
 	})
 	e.POST("/sign", myUsers.Sign)
 
-	// e.Use(middleware.JWT([]byte(jwtKey)))
-
 	a := e.Group("/")
-	a.Use(middleware.JWT([]byte(myJwt.Key)))
-	a.Use(myJwt.GetAuthMiddleware)
+	a.Use(middleware.JWT([]byte(mySharedJwt.Key)))
+	a.Use(mySharedJwt.GetAuthMiddleware)
 
 	a.GET("auth", myUsers.Auth)
 
@@ -46,7 +44,7 @@ func main() {
 	a.GET("modules/:id", myModules.Item)
 
 	a.GET("classes", myClasses.List)
-	//a.GET("classes/group/:by", myClasses.ListGroup)
+	a.GET("classes/group/:by", myClasses.ListGroup)
 	a.GET("classes/:id", myClasses.Item)
 	//a.GET("classes/:id/sessions", mySessions.ListByClassId)
 	//a.POST("classes/:id/sessions", mySessions.CreateByClassId)

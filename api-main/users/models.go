@@ -2,49 +2,80 @@ package users
 
 import (
   myShared "../shared"
-  myRest "../shared/rest"
+  mySharedRest "../shared/rest"
   "fmt"
+  "strings"
+  "net/http"
+  "time"
 )
 
 type (
-  TutorLinks struct {
-    myShared.LinksSelf
-    Sessions []myShared.Href `json:"sessions,omitempty"`
-  }
-
-  StudentLinks struct {
-    myShared.LinksSelf
-    Classes []myShared.Href `json:"classes,omitempty"`
+  User struct {
+    myShared.Hal
+    Id       uint64    `json:"id"`
+    Username string    `json:"username,omitempty"`
+    Email    string    `json:"email,omitempty"`
+    Pass     string    `json:"pass,omitempty"`
+    Role     string    `json:"role,omitempty"`
+    Name     string    `json:"name,omitempty"`
+    Dob      time.Time `json:"dob,omitempty"`
+    Photo    string    `json:"photo,omitempty"`
+    UserId   uint64    `json:"user_id,omitempty"`
   }
 )
+
 const (
   PathUsers    string = "/users"
   PathStudents string = "/students"
   PathTutors   string = "/tutors"
 )
 
-func itemLinks(v myShared.User, role string) interface{} {
-  path := getPath(role)
-  //log.Println(role)
-  if v.Role == "student" {
-    var studentLinks StudentLinks
-    studentLinks.Self = myShared.CreateHref(PathStudents + "/" + fmt.Sprint(v.Id))
-    return studentLinks
-  }
-  if v.Role == "tutor" {
-    var tutorLinks TutorLinks
-    tutorLinks.Self = myShared.CreateHref(PathTutors + "/" + fmt.Sprint(v.Id))
-    return tutorLinks
-  }
-
-  return myShared.LinksSelf{Self: myShared.CreateHref(path + "/" + fmt.Sprint(v.Id))}
+func getRole(path string) string {
+  role := strings.TrimRight(strings.TrimPrefix(path, "/"), "s")
+  role = strings.TrimRight(strings.TrimPrefix(path, "/"), "s/:id")
+  return role
 }
 
-func itemByUsername(param *UserLoginRequest) (myShared.User, error) {
+func getPath(role string) string {
+  path := PathUsers
+  if role == "student" {
+    path = PathStudents
+  }
+  if role == "tutor" {
+    path = PathTutors
+  }
+  return path
+}
 
-  var item myShared.User
+func ItemRest(req *mySharedRest.Request, role string, id string, item *User) (*http.Response, error) {
+  rest := mySharedRest.New().GetItem("/users_full").ParseRequest(req)
 
-  if _, err := myRest.New().GetItem("/users_full").
+  if role != "user" {
+    rest.SetQuery("role=eq." + role)
+  }
+
+  resp, err := rest.SetQuery(myShared.RequestRest{
+    Id: "eq." + id,
+  }).End(&item)
+  if err != nil {
+    return resp, err
+  }
+
+  item.setItemLinks(getPath(role))
+  return resp, nil
+}
+
+func (v *User) setItemLinks(path string) *User {
+  v.Links = myShared.CreateHrefSelf(path + "/" + fmt.Sprint(v.Id))
+  return v
+
+}
+
+func itemByUsername(param *UserLoginRequest) (User, error) {
+
+  var item User
+
+  if _, err := mySharedRest.New().GetItem("/users_full").
     SetQuery(myShared.RequestRest{Select: "id,email,role,name,photo"}).
     SetQuery("username=eq." + param.Username).
     End(&item); err != nil {

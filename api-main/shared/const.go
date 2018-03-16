@@ -26,8 +26,6 @@ type (
   Class_ struct {
     Hal
     Id         uint64    `json:"id"`
-    Name       string    `json:"name"`
-    Image      string    `json:"image"`
     Day        string    `json:"day"`
     StartAt    string    `json:"start_at"`
     FinishAt   string    `json:"finish_at"`
@@ -52,31 +50,17 @@ type (
 )
 
 type (
-  Session struct {
-    Hal
-    Id        uint64    `json:"id"`
-    CreatedAt time.Time `json:"created_at"`
-    ClassId   uint64    `json:"class_id"`
-    TutorId   uint64    `json:"tutor_id"`
-    Users     User      `json:"users"`
-  }
+  //Session struct {
+  //  Hal
+  //  Id        uint64      `json:"id"`
+  //  CreatedAt time.Time   `json:"created_at"`
+  //  ClassId   uint64      `json:"class_id"`
+  //  TutorId   uint64      `json:"tutor_id"`
+  //  Users     myUser.User `json:"users"`
+  //}
 )
 
-type (
-  User struct {
-    Hal
-    Id       uint64    `json:"id"`
-    Username string    `json:"username,omitempty"`
-    Email    string    `json:"email,omitempty"`
-    Pass     string    `json:"pass,omitempty"`
-    Role     string    `json:"role,omitempty"`
-    Name     string    `json:"name,omitempty"`
-    Dob      time.Time `json:"dob,omitempty"`
-    Photo    string    `json:"photo,omitempty"`
-    UserId   uint64    `json:"user_id,omitempty"`
-    //UsersProfile []UsersProfile `json:"users_profile"`
-  }
-)
+type ()
 
 //func ClassLinksSessions(id uint64) []Href {
 //  var list []Session
@@ -117,25 +101,6 @@ type (
 //  return data
 //}
 //
-//func ClassItemEmbeddedModule(id uint64) Module {
-//  var module Module
-//
-//  _, err := myRest.GetItem(map[string]interface{}{
-//    "data": &module,
-//    "path": PathModules,
-//    "query": map[string]string{
-//      "id":    "eq." + strconv.FormatUint(id, 10),
-//      "limit": "1",
-//      //"select":   "id,created_at",
-//    },
-//  })
-//  if err != nil {
-//    return Module{}
-//  }
-//  //module.Links = myModules.ItemLinks(module)
-//
-//  return module
-//}
 //func ClassItemEmbeddedTutor(id uint64) User {
 //  var tutor User
 //

@@ -21,8 +21,8 @@ func List(c echo.Context) error {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  for i, v := range list {
-    list[i].Links = itemLinks(v)
+  for i := range list {
+    list[i].setItemLinks()
   }
 
   response := myShared.Hal{
@@ -41,14 +41,9 @@ func Item(c echo.Context) error {
     return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
   var item Module
-  if resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
-    SetQuery(myShared.RequestRest{
-    Id:     "eq." + c.Param("id"),
-    Select: req.Select,
-  }).End(&item); err != nil {
+  if resp, err := ItemRest(req, c.Param("id"), &item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = itemLinks(item)
   return c.JSON(http.StatusOK, item)
 }

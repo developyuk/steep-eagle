@@ -70,13 +70,13 @@ func CreateHalLinks(uri string, path string, rest *mySharedRest.MyRest) LinksPag
     if next > last {
       next = last
     }
-    if(1 != last){
+    //if(1 != last){
 
       links.First = CreateHref(path + "?page=1")
       links.Prev = CreateHref(path + "?page=" + fmt.Sprint(prev))
       links.Next = CreateHref(path + "?page=" + fmt.Sprint(next))
       links.Last = CreateHref(path + "?page=" + fmt.Sprint(last))
-    }
+    //}
 
   }
   return links
