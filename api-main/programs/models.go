@@ -2,6 +2,7 @@ package programs
 
 import (
   myShared "../shared"
+  myProgramTypes "./types"
   "fmt"
 )
 
@@ -23,13 +24,13 @@ type (
 
   ProgramLinks struct {
     myShared.LinksSelf
-    Type    *myShared.Href  `json:"type"`
+    Type *myShared.Href `json:"type"`
   }
 )
 
 func itemLinks(v Program) ProgramLinks {
   var links ProgramLinks
   links.Self = myShared.CreateHref(Path + "/" + fmt.Sprint(v.Id))
-  links.Type = myShared.CreateHref(myShared.PathProgramsTypes + "/" + fmt.Sprint(v.TypeId))
+  links.Type = myShared.CreateHref(myProgramTypes.Path + "/" + fmt.Sprint(v.TypeId))
   return links
 }

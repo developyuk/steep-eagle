@@ -23,7 +23,7 @@ func List(c echo.Context) error {
   }
 
   response := myShared.Hal{
-    Links:    myShared.CreateHalLinks(c.Request().RequestURI,myShared.PathProgramsTypes,rest),
+    Links:    myShared.CreateHalLinks(c.Request().RequestURI, Path, rest),
     Embedded: list,
     Count:    rest.Total,
     Total:    rest.Count,

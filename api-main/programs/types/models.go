@@ -16,8 +16,10 @@ type (
   }
 )
 
+const Path string = "/programs/types"
+
 func itemLinks(v ProgramType) ProgramLinks {
   var links ProgramLinks
-  links.Self = myShared.CreateHref(myShared.PathProgramsTypes + "/" + strconv.FormatUint(v.Id, 10))
+  links.Self = myShared.CreateHref(Path + "/" + strconv.FormatUint(v.Id, 10))
   return links
 }

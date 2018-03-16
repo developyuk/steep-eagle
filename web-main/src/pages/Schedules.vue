@@ -16,9 +16,11 @@
             span.mdc-list-item__text {{v._embedded.module.name}}
               span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session") Tutor : {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session") Class started by {{v._embedded.last_session.users.username}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session && v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v)}}
             button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
+            button(v-if="buttonStatus(v) === 'start-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact ongoing
+            button(v-if="buttonStatus(v) === 'start-late-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact activated
             button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
             span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
@@ -67,37 +69,39 @@
       }
     },
     methods: {
-      comingSoon(e) {
-        e.target.innerText = 'coming soon';
-      },
       buttonStatus(class_) {
         const msts = moment(class_.start_at_ts);
         const mfts = moment(class_.finish_at_ts);
-        let ls = class_._embedded;
-        ls = ls.last_session ? ls.last_session.created_at : ls.last_session;
-
         const mnow = moment();
-//        console.log('now', mnow.toString());
-//        console.log(mts.isAfter(mnow));
 
-        if (ls && mnow.diff(mfts, 'days') === 0) {
-          const mls = moment(ls);
-//          console.log('ls',mls.toString(), '-', ls);
-//          console.log('mlsdiff',mls.diff(mnow,'minutes'));
-          if (mnow.isAfter(mls) && mls.isBefore(mfts)) {
+        if (class_._embedded.last_session && class_._embedded.last_session.items.length) {
+          let ls = class_._embedded.last_session.items;
+          const mls = moment(ls[0].created_at);
+//          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
+          if (! ls.filter(v => v._embedded.tutor.name === this.currentAuth.name).length >= 1) {
+
+            if (mls.isBefore(mfts)) {
+              return 'start-ongoing';
+            }
+            if (mls.isAfter(mfts)) {
+              return 'start-late-ongoing';
+            }
+          }
+          if (mls.isBefore(mfts)) {
             return 'ongoing';
           }
-          if (mnow.isAfter(mls) && mls.isAfter(mfts)) {
+          if (mls.isAfter(mfts)) {
             return 'late-ongoing';
           }
         }
         if (mnow.isAfter(mfts)) {
           return 'late';
         }
-//        console.log('diff day', mts.diff(mnow, 'days'));
+//        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
         if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
           return 'start';
         }
+
         return 'disabled';
       },
       activate(cid) {
@@ -124,6 +128,24 @@
         this.dialog.lastFocusedTarget = e.target;
         this.dialog.show();
       },
+      parseLastSessionTutorName(array) {
+        return array._embedded.last_session
+          .items.map(v => v._embedded.tutor.name).join(", ");
+      },
+      getLastSessions(classId, array) {
+        const url = `${process.env.API}/classes/${classId}/sessions`;
+
+        axios.get(url, {
+          params: {
+            'sort': 'created_at.desc',
+            'created_at': 'gte.' + moment().utc().format("Y-MM-DD"),
+          },
+        })
+          .then(response => {
+            this.$set(array, 'last_session', {"items": response.data._embedded.items});
+          })
+          .catch(error => console.log(error))
+      },
       getSchedules(page = 1) {
         const url = `${process.env.API}/classes/group/date`;
 
@@ -135,14 +157,20 @@
         })
           .then(response => {
             const data = response.data._embedded.items;
+            let j = 0;
 
             data.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {
-//                https://image.flaticon.com/icons/png/128/201/201818.png
-                let image = !!v2['_embedded']['module']['image'] ? v2['_embedded']['module']['image'] : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
+
+                let image = v2['_embedded']['module']['image'];
+                image = !!image ? image : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
                 image = image.replace('https://', '').replace('http://', '');
                 image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
                 this.$set(a[i]['items'][i2]['_embedded']['module'], 'image', image);
+//                if (v.text.toLowerCase() === 'today') {
+                setTimeout(() => this.getLastSessions(v2.id, a[i]['items'][i2]['_embedded']), (j + 1) * 300);
+                j++;
+//                }
               })
             });
             this.classes = data;

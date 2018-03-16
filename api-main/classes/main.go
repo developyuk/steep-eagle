@@ -18,16 +18,16 @@ import (
 type (
   ClassGroupDate struct {
     myShared.Hal
-    Date      string            `json:"date"`
-    Day       string            `json:"day"`
-    StartAtTs time.Time         `json:"-"`
-    Text      string            `json:"text"`
-    Items     []myShared.Class_ `json:"items"`
+    Date      string    `json:"date"`
+    Day       string    `json:"day"`
+    StartAtTs time.Time `json:"-"`
+    Text      string    `json:"text"`
+    Items     []Class_  `json:"items"`
   }
 )
 
-func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []myShared.Class_, error) {
-  var list []myShared.Class_
+func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Class_, error) {
+  var list []Class_
   var resp *http.Response
   rest := mySharedRest.New().GetItems("/classes_ts")
   embed := params["embed"]
@@ -39,7 +39,7 @@ func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []myS
   }
 
   for i, v := range list {
-    list[i].Links = ItemLinks(v)
+    list[i].Links = itemLinks(v)
     if len(embed) > 0 {
       classEmbedded := embedded{}
       if strings.Contains(embed, "module") {
@@ -63,12 +63,14 @@ func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []myS
   return resp, rest, list, nil
 }
 func timeToRelativeText(timeTs time.Time) string {
-  //loc,_ := time.LoadLocation("Asia/Jakarta")
-  text := strconv.FormatFloat((time.Until(timeTs).Round(time.Hour).Hours()+7)/24, 'f', 0, 64)
-  if text == "0" {
-    text = "Today"
+  loc, _ := time.LoadLocation(myShared.TimeZone)
+  timeTz := time.Now().In(loc)
+  timeTsTz := timeTs.In(loc)
+  text := strconv.FormatFloat((timeTsTz.Sub(timeTz).Round(time.Hour).Hours())/24, 'f', 0, 64)
+  if text == "0" || text == "-0" {
+    text = "today"
   } else if text == "1" {
-    text = "Tomorrow"
+    text = "tomorrow"
   } else {
     text = "in " + text + " days"
   }
@@ -94,7 +96,7 @@ func ListGroup(c echo.Context) error {
   for _, v := range list {
     found := false
     for i2, v2 := range classGroupDates {
-      if v.StartAtTs.Day() == v2.StartAtTs.Day() {
+      if timeToRelativeText(v.StartAtTs) == timeToRelativeText(v2.StartAtTs) {
         // Found!
         classGroupDates[i2].Items = append(classGroupDates[i2].Items, v)
         found = true
@@ -106,7 +108,7 @@ func ListGroup(c echo.Context) error {
       t.Day = v.Day
       t.StartAtTs = v.StartAtTs
       t.Text = timeToRelativeText(v.StartAtTs)
-      t.Items = []myShared.Class_{}
+      t.Items = []Class_{}
       t.Items = append(t.Items, v)
       classGroupDates = append(classGroupDates, t)
     }
@@ -116,7 +118,7 @@ func ListGroup(c echo.Context) error {
     return c.JSON(400, myShared.CreateResponse(err.Error()))
   }
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(Path)},
     Embedded: myShared.CreateEmbeddedItems(classGroupDates),
     Count:    uint64(len(classGroupDates)),
     Total:    uint64(len(classGroupDates)),
@@ -135,7 +137,7 @@ func List(c echo.Context) error {
   }
 
   response := myShared.Hal{
-    Links:    myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathClasses)},
+    Links:    myShared.LinksSelf{Self: myShared.CreateHref(Path)},
     Embedded: myShared.CreateEmbeddedItems(list),
     Count:    rest.Total,
     Total:    rest.Count,
@@ -144,7 +146,7 @@ func List(c echo.Context) error {
 }
 
 func Item(c echo.Context) error {
-  var item myShared.Class_
+  var item Class_
 
   if resp, err := mySharedRest.New().GetItem("/classes_ts").
     SetQuery("id=eq." + c.Param("id")).
@@ -152,7 +154,7 @@ func Item(c echo.Context) error {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = ItemLinks(item)
+  item.Links = itemLinks(item)
   //item.Embedded = ItemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }

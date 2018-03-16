@@ -42,7 +42,7 @@ func Item(c echo.Context) error {
   if err := c.Bind(req); err != nil {
     return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
-  
+
   role := getRole(c.Path())
 
   var item User

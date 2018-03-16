@@ -7,4 +7,4 @@ grant select on users_full to anon;
 grant all privileges on all sequences in schema public to operation, tutor;
 grant all privileges on all tables in schema public to operation;
 grant select on all tables in schema public to tutor;
-grant insert on table sessions, sessions_students to tutor;
+grant insert on table sessions, sessions_tutors, sessions_students to tutor;

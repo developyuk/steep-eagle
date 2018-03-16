@@ -13,7 +13,7 @@ import (
 	myPrograms "./programs"
 	myProgramsTypes "./programs/types"
 	mySharedJwt "./shared/jwt"
-	//mySessions "./sessions"
+	mySessions "./sessions"
 	myUsers "./users"
 )
 
@@ -46,11 +46,11 @@ func main() {
 	a.GET("classes", myClasses.List)
 	a.GET("classes/group/:by", myClasses.ListGroup)
 	a.GET("classes/:id", myClasses.Item)
-	//a.GET("classes/:id/sessions", mySessions.ListByClassId)
-	//a.POST("classes/:id/sessions", mySessions.CreateByClassId)
-	//
-	//a.GET("sessions", mySessions.List)
-	//a.GET("sessions/:id", mySessions.Item)
+	a.GET("classes/:id/sessions", mySessions.ListByClassId)
+	a.POST("classes/:id/sessions", mySessions.CreateByClassId)
+
+	a.GET("sessions", mySessions.List)
+	a.GET("sessions/:id", mySessions.Item)
 	//a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
   //a.GET("sessions/:id/students/:sid", mySessions.ItemStudentsBySessionId)
 

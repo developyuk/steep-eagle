@@ -9,7 +9,6 @@ import (
   "fmt"
   "strconv"
   "reflect"
-  //"github.com/davecgh/go-spew/spew"
 )
 
 type (
@@ -51,20 +50,34 @@ func New() *MyRest {
 func (r *MyRest) End(v interface{}) (*http.Response, error) {
 
   r.response, _, r.errors = r.request.EndStruct(v)
-  //spew.Dump(r.request)
+  //spew.Dump(r.response)
 
-  if r.response.StatusCode < 200 || r.response.StatusCode >= 300 {
-    r.errors = append(r.errors, errors.New(r.response.Status))
+  if r.request.Method == gorequest.GET {
+
+    if r.response.StatusCode < 200 || r.response.StatusCode >= 300 {
+      r.errors = append(r.errors, errors.New(r.response.Status))
+    }
+    hrange := strings.Split(r.response.Header.Get("Content-Range"), "/")
+    r.Total, _ = strconv.ParseUint(hrange[len(hrange)-1], 10, 64)
+
+    switch reflect.TypeOf(reflect.ValueOf(v).Elem().Interface()).Kind() {
+    //switch reflect.TypeOf(v).Kind() {
+    case reflect.Slice:
+      s := reflect.ValueOf(v).Elem()
+
+      r.Count = uint64(s.Len())
+    }
   }
-  hrange := strings.Split(r.response.Header.Get("Content-Range"), "/")
-  r.Total, _ = strconv.ParseUint(hrange[len(hrange)-1], 10, 64)
+  if r.request.Method == gorequest.POST {
+    if strings.HasPrefix(r.request.Url, "/rpc") {
+      if r.response.StatusCode != 200 {
+        r.errors = append(r.errors, errors.New(r.response.Status))
+      }
+    }
 
-  switch reflect.TypeOf(reflect.ValueOf(v).Elem().Interface()).Kind() {
-  //switch reflect.TypeOf(v).Kind() {
-  case reflect.Slice:
-    s := reflect.ValueOf(v).Elem()
-
-    r.Count = uint64(s.Len())
+    if r.response.StatusCode != 201 {
+      r.errors = append(r.errors, errors.New(r.response.Status))
+    }
   }
 
   if len(r.errors) > 0 && r.errors[0] != nil {
@@ -82,7 +95,8 @@ func (r *MyRest) ParseRequest(v *Request) *MyRest {
     r.SetLimit(v)
   }
   if v, err := strconv.ParseUint(v.Page, 10, 64); err != nil {
-    r.errors = append(r.errors, err)
+    //r.errors = append(r.errors, err)
+    r.SetPage(1)
   } else {
     r.SetPage(v)
   }
@@ -108,6 +122,11 @@ func (r *MyRest) SetQuery(q interface{}) *MyRest {
   return r
 }
 
+func (r *MyRest) Send(d interface{}) *MyRest {
+  r.request.Send(d)
+  return r
+}
+
 func (r *MyRest) GetItems(path string) *MyRest {
   r.request.Get(DbApiUrl + path).
     Set("Accept", "application/json").
@@ -125,28 +144,12 @@ func (r *MyRest) GetItem(path string) *MyRest {
   return r
 }
 
-//func PostItem(params map[string]interface{}) (*http.Response, error) {
-//
-//  resp, _, errs := gorequest.New().
-//    Post(DbApiUrl + params["path"].(string)).
-//    Send(params["query"].(map[string]string)).
-//    Set("Accept", "application/vnd.pgrst.object+json").
-//    Set("Authorization", myJwt.AuthHeader).
-//    Set("Prefer", "return=representation").
-//    End(params["data"])
-//  if errs != nil {
-//    return resp, errs[0]
-//  }
-//  if strings.HasPrefix(params["path"].(string), "/rpc") {
-//    if resp.StatusCode != 200 {
-//      return resp, errors.New(resp.Status)
-//    }
-//  }
-//
-//  if resp.StatusCode != 201 {
-//    return resp, errors.New(resp.Status)
-//  }
-//
-//  close()
-//  return resp, nil
-//}
+func (r *MyRest) PostItem(path string) *MyRest {
+  r.request.
+    Post(DbApiUrl + path).
+    Set("Accept", "application/vnd.pgrst.object+json").
+    Set("Authorization", mySharedJwt.AuthHeader).
+    Set("Prefer", "return=representation")
+
+  return r
+}
