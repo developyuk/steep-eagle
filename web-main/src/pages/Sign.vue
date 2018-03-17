@@ -4,7 +4,7 @@
       img.logo(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/a6mfkumhayvm7o4/Character_CodingCamp.png")
       .mdc-form-field
         .mdc-text-field(data-mdc-auto-init="MDCTextField")
-          input#id.mdc-text-field__input(v-model.trim="id" type="text" required)
+          input#id.mdc-text-field__input(v-model.trim="username" name="username" type="text" required)
           label.mdc-text-field__label(for="id") Yourname
           .mdc-line-ripple
       .mdc-form-field
@@ -22,7 +22,7 @@
       return {
         msg: 'Welcome to Your Vue.js PWA',
 //        id: 'user3@ex.co',
-        id: '',
+        username: '',
         errMsg: ''
       }
     },
@@ -34,7 +34,7 @@
       sign() {
         const url = `${process.env.API}/sign`;
         const data = {
-          username: this.id.toLowerCase(),
+          username: this.username.toLowerCase(),
         };
 
         axios.post(url, data)
