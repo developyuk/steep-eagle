@@ -113,16 +113,13 @@
         setTimeout(() => {
           Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
 //            console.log(v);
-            var hammertime = new Hammer(v, {touchAction: "pan-x"});
+            var hammertime = new Hammer(v, {});
             hammertime
               .on('panend', e => {
                 const $el = e.target.closest(".mdc-list-item");
-//                console.log(Math.abs(e.deltaX),e.target.closest('.mdc-list').offsetWidth*(1/3));
                 if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
 
                   const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
-//                  console.log(url);
-//                  $el.style.display = "none";
 
                   axios.post(url, {
                     interaction: 0,
@@ -137,19 +134,10 @@
                     .catch(error => console.log(error));
                 } else {
                   $el.style.marginLeft = 0;
-//                  const $elFRR = e.target.closest(".mdc-list").querySelector("#form-rate-review");
-//                  if ($elFRR) {
-//                    $elFRR.style.marginLeft = 0;
-//                  }
                 }
               })
               .on('panleft panright', e => {
                 e.target.closest(".mdc-list-item").style.marginLeft = `${e.deltaX}px`;
-//                const $elFRR = e.target.closest(".mdc-list").querySelector("#form-rate-review");
-//                if ($elFRR) {
-//                  $elFRR.style.marginLeft = `${e.deltaX}px`;
-//                }
-//                console.log(e.deltaX, Math.abs(e.velocityX), e);
               })
               .on('tap', e => this.onClickList(e));
           });
@@ -158,10 +146,6 @@
       });
       this.$bus.$on('onAfterSubmitRateReview', (resp) => {
         Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => v.style.marginLeft = 0);
-//        const $el = document.querySelector("#form-rate-review");
-//        if ($el) {
-//          $el.style.marginLeft = 0
-//        }
         this.getStudentsSessions();
       });
     }
