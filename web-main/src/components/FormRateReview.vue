@@ -107,7 +107,10 @@
 <style scoped lang="scss">
   $mdc-theme-primary: #ED235C;
   #form-rate-review {
-    padding: 0rem 2rem;
+    padding: 0 2rem;
+    background-color: #fff;
+    min-width: 90%;
+    max-width: 100%;
   }
 
   .rate {
@@ -153,6 +156,8 @@
     > .title {
       color: #BDBDBD;
       font-size: .75rem;
+      margin: 0;
+      padding: 1rem 0;
       .name {
         text-transform: capitalize;
       }

@@ -15,7 +15,7 @@
           span.day-time {{v.class.start_at}} - {{v.class.finish_at}}
         ul.mdc-list
           template(v-for="(vv,ii) in v.students")
-            li.mdc-list-item(@click="onClickList($event)")
+            li.mdc-list-item(:data-sid="v.id" :data-uid="vv.id")
               .mdc-list-item__graphic
                 img(':src'="vv.photo")
               span.mdc-list-item__text {{vv.name}}
@@ -27,6 +27,7 @@
 
 <script>
   import axios from 'axios';
+  import Hammer from 'hammerjs';
 
   export default {
     name: 'students',
@@ -50,7 +51,7 @@
     methods: {
       onClickList(e) {
         const $el = e.target.closest('.mdc-list-item').nextSibling.nextSibling;
-        console.log('clicked', $el);
+//        console.log('clicked', $el);
         let sid;
         let uid;
         const is = $el.getAttribute('id');
@@ -94,7 +95,7 @@
                   });
                 }
               });
-            }else{
+            } else {
               this.sessions = []
             }
             this.currentView = currentView;
@@ -109,8 +110,58 @@
 //        console.log(auth);
         this.currentAuth = auth;
         this.getStudentsSessions();
+        setTimeout(() => {
+          Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
+//            console.log(v);
+            var hammertime = new Hammer(v, {touchAction: "pan-x"});
+            hammertime
+              .on('panend', e => {
+                const $el = e.target.closest(".mdc-list-item");
+//                console.log(Math.abs(e.deltaX),e.target.closest('.mdc-list').offsetWidth*(1/3));
+                if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
+
+                  const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
+//                  console.log(url);
+//                  $el.style.display = "none";
+
+                  axios.post(url, {
+                    interaction: 0,
+                    creativity: 0,
+                    cognition: 0,
+                    review: "",
+                    status: false,
+                  })
+                    .then(response => {
+                      this.$bus.$emit('onAfterSubmitRateReview', response.data);
+                    })
+                    .catch(error => console.log(error));
+                } else {
+                  $el.style.marginLeft = 0;
+//                  const $elFRR = e.target.closest(".mdc-list").querySelector("#form-rate-review");
+//                  if ($elFRR) {
+//                    $elFRR.style.marginLeft = 0;
+//                  }
+                }
+              })
+              .on('panleft panright', e => {
+                e.target.closest(".mdc-list-item").style.marginLeft = `${e.deltaX}px`;
+//                const $elFRR = e.target.closest(".mdc-list").querySelector("#form-rate-review");
+//                if ($elFRR) {
+//                  $elFRR.style.marginLeft = `${e.deltaX}px`;
+//                }
+//                console.log(e.deltaX, Math.abs(e.velocityX), e);
+              })
+              .on('tap', e => this.onClickList(e));
+          });
+        }, 1500);
+
       });
       this.$bus.$on('onAfterSubmitRateReview', (resp) => {
+        Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => v.style.marginLeft = 0);
+//        const $el = document.querySelector("#form-rate-review");
+//        if ($el) {
+//          $el.style.marginLeft = 0
+//        }
         this.getStudentsSessions();
       });
     }
@@ -138,10 +189,20 @@
     width: 100%;
   }
 
+  .mdc-list {
+    background-color: #F29E4C;
+  }
+
   .mdc-list-item {
     padding: .5rem 1rem;
     background-color: #fff;
     z-index: 2;
+    max-width: 100%;
+    min-width: 90%;
+  }
+
+  .mdc-list-divider {
+    border-bottom-color: #dcdcdc;
   }
 
   .mdc-list-item__text {

@@ -5,18 +5,19 @@ import Router from 'vue-router'
 Vue.use(Router);
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
       name: 'Schedules',
       component: () => import('@/pages/Schedules'),
-      meta: { requiresAuth: true }
+      meta: {requiresAuth: true}
     },
     {
       path: '/students',
       name: 'Students',
       component: () => import('@/pages/Students'),
-      meta: { requiresAuth: true }
+      meta: {requiresAuth: true}
     },
     {
       path: '/sign',
