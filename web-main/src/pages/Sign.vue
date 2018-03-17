@@ -34,7 +34,7 @@
       sign() {
         const url = `${process.env.API}/sign`;
         const data = {
-          username: this.id,
+          username: this.id.toLowerCase(),
         };
 
         axios.post(url, data)
