@@ -35,24 +35,54 @@ func List(c echo.Context) error {
 }
 
 func ListByTutorId(c echo.Context) error {
-  tid := c.Param("id")
-  var list []Session
-  rest := mySharedRest.New().GetItems(myShared.PathSessions)
+  params := make(map[string]interface{})
+  if val := c.Param("id"); len(val) > 0 {
+    params["tutor_id"] = "eq." + val
+  }
+  var list []StudentAbsence
+  rest := mySharedRest.New().GetItems("/sessions__students")
 
   if resp, err := rest.
-  SetQuery("tutor_id=eq." + tid).
+  SetQuery(params).
     End(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  for i, v := range list {
-    list[i].Links = ItemLinks(v)
-    list[i].Embedded = itemEmbedded(v)
+  var classGroup []ClassStudentAbsence
+  var t ClassStudentAbsence
+
+  for _, v := range list {
+    found := false
+    for i2, v2 := range classGroup {
+      if v.ClassId == v2.Class.Id {
+        // Found!
+        var t3 myUser.User
+        myUser.ItemRest(&mySharedRest.Request{}, "student", fmt.Sprint(v.StudentId), &t3)
+        classGroup[i2].Students = append(classGroup[i2].Students, t3)
+
+        found = true
+        break
+      }
+    }
+    if !found {
+      myClass.ItemRest(map[string]string{
+        "embed": "tutor,module,branch",
+      }, fmt.Sprint(v.ClassId), &t.Class)
+      t.Id = v.Id
+      t.Students = nil
+
+      var t3 myUser.User
+      myUser.ItemRest(&mySharedRest.Request{}, "student", fmt.Sprint(v.StudentId), &t3)
+      t.Students = append(t.Students, t3)
+      classGroup = append(classGroup, t)
+    }
+    //list[i].Session.Links = ItemLinks(v.Session)
+    //list[i].Session.Embedded = itemEmbedded(v.Session)
   }
 
   response := myShared.Hal{
-    Links:    myShared.CreateHrefSelf(myUser.PathTutors + "/" + tid + myShared.PathSessions),
-    Embedded: myShared.CreateEmbeddedItems(list),
+    Links:    myShared.CreateHrefSelf(myUser.PathTutors + "/" + c.Param("id") + myShared.PathSessions),
+    Embedded: myShared.CreateEmbeddedItems(classGroup),
     Count:    rest.Count,
     Total:    rest.Total,
   }
@@ -129,30 +159,28 @@ func Item(c echo.Context) error {
 //  return c.JSON(http.StatusOK, item)
 //}
 //
-//func CreateByStudentId(c echo.Context) error {
-//  data := make(map[string]interface{});
-//  if err := c.Bind(&data); err != nil {
-//    return c.JSON(400, myShared.Response{
-//      Message: err.Error(),
-//    })
-//  }
-//  log.Println(data["status"].(bool),strconv.FormatBool(data["status"].(bool)))
-//  mySharedRest.PostItem(map[string]interface{}{
-//    //"data": &list,
-//    "path": "/sessions_students",
-//    "query": map[string]string{
-//      "session_id": c.Param("id"),
-//      "student_id": c.Param("sid"),
-//      "tutor_id": strconv.FormatFloat(myJwt.CurrentAuth.Id, 'f', 0, 64),
-//      "feedback": data["review"].(string),
-//      "rating_cognition": strconv.FormatFloat(data["cognition"].(float64), 'f', 0, 64),
-//      "rating_creativity": strconv.FormatFloat(data["creativity"].(float64), 'f', 0, 64),
-//      "rating_interaction": strconv.FormatFloat(data["interaction"].(float64), 'f', 0, 64),
-//      "status": strconv.FormatBool(data["status"].(bool)),
-//    },
-//  })
-//  return c.JSON(http.StatusOK, myShared.Response{})
-//}
+func CreateByStudentId(c echo.Context) error {
+  data := make(map[string]interface{});
+  if err := c.Bind(&data); err != nil {
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
+  }
+  var item SessionStudent
+
+  if resp, err := mySharedRest.New().PostItem("/sessions_students").Send(map[string]string{
+    "session_id":         c.Param("id"),
+    "student_id":         c.Param("sid"),
+    "tutor_id":           fmt.Sprint(myJwt.CurrentAuth.Id),
+    "feedback":           data["review"].(string),
+    "rating_cognition":   fmt.Sprint(data["cognition"]),
+    "rating_creativity":  fmt.Sprint(data["creativity"]),
+    "rating_interaction": fmt.Sprint(data["interaction"]),
+    "status":             fmt.Sprint(data["status"].(bool)),
+  }).End(&item); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
+  }
+  return c.JSON(http.StatusOK, myShared.CreateResponse(""))
+}
+
 func CreateByClassId(c echo.Context) error {
   //var list []Session
   var itemSessionTutor, itemSessions Session

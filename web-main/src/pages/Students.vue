@@ -8,20 +8,20 @@
     .mdc-list-group
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
-          span.module {{v._embedded.class._embedded.module.name}}
+          span.module {{v.class._embedded.module.name}}
           | &nbsp;-&nbsp;
-          span.branch {{v._embedded.class._embedded.branch.name}}
+          span.branch {{v.class._embedded.branch.name}}
           | &nbsp;&nbsp;
-          span.day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
+          span.day-time {{v.class.start_at}} - {{v.class.finish_at}}
         ul.mdc-list
-          template(v-for="(vv,ii) in v._embedded.class._embedded.students")
+          template(v-for="(vv,ii) in v.students")
             li.mdc-list-item(@click="onClickList($event)")
               .mdc-list-item__graphic
                 img(':src'="vv.photo")
               span.mdc-list-item__text {{vv.name}}
                 //span.mdc-list-item__secondary-text {{v._embedded.class.day}} {{v._embedded.class.time}}
             hr.mdc-list-divider
-            component(:is="currentView[`${v.id}`][`${vv.user_id}`]" :sid="v.id" :uid="vv.user_id"  :name="vv.name")
+            component(:is="currentView[`${v.id}`][`${vv.id}`]" :sid="v.id" :uid="vv.id"  :name="vv.name")
     tab-bottom
 </template>
 
@@ -40,8 +40,7 @@
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        students: [],
-        sessions: '',
+        sessions: null,
         currentAuth: null,
         currentView: {},
 
@@ -76,23 +75,28 @@
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
         axios.get(url)
           .then(response => {
-            this.sessions = response.data._embedded;
+            this.sessions = response.data._embedded.items;
             const currentView = [];
-            this.sessions.forEach((v, i, a) => {
-              v['_embedded']['class']['_embedded']['students'].forEach((v2, i2, a2) => {
-                console.log(v2);
-                if (!currentView[v.id]) {
-                  currentView[v.id] = [];
+            if (this.sessions) {
+              this.sessions.forEach((v, i, a) => {
+                if (v['students']) {
+                  v['students'].forEach((v2, i2, a2) => {
+                    console.log(v2);
+                    if (!currentView[v.id]) {
+                      currentView[v.id] = [];
+                    }
+                    currentView[v.id][v2.id] = 'empty';
+
+                    let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
+                    image = image.replace('https://', '').replace('http://', '');
+                    image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
+                    this.$set(a[i]['students'][i2], 'photo', image);
+                  });
                 }
-                currentView[v.id][v2.user_id] = 'empty';
-
-                let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
-                image = image.replace('https://', '').replace('http://', '');
-                image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
-                this.$set(a[i]['_embedded']['class']['_embedded']['students'][i2], 'photo', image);
               });
-
-            });
+            }else{
+              this.sessions = []
+            }
             this.currentView = currentView;
           })
           .catch(error => console.log(error));

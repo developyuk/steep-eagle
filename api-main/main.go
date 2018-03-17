@@ -51,8 +51,8 @@ func main() {
 
 	a.GET("sessions", mySessions.List)
 	a.GET("sessions/:id", mySessions.Item)
-	//a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
   //a.GET("sessions/:id/students/:sid", mySessions.ItemStudentsBySessionId)
+  a.POST("sessions/:id/students/:sid", mySessions.CreateByStudentId)
 
 	a.GET("branches", myBranches.List)
 	a.GET("branches/:id", myBranches.Item)
@@ -62,8 +62,8 @@ func main() {
 
 	a.GET("tutors", myUsers.List)
 	a.GET("tutors/:id", myUsers.Item)
-  //a.GET("tutors/:id/sessions", mySessions.ListByTutorId)
-  //
+  a.GET("tutors/:id/sessions", mySessions.ListByTutorId)
+
 	a.GET("students", myUsers.List)
 	a.GET("students/:id", myUsers.Item)
 

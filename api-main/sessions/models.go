@@ -26,16 +26,23 @@ type (
     StudentId uint64               `json:"student_id" `
   }
 
+  StudentAbsence struct {
+    Session
+    StudentId uint64 `json:"student_id" `
+  }
+  ClassStudentAbsence struct {
+    Class     myClass.Class_ `json:"class"`
+    Id uint64         `json:"id"`
+    Students  []myUser.User  `json:"students,omitempty"`
+  }
+
   SessionLinks struct {
     myShared.LinksSelf
     Class  myShared.Href `json:"class"`
     Tutors myShared.Href `json:"tutors"`
-    //Students         []myShared.Href `json:"students,omitempty"`
-    //StudentsSessions []myShared.Href `json:"students_sessions,omitempty"`
   }
   SessionEmbedded struct {
     //Class    myShared.Class_ `json:"class"`
-    //Students []myUser.User `json:"students,omitempty"`
     Tutor myUser.User `json:"tutor,omitempty"`
   }
 
@@ -86,8 +93,6 @@ func ItemLinks(v Session) SessionLinks {
     LinksSelf: myShared.CreateHrefSelf(myShared.PathSessions + "/" + fmt.Sprint(v.Id)),
     Class:     myShared.Href{Href: myClass.Path + "/" + strconv.FormatUint(v.ClassId, 10)},
     Tutors:    myShared.Href{Href: myUser.PathTutors + "/" + strconv.FormatUint(v.TutorId, 10)},
-    //Students:         itemLinksStudents(v.ClassId),
-    //StudentsSessions: itemLinksStudentsSessions(v.Id),
   }
 }
 
@@ -199,7 +204,7 @@ func ItemLinks(v Session) SessionLinks {
 //}
 func itemEmbeddedTutor(id uint64) myUser.User {
   var item myUser.User
-  myUser.ItemRest(&mySharedRest.Request{},"tutor",fmt.Sprint(id),&item)
+  myUser.ItemRest(&mySharedRest.Request{}, "tutor", fmt.Sprint(id), &item)
   return item
 }
 func itemEmbedded(v Session) SessionEmbedded {

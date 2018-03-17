@@ -39,9 +39,9 @@ func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Cla
   }
 
   for i, v := range list {
-    list[i].Links = itemLinks(v)
+    list[i].Links = ItemLinks(&v)
     if len(embed) > 0 {
-      classEmbedded := embedded{}
+      classEmbedded := Embedded{}
       if strings.Contains(embed, "module") {
         var module myModule.Module
         _, _ = myModule.ItemRest(&mySharedRest.Request{}, fmt.Sprint(v.ModuleId), &module)
@@ -145,16 +145,47 @@ func List(c echo.Context) error {
   return c.JSON(http.StatusOK, response)
 }
 
+func ItemRest(params map[string]string, id string, item *Class_) (*http.Response, error) {
+  var resp *http.Response
+  if resp, err := mySharedRest.New().GetItem("/classes_ts").
+    SetQuery("id=eq." + id).
+    End(item); err != nil {
+    return resp, err
+  }
+
+  item.Links = ItemLinks(item)
+
+  embed := params["embed"]
+  classEmbedded := Embedded{}
+  if strings.Contains(embed, "module") {
+    var module myModule.Module
+    _, _ = myModule.ItemRest(&mySharedRest.Request{}, fmt.Sprint(item.ModuleId), &module)
+    classEmbedded.Module = module
+  }
+  if strings.Contains(embed, "branch") {
+    var branch myBranch.Branch
+    _, _ = myBranch.ItemRest(&mySharedRest.Request{}, fmt.Sprint(item.BranchId), &branch)
+    classEmbedded.Branch = branch
+  }
+  if strings.Contains(embed, "tutor") {
+    var tutor myUser.User
+    _, _ = myUser.ItemRest(&mySharedRest.Request{}, "tutor", fmt.Sprint(item.TutorId), &tutor)
+    classEmbedded.Tutor = tutor
+  }
+  item.Embedded = classEmbedded
+  return resp, nil
+}
 func Item(c echo.Context) error {
   var item Class_
+  params := make(map[string]string)
 
-  if resp, err := mySharedRest.New().GetItem("/classes_ts").
-    SetQuery("id=eq." + c.Param("id")).
-    End(&item); err != nil {
+  if val := c.QueryParam("embed"); len(val) > 0 {
+    params["embed"] = val
+  }
+
+  if resp, err := ItemRest(params, c.Param("id"), &item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
-  item.Links = itemLinks(item)
-  //item.Embedded = ItemEmbedded(item)
   return c.JSON(http.StatusOK, item)
 }
