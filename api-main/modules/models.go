@@ -8,6 +8,11 @@ import (
 )
 
 type (
+  ProgramModule struct {
+    Id  uint64 `json:"id"`
+    ModuleId  uint64 `json:"module_id"`
+    ProgramId uint64 `json:"program_id"`
+  }
   Module struct {
     myShared.Hal
     Id    uint64 `json:"id"`
@@ -19,11 +24,21 @@ type (
 var Path string = "/modules"
 
 func ItemRest(req *mySharedRest.Request, id string, item *Module) (*http.Response, error) {
-  resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
+  var itemProgramModule ProgramModule
+  resp, err := mySharedRest.New().GetItem("/program_modules").
     SetQuery(myShared.RequestRest{
     Id:     "eq." + id,
+  }).End(&itemProgramModule)
+  if err != nil {
+    return resp, err
+  }
+
+  resp, err = mySharedRest.New().GetItem(Path).ParseRequest(req).
+    SetQuery(myShared.RequestRest{
+    Id:     "eq." + fmt.Sprint(itemProgramModule.ModuleId),
     Select: req.Select,
   }).End(&item)
+
   if err != nil {
     return resp, err
   }

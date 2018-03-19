@@ -9,6 +9,7 @@ import (
   "fmt"
   "strconv"
   "reflect"
+  //"github.com/davecgh/go-spew/spew"
 )
 
 type (
@@ -50,7 +51,7 @@ func New() *MyRest {
 func (r *MyRest) End(v interface{}) (*http.Response, error) {
 
   r.response, _, r.errors = r.request.EndStruct(v)
-  //spew.Dump(r.response)
+  //spew.Dump(r.response,r.request.Url)
 
   if r.request.Method == gorequest.GET {
 

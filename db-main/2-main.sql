@@ -1,22 +1,24 @@
 create table program_types (
-  id bigserial primary key, name text not null
+  id bigserial primary key, name text not null unique
 );
 create table programs (
   id bigserial primary key,
   name text not null,
-  type_id integer references program_types(id)
+  type_id integer references program_types(id),
+  unique(name, type_id)
 );
 create table modules (
-  id bigserial primary key, name text not null,
+  id bigserial primary key, name text not null unique,
   image text null
 );
 create table program_modules (
   id bigserial primary key,
   module_id integer references modules(id),
-  program_id integer references programs(id)
+  program_id integer references programs(id),
+  unique(module_id, program_id)
 );
 create table branches (
-  id bigserial primary key, name text not null,
+  id bigserial primary key, name text not null unique,
   address text null
 );
 create type days as enum (
@@ -32,18 +34,21 @@ create table users (
   id bigserial primary key,
   username text not null,
   email text null,
-  pass text null, role roles not null
+  pass text null, role roles not null,
+  unique(username,email)
 );
 create table users_profile (
   name text null,
   dob text null,
   photo text null,
-  user_id integer references users(id)
+  user_id integer references users(id),
+  unique(name,user_id)
 );
 create
 or replace view users_full as
 select *
-from users u join users_profile up on u.id = up.user_id;
+from users u
+left join users_profile up on u.id = up.user_id;
 create
 or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
 select
@@ -69,7 +74,9 @@ create table classes (
   finish_at char(5) not null,
   module_id integer references program_modules(id),
   branch_id integer references branches(id),
-  tutor_id integer references users(id)
+  tutor_id integer references users(id),
+
+  unique(day,start_at,finish_at,module_id,branch_id)
 );
 create
 or replace view classes_ts as
@@ -105,5 +112,6 @@ order by
 create table class_students (
   id bigserial primary key,
   class_id integer references classes(id),
-  student_id integer references users(id)
+  student_id integer references users(id),
+  unique(class_id,student_id)
 );
