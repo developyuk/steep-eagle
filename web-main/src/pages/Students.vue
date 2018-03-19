@@ -27,6 +27,7 @@
 
 <script>
   import axios from 'axios';
+  import moment from 'moment';
   import Hammer from 'hammerjs';
 
   export default {
@@ -74,7 +75,10 @@
       },
       getStudentsSessions() {
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
-        axios.get(url)
+        axios.get(url,{
+        params:{
+            'created_at': 'gte.' + moment().utc().format("Y-MM-DD"),}
+        })
           .then(response => {
             this.sessions = response.data._embedded.items;
             const currentView = [];

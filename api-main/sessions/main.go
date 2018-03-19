@@ -39,6 +39,9 @@ func ListByTutorId(c echo.Context) error {
   if val := c.Param("id"); len(val) > 0 {
     params["tutor_id"] = "eq." + val
   }
+  if val := c.QueryParam("created_at"); len(val) > 0 {
+    params["created_at"] = val
+  }
   var list []StudentAbsence
   rest := mySharedRest.New().GetItems("/sessions__students")
 
