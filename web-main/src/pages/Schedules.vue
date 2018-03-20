@@ -11,13 +11,13 @@
           span.text {{vv.text}}
         ul.mdc-list
           li.mdc-list-item(v-for="(v,i) in vv.items")
-            .mdc-list-item__graphic
+            .mdc-list-item__graphic(v-if="!!v._embedded.module")
               img(':src'="v._embedded.module.image")
-            span.mdc-list-item__text {{v._embedded.module.name}}
-              span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
+            span.mdc-list-item__text(v-if="!!v._embedded.module") {{v._embedded.module.name}}
+              span.mdc-list-item__secondary-text(v-if="!!v._embedded.branch") {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="v._embedded.last_session && v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v)}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !v._embedded.last_session.items.length && !!v._embedded.tutor") Tutor : {{v._embedded.tutor.name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v_embedded.last_session.items)}}
             button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'start-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact ongoing
             button(v-if="buttonStatus(v) === 'start-late-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact activated
@@ -78,7 +78,7 @@
           let ls = class_._embedded.last_session.items;
           const mls = moment(ls[0].created_at);
 //          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
-          if (! ls.filter(v => v._embedded.tutor.name === this.currentAuth.name).length >= 1) {
+          if (!ls.filter(v => v._embedded.tutor.name === this.currentAuth.name).length >= 1) {
 
             if (mls.isBefore(mfts)) {
               return 'start-ongoing';
@@ -119,30 +119,26 @@
           .catch(error => console.log(error))
       },
       start(e, id, ii, i) {
-//        this.classes.forEach(v => {
-//          console.log(v.items.filter(v2 => v2.id = id));
-//        });
-//        console.log(this.classes[ii],this.classes[ii].items[i]);
         this.thisClass = this.classes[ii].items[i];
 
         this.dialog.lastFocusedTarget = e.target;
         this.dialog.show();
       },
       parseLastSessionTutorName(array) {
-        return array._embedded.last_session
-          .items.map(v => v._embedded.tutor.name).join(", ");
+        return array.map(v => v._embedded.tutor.name).join(", ");
       },
-      getLastSessions(classId, array) {
-        const url = `${process.env.API}/classes/${classId}/sessions`;
-
-        axios.get(url, {
-          params: {
-            'sort': 'created_at.desc',
-            'created_at': 'gte.' + moment().utc().format("Y-MM-DD"),
-          },
-        })
+      parseEmbedded(name, url, array) {
+        axios.get(`${process.env.API}${url}`)
           .then(response => {
-            this.$set(array, 'last_session', {"items": response.data._embedded.items});
+            let v = response.data._embedded ? response.data._embedded : response.data;
+            if (name === 'module') {
+              let image = v.image;
+              image = !!image ? image : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
+              image = image.replace('https://', '').replace('http://', '');
+              image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
+              v.image = image;
+            }
+            this.$set(array, name, v);
           })
           .catch(error => console.log(error))
       },
@@ -152,28 +148,30 @@
         axios.get(url, {
           params: {
             'sort': 'start_at_ts.asc',
-            'embed': 'module,branch,tutor'
           },
         })
           .then(response => {
-            const data = response.data._embedded.items;
+            this.classes = response.data._embedded.items;
             let j = 0;
+            const d = 200;
 
-            data.forEach((v, i, a) => {
+            this.classes.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {
+                if(! a2[i2]['_embedded']){
+                  this.$set(a2[i2], '_embedded', {});
+                }
 
-                let image = v2['_embedded']['module']['image'];
-                image = !!image ? image : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
-                image = image.replace('https://', '').replace('http://', '');
-                image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
-                this.$set(a[i]['items'][i2]['_embedded']['module'], 'image', image);
-//                if (v.text.toLowerCase() === 'today') {
-                setTimeout(() => this.getLastSessions(v2.id, a[i]['items'][i2]['_embedded']), (j + 1) * 300);
                 j++;
-//                }
+                setTimeout(() => this.parseEmbedded('module', v2._links.module.href, a2[i2]['_embedded']), j * d);
+                j++;
+                setTimeout(() => this.parseEmbedded('branch', v2._links.branch.href, a2[i2]['_embedded']), j * d);
+                j++;
+                setTimeout(() => this.parseEmbedded('tutor', v2._links.tutor.href, a2[i2]['_embedded']), j * d);
+                j++;
+                setTimeout(() => this.parseEmbedded('last_session', v2._links.last_session.href, a2[i2]['_embedded']), j * d);
               })
             });
-            this.classes = data;
+            console.log(this.classes)
           })
           .catch(error => console.log(error))
       },

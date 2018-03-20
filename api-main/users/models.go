@@ -48,7 +48,7 @@ func getPath(role string) string {
 }
 
 func ItemRest(req *mySharedRest.Request, role string, id string, item *User) (*http.Response, error) {
-  rest := mySharedRest.New().GetItem("/users_full").ParseRequest(req)
+  rest := mySharedRest.New().GetItem("/_users_full").ParseRequest(req)
 
   if role != "user" {
     rest.SetQuery("role=eq." + role)
@@ -75,7 +75,7 @@ func itemByUsername(param *UserLoginRequest) (User, error) {
 
   var item User
 
-  if _, err := mySharedRest.New().GetItem("/users_full").
+  if _, err := mySharedRest.New().GetItem("/_users_full").
     SetQuery(myShared.RequestRest{Select: "id,email,role,name,photo"}).
     SetQuery("username=eq." + param.Username).
     End(&item); err != nil {

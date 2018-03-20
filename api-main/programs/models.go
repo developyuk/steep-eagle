@@ -16,12 +16,6 @@ type (
     TypeId uint64 `json:"type_id"`
   }
 
-  ProgramModules struct {
-    Id        uint64 `json:"id"`
-    ProgramId uint64 `json:"program_id"`
-    ModuleId  uint64 `json:"module_id"`
-  }
-
   ProgramLinks struct {
     myShared.LinksSelf
     Type *myShared.Href `json:"type"`

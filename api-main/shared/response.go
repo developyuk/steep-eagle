@@ -82,6 +82,6 @@ func CreateHalLinks(uri string, path string, rest *mySharedRest.MyRest) LinksPag
   return links
 }
 
-func CreateHref(v string) *Href {
-  return &Href{Href: v}
+func CreateHref(path string) *Href {
+  return &Href{Href: path}
 }

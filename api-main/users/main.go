@@ -12,7 +12,7 @@ func List(c echo.Context) error {
   if err := c.Bind(req); err != nil {
     return c.JSON(http.StatusBadRequest, myShared.CreateResponse(err.Error()))
   }
-  rest := mySharedRest.New().GetItems("/users_full").ParseRequest(req)
+  rest := mySharedRest.New().GetItems("/_users_full").ParseRequest(req)
   role := getRole(c.Path())
   if role != "user" {
     rest.SetQuery("role=eq." + role)

@@ -22,7 +22,7 @@ func List(c echo.Context) error {
 
   for i, v := range list {
     list[i].Links = ItemLinks(v)
-    list[i].Embedded = itemEmbedded(v)
+    //list[i].Embedded = itemEmbedded(v)
   }
 
   response := myShared.Hal{
@@ -39,11 +39,8 @@ func ListByTutorId(c echo.Context) error {
   if val := c.Param("id"); len(val) > 0 {
     params["tutor_id"] = "eq." + val
   }
-  if val := c.QueryParam("created_at"); len(val) > 0 {
-    params["created_at"] = val
-  }
   var list []StudentAbsence
-  rest := mySharedRest.New().GetItems("/sessions__students")
+  rest := mySharedRest.New().GetItems("/_students_last_sessions_null_presences")
 
   if resp, err := rest.
   SetQuery(params).
@@ -103,7 +100,7 @@ func ListByClassId(c echo.Context) error {
   }
 
   var list []Session
-  rest := mySharedRest.New().GetItems("/sessions__tutors")
+  rest := mySharedRest.New().GetItems("/_class_last_sessions")
 
   if resp, err := rest.
   SetQuery(params).
@@ -113,7 +110,7 @@ func ListByClassId(c echo.Context) error {
 
   for i, v := range list {
     list[i].Links = ItemLinks(v)
-    list[i].Embedded = itemEmbedded(v)
+    //list[i].Embedded = itemEmbedded(v)
   }
   response := myShared.Hal{
     Links:    myShared.CreateHrefSelf(myClass.Path + "/" + c.Param("id") + myShared.PathSessions),
@@ -133,7 +130,7 @@ func Item(c echo.Context) error {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
   item.Links = ItemLinks(item)
-  item.Embedded = itemEmbedded(item)
+  //item.Embedded = itemEmbedded(item)
 
   return c.JSON(http.StatusOK, item)
 }
@@ -189,9 +186,9 @@ func CreateByClassId(c echo.Context) error {
   var itemSessionTutor, itemSessions Session
   loc, _ := time.LoadLocation(myShared.TimeZone)
   timeTz := time.Now().In(loc)
-  if _, err := mySharedRest.New().GetItem("/sessions__tutors").
+  if _, err := mySharedRest.New().GetItem("/_class_last_sessions").
     Send("class_id=" + c.Param("id")).
-    Send("created_at=gte." + timeTz.Format("2016-01-01")).
+    Send("created_at=gte." + timeTz.Format("2006-01-02")).
     End(&itemSessions); err != nil {
     //return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
     if resp, err := mySharedRest.New().PostItem(myShared.PathSessions).
@@ -208,6 +205,6 @@ func CreateByClassId(c echo.Context) error {
   }
   //itemSessionTutor := itemSessions[0]
   itemSessionTutor.Links = ItemLinks(itemSessionTutor)
-  itemSessionTutor.Embedded = itemEmbedded(itemSessionTutor)
+  //itemSessionTutor.Embedded = itemEmbedded(itemSessionTutor)
   return c.JSON(http.StatusOK, itemSessionTutor)
 }

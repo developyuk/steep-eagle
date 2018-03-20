@@ -75,10 +75,7 @@
       },
       getStudentsSessions() {
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
-        axios.get(url,{
-        params:{
-            'created_at': 'gte.' + moment().utc().format("Y-MM-DD"),}
-        })
+        axios.get(url)
           .then(response => {
             this.sessions = response.data._embedded.items;
             const currentView = [];

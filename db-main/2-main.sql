@@ -1,117 +1,157 @@
-create table program_types (
-  id bigserial primary key, name text not null unique
-);
-create table programs (
-  id bigserial primary key,
-  name text not null,
-  type_id integer references program_types(id),
-  unique(name, type_id)
-);
-create table modules (
-  id bigserial primary key, name text not null unique,
-  image text null
-);
-create table program_modules (
-  id bigserial primary key,
-  module_id integer references modules(id),
-  program_id integer references programs(id),
-  unique(module_id, program_id)
-);
-create table branches (
-  id bigserial primary key, name text not null unique,
-  address text null
-);
-create type days as enum (
-  'monday', 'tuesday', 'wednesday',
-  'thursday', 'friday', 'saturday',
-  'sunday'
-);
-create type roles as enum (
-  'operation', 'tutor', 'student', 'parent',
-  'partner'
-);
-create table users (
-  id bigserial primary key,
-  username text not null,
-  email text null,
-  pass text null, role roles not null,
-  unique(username,email)
-);
-create table users_profile (
-  name text null,
-  dob text null,
-  photo text null,
-  user_id integer references users(id),
-  unique(name,user_id)
-);
-create
-or replace view users_full as
-select *
-from users u
-left join users_profile up on u.id = up.user_id;
-create
-or replace function user_by_email_pass(_email text, _pass text) returns TABLE (id bigint, email text, role text, name text, photo text) as $$ begin return query
-select
-  users.id,
-  users.email,
-  users.role :: text,
-  users_profile.name,
-  users_profile.photo
-from
-  users
-left join users_profile on users.id = users_profile.user_id
-where
-  users.email = user_by_email_pass._email
-  and users.pass = crypt(
-    user_by_email_pass._pass, users.pass
-  );
-end;
-$$ LANGUAGE 'plpgsql';
-create table classes (
-  id bigserial primary key,
-  day days not null,
-  start_at char(5) not null,
-  finish_at char(5) not null,
-  module_id integer references program_modules(id),
-  branch_id integer references branches(id),
-  tutor_id integer references users(id),
+CREATE TABLE program_types (
+	id bigserial PRIMARY KEY
+	,name TEXT NOT NULL UNIQUE
+	);
 
-  unique(day,start_at,finish_at,module_id,branch_id)
-);
-create
-or replace view classes_ts as
-select
-  d.*
-from
-  (
-    select
-      c.*,
-      (
-        a.dw :: date :: text || ' ' || c.start_at || ':00'
-      ):: timestamp at time zone 'asia/jakarta' start_at_ts,
-      (
-        a.dw :: date :: text || ' ' || c.finish_at || ':00'
-      ):: timestamp at time zone 'asia/jakarta' finish_at_ts
-    from
-      (
-        select
-          ts at time zone 'asia/jakarta' dw
-        from
-          generate_series(
-            now(), now()  + '7 days',
-            '1 day'
-          ) g(ts)
-      ) a
-      inner join classes c on c.day :: text = to_char(dw, 'fmday')
-  ) d
-where
-  d.finish_at_ts + interval '2 hours' > now()
-  and d.finish_at_ts + interval '2 hours' < now()  + interval '7 days'
-order by
-  d.id asc;
-create table class_students (
-  id bigserial primary key,
-  class_id integer references classes(id),
-  student_id integer references users(id),
-  unique(class_id,student_id)
-);
+CREATE TABLE programs (
+	id bigserial PRIMARY KEY
+	,name TEXT NOT NULL
+	,type_id INT REFERENCES program_types(id)
+	,UNIQUE (
+		name
+		,type_id
+		)
+	);
+
+CREATE TABLE modules (
+	id bigserial PRIMARY KEY
+	,name TEXT NOT NULL UNIQUE
+	,image TEXT NULL
+	);
+
+CREATE TABLE programs_modules (
+	id bigserial PRIMARY KEY
+	,module_id INT REFERENCES modules(id)
+	,program_id INT REFERENCES programs(id)
+	,UNIQUE (
+		module_id
+		,program_id
+		)
+	);
+
+CREATE TABLE branches (
+	id bigserial PRIMARY KEY
+	,name TEXT NOT NULL UNIQUE
+	,address TEXT NULL
+	);
+
+CREATE type days AS enum (
+	'monday'
+	,'tuesday'
+	,'wednesday'
+	,'thursday'
+	,'friday'
+	,'saturday'
+	,'sunday'
+	);
+
+CREATE type roles AS enum (
+	'operation'
+	,'tutor'
+	,'student'
+	,'parent'
+	,'partner'
+	);
+
+CREATE TABLE users (
+	id bigserial PRIMARY KEY
+	,username TEXT NOT NULL
+	,email TEXT NULL
+	,pass TEXT NULL
+	,ROLE roles NOT NULL
+	,UNIQUE (
+		username
+		,email
+		)
+	);
+
+CREATE TABLE users_profile (
+	name TEXT NULL
+	,dob TEXT NULL
+	,photo TEXT NULL
+	,user_id INT REFERENCES users(id)
+	,UNIQUE (
+		name
+		,user_id
+		)
+	);
+
+CREATE
+	OR replace VIEW _users_full AS
+
+SELECT *
+FROM users u
+LEFT JOIN users_profile up ON u.id = up.user_id;
+
+CREATE
+	OR replace FUNCTION user_by_email_pass (
+	_email TEXT
+	,_pass TEXT
+	)
+RETURNS TABLE (
+		id BIGINT
+		,email TEXT
+		,ROLE TEXT
+		,name TEXT
+		,photo TEXT
+		) AS $$
+
+BEGIN
+	RETURN query
+
+	SELECT users.id
+		,users.email
+		,users.ROLE::TEXT
+		,users_profile.name
+		,users_profile.photo
+	FROM users
+	LEFT JOIN users_profile ON users.id = users_profile.user_id
+	WHERE users.email = user_by_email_pass._email
+		AND users.pass = crypt(user_by_email_pass._pass, users.pass);
+END;$$
+
+LANGUAGE 'plpgsql';
+
+CREATE TABLE classes (
+	id bigserial PRIMARY KEY
+	,day days NOT NULL
+	,start_at CHAR(5) NOT NULL
+	,finish_at CHAR(5) NOT NULL
+	,program_module_id INT REFERENCES programs_modules(id)
+	,branch_id INT REFERENCES branches(id)
+	,tutor_id INT REFERENCES users(id)
+	,UNIQUE (
+		day
+		,start_at
+		,finish_at
+		,program_module_id
+		,branch_id
+		)
+	);
+
+CREATE
+	OR replace VIEW _classes_ts AS
+
+SELECT d.*
+FROM (
+	SELECT c.*
+		,(a.dw::DATE::TEXT || ' ' || c.start_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' start_at_ts
+		,(a.dw::DATE::TEXT || ' ' || c.finish_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' finish_at_ts
+	FROM (
+		SELECT ts at TIME zone 'asia/jakarta' dw
+		FROM generate_series(now(), now() + '7 days', '1 day') g(ts)
+		) a
+	INNER JOIN classes c ON c.day::TEXT = to_char(dw, 'fmday')
+	) d
+WHERE d.finish_at_ts + interval '2 hours' > now()
+	AND d.finish_at_ts + interval '2 hours' < now() + interval '7 days'
+ORDER BY d.id ASC;
+
+CREATE TABLE class_students (
+	class_id INT REFERENCES classes(id)
+	,student_id INT REFERENCES users(id)
+	,UNIQUE (
+		class_id
+		,student_id
+		)
+	);

@@ -10,11 +10,12 @@ import (
 )
 
 type (
-  classLinks struct {
+  Links struct {
     myShared.LinksSelf
-    Module *myShared.Href `json:"module,omitempty"`
-    Branch *myShared.Href `json:"branch,omitempty"`
-    Tutor  *myShared.Href `json:"tutor,omitempty"`
+    Module      *myShared.Href `json:"module,omitempty"`
+    Branch      *myShared.Href `json:"branch,omitempty"`
+    Tutor       *myShared.Href `json:"tutor,omitempty"`
+    LastSession *myShared.Href `json:"last_session,omitempty"`
   }
   Embedded struct {
     //LastSession *myShared.Session `json:"last_session,omitempty"`
@@ -26,25 +27,28 @@ type (
 
   Class_ struct {
     myShared.Hal
-    Id         uint64        `json:"id"`
-    Day        string        `json:"day"`
-    StartAt    string        `json:"start_at"`
-    FinishAt   string        `json:"finish_at"`
-    StartAtTs  time.Time     `json:"start_at_ts"`
-    FinishAtTs time.Time     `json:"finish_at_ts"`
-    ModuleId   uint64        `json:"module_id"`
-    BranchId   uint64        `json:"branch_id"`
-    TutorId    uint64        `json:"tutor_id"`
+    Id              uint64    `json:"id"`
+    Day             string    `json:"day"`
+    StartAt         string    `json:"start_at"`
+    FinishAt        string    `json:"finish_at"`
+    StartAtTs       time.Time `json:"start_at_ts"`
+    FinishAtTs      time.Time `json:"finish_at_ts"`
+    ProgramModuleID uint64    `json:"program_module_id"`
+    BranchId        uint64    `json:"branch_id"`
+    TutorId         uint64    `json:"tutor_id"`
   }
 )
 
 const Path string = "/classes"
 
-func ItemLinks(data *Class_) classLinks {
-  var links classLinks
+func ItemLinks(data *Class_) Links {
+  var links Links
   links.Self = myShared.CreateHref(Path + "/" + fmt.Sprint(data.Id))
-  links.Module = myShared.CreateHref(myModule.Path + "/" + fmt.Sprint(data.ModuleId))
+  moduleId, _ := myModule.GetModuleFromProgramModuleId(fmt.Sprint(data.ProgramModuleID))
+  links.Module = myShared.CreateHref(myModule.Path + "/" + moduleId)
   links.Branch = myShared.CreateHref(myBranch.Path + "/" + fmt.Sprint(data.BranchId))
   links.Tutor = myShared.CreateHref(myUser.PathTutors + "/" + fmt.Sprint(data.TutorId))
+  today := time.Now().Format("2006-01-02")
+  links.LastSession = myShared.CreateHref(Path + "/" + fmt.Sprint(data.Id) + "/sessions?sort=created_at.desc&created_at=gte." + today)
   return links
 }
