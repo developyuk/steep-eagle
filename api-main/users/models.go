@@ -76,7 +76,7 @@ func itemByUsername(param *UserLoginRequest) (User, error) {
   var item User
 
   if _, err := mySharedRest.New().GetItem("/_users_profile").
-    SetQuery(myShared.RequestRest{Select: "id,email,role,name,photo"}).
+    SetQuery(myShared.RequestRest{Select: "id,username,email,role,name,photo"}).
     SetQuery("username=eq." + param.Username).
     End(&item); err != nil {
     return item, err

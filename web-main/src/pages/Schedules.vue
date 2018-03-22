@@ -29,13 +29,14 @@
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       .mdc-dialog__surface
         header.mdc-dialog__header
-          h2#my-mdc-dialog-label.mdc-dialog__header__title
-            | Start this class?
-        section#my-mdc-dialog-description.mdc-dialog__body
-          | Class will be start when you click yes.
+          h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
+        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{thisClass._embedded.module.name.toUpperCase()}}.
+          p
+          input(type="text" name="username" placeholder="Yourname" v-model.trim="pin")
+          .errMsg(v-if="errMsg") {{errMsg}}
         footer.mdc-dialog__footer
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
-          button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--accept(type='button') Yes
+          button.mdc-button.mdc-dialog__footer__button(type='button' @click="checkPin($event)") Yes
       .mdc-dialog__backdrop
 
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
@@ -63,11 +64,18 @@
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
+        pin: '',
         classes: null,
         dialog: null,
         snackbar: null,
-        thisClass: {id: 0},
+        thisClass: {
+          id: 0,
+          _embedded: {
+            module: {name: "..."}
+          }
+        },
         currentAuth: null,
+        errMsg: null,
       }
     },
     methods: {
@@ -111,6 +119,23 @@
         }
 
         return status;
+      },
+      checkPin(e) {
+        if (this.pin === "1234") {
+          this.activate(this.thisClass.id);
+          this.snackbar.show({
+            message: `Class ${this.thisClass.name} has been started`,
+//          actionText: 'Undo',
+//          actionHandler: function () {
+//            console.log('my cool function');
+//          }
+          });
+          this.dialog.close();
+        } else {
+          console.log('invalid');
+          this.errMsg = "invalid. Check yourname again!";
+        }
+
       },
       activate(cid) {
         const url = `${process.env.API}/classes/${cid}/sessions`;
@@ -203,17 +228,8 @@
       const cls = this;
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
-      this.dialog.listen('MDCDialog:accept', () => {
-        cls.activate(cls.thisClass.id);
-        const dataObj = {
-          message: `Class ${cls.thisClass.id} has been started`,
-//          actionText: 'Undo',
-//          actionHandler: function () {
-//            console.log('my cool function');
-//          }
-        };
-        cls.snackbar.show(dataObj);
-      });
+//      this.dialog.listen('MDCDialog:accept', () => {
+//      });
       this.getSchedules();
       this.$bus.$on('currentAuth', (auth) => {
         this.currentAuth = auth;

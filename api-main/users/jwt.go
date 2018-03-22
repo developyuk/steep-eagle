@@ -30,6 +30,7 @@ func Sign(c echo.Context) error {
     // Set claims
     claims := token.Claims.(jwt.MapClaims)
     claims["id"] = item.Id
+    claims["username"] = item.Username
     claims["name"] = item.Name
     claims["role"] = item.Role
     claims["photo"] = item.Photo
@@ -53,10 +54,11 @@ func Auth(c echo.Context) error {
   user := c.Get("user").(*jwt.Token)
   claims := user.Claims.(jwt.MapClaims)
   return c.JSON(http.StatusOK, map[string]interface{}{
-    "id":    claims["id"].(float64),
-    "name":  claims["name"].(string),
-    "role":  claims["role"].(string),
-    "photo": claims["photo"].(string),
-    "email": claims["email"].(string),
+    "id":       claims["id"].(float64),
+    "username": claims["username"].(string),
+    "name":     claims["name"].(string),
+    "role":     claims["role"].(string),
+    "photo":    claims["photo"].(string),
+    "email":    claims["email"].(string),
   })
 }

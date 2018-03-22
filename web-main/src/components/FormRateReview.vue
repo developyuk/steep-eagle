@@ -109,7 +109,7 @@
   #form-rate-review {
     padding: 0 2rem;
     background-color: #fff;
-    min-width: 90%;
+    /*min-width: 90%;*/
     max-width: 100%;
   }
 
