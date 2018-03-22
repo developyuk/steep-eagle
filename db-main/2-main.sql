@@ -139,7 +139,7 @@ FROM (
 		,(a.dw::DATE::TEXT || ' ' || c.finish_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' finish_at_ts
 	FROM (
 		SELECT ts at TIME zone 'asia/jakarta' dw
-		FROM generate_series(now(), now() + '7 days', '1 day') g(ts)
+		FROM generate_series(now(), now() + '5 days', '1 day') g(ts)
 		) a
 	INNER JOIN classes c ON c.day::TEXT = to_char(dw, 'fmday')
 	) d
