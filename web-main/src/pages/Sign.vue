@@ -1,7 +1,7 @@
 <template lang="pug">
   #sign.mdc-typography
     form(@submit.prevent="sign")
-      img.logo(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/a6mfkumhayvm7o4/Character_CodingCamp.png")
+      img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")
       .mdc-form-field
         .mdc-text-field(data-mdc-auto-init="MDCTextField")
           input#id.mdc-text-field__input(v-model.trim="username" name="username" type="text" required)
@@ -10,6 +10,8 @@
       .mdc-form-field
         .errMsg(v-if="errMsg") {{errMsg}}
         button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Login
+    .powered powered by
+      img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
 </template>
 
 <script>
@@ -65,7 +67,7 @@
   }
 
   .logo {
-    /*width: 300px;*/
+    width: 5rem;
 
     margin: 0 auto 4rem auto;
     display: block;
@@ -83,12 +85,23 @@
   button {
     margin-top: 2rem;
   }
+  .powered{
+    position: absolute;
+    bottom: 1rem;
+    left:50%;
+    transform: translateX(-50%);
+    width: 12.025rem;
+    font-size: .75rem;
+    img{
+      margin: 0 .5rem;
+    }
+  }
 
   .mdc-form-field {
     display: block;
   }
 
-  .logo, .mdc-text-field, .mdc-button {
+  .mdc-text-field, .mdc-button {
     width: 100%;
   }
 
