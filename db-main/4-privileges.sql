@@ -13,7 +13,7 @@ GRANT ALL PRIVILEGES
 	TO anon;
 
 GRANT SELECT
-	ON _users_full
+	ON _users_profile
 	TO anon;
 
 GRANT ALL PRIVILEGES

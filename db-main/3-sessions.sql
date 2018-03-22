@@ -10,7 +10,7 @@ CREATE TABLE sessions_tutors (
 	);
 
 CREATE
-	OR replace VIEW _class_last_sessions AS
+	OR replace VIEW _sessions_tutors AS
 
 SELECT s.id
 	,s.created_at
@@ -32,11 +32,11 @@ CREATE TABLE sessions_students (
 	);
 
 CREATE
-	OR replace VIEW _students_last_sessions_null_presences AS
+	OR replace VIEW _sessions_students_status_null AS
 
 SELECT sst.*
 	,cs.student_id
-FROM _class_last_sessions sst
+FROM _sessions_tutors sst
 INNER JOIN class_students cs ON sst.class_id = cs.class_id
 INNER JOIN _classes_ts c ON sst.class_id = c.id
 WHERE sst.created_at > (now() - '12:00:00'::interval) AND cs.student_id NOT IN (

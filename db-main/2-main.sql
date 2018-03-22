@@ -77,7 +77,7 @@ CREATE TABLE users_profile (
 	);
 
 CREATE
-	OR replace VIEW _users_full AS
+	OR replace VIEW _users_profile AS
 
 SELECT *
 FROM users u
@@ -155,3 +155,30 @@ CREATE TABLE class_students (
 		,student_id
 		)
 	);
+
+CREATE
+	OR replace VIEW _exports AS
+
+SELECT initcap(pt.name) program_name
+	,initcap(p.name) AS program
+	,upper(m.name) module
+	,initcap(b.name) branch
+	,initcap(c.day::TEXT)
+	,c.start_at
+	,c.finish_at
+	,initcap(us.name) student_name
+	,ut.email tutor_email
+	,initcap(ut.username) tutor_username
+	,initcap(ut.name) tutor_name
+FROM class_students cs
+LEFT JOIN classes c ON cs.class_id = c.id
+LEFT JOIN branches b ON c.branch_id = b.id
+LEFT JOIN programs_modules pm ON c.program_module_id = pm.id
+LEFT JOIN modules m ON pm.module_id = m.id
+LEFT JOIN programs p ON pm.program_id = p.id
+LEFT JOIN program_types pt ON p.type_id = pt.id
+LEFT JOIN _users_profile ut ON c.tutor_id = ut.id
+	AND ut.ROLE = 'tutor'
+LEFT JOIN _users_profile us ON cs.student_id = us.id
+	AND us.ROLE = 'student'
+ORDER BY cs.class_id

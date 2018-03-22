@@ -5,23 +5,23 @@
     .empty(v-if="!!sessions && !sessions.length")
       img(src="https://images.weserv.nl/?w=300&url=dl.dropboxusercontent.com/s/6wrsi1smelwdhj7/face-2.png")
       p It’s holiday time, man! #[br]Pls enjoy yout time by being away from your phone.
-    .mdc-list-group
+    .mdc-list-group(v-else)
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
-          span.module {{v.class._embedded.module.name}}
+          span.module(v-if="!!v._embedded.class._embedded.module") {{v._embedded.class._embedded.module.name}}
           | &nbsp;-&nbsp;
-          span.branch {{v.class._embedded.branch.name}}
+          span.branch(v-if="!!v._embedded.class._embedded.branch") {{v._embedded.class._embedded.branch.name}}
           | &nbsp;&nbsp;
-          span.day-time {{v.class.start_at}} - {{v.class.finish_at}}
+          span.day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
         ul.mdc-list
-          template(v-for="(vv,ii) in v.students")
-            li.mdc-list-item(:data-sid="v.id" :data-uid="vv.id")
+          template(v-for="(vv,ii) in v._embedded.items")
+            li.mdc-list-item(:data-sid="vv.id" :data-uid="vv._embedded.student.id")
               .mdc-list-item__graphic
-                img(':src'="vv.photo")
-              span.mdc-list-item__text {{vv.name}}
-                //span.mdc-list-item__secondary-text {{v._embedded.class.day}} {{v._embedded.class.time}}
+                img(':src'="vv._embedded.student.photo")
+              span.mdc-list-item__text {{vv._embedded.student.name}}
             hr.mdc-list-divider
-            component(:is="currentView[`${v.id}`][`${vv.id}`]" :sid="v.id" :uid="vv.id"  :name="vv.name")
+            .wrapper(v-if="!!vv._embedded.student && !!currentView && !!currentView[vv.id] && !!currentView[vv.id][vv._embedded.student.id]")
+              component(:is="currentView[vv.id][vv._embedded.student.id]" :sid="vv.id" :uid="vv._embedded.student.id" :name="vv._embedded.student.name")
     tab-bottom
 </template>
 
@@ -29,9 +29,11 @@
   import axios from 'axios';
   import moment from 'moment';
   import Hammer from 'hammerjs';
+  import sharedHal from '../mixins/hal';
 
   export default {
     name: 'students',
+    mixins: [sharedHal],
     components: {
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
@@ -51,12 +53,12 @@
     },
     methods: {
       onClickList(e) {
-        const $el = e.target.closest('.mdc-list-item').nextSibling.nextSibling;
-//        console.log('clicked', $el);
+        const $el = e.target.closest('.mdc-list-item').nextSibling.nextSibling.childNodes[0];
         let sid;
         let uid;
         const is = $el.getAttribute('id');
-        if (this.lastId) {
+//        console.log(this.lastId);
+        if (!!this.lastId) {
           const lastId = this.lastId.split('-');
           sid = lastId[0];
           uid = lastId[1];
@@ -64,40 +66,93 @@
         }
         sid = $el.getAttribute('sid');
         uid = $el.getAttribute('uid');
+        console.log(sid, uid);
         if (is === 'empty') {
           this.$set(this.currentView[sid], uid, 'form-rate-review');
-          this.lastId = `${sid}-${uid}`
+          this.lastId = `${sid}-${uid}`;
         }
-        console.log('clicked', sid, uid, this.lastId);
-//        else {
-//        }
-//        this.currentView[sid][uid] = 'form-rate-review';
+        console.log(!!this.currentView, !!this.currentView[sid], !!this.currentView[sid][uid], JSON.stringify(this.currentView));
+//        console.log('clicked', sid, uid, this.lastId);
       },
       getStudentsSessions() {
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
         axios.get(url)
           .then(response => {
-            this.sessions = response.data._embedded.items;
+            let sessions = response.data._embedded.items;
+            if (!!sessions) {
+              sessions = sessions.map(v => {
+                v._embedded['class'] = {
+                  _embedded: {
+                    module: {name: "..."},
+                    branch: {name: "..."}
+                  },
+                  start_at: "...",
+                  finish_at: "...",
+                };
+                v._embedded.items = v._embedded.items.map(v2 => {
+                  v2._embedded = {
+                    student: {
+                      name: "...",
+                      photo: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=",
+                    }
+                  };
+                  return v2
+                });
+                return v;
+              });
+//              console.log(sessions);
+            }
+            else {
+              sessions = [];
+            }
+            this.sessions = sessions;
+
+            let j = 0;
+            const d = 200;
             const currentView = [];
             if (this.sessions) {
               this.sessions.forEach((v, i, a) => {
-                if (v['students']) {
-                  v['students'].forEach((v2, i2, a2) => {
-                    console.log(v2);
-                    if (!currentView[v.id]) {
-                      currentView[v.id] = [];
-                    }
-                    currentView[v.id][v2.id] = 'empty';
+                j++;
+                setTimeout(() => this.parseEmbedded('class', v._links.class.href, a[i]['_embedded'], (item) => {
+                  if (!item['_embedded']) {
+                    this.$set(item, '_embedded', {
+                      module: {name: "..."},
+                      branch: {name: "..."},
+                    });
+                  }
+                  j++;
+                  setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), j * d);
+                  j++;
+                  setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), j * d);
+                  return item
+                }), j * d);
 
-                    let image = !!v2['photo'] ? v2['photo'] : 'https://image.flaticon.com/icons/png/128/201/201818.png';
-                    image = image.replace('https://', '').replace('http://', '');
-                    image = `//images.weserv.nl/?output=png&il&q=100&w=96&h=96&t=square&url=${image}`;
-                    this.$set(a[i]['students'][i2], 'photo', image);
-                  });
-                }
+                j++;
+                setTimeout(() => {
+                  if (!!v._embedded.items) {
+
+                    v._embedded.items.forEach((v2, i2, a2) => {
+                      if (!a2[i2]['_embedded']) {
+                        this.$set(a2[i2], '_embedded', {});
+                      }
+                      this.parseEmbedded('student', v2._links.student.href, a2[i2]['_embedded'], item => {
+                        if (!currentView[v2.id]) {
+                          currentView[v2.id] = [];
+                        }
+                        currentView[v2.id][item.id] = 'empty';
+                        item.photo = item.photo ? item.photo : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
+                        if (item.photo.indexOf('data:image/gif') < 0) {
+                          let image = item.photo;
+                          image = image.replace('https://', '').replace('http://', '');
+                          image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
+                          item.photo = image;
+                        }
+                        return item;
+                      });
+                    })
+                  }
+                }, j * d);
               });
-            } else {
-              this.sessions = []
             }
             this.currentView = currentView;
           })
@@ -108,18 +163,15 @@
     },
     mounted() {
       this.$bus.$on('currentAuth', (auth) => {
-//        console.log(auth);
         this.currentAuth = auth;
         this.getStudentsSessions();
         setTimeout(() => {
           Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
-//            console.log(v);
             var hammertime = new Hammer(v, {});
             hammertime
               .on('panend', e => {
                 const $el = e.target.closest(".mdc-list-item");
                 if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
-
                   const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
 
                   axios.post(url, {
@@ -198,6 +250,7 @@
     &, img {
       width: 40px;
       height: 40px;
+      border-radius: 50%;
     }
   }
 

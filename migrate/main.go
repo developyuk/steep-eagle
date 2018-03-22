@@ -1,3 +1,4 @@
+//DB_API=localhost:3000 go run main.go
 package main
 
 import (
@@ -40,7 +41,7 @@ type (
   }
 )
 
-const authHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IiIsImV4cCI6MTUyMTcyNjQyMSwiaWQiOjIzLCJuYW1lIjoiZml0cmkiLCJwaG90byI6IiIsInJvbGUiOiJvcGVyYXRpb24ifQ.IVwsm3p1jPv1vSYVflDrPqozv7zj-rwSAzl53yvlQfs"
+const authHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IiIsImV4cCI6MTUyMTk2NjE0NCwiaWQiOjI0LCJuYW1lIjoidGVzdGVyIiwicGhvdG8iOiIiLCJyb2xlIjoib3BlcmF0aW9uIn0.En__5CcOdU2QiempvmFiwRC5aNE34WoYGiKZ2e2LGXw"
 
 func main() {
   datacsv := parseCSV()
@@ -48,7 +49,6 @@ func main() {
   mySharedJwt.AuthHeader = authHeader
   var res Response
   for _, v := range datacsv {
-    spew.Dump(v)
     var programType Response
 
     _, err := myRest.New().GetItem("/program_types").
@@ -95,14 +95,14 @@ func main() {
     }
 
     var programModule Response
-    _, err = myRest.New().GetItem("/program_modules").
+    _, err = myRest.New().GetItem("/programs_modules").
       SetQuery(map[string]string{
       "module_id":  "eq." + fmt.Sprint(module.Id),
       "program_id": "eq." + fmt.Sprint(program.Id),
     }).
       End(&programModule)
     if err != nil {
-      myRest.New().PostItem("/program_modules").
+      myRest.New().PostItem("/programs_modules").
         Send(map[string]string{
         "module_id":  fmt.Sprint(module.Id),
         "program_id": fmt.Sprint(program.Id),
@@ -163,7 +163,7 @@ func main() {
       "day":       "eq." + v.Class.Day,
       "start_at":  "eq." + v.Class.StartAt,
       "finish_at": "eq." + v.Class.FinishAt,
-      "module_id": "eq." + fmt.Sprint(programModule.Id),
+      "program_module_id": "eq." + fmt.Sprint(programModule.Id),
       "branch_id": "eq." + fmt.Sprint(branch.Id),
       "tutor_id":  "eq." + fmt.Sprint(tutor.Id),
     }).
@@ -189,6 +189,7 @@ func main() {
     }).
       End(&student)
     if err != nil {
+      spew.Dump(v.Student.Name)
       myRest.New().PostItem("/users").
         Send(map[string]string{
         "username": v.Student.Name,

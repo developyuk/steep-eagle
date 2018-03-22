@@ -11,13 +11,13 @@
           span.text {{vv.text}}
         ul.mdc-list
           li.mdc-list-item(v-for="(v,i) in vv.items")
-            .mdc-list-item__graphic(v-if="!!v._embedded.module")
+            .mdc-list-item__graphic
               img(':src'="v._embedded.module.image")
-            span.mdc-list-item__text(v-if="!!v._embedded.module") {{v._embedded.module.name}}
-              span.mdc-list-item__secondary-text(v-if="!!v._embedded.branch") {{v._embedded.branch.name}}
+            span.mdc-list-item__text {{v._embedded.module.name}}
+              span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !v._embedded.last_session.items.length && !!v._embedded.tutor") Tutor : {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v_embedded.last_session.items)}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
             button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
             button(v-if="buttonStatus(v) === 'start-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact ongoing
             button(v-if="buttonStatus(v) === 'start-late-ongoing'" @click='start($event,v.id,ii,i)'  data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact activated
@@ -50,9 +50,11 @@
   //  import {MDCRipple} from '@material/ripple';
   import moment from 'moment';
   import axios from 'axios';
+  import sharedHal from '../mixins/hal';
 
   export default {
     name: 'schedules',
+    mixins: [sharedHal],
     components: {
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
@@ -73,47 +75,50 @@
         const msts = moment(class_.start_at_ts);
         const mfts = moment(class_.finish_at_ts);
         const mnow = moment();
+        let status = 'disabled';
+        let ls = class_._embedded.last_session;
 
-        if (class_._embedded.last_session && class_._embedded.last_session.items.length) {
-          let ls = class_._embedded.last_session.items;
+        if (!!ls && !!ls.items.length && !!ls.items[0].created_at) {
+          ls = ls.items;
           const mls = moment(ls[0].created_at);
 //          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
-          if (!ls.filter(v => v._embedded.tutor.name === this.currentAuth.name).length >= 1) {
-
+//          console.log(this.currentAuth,ls[0]._embedded.tutor);
+          if (!!this.currentAuth && !!ls[0]._embedded.tutor
+            && !ls.filter(v => v._embedded.tutor.id === this.currentAuth.id).length >= 1) {
             if (mls.isBefore(mfts)) {
-              return 'start-ongoing';
+              status = 'start-ongoing';
             }
             if (mls.isAfter(mfts)) {
-              return 'start-late-ongoing';
+              status = 'start-late-ongoing';
+            }
+            return status;
+          } else {
+            if (mls.isBefore(mfts)) {
+              status = 'ongoing';
+            }
+            if (mls.isAfter(mfts)) {
+              status = 'late-ongoing';
             }
           }
-          if (mls.isBefore(mfts)) {
-            return 'ongoing';
-          }
-          if (mls.isAfter(mfts)) {
-            return 'late-ongoing';
-          }
-        }
-        if (mnow.isAfter(mfts)) {
-          return 'late';
-        }
+        } else {
 //        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
-        if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
-          return 'start';
+          if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
+            status = 'start';
+          }
+          if (mnow.isAfter(mfts)) {
+            status = 'late';
+          }
         }
 
-        return 'disabled';
+        return status;
       },
       activate(cid) {
         const url = `${process.env.API}/classes/${cid}/sessions`;
-//        console.log(cid,this.classes[this.classes.findIndex(el => el.id === cid)]);
 
         axios.post(url, {
           id: this.currentAuth.id
         })
           .then(response => {
-//            console.log(response);
-//            this.$delete(this.classes, this.classes.findIndex(el => el.id === cid));
             this.getSchedules();
           })
           .catch(error => console.log(error))
@@ -125,22 +130,7 @@
         this.dialog.show();
       },
       parseLastSessionTutorName(array) {
-        return array.map(v => v._embedded.tutor.name).join(", ");
-      },
-      parseEmbedded(name, url, array) {
-        axios.get(`${process.env.API}${url}`)
-          .then(response => {
-            let v = response.data._embedded ? response.data._embedded : response.data;
-            if (name === 'module') {
-              let image = v.image;
-              image = !!image ? image : 'https://cdn.dribbble.com/users/125948/screenshots/2730778/codeicon_1x.png';
-              image = image.replace('https://', '').replace('http://', '');
-              image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
-              v.image = image;
-            }
-            this.$set(array, name, v);
-          })
-          .catch(error => console.log(error))
+        return array.map(v => v['_embedded']['tutor'] ? v['_embedded']['tutor']['name'] : "").join(", ");
       },
       getSchedules(page = 1) {
         const url = `${process.env.API}/classes/group/date`;
@@ -151,27 +141,60 @@
           },
         })
           .then(response => {
-            this.classes = response.data._embedded.items;
+            let classes = response.data._embedded.items;
+            classes = classes.map(v => {
+              v.items = v.items.map(v2 => {
+                v2._embedded = {
+                  module: {image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="},
+                  branch: {name: "..."},
+                  tutor: {name: "..."},
+                  last_session: {
+                    items: [
+                      {
+                        _embedded: {
+                          tutor: {name: "..."}
+                        }
+                      }]
+                  },
+                };
+                return v2
+              });
+              return v
+            });
+            this.classes = classes;
             let j = 0;
             const d = 200;
 
             this.classes.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {
-                if(! a2[i2]['_embedded']){
-                  this.$set(a2[i2], '_embedded', {});
-                }
+                j++;
+                setTimeout(() => this.parseEmbedded('module', v2._links.module.href, a2[i2]['_embedded'], item => {
+                  item.image = item.image ? item.image : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
+                  if (item.image.indexOf('data:image/gif') < 0) {
+                    let image = item.image;
+                    image = image.replace('https://', '').replace('http://', '');
+                    image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
+                    item.image = image;
+                  }
+                  return item;
+                }), j * d);
+                setTimeout(() => this.parseEmbedded('branch', v2._links.branch.href, a2[i2]['_embedded']), j * d);
+                setTimeout(() => this.parseEmbedded('tutor', v2._links.tutor.href, a2[i2]['_embedded']), j * d);
 
                 j++;
-                setTimeout(() => this.parseEmbedded('module', v2._links.module.href, a2[i2]['_embedded']), j * d);
-                j++;
-                setTimeout(() => this.parseEmbedded('branch', v2._links.branch.href, a2[i2]['_embedded']), j * d);
-                j++;
-                setTimeout(() => this.parseEmbedded('tutor', v2._links.tutor.href, a2[i2]['_embedded']), j * d);
-                j++;
-                setTimeout(() => this.parseEmbedded('last_session', v2._links.last_session.href, a2[i2]['_embedded']), j * d);
+                setTimeout(() => this.parseEmbedded('last_session', v2._links.last_session.href, a2[i2]['_embedded'], item => {
+                  item.items.forEach((v3, i3, a3) => {
+                    if (!a3[i3]['_embedded']) {
+                      this.$set(a3[i3], '_embedded', {});
+                    }
+                    this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
+                  });
+                  return item
+                }), j * d);
+
               })
             });
-            console.log(this.classes)
+//            console.log(this.classes)
           })
           .catch(error => console.log(error))
       },
