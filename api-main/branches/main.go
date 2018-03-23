@@ -17,7 +17,7 @@ func List(c echo.Context) error {
   if resp, err := rest.
   SetQuery(myShared.RequestRest{
     Select: req.Select,
-  }).End(&list); err != nil {
+  }).EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 

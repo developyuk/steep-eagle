@@ -47,7 +47,18 @@ func New() *MyRest {
   r.request = gorequest.New()
   return r
 }
-func (r *MyRest) End(v interface{}) (*http.Response, error) {
+func (r *MyRest) End() (*http.Response, error) {
+  r.response, _, r.errors = r.request.End()
+  if len(r.errors) > 0 && r.errors[0] != nil {
+    return r.response, r.errors[0]
+  }
+  if r.response.StatusCode != 204 {
+    r.errors = append(r.errors, errors.New(r.response.Status))
+  }
+  defer r.Clear()
+  return r.response, nil
+}
+func (r *MyRest) EndStruct(v interface{}) (*http.Response, error) {
 
   r.response, _, r.errors = r.request.EndStruct(v)
   //spew.Dump(r.response,r.request.Url)
@@ -150,6 +161,14 @@ func (r *MyRest) PostItem(path string) *MyRest {
     Set("Accept", "application/vnd.pgrst.object+json").
     Set("Authorization", mySharedJwt.AuthHeader).
     Set("Prefer", "return=representation")
+
+  return r
+}
+func (r *MyRest) DeleteItem(path string) *MyRest {
+  r.request.
+    Delete(DbApiUrl + path).
+    Set("Accept", "application/json").
+    Set("Authorization", mySharedJwt.AuthHeader)
 
   return r
 }

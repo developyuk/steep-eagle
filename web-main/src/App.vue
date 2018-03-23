@@ -66,6 +66,9 @@
       display: table;
     }
   }
+  .mdc-snackbar {
+    z-index: 9;
+  }
 
   /*h1.title {*/
   /*background-color: var(--mdc-theme-primary, #6200ee);*/

@@ -33,7 +33,7 @@
           h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
         section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{thisClass._embedded.module.name.toUpperCase()}}.
           p
-          input(type="text" name="username" placeholder="Yourname" v-model.trim="pin")
+          input(type="text" name="username" v-model.trim="pin")
           .errMsg(v-if="errMsg") {{errMsg}}
         footer.mdc-dialog__footer
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
@@ -53,7 +53,6 @@
   import moment from 'moment';
   import axios from 'axios';
   import sharedHal from '../mixins/hal';
-  import _debounce from "lodash/debounce";
 
   export default {
     name: 'schedules',
@@ -76,6 +75,7 @@
             module: {name: "..."}
           }
         },
+        thisClassSession: {},
         currentAuth: null,
         errMsg: null,
       }
@@ -87,13 +87,14 @@
         const mnow = moment();
         let status = 'disabled';
         let ls = class_._embedded.last_session;
-
-        if (!!ls && !!ls.items.length && !!ls.items[0].created_at) {
+//        console.log(class_._embedded.module.name, msts.diff(mnow, 'days') < 1);
+        if (!!ls && !!ls.items.length && !!ls.items[0].created_at
+          && msts.diff(mnow, 'days') < 1) {
           ls = ls.items;
           const mls = moment(ls[0].created_at);
 //          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
 //          console.log(this.currentAuth,ls[0]._embedded.tutor);
-          if (!!this.currentAuth && !!ls[0]._embedded.tutor
+          if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
             && !ls.filter(v => v._embedded.tutor.id === this.currentAuth.id).length >= 1) {
             if (mls.isBefore(mfts)) {
               status = 'start-ongoing';
@@ -123,19 +124,27 @@
         return status;
       },
       checkPin(e) {
+        const _this = this;
         if (this.pin === "1234") {
           this.activate(this.thisClass.id);
+
           this.snackbar.show({
-            message: `Class ${this.thisClass.name} has been started`,
-//          actionText: 'Undo',
-//          actionHandler: function () {
-//            console.log('my cool function');
-//          }
+            message: `Start class ${this.thisClass._embedded.module.name.toUpperCase()}`,
+            actionText: 'Undo',
+            actionHandler: function () {
+              const url = `${process.env.API}/sessions/${_this.thisClassSession.id}`;
+
+              axios.delete(url)
+                .then(response => {
+                  _this.getSchedules();
+                })
+                .catch(error => console.log(error));
+            }
           });
+          this.pin = "";
           this.dialog.close();
         } else {
-          console.log('invalid');
-          this.errMsg = "invalid. Check yourname again!";
+          this.errMsg = "invalid. Check pin again!";
         }
 
       },
@@ -146,6 +155,7 @@
           id: this.currentAuth.id
         })
           .then(response => {
+            this.thisClassSession = response.data;
             this.getSchedules();
           })
           .catch(error => console.log(error))
@@ -232,13 +242,13 @@
       },
     },
     mounted() {
-      const cls = this;
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
-//      this.dialog.listen('MDCDialog:accept', () => {
-//      });
       this.getSchedules();
       this.$bus.$on('currentAuth', auth => {
+        if (!!this.currentAuth) {
+          return;
+        }
         this.currentAuth = auth;
       });
       this.$bus.$on('onKeyupSearch', q => {
@@ -268,6 +278,12 @@
     top: 50%;
     transform: translateY(-70%);
     width: 100%;
+  }
+
+  .errMsg {
+    padding: .5rem 0;
+    background-color: #fff;
+    margin: .5rem 0;
   }
 
   .mdc-list-group__subheader {
@@ -355,7 +371,4 @@
     background-color: var(--mdc-theme-primary);
   }
 
-  .mdc-snackbar {
-    z-index: 9;
-  }
 </style>

@@ -24,7 +24,11 @@ router.beforeEach((to, from, next) => {
     .get(`${process.env.API}/auth`)
     .then(response => {
       // console.log(response.data);
+
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 3);
       setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 8);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 13);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 21);
     })
     .catch(error => {
       // console.log(error.response, to.path);

@@ -189,7 +189,7 @@
     }
     img {
       width: 8rem;
-      border-radius: 50%; 
+      border-radius: 50%;
     }
     .mdc-list-item, .mdc-list-divider {
       position: absolute;

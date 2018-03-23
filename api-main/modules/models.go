@@ -23,7 +23,7 @@ func GetModuleFromProgramModuleId(programModuleId string) (string, error) {
   _, err := mySharedRest.New().GetItem("/programs_modules").
     SetQuery(myShared.RequestRest{
     Id: "eq." + programModuleId,
-  }).End(&itemProgramModule)
+  }).EndStruct(&itemProgramModule)
 
   if err != nil {
     return fmt.Sprint(0), err
@@ -39,7 +39,7 @@ func ItemRest(req *mySharedRest.Request, id string, item *Module) (*http.Respons
     SetQuery(myShared.RequestRest{
     Id:     "eq." + id,
     Select: req.Select,
-  }).End(&item)
+  }).EndStruct(&item)
 
   if err != nil {
     return resp, err

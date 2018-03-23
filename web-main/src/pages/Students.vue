@@ -23,6 +23,11 @@
             hr.mdc-list-divider
           .wrapper
             component(:is="currentClickedStudent.is" :sid="currentClickedStudent.sid" :uid="currentClickedStudent.uid" :name="currentClickedStudent.name")
+
+    .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
+      .mdc-snackbar__text
+      .mdc-snackbar__action-wrapper
+        button.mdc-snackbar__action-button(type='button')
     tab-bottom
 </template>
 
@@ -49,6 +54,7 @@
         msg: 'Welcome to Your Vue.js PWA',
         sessions: null,
         currentAuth: null,
+        snackbar: null,
 
         currentClickedStudent: {
           sid: "0",
@@ -73,6 +79,7 @@
         }
       },
       getStudentsSessions() {
+        const _this = this;
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
         axios.get(url)
           .then(response => {
@@ -148,6 +155,43 @@
                   })
                 }
               }, j * d);
+
+              setTimeout(() => {
+                Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
+                  const hammertime = new Hammer(v, {});
+                  hammertime
+                    .on('panend', e => {
+                      const $el = e.target.closest(".mdc-list-item");
+                      let {sid, uid, name} = $el.dataset;
+                      _this.currentClickedStudent = {sid, uid, name};
+
+                      if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
+                        const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
+
+                        axios.post(url, {
+                          interaction: 0,
+                          creativity: 0,
+                          cognition: 0,
+                          review: "",
+                          status: 0,
+                        })
+                          .then(response => {
+                            _this.$bus.$emit('onAfterSubmitRateReview', response.data);
+                          })
+                          .catch(error => {
+                            console.log(error);
+                            _this.$bus.$emit('onAfterSubmitRateReview', {});
+                          });
+                      } else {
+                        $el.style.marginLeft = 0;
+                      }
+                    })
+                    .on('panleft panright', e => {
+                      e.target.closest(".mdc-list-item").style.marginLeft = `${e.deltaX}px`;
+                    })
+                    .on('tap', e => this.onClickList(e));
+                });
+              }, 1500);
             });
 //            }
           })
@@ -157,46 +201,37 @@
       }
     },
     mounted() {
+      const _this = this;
+      this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.$bus.$on('currentAuth', (auth) => {
+        if (!!this.currentAuth) {
+          return;
+        }
         this.currentAuth = auth;
         this.getStudentsSessions();
-        setTimeout(() => {
-          Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
-            var hammertime = new Hammer(v, {});
-            hammertime
-              .on('panend', e => {
-                const $el = e.target.closest(".mdc-list-item");
-                if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
-                  const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
-
-                  axios.post(url, {
-                    interaction: 0,
-                    creativity: 0,
-                    cognition: 0,
-                    review: "",
-                    status: false,
-                  })
-                    .then(response => {
-                      this.$bus.$emit('onAfterSubmitRateReview', response.data);
-                    })
-                    .catch(error => console.log(error));
-                } else {
-                  $el.style.marginLeft = 0;
-                }
-              })
-              .on('panleft panright', e => {
-                e.target.closest(".mdc-list-item").style.marginLeft = `${e.deltaX}px`;
-              })
-              .on('tap', e => this.onClickList(e));
-          });
-        }, 1500);
-
       });
       this.$bus.$on('onAfterSubmitRateReview', (resp) => {
-        this.currentClickedStudent = {sid: "0", uid: "0", name: "", is: "empty"};
         Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => v.style.marginLeft = 0);
+//        console.log(resp, this.currentClickedStudent);
+        let {sid, uid, name} = this.currentClickedStudent;
+        this.currentClickedStudent = {sid: "0", uid: "0", name: "...", is: "empty"};
+        this.snackbar.show({
+          message: `${name.split(" ")[0].toUpperCase()} has been saved`,
+          actionText: 'Undo',
+          actionHandler: function () {
+            const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
+
+            axios.delete(url)
+              .then(response => {
+                _this.getStudentsSessions();
+              })
+              .catch(error => console.log(error));
+          }
+        });
         this.getStudentsSessions();
       });
+
+      window.mdc.autoInit();
     }
   }
 </script>
@@ -220,7 +255,7 @@
     top: 50%;
     transform: translateY(-70%);
     width: 100%;
-    p{
+    p {
       text-align: center;
       margin: .75rem 0;
     }

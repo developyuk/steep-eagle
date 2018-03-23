@@ -30,6 +30,7 @@ GRANT SELECT
 	TO tutor;
 
 GRANT INSERT
+  ,DELETE
 	ON TABLE sessions
 		,sessions_tutors
 		,sessions_logins

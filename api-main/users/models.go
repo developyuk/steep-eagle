@@ -56,7 +56,7 @@ func ItemRest(req *mySharedRest.Request, role string, id string, item *User) (*h
 
   resp, err := rest.SetQuery(myShared.RequestRest{
     Id: "eq." + id,
-  }).End(&item)
+  }).EndStruct(&item)
   if err != nil {
     return resp, err
   }
@@ -78,7 +78,7 @@ func itemByUsername(param *UserLoginRequest) (User, error) {
   if _, err := mySharedRest.New().GetItem("/_users_profile").
     SetQuery(myShared.RequestRest{Select: "id,username,email,role,name,photo"}).
     SetQuery("username=eq." + param.Username).
-    End(&item); err != nil {
+    EndStruct(&item); err != nil {
     return item, err
   }
 

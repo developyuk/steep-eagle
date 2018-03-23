@@ -26,7 +26,7 @@ func ItemRest(req *mySharedRest.Request, id string, item *Branch) (*http.Respons
     SetQuery(myShared.RequestRest{
     Id:     "eq." + id,
     Select: req.Select,
-  }).End(item)
+  }).EndStruct(item)
   if err != nil {
     return resp, err
   }

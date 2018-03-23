@@ -55,13 +55,13 @@ func main() {
       SetQuery(map[string]string{
       "name": "eq." + v.ProgramType,
     }).
-      End(&programType)
+      EndStruct(&programType)
     if err != nil {
       myRest.New().PostItem("/program_types").
         Send(map[string]string{
         "name": v.ProgramType,
       }).
-        End(&programType)
+        EndStruct(&programType)
     }
 
     var program Response
@@ -70,14 +70,14 @@ func main() {
       "name":    "eq." + v.Program,
       "type_id": "eq." + fmt.Sprint(programType.Id),
     }).
-      End(&program)
+      EndStruct(&program)
     if err != nil {
       myRest.New().PostItem("/programs").
         Send(map[string]string{
         "name":    v.Program,
         "type_id": fmt.Sprint(programType.Id),
       }).
-        End(&program)
+        EndStruct(&program)
     }
 
     var module Response
@@ -85,13 +85,13 @@ func main() {
       SetQuery(map[string]string{
       "name": "eq." + v.Module,
     }).
-      End(&module)
+      EndStruct(&module)
     if err != nil {
       myRest.New().PostItem("/modules").
         Send(map[string]string{
         "name": v.Module,
       }).
-        End(&module)
+        EndStruct(&module)
     }
 
     var programModule Response
@@ -100,14 +100,14 @@ func main() {
       "module_id":  "eq." + fmt.Sprint(module.Id),
       "program_id": "eq." + fmt.Sprint(program.Id),
     }).
-      End(&programModule)
+      EndStruct(&programModule)
     if err != nil {
       myRest.New().PostItem("/programs_modules").
         Send(map[string]string{
         "module_id":  fmt.Sprint(module.Id),
         "program_id": fmt.Sprint(program.Id),
       }).
-        End(&programModule)
+        EndStruct(&programModule)
     }
 
     var branch Response
@@ -115,13 +115,13 @@ func main() {
       SetQuery(map[string]string{
       "name": "eq." + v.Branch,
     }).
-      End(&branch)
+      EndStruct(&branch)
     if err != nil {
       myRest.New().PostItem("/branches").
         Send(map[string]string{
         "name": v.Branch,
       }).
-        End(&branch)
+        EndStruct(&branch)
     }
 
     var tutor Response
@@ -131,7 +131,7 @@ func main() {
       "email":    "eq." + v.Tutor.Email,
       "role":     "eq." + "tutor",
     }).
-      End(&tutor)
+      EndStruct(&tutor)
     if err != nil {
       myRest.New().PostItem("/users").
         Send(map[string]string{
@@ -139,7 +139,7 @@ func main() {
         "email":    v.Tutor.Email,
         "role":     "tutor",
       }).
-        End(&tutor)
+        EndStruct(&tutor)
     }
 
     myRest.New().GetItem("/users_profile").
@@ -147,14 +147,14 @@ func main() {
       "name":    "eq." + v.Tutor.UserName,
       "user_id": "eq." + fmt.Sprint(tutor.Id),
     }).
-      End(&res)
+      EndStruct(&res)
     if err != nil {
       myRest.New().PostItem("/users_profile").
         Send(map[string]string{
         "name":    v.Tutor.UserName,
         "user_id": fmt.Sprint(tutor.Id),
       }).
-        End(&res)
+        EndStruct(&res)
     }
 
     var class Response
@@ -167,7 +167,7 @@ func main() {
       "branch_id": "eq." + fmt.Sprint(branch.Id),
       "tutor_id":  "eq." + fmt.Sprint(tutor.Id),
     }).
-      End(&class)
+      EndStruct(&class)
     if err != nil {
       myRest.New().PostItem("/classes").
         Send(map[string]string{
@@ -178,7 +178,7 @@ func main() {
         "branch_id": fmt.Sprint(branch.Id),
         "tutor_id":  fmt.Sprint(tutor.Id),
       }).
-        End(&class)
+        EndStruct(&class)
     }
 
     var student Response
@@ -187,7 +187,7 @@ func main() {
       "username": "eq." + v.Student.Name,
       "role":     "eq." + "student",
     }).
-      End(&student)
+      EndStruct(&student)
     if err != nil {
       spew.Dump(v.Student.Name)
       myRest.New().PostItem("/users").
@@ -195,7 +195,7 @@ func main() {
         "username": v.Student.Name,
         "role":     "student",
       }).
-        End(&student)
+        EndStruct(&student)
     }
 
     _, err = myRest.New().GetItem("/class_students").
@@ -203,14 +203,14 @@ func main() {
       "class_id":   "eq." + fmt.Sprint(class.Id),
       "student_id": "eq." + fmt.Sprint(student.Id),
     }).
-      End(&res)
+      EndStruct(&res)
     if err != nil {
       myRest.New().PostItem("/class_students").
         Send(map[string]string{
         "class_id":   fmt.Sprint(class.Id),
         "student_id": fmt.Sprint(student.Id),
       }).
-        End(&res)
+        EndStruct(&res)
     }
 
     _, err = myRest.New().GetItem("/users_profile").
@@ -218,14 +218,14 @@ func main() {
       "name":    "eq." + v.Student.Name,
       "user_id": "eq." + fmt.Sprint(student.Id),
     }).
-      End(&res)
+      EndStruct(&res)
     if err != nil {
       _, err = myRest.New().PostItem("/users_profile").
         Send(map[string]string{
         "name":    v.Student.Name,
         "user_id": fmt.Sprint(student.Id),
       }).
-        End(&res)
+        EndStruct(&res)
     }
   }
 }

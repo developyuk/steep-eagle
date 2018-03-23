@@ -1,18 +1,19 @@
 -- truncate all table
 --SELECT 'TRUNCATE ' || table_name || ' CASCADE;' FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
 --
---TRUNCATE sessions_students CASCADE;
 --TRUNCATE sessions_tutors CASCADE;
 --TRUNCATE sessions CASCADE;
+--TRUNCATE sessions_logins CASCADE;
+--TRUNCATE sessions_students CASCADE;
 --TRUNCATE class_students CASCADE;
 --TRUNCATE classes CASCADE;
 --TRUNCATE programs_modules CASCADE;
---TRUNCATE branches CASCADE;
 --TRUNCATE users CASCADE;
+--TRUNCATE branches CASCADE;
 --TRUNCATE programs CASCADE;
---TRUNCATE users_profile CASCADE;
---TRUNCATE modules CASCADE;
 --TRUNCATE program_types CASCADE;
+--TRUNCATE modules CASCADE;
+--TRUNCATE users_profile CASCADE;
 
 -- fixing sequence
 --SELECT 'SELECT SETVAL(' ||

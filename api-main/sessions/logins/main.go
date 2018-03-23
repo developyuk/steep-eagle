@@ -20,7 +20,7 @@ func Create(id uint64) {
     SetQuery("user_id=eq." + fmt.Sprint(id)).
     SetQuery("status=eq.true").
     SetQuery("order=created_at.desc").
-    End(&item); err != nil {
+    EndStruct(&item); err != nil {
 
     mySharedRest.New().PostItem(PATH).
       Send(map[string]string{

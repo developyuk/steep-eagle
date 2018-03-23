@@ -19,7 +19,7 @@ func List(c echo.Context) error {
   }
 
   var list []User
-  if resp, err := rest.End(&list); err != nil {
+  if resp, err := rest.EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 

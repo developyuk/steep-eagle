@@ -16,7 +16,7 @@ import (
 func List(c echo.Context) error {
   var list []Session
   rest := mySharedRest.New().GetItems(myShared.PathSessions)
-  if resp, err := rest.End(&list); err != nil {
+  if resp, err := rest.EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
@@ -44,7 +44,7 @@ func ListByTutorId(c echo.Context) error {
 
   if resp, err := rest.
   SetQuery(params).
-    End(&list); err != nil {
+    EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
@@ -127,7 +127,7 @@ func ListByClassId(c echo.Context) error {
 
   if resp, err := rest.
   SetQuery(params).
-    End(&list); err != nil {
+    EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
@@ -148,7 +148,7 @@ func Item(c echo.Context) error {
 
   if resp, err := mySharedRest.New().GetItem(myShared.PathSessions).
     SetQuery("id=eq." + c.Param("id")).
-    End(&item); err != nil {
+    EndStruct(&item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
   item.Links = ItemLinks(item)
@@ -156,31 +156,31 @@ func Item(c echo.Context) error {
 
   return c.JSON(http.StatusOK, item)
 }
+func Delete(c echo.Context) error {
+  if resp, err := mySharedRest.New().DeleteItem("/sessions_tutors").
+    SetQuery("session_id=eq." + c.Param("id")).
+    SetQuery("tutor_id=eq." + fmt.Sprint(myJwt.CurrentAuth.Id)).
+    End(); err != nil {
+    return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
+  }
+  if _, err := mySharedRest.New().DeleteItem(myShared.PathSessions).
+    SetQuery("id=eq." + c.Param("id")).
+    End(); err != nil {
+    //return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
+  }
+  return c.JSON(http.StatusOK, myShared.CreateResponse(""))
+}
 
-//func ItemStudentsBySessionId(c echo.Context) error {
-//  id := c.Param("id")
-//  sid := c.Param("sid")
-//
-//  var item SessionStudent
-//  resp, err := mySharedRest.GetItem(map[string]interface{}{
-//    "data": &item,
-//    "path": "/sessions_students",
-//    "query": map[string]string{
-//      "session_id": "eq." + id,
-//      "student_id": "eq." + sid,
-//    },
-//  })
-//  if err != nil {
-//    return c.JSON(resp.StatusCode, myShared.Response{
-//      Message: err.Error(),
-//    })
-//  }
-//
-//  item.Links = myShared.LinksSelf{Self: myShared.CreateHref(myShared.PathSessions + "/" + id + myShared.PathStudents + "/" + sid)}
-//
-//  return c.JSON(http.StatusOK, item)
-//}
-//
+func DeleteByStudentId(c echo.Context) error {
+  if _, err := mySharedRest.New().DeleteItem("/sessions_students").
+    SetQuery("session_id=eq." + c.Param("id")).
+    SetQuery("student_id=eq." + c.Param("sid")).
+    SetQuery("tutor_id=eq." + fmt.Sprint(myJwt.CurrentAuth.Id)).
+    End(); err != nil {
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
+  }
+  return c.JSON(http.StatusOK, myShared.CreateResponse(""))
+}
 func CreateByStudentId(c echo.Context) error {
   data := make(map[string]interface{});
   if err := c.Bind(&data); err != nil {
@@ -196,11 +196,11 @@ func CreateByStudentId(c echo.Context) error {
     "rating_cognition":   fmt.Sprint(data["cognition"]),
     "rating_creativity":  fmt.Sprint(data["creativity"]),
     "rating_interaction": fmt.Sprint(data["interaction"]),
-    "status":             fmt.Sprint(data["status"].(bool)),
-  }).End(&item); err != nil {
+    "status":             fmt.Sprint(data["status"]),
+  }).EndStruct(&item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
-  return c.JSON(http.StatusOK, myShared.CreateResponse(""))
+  return c.JSON(http.StatusOK, item)
 }
 
 func CreateByClassId(c echo.Context) error {
@@ -210,23 +210,23 @@ func CreateByClassId(c echo.Context) error {
     SetQuery("class_id=" + "eq." + c.Param("id")).
     SetQuery("tutor_id=" + "eq." + fmt.Sprint(myJwt.CurrentAuth.Id)).
     SetQuery("created_at=gte." + time.Now().Format("2006-01-02")).
-    End(&itemSessions)
+    EndStruct(&itemSessions)
   if err != nil {
     if _, err := mySharedRest.New().GetItem(myShared.PathSessions).
       SetQuery("class_id=" + "eq." + c.Param("id")).
       SetQuery("created_at=gte." + time.Now().Format("2006-01-02")).
-      End(&itemSessions); err != nil {
+      EndStruct(&itemSessions); err != nil {
 
       if resp, err := mySharedRest.New().PostItem(myShared.PathSessions).
         Send("class_id=" + c.Param("id")).
-        End(&itemSessions); err != nil {
+        EndStruct(&itemSessions); err != nil {
         return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
       }
     }
     if resp, err := mySharedRest.New().PostItem("/sessions_tutors").
       Send("session_id=" + fmt.Sprint(itemSessions.Id)).
       Send("tutor_id=" + fmt.Sprint(myJwt.CurrentAuth.Id)).
-      End(&itemSessionTutor); err != nil {
+      EndStruct(&itemSessionTutor); err != nil {
       return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
     }
   }

@@ -30,7 +30,7 @@ func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Cla
     path = "/_classes_ts_search"
   }
   rest := mySharedRest.New().GetItems(path)
-  if resp, err := rest.SetQuery(params).End(&list); err != nil {
+  if resp, err := rest.SetQuery(params).EndStruct(&list); err != nil {
     //spew.Dump(params,resp,list)
     return resp, rest, list, err
   }
@@ -127,7 +127,7 @@ func ItemRest(params map[string]string, id string, item *Class_) (*http.Response
   var resp *http.Response
   if resp, err := mySharedRest.New().GetItem("/_classes_ts").
     SetQuery("id=eq." + id).
-    End(item); err != nil {
+    EndStruct(item); err != nil {
     return resp, err
   }
 

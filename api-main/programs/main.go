@@ -14,7 +14,7 @@ func List(c echo.Context) error {
   }
   var list []Program
   rest := mySharedRest.New().GetItems(Path).ParseRequest(req)
-  if resp, err := rest.End(&list); err != nil {
+  if resp, err := rest.EndStruct(&list); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
@@ -40,7 +40,7 @@ func Item(c echo.Context) error {
 
   if resp, err := mySharedRest.New().GetItem(Path).ParseRequest(req).
     SetQuery(myShared.RequestRest{Id: "eq." + c.Param("id")}).
-    End(&item); err != nil {
+    EndStruct(&item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
   }
 
