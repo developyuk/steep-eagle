@@ -159,11 +159,12 @@ CREATE TABLE class_students (
 CREATE
 	OR replace VIEW _exports AS
 
-SELECT initcap(pt.name) program_name
+SELECT cs.class_id id
+  ,initcap(pt.name) program_name
 	,initcap(p.name) AS program
 	,upper(m.name) module
 	,initcap(b.name) branch
-	,initcap(c.day::TEXT)
+	,initcap(c.day::TEXT) as day
 	,c.start_at
 	,c.finish_at
 	,initcap(us.name) student_name
@@ -181,4 +182,28 @@ LEFT JOIN _users_profile ut ON c.tutor_id = ut.id
 	AND ut.ROLE = 'tutor'
 LEFT JOIN _users_profile us ON cs.student_id = us.id
 	AND us.ROLE = 'student'
-ORDER BY cs.class_id
+ORDER BY cs.class_id;
+
+CREATE
+	OR replace VIEW _classes_ts_search AS
+
+SELECT ct.*,a.q
+from _classes_ts ct
+join (
+	SELECT distinct on (id) id, lower(CONCAT (
+				module
+				,', '
+				,branch
+				,', '
+				,day
+				,', '
+				,start_at
+				,', '
+				,finish_at
+				,', '
+				,tutor_username
+				,', '
+				,tutor_name
+				)) q
+	FROM _exports
+	) a on ct.id = a.id;

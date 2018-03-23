@@ -1,3 +1,9 @@
+CREATE TABLE sessions_logins (
+	created_at TIMESTAMP WITH TIME zone NOT NULL DEFAULT now()
+	,status boolean NOT NULL DEFAULT false
+	,user_id INT REFERENCES users(id)
+	);
+
 CREATE TABLE sessions (
 	id bigserial PRIMARY KEY
 	,created_at TIMESTAMP WITH TIME zone NOT NULL DEFAULT now()
@@ -21,7 +27,7 @@ LEFT JOIN sessions_tutors st ON s.id = st.session_id;
 
 CREATE TABLE sessions_students (
 	created_at TIMESTAMP WITH TIME zone DEFAULT now()
-	,STATUS boolean NULL
+	,status boolean NULL
 	,feedback TEXT NULL
 	,rating_interaction SMALLINT NULL
 	,rating_cognition SMALLINT NULL

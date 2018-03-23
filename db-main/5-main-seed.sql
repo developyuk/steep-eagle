@@ -40,3 +40,42 @@
 --SELECT SETVAL('public.programs_modules_id_seq', COALESCE(MAX(id), 1) ) FROM public.programs_modules;
 --SELECT SETVAL('public.sessions_id_seq', COALESCE(MAX(id), 1) ) FROM public.sessions;
 --SELECT SETVAL('public.users_id_seq', COALESCE(MAX(id), 1) ) FROM public.users;
+
+-- set tutor_id
+--WITH myconstants (tutor_id) as (
+--   values (1)
+--)
+
+-- total kelas yang diaktifasi tutor_id=x
+--select count(*) from (
+--SELECT s_id,ts
+--FROM _stats_tutors
+--where s_tutor_id=tutor_id
+--group by s_id,ts
+--) a;
+
+-- total durasi kelas yang diaktifasi tutor_id=x
+--select sum(duration) from(
+--SELECT finish_at_ts,start_at_ts,finish_at_ts-start_at_ts duration
+--FROM _stats_tutors
+--where s_tutor_id=tutor_id
+--group by s_id,finish_at_ts,start_at_ts) a;
+
+-- total review student dari kelas yang diaktifasi tutor_id=x
+--select count(*) from (
+--SELECT feedback
+--FROM _stats_tutors
+--where s_tutor_id=tutor_id and feedback is not null
+--group by session_id,student_id,tutor_id,feedback
+--) a;
+
+-- rata2 semua rating yang diberikan pada kelas yang diaktifasi tutor_id=x
+--select round(avg(avg),2) from(
+--select (rating_interaction+rating_cognition+rating_creativity)/3.0 avg
+--from _stats_tutors
+--where s_tutor_id=tutor_id and student_id is not null
+--) a;
+
+--SELECT *
+--FROM _stats_tutors
+--where tutor_id=tutor_id

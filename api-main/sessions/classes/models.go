@@ -1,9 +1,9 @@
-package sessions
+package classes
 
 import (
-  myShared "../shared"
-  myUser "../users"
-  myClass "../classes"
+  myShared "../../shared"
+  myUser "../../users"
+  myClass "../../classes"
   "time"
   "fmt"
 )

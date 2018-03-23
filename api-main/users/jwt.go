@@ -3,6 +3,7 @@ package users
 import (
   myShared "../shared"
   myJwt "../shared/jwt"
+  mySessionsLogins "../sessions/logins"
   "github.com/dgrijalva/jwt-go"
   "github.com/labstack/echo"
   "net/http"
@@ -20,6 +21,7 @@ func Sign(c echo.Context) error {
   if err := c.Bind(p); err != nil {
     return err
   }
+  var userId uint64
 
   // Create token
   token := jwt.New(jwt.SigningMethodHS256)
@@ -29,6 +31,7 @@ func Sign(c echo.Context) error {
 
     // Set claims
     claims := token.Claims.(jwt.MapClaims)
+    userId = item.Id
     claims["id"] = item.Id
     claims["username"] = item.Username
     claims["name"] = item.Name
@@ -39,10 +42,10 @@ func Sign(c echo.Context) error {
   }
 
   // Generate encoded token and send it as response.
-
   if t, err2 := token.SignedString([]byte(myJwt.Key)); err2 != nil {
     return c.JSON(http.StatusUnauthorized, err2)
   } else {
+    mySessionsLogins.Create(userId)
     return c.JSON(http.StatusOK, map[string]string{
       "token": t,
     })
