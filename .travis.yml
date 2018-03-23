@@ -1,4 +1,21 @@
 language: node_js
+node_js:
+  - "9"
+
+cache:
+  directories:
+  - "$HOME/gcloud/"
+
+env:
+  - PATH=$PATH:$HOME/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_2648e90351f1_key -iv $encrypted_2648e90351f1_iv -in client-secret.json.enc -out client-secret.json -d
+  - if [ ! -d $HOME/google-cloud-sdk ]; then
+      curl https://sdk.cloud.google.com | bash;
+    fi
+  - ssh-keygen -q -N "" -f ~/.ssh/google_compute_engine
+  - gcloud auth activate-service-account --key-file client-secret.json
 
 install:
   - cd ./web-main
@@ -9,9 +26,9 @@ script:
   - npm run build
 
 deploy:
-  provider: gce
+  provider: gae
   skip_cleanup: true
   keyfile: client-secret.json.enc
-  project: ci-steep-eagle
+  project: dyuk-154708
   on:
     branch: master
