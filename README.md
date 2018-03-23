@@ -1,14 +1,10 @@
+
+# Steep Eagle
 [![Build Status](https://travis-ci.org/developyuk/steep-eagle.svg?branch=master)](https://travis-ci.org/developyuk/steep-eagle)
-```
-         __                                      __   
-   _____/ /____  ___  ____     ___  ____ _____ _/ /__ 
-  / ___/ __/ _ \/ _ \/ __ \   / _ \/ __ `/ __ `/ / _ \
- (__  ) /_/  __/  __/ /_/ /  /  __/ /_/ / /_/ / /  __/
-/____/\__/\___/\___/ .___/   \___/\__,_/\__, /_/\___/ 
-                  /_/                  /____/
-```
+
 _description_
-# Instalation
+
+## Instalation
 
 Clone this project with
 ```
@@ -31,9 +27,8 @@ $ cd /path/to/project
 $ ./scripts/up-dev.sh
 ```
 
-# Develop
-
-## Updating database schema
+## Develop
+### Updating database schema
 
 After updating schema.sql, you need to [remove postgres container]((https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430)) to reset database schema
 
@@ -44,8 +39,7 @@ $ docker-compose down
 $ docker container prune
 ```
 
-# Powered by
-
+## Powered by
 - [Docker](//www.docker.com/) Operating-system-level virtualization also known as containers
 - [Echo](//echo.labstack.com/) High performance, extensible, minimalist Go web framework
 - [PostgreSQL](//www.postgresql.org/) The world's most advanced open source database
