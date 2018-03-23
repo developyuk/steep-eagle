@@ -2,7 +2,10 @@
   #header
     header
       img.logo(src="static/img/logo.svg")
-      span.search(@click="comingSoon($event)") search?
+      span.search(@click="onClickSearch($event)").animated
+        i.material-icons search
+        input(type="text" name="q" v-model.trim="q" )
+        .remove(@click="onClickClearSearch($event)") x
     aside.mdc-drawer.mdc-drawer--temporary.mdc-typography
       nav.mdc-drawer__drawer
         header.mdc-drawer__header
@@ -25,28 +28,48 @@
 </template>
 
 <script>
+  import _debounce from "lodash/debounce";
+  import _throttle from "lodash/throttle";
+
   export default {
     name: 'header',
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        currentAuth: {}
+        currentAuth: {},
+        q: ''
       }
+    }, watch: {
+      q: _debounce(function (val) {
+        if (!val) {
+          const $cont = document.querySelector('.search');
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeInRight');
+          $cont.classList.add('fadeOutRight');
+          setTimeout(() => $cont.classList.remove('fadeOutRight'), 100);
+        }
+        this.$bus.$emit('onKeyupSearch', val);
+      }, 500)
     },
     methods: {
       signOut(e) {
         localStorage.removeItem('token');
         window.location.reload();
       },
-      comingSoon(e) {
-        e.target.classList.remove('animated', 'fadeIn');
-        if (e.target.innerText.toLowerCase() !== 'coming soon') {
-          e.target.innerText = 'coming soon';
-        } else {
-          e.target.innerText = 'search?';
-        }
-        e.target.classList.add('animated', 'fadeIn');
+      onClickClearSearch(e) {
+        this.q = '';
       },
+      onClickSearch(e) {
+        const $cont = e.target.closest('.search');
+        const $input = $cont.querySelector('input');
+        const $icon = $cont.querySelector('.material-icons');
+        if (!$cont.classList.contains('is-opened')) {
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeOutRight');
+          $cont.classList.add('fadeInRight');
+          setTimeout(() => $input.focus(), 500);
+        }
+      }
     },
     destroyed() {
       this.$bus.$off('currentAuth');
@@ -57,9 +80,11 @@
         drawer.open = true;
       });
       this.$bus.$on('currentAuth', (auth) => {
-        auth.photo = !!auth.photo ? auth.photo : 'https://image.flaticon.com/icons/png/128/201/201818.png';
-        auth.photo = auth.photo.replace('https://', '').replace('http://', '');
-        auth.photo = `//images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
+        auth.photo = auth.photo ? auth.photo : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
+        if (auth.photo.indexOf('data:image/gif') < 0) {
+          auth.photo = auth.photo.replace('https://', '').replace('http://', '');
+          auth.photo = `//images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
+        }
         this.currentAuth = auth;
       });
 
@@ -83,13 +108,55 @@
 
   span.search {
     color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, .5);
+    /*text-shadow: 2px 2px 4px rgba(0, 0, 0, .5);*/
     position: absolute;
-    right: 1rem;
     top: 50%;
+    width: 12.5rem;
+    left: calc(100% - 2rem);
     transform: translateY(-50%);
-    font-weight: 500;
-    text-transform: capitalize;
+    &.is-opened {
+      /*color: var(--mdc-theme-primary, #6200ee);*/
+      color: black;
+      right: 1rem;
+      left: auto;
+      top: 20%;
+      width: 12rem;
+
+      input {
+        visibility: visible;
+        width: 9rem;
+      }
+      .material-icons {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: .5rem;
+        z-index: 1;
+      }
+    }
+    .remove {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 1rem;
+      font-size: 1.25rem;
+
+    }
+    .material-icons {
+      vertical-align: middle;
+    }
+    input {
+      visibility: hidden;
+      padding: {
+        top: .5rem;
+        right: .5rem;
+        bottom: .5rem;
+        left: 2.5rem;
+      }
+      width: 8rem;
+      border: none;
+      border-radius: 1rem;
+    }
   }
 
   .mdc-drawer {
@@ -122,6 +189,7 @@
     }
     img {
       width: 8rem;
+      border-radius: 50%; 
     }
     .mdc-list-item, .mdc-list-divider {
       position: absolute;

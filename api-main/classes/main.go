@@ -24,8 +24,12 @@ type (
 func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Class_, error) {
   var list []Class_
   var resp *http.Response
-  rest := mySharedRest.New().GetItems("/_classes_ts")
-
+  path := "/_classes_ts"
+  if _, ok := params["q"]; ok {
+    //do something here
+    path = "/_classes_ts_search"
+  }
+  rest := mySharedRest.New().GetItems(path)
   if resp, err := rest.SetQuery(params).End(&list); err != nil {
     //spew.Dump(params,resp,list)
     return resp, rest, list, err
@@ -58,6 +62,9 @@ func ListGroup(c echo.Context) error {
   }
   if val := c.QueryParam("sort"); len(val) > 0 {
     params["order"] = val
+  }
+  if val := c.QueryParam("q"); len(val) > 0 {
+    params["q"] = val
   }
   _, _, list, err := list(params)
 
