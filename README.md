@@ -11,25 +11,21 @@ _description_
 # Instalation
 
 Clone this project with
-
 ```
 $ git clone https://github.com/developyuk/steep-eagle.git
 ```
-
 or download
 
 ```
 $ wget https://github.com/developyuk/steep-eagle/archive/develop.zip
 ```
 
-make sure you have install [docker compose](https://docs.docker.com/compose/install/#install-compose).
+Make sure you have install [docker compose](https://docs.docker.com/compose/install/#install-compose).
 ```
 docker -v
 docker-compose -v
-
 ```
-then
-
+then run with
 ```
 $ cd /path/to/project
 $ ./scripts/up-dev.sh
@@ -42,7 +38,6 @@ $ ./scripts/up-dev.sh
 After updating schema.sql, you need to [remove postgres container]((https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430)) to reset database schema
 
 make sure you have stop postgres container first
-
 ```
 $ cd /path/to/project
 $ docker-compose down
@@ -56,8 +51,6 @@ $ docker container prune
 - [PostgreSQL](//www.postgresql.org/) The world's most advanced open source database
 - [PostgREST](//postgrest.com/) PostgREST is a standalone web server that turns your PostgreSQL database directly into a RESTful API.
 - [Vue.js](//vuejs.org/) The Progressive JavaScript Framework
-
-
 - [Webpack](//webpack.js.org/) Open-source JavaScript module bundler
 - [Axios](//github.com/axios/axios) Promise based HTTP client for the browser and node.js
 - [Sass](//sass-lang.com/) CSS with superpowers
