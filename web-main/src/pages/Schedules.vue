@@ -2,6 +2,7 @@
   #schedules.mdc-typography
     header1
     spinner(v-if="!classes")
+    .empty(v-if="!!classes && !classes.length") class not found
     .mdc-list-group
       template(v-for="(vv,ii) in classes")
         h3.mdc-list-group__subheader
@@ -163,29 +164,34 @@
         axios.get(url, {
           params: {
             'sort': 'start_at_ts.asc',
+            'q': this.q,
           },
         })
           .then(response => {
             let classes = response.data._embedded.items;
-            classes = classes.map(v => {
-              v.items = v.items.map(v2 => {
-                v2._embedded = {
-                  module: {image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="},
-                  branch: {name: "..."},
-                  tutor: {name: "..."},
-                  last_session: {
-                    items: [
-                      {
-                        _embedded: {
-                          tutor: {name: "..."}
-                        }
-                      }]
-                  },
-                };
-                return v2
+            if (!!classes) {
+              classes = classes.map(v => {
+                v.items = v.items.map(v2 => {
+                  v2._embedded = {
+                    module: {image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="},
+                    branch: {name: "..."},
+                    tutor: {name: "..."},
+                    last_session: {
+                      items: [
+                        {
+                          _embedded: {
+                            tutor: {name: "..."}
+                          }
+                        }]
+                    },
+                  };
+                  return v2
+                });
+                return v
               });
-              return v
-            });
+            } else {
+              classes = []
+            }
             this.classes = classes;
             let j = 0;
             const d = 200;
@@ -231,8 +237,12 @@
 //      this.dialog.listen('MDCDialog:accept', () => {
 //      });
       this.getSchedules();
-      this.$bus.$on('currentAuth', (auth) => {
+      this.$bus.$on('currentAuth', auth => {
         this.currentAuth = auth;
+      });
+      this.$bus.$on('onKeyupSearch', q => {
+        this.q = `ilike.*${q}*`;
+        this.getSchedules();
       });
 
       window.mdc.autoInit();
@@ -249,6 +259,14 @@
 
   .mdc-list {
     padding: 0;
+  }
+
+  .empty {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-70%);
+    width: 100%;
   }
 
   .mdc-list-group__subheader {

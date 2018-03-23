@@ -2,7 +2,9 @@
   #header
     header
       img.logo(src="static/img/logo.svg")
-      span.search(@click="comingSoon($event)") search?
+      span.search(@click="onClickSearch($event)").animated
+        i.material-icons search
+        input(type="text" name="q" v-model.trim="q" @keyup="search($event)")
     aside.mdc-drawer.mdc-drawer--temporary.mdc-typography
       nav.mdc-drawer__drawer
         header.mdc-drawer__header
@@ -30,22 +32,36 @@
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        currentAuth: {}
+        currentAuth: {},
+        q: ''
       }
     },
     methods: {
+      search(e) {
+        this.$bus.$emit('onKeyupSearch', this.q);
+      },
       signOut(e) {
         localStorage.removeItem('token');
         window.location.reload();
       },
-      comingSoon(e) {
-        e.target.classList.remove('animated', 'fadeIn');
-        if (e.target.innerText.toLowerCase() !== 'coming soon') {
-          e.target.innerText = 'coming soon';
-        } else {
-          e.target.innerText = 'search?';
+      onClickSearch(e) {
+        const $cont = e.target.closest('.search');
+        const $input = $cont.querySelector('input');
+        const $icon = $cont.querySelector('.material-icons');
+        if (!$cont.classList.contains('is-opened')) {
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeOutRight');
+          $cont.classList.add('fadeInRight');
         }
-        e.target.classList.add('animated', 'fadeIn');
+        $input.onblur = ()=>{
+
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeInRight');
+          $cont.classList.add('fadeOutRight');
+          setTimeout(()=> $cont.classList.remove('fadeOutRight'),100);
+        };
+//        setTimeout(() => {
+//        }, 3 * 1000)
       },
     },
     destroyed() {
@@ -83,13 +99,46 @@
 
   span.search {
     color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, .5);
+    /*text-shadow: 2px 2px 4px rgba(0, 0, 0, .5);*/
     position: absolute;
-    right: 1rem;
     top: 50%;
+    width: 12.5rem;
+    left: calc(100% - 2rem);
     transform: translateY(-50%);
-    font-weight: 500;
-    text-transform: capitalize;
+    &.is-opened {
+      /*color: var(--mdc-theme-primary, #6200ee);*/
+      color: black;
+      right: 1rem;
+      left: auto;
+      top: 20%;
+      width: 11rem;
+
+      input {
+        visibility: visible;
+      }
+      .material-icons {
+        position: absolute;
+        top: 50%;
+        left: .5rem;
+        z-index: 1;
+        transform: translateY(-50%);
+      }
+    }
+    .material-icons {
+      vertical-align: middle;
+    }
+    input {
+      visibility: hidden;
+      padding: {
+        top: .5rem;
+        right: .5rem;
+        bottom: .5rem;
+        left: 2.5rem;
+      }
+      width: 8rem;
+      border: none;
+      border-radius: 1rem;
+    }
   }
 
   .mdc-drawer {
