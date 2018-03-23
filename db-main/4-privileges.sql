@@ -32,5 +32,6 @@ GRANT SELECT
 GRANT INSERT
 	ON TABLE sessions
 		,sessions_tutors
+		,sessions_logins
 		,sessions_students
 	TO tutor;
