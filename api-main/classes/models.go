@@ -48,7 +48,7 @@ func ItemLinks(data *Class_) Links {
   links.Module = myShared.CreateHref(myModule.Path + "/" + moduleId)
   links.Branch = myShared.CreateHref(myBranch.Path + "/" + fmt.Sprint(data.BranchId))
   links.Tutor = myShared.CreateHref(myUser.PathTutors + "/" + fmt.Sprint(data.TutorId))
-  today := time.Now().Format("2006-01-02")
+  today := time.Now().Format("2006-01-02T15:04:05")
   links.LastSession = myShared.CreateHref(Path + "/" + fmt.Sprint(data.Id) + "/sessions?sort=created_at.desc&created_at=gte." + today)
   return links
 }

@@ -1,11 +1,11 @@
-package sessions
+package classes
 
 import (
-  myShared "../shared"
-  mySharedRest "../shared/rest"
-  myUser "../users"
-  myClass "../classes"
-  myJwt "../shared/jwt"
+  myShared "../../shared"
+  mySharedRest "../../shared/rest"
+  myUser "../../users"
+  myClass "../../classes"
+  myJwt "../../shared/jwt"
   "github.com/labstack/echo"
   "net/http"
   "fmt"
