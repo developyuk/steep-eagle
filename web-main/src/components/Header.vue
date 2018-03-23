@@ -4,7 +4,8 @@
       img.logo(src="static/img/logo.svg")
       span.search(@click="onClickSearch($event)").animated
         i.material-icons search
-        input(type="text" name="q" v-model.trim="q" @keyup="search($event)")
+        input(type="text" name="q" v-model.trim="q" )
+        .remove(@click="onClickClearSearch($event)") x
     aside.mdc-drawer.mdc-drawer--temporary.mdc-typography
       nav.mdc-drawer__drawer
         header.mdc-drawer__header
@@ -27,6 +28,9 @@
 </template>
 
 <script>
+  import _debounce from "lodash/debounce";
+  import _throttle from "lodash/throttle";
+
   export default {
     name: 'header',
     data() {
@@ -35,14 +39,25 @@
         currentAuth: {},
         q: ''
       }
+    }, watch: {
+      q: _debounce(function (val) {
+        if (!val) {
+          const $cont = document.querySelector('.search');
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeInRight');
+          $cont.classList.add('fadeOutRight');
+          setTimeout(() => $cont.classList.remove('fadeOutRight'), 100);
+        }
+        this.$bus.$emit('onKeyupSearch', val);
+      }, 500)
     },
     methods: {
-      search(e) {
-        this.$bus.$emit('onKeyupSearch', this.q);
-      },
       signOut(e) {
         localStorage.removeItem('token');
         window.location.reload();
+      },
+      onClickClearSearch(e) {
+        this.q = '';
       },
       onClickSearch(e) {
         const $cont = e.target.closest('.search');
@@ -52,17 +67,9 @@
           $cont.classList.toggle('is-opened');
           $cont.classList.remove('fadeOutRight');
           $cont.classList.add('fadeInRight');
+          setTimeout(() => $input.focus(), 500);
         }
-        $input.onblur = ()=>{
-
-          $cont.classList.toggle('is-opened');
-          $cont.classList.remove('fadeInRight');
-          $cont.classList.add('fadeOutRight');
-          setTimeout(()=> $cont.classList.remove('fadeOutRight'),100);
-        };
-//        setTimeout(() => {
-//        }, 3 * 1000)
-      },
+      }
     },
     destroyed() {
       this.$bus.$off('currentAuth');
@@ -111,18 +118,27 @@
       right: 1rem;
       left: auto;
       top: 20%;
-      width: 11rem;
+      width: 12rem;
 
       input {
         visibility: visible;
+        width: 9rem;
       }
       .material-icons {
         position: absolute;
         top: 50%;
+        transform: translateY(-50%);
         left: .5rem;
         z-index: 1;
-        transform: translateY(-50%);
       }
+    }
+    .remove {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 1rem;
+      font-size: 1.25rem;
+
     }
     .material-icons {
       vertical-align: middle;
