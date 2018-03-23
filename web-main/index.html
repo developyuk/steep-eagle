@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <title>M by codingcamp.id</title>
+
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="classbro">
+
+    <% for (var chunk of webpack.chunks) {
+        for (var file of chunk.files) {
+          if (file.match(/\.(js|css)$/)) { %>
+    <link rel="<%= chunk.initial?'preload':'prefetch' %>" href="<%= htmlWebpackPlugin.files.publicPath + file %>" as="<%= file.match(/\.css$/)?'style':'script' %>"><% }}} %>
+
+    <link rel="apple-touch-icon" sizes="57x57" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/apple-touch-icon-57x57.png?v=00Q3O3wRj9">
+    <link rel="apple-touch-icon" sizes="60x60" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/apple-touch-icon-60x60.png?v=00Q3O3wRj9">
+    <link rel="apple-touch-icon" sizes="72x72" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/apple-touch-icon-72x72.png?v=00Q3O3wRj9">
+    <link rel="apple-touch-icon" sizes="76x76" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/apple-touch-icon-76x76.png?v=00Q3O3wRj9">
+    <link rel="apple-touch-icon" sizes="114x114" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/apple-touch-icon-114x114.png?v=00Q3O3wRj9">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/favicon-32x32.png?v=00Q3O3wRj9">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/favicon-16x16.png?v=00Q3O3wRj9">
+    <link rel="manifest" href="<%= htmlWebpackPlugin.files.publicPath %>static/site.webmanifest?v=00Q3O3wRj9">
+    <link rel="mask-icon" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/safari-pinned-tab.svg?v=00Q3O3wRj9" color="#ed235c">
+    <link rel="shortcut icon" href="/static/img/icons/favicon.ico?v=00Q3O3wRj9">
+    <meta name="msapplication-TileColor" content="#ed235c">
+    <meta name="msapplication-config" content="<%= htmlWebpackPlugin.files.publicPath %>static/browserconfig.xml?v=00Q3O3wRj9">
+    <meta name="theme-color" content="#ffffff">
+
+  </head>
+  <body>
+    <noscript>
+      This is your fallback content in case JavaScript fails to load.
+    </noscript>
+    <div id="app"></div>
+    <!-- Todo: only include in production -->
+    <%= htmlWebpackPlugin.options.serviceWorkerLoader %>
+    <!-- built files will be auto injected -->
+
+    <noscript id="deferred-styles">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
+    </noscript>
+    <script> var loadDeferredStyles = function() {var addStylesNode = document.getElementById("deferred-styles");var replacement = document.createElement("div");replacement.innerHTML = addStylesNode.textContent;document.body.appendChild(replacement);addStylesNode.parentElement.removeChild(addStylesNode);};var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); }); else window.addEventListener('load', loadDeferredStyles);</script>
+  </body>
+</html>

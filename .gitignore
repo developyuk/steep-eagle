@@ -1,0 +1,5 @@
+.idea
+.env
+*.old*
+api-main/gin-bin
+api-main/main

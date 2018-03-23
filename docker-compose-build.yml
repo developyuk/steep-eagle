@@ -1,0 +1,68 @@
+version:          '2'
+services:
+  web-main:
+    build:
+      context: ./web-main
+      dockerfile: Dockerfile-build
+    working_dir:  /usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - api-main
+    links:
+      - api-main
+  api-main:
+    build:        ./api-main
+    volumes:
+       - ./api-main:/project
+    working_dir:  /project
+    ports:
+      - "81:1323"
+    restart: unless-stopped
+    environment:
+      - JWT_KEY=${JWT_KEY}
+      - DB_API=${DB_API}
+    depends_on:
+      - db-main
+    links:
+      - db-main
+    command: bash -c "go build main.go && ./main"
+    restart: unless-stopped
+  db-api:
+    image: postgrest/postgrest
+    depends_on:
+      - db-main
+    links:
+      - db-main:db
+    environment:
+      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-main:5432/${POSTGRES_DB}
+      - PGRST_DB_SCHEMA=public
+      - PGRST_DB_ANON_ROLE=anon
+      - PGRST_JWT_SECRET=${JWT_KEY}
+  varnish-db-api:
+    image: eeacms/varnish
+    depends_on:
+    - db-api
+    environment:
+      CACHE_SIZE: "1G"
+      BACKENDS: "db-api"
+      BACKENDS_PORT: "3000"
+      DNS_ENABLED: "true"
+      BACKENDS_PROBE_INTERVAL: "3s"
+      BACKENDS_PROBE_TIMEOUT: "1s"
+      BACKENDS_PROBE_WINDOW: "3"
+      BACKENDS_PROBE_THRESHOLD: "2"
+  db-main:
+    build:        ./db-main
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+  db-admin:
+    image:      adminer
+    ports:
+      - "5050:8080"
+    depends_on:
+      - db-main
+    links:
+      - db-main:db
