@@ -1,6 +1,7 @@
 language: node_js
 
 install:
+  - cd ./web-main
   - npm install
 
 script:
@@ -12,3 +13,5 @@ deploy:
   skip_cleanup: true
   keyfile: client-secret.json.enc
   project: ci-steep-eagle
+  on:
+    branch: master
