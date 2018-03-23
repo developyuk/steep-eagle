@@ -1,5 +1,6 @@
 .idea
 .env
+client-secret.json
 *.old*
 api-main/gin-bin
 api-main/main

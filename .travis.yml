@@ -1,0 +1,5 @@
+deploy:
+  provider: gce
+  skip_cleanup: true
+  keyfile: client-secret.json.enc
+  project: ci-steep-eagle
