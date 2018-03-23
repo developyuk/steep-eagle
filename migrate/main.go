@@ -174,7 +174,7 @@ func main() {
         "day":       v.Class.Day,
         "start_at":  v.Class.StartAt,
         "finish_at": v.Class.FinishAt,
-        "module_id": fmt.Sprint(programModule.Id),
+        "program_module_id": fmt.Sprint(programModule.Id),
         "branch_id": fmt.Sprint(branch.Id),
         "tutor_id":  fmt.Sprint(tutor.Id),
       }).
