@@ -7,9 +7,9 @@ services:
     working_dir:  /usr/share/nginx/html
     ports:
       - "80:80"
-  web-main:
+  web-operation:
     build:
-      context: ./web-main
+      context: ./web-operation
       dockerfile: Dockerfile-build
     working_dir:  /usr/share/nginx/html
     ports:
