@@ -68,6 +68,11 @@
           $cont.classList.remove('fadeOutRight');
           $cont.classList.add('fadeInRight');
           setTimeout(() => $input.focus(), 500);
+        } else {
+          $cont.classList.toggle('is-opened');
+          $cont.classList.remove('fadeInRight');
+          $cont.classList.add('fadeOutRight');
+          setTimeout(() => $cont.classList.remove('fadeOutRight'), 100);
         }
       }
     },
@@ -99,6 +104,7 @@
   header {
     position: relative;
     background-color: $mdc-theme-primary;
+    overflow: hidden;
   }
 
   img.logo {

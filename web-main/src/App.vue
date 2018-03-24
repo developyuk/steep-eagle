@@ -17,9 +17,6 @@
     font-family: 'Roboto', sans-serif;
   }
 
-  :root {
-    /*color: var(,rgba(0,0,0,.87));*/
-  }
 
   #app {
     background-color: #f9f9f9;

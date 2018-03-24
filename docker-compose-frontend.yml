@@ -12,6 +12,9 @@ services:
     image: node
     volumes:
        - ./web-operation:/project
+       - ./web-main/src/assets:/project/src/assets
+       - ./web-main/src/static:/project/src/static
+       - ./web-main/src/mixins:/project/src/mixins
     working_dir:  /project
     ports:
       - "82:8080"

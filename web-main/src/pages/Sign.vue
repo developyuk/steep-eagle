@@ -42,7 +42,7 @@
           .then(response => {
             localStorage.setItem('token', response.data.token);
             // console.log(this.$router);
-            this.$router.push(this.$route.query.redirect);
+            this.$router.push('/');
           })
           .catch(error => {
             console.log(error);

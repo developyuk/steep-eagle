@@ -3,32 +3,15 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
-import axios from "axios";
+
+import sharedVue from "./assets/vue";
 import * as mdc from 'material-components-web/dist/material-components-web';
+window.mdc = mdc;
+require("normalize.css/normalize.css");
 
 Vue.config.productionTip = false;
-require("normalize.css/normalize.css");
-window.mdc = mdc;
 
-router.beforeEach((to, from, next) => {
-  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-  axios
-    .get(`${process.env.API}/auth`)
-    .then(response => {
-      next();
-    })
-    .catch(error => {
-      if (to.path !== "/sign") {
-        next({
-          path: "/sign",
-          query: {
-            redirect: to.path
-          }
-        });
-      }
-      next();
-    });
-});
+router.beforeEach((to, from, next) => sharedVue.routerBeforeEach(router, to, from, next));
 
 Vue.prototype.$bus = new Vue({});
 /* eslint-disable no-new */
@@ -36,7 +19,5 @@ new Vue({
   el: "#app",
   router,
   template: "<App/>",
-  components: {
-    App
-  }
+  components: {App}
 });

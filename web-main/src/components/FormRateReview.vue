@@ -177,7 +177,7 @@
   }
 
   .absence a {
-    color: map-get($palettes, green);
+    color: map-get($palettes, orange);
     margin-bottom: 1rem;
   }
 

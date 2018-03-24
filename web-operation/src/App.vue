@@ -16,6 +16,9 @@
   @import "./assets/shared";
   @import "~material-components-web/material-components-web";
 
+  html, body {
+    font-family: 'Roboto', sans-serif;
+  }
   /* body {
     margin: 0;
   }

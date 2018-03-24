@@ -2,7 +2,7 @@
   #sign.mdc-layout-grid
     main.mdc-layout-grid__inner
       section.left.mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
-        form.login
+        form(@submit.prevent="sign").login
           img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")
 
           .mdc-form-field
@@ -25,7 +25,32 @@
     name: 'sign',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA'
+        msg: 'Welcome to Your Vue.js PWA',
+        username: ''
+      }
+    },
+    methods: {
+      sign() {
+        const url = `${process.env.API}/sign`;
+        const data = {
+          username: this.username.toLowerCase(),
+        };
+
+        axios.post(url, data)
+          .then(response => {
+            localStorage.setItem('token', response.data.token);
+            // console.log(this.$router);
+            this.$router.push(this.$route.query.redirect);
+          })
+          .catch(error => {
+            console.log(error);
+            const {status, data} = error.response;
+            if (status !== 200) {
+              this.errMsg = `${data.message}.<br/> Re-check your authentication.`;
+            } else {
+              console.log(error);
+            }
+          })
       }
     },
     mounted() {
@@ -61,8 +86,8 @@
 
       &__text {
         color: #fff;
-        font-size: 3rem;
-        font-weight: 900;
+        font-size: 2rem;
+        font-weight: 700;
       }
       /*padding: 4rem;*/
       margin: 2rem;

@@ -171,13 +171,14 @@
       },
       getSchedules(page = 1) {
         const url = `${process.env.API}/classes/group/date`;
+        const params = {
+          'sort': 'start_at_ts.asc',
+        };
+        if (!!this.q) {
+          params['q'] = this.q;
+        }
 
-        axios.get(url, {
-          params: {
-            'sort': 'start_at_ts.asc',
-            'q': this.q,
-          },
-        })
+        axios.get(url, {params})
           .then(response => {
             let classes = response.data._embedded.items;
             if (!!classes) {
@@ -209,7 +210,7 @@
 
             this.classes.forEach((v, i, a) => {
               v.items.forEach((v2, i2, a2) => {
-                j++;
+//                j++;
                 setTimeout(() => this.parseEmbedded('module', v2._links.module.href, a2[i2]['_embedded'], item => {
                   item.image = item.image ? item.image : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
                   if (item.image.indexOf('data:image/gif') < 0) {
@@ -223,7 +224,7 @@
                 setTimeout(() => this.parseEmbedded('branch', v2._links.branch.href, a2[i2]['_embedded']), j * d);
                 setTimeout(() => this.parseEmbedded('tutor', v2._links.tutor.href, a2[i2]['_embedded']), j * d);
 
-                j++;
+//                j++;
                 setTimeout(() => this.parseEmbedded('last_session', v2._links.last_session.href, a2[i2]['_embedded'], item => {
                   item.items.forEach((v3, i3, a3) => {
                     if (!a3[i3]['_embedded']) {

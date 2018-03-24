@@ -35,9 +35,7 @@ CREATE TABLE sessions_students (
 	,session_id INT REFERENCES sessions(id)
 	,student_id INT REFERENCES users(id)
 	,tutor_id INT REFERENCES users(id)
-	,UNIQUE (
-		status
-		,session_id
+	,UNIQUE (session_id
 		,student_id
 		,tutor_id
 		)
