@@ -77,6 +77,7 @@
         } else {
           this.currentClickedStudent = {sid, uid, name, is: 'form-rate-review'};
         }
+        console.log(this.currentClickedStudent);
       },
       getStudentsSessions() {
         const _this = this;
@@ -111,15 +112,14 @@
               sessions = [];
             }
             this.sessions = sessions;
-
             let j = 0;
             const d = 200;
-            const currentView = [];
+
             if (!this.sessions.length) {
               return;
             }
             this.sessions.forEach((v, i, a) => {
-              j++;
+//              j++;
               setTimeout(() => this.parseEmbedded('class', v._links.class.href, a[i]['_embedded'], (item) => {
                 if (!item['_embedded']) {
                   this.$set(item, '_embedded', {
@@ -127,14 +127,14 @@
                     branch: {name: "..."},
                   });
                 }
-                j++;
+//                j++;
                 setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), j * d);
-                j++;
+//                j++;
                 setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), j * d);
                 return item
               }), j * d);
 
-              j++;
+//              j++;
               setTimeout(() => {
                 if (!!v._embedded.items) {
 
@@ -157,6 +157,7 @@
               }, j * d);
 
               setTimeout(() => {
+                console.log('start binding list item');
                 Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
                   const hammertime = new Hammer(v, {});
                   hammertime
@@ -191,7 +192,7 @@
                     })
                     .on('tap', e => this.onClickList(e));
                 });
-              }, 1500);
+              }, 99*13);
             });
 //            }
           })
