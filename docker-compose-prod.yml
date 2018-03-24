@@ -1,23 +1,12 @@
 version:          '2'
 services:
-  web-main:
-    build:
-      context: ./web-main
-      dockerfile: Dockerfile-build
-    working_dir:  /usr/share/nginx/html
-    ports:
-      - "80:80"
-    depends_on:
-      - api-main
-    links:
-      - api-main
   api-main:
     build:        ./api-main
     volumes:
        - ./api-main:/project
     working_dir:  /project
     ports:
-      - "81:1323"
+      - "90:1323"
     restart: unless-stopped
     environment:
       - JWT_KEY=${JWT_KEY}

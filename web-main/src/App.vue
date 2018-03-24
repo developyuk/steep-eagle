@@ -10,7 +10,7 @@
 </script>
 
 <style lang="scss">
-  $mdc-theme-primary: #ED235C;
+  @import "assets/shared";
   @import "~material-components-web/material-components-web";
 
   html, body {
@@ -18,8 +18,6 @@
   }
 
   :root {
-    /*--mdc-theme-primary: #ED235C;*/
-    /*--mdc-theme-text-primary-on-background:#ED235C;*/
     /*color: var(,rgba(0,0,0,.87));*/
   }
 

@@ -1,0 +1,51 @@
+$colors: (
+  amaranth: #ED235C,
+  burnt-sienna: #EB5757,
+  sea-buckthorn: #F29E4C,
+  bright-turquoise: #1FEEB2,
+  medium-aquamarine: #6FCF97,
+  maya-blue: #56CCF2,
+  medium-orchid: #BB6BD9,
+  medium-purple: #9B51E0,
+);
+
+$palettes: (
+  red:map-get($colors, amaranth),
+  orange:map-get($colors, burnt-sienna),
+  orange-lighten1:map-get($colors, sea-buckthorn),
+  green:map-get($colors, bright-turquoise),
+  green-darken1:map-get($colors, medium-aquamarine),
+  blue:map-get($colors, maya-blue),
+  purple:map-get($colors, medium-orchid),
+  purple-darken1:map-get($colors, medium-purple),
+);
+
+$palettes: map-merge($palettes, $colors);
+$mdc-theme-primary: map-get($palettes, red);
+
+form.login {
+  .mdc-text-field, .mdc-button {
+    width: 100%;
+  }
+  .logo {
+    width: 5rem;
+
+    margin: 0 auto 4rem auto;
+    display: block;
+  }
+  .mdc-form-field {
+    display: block;
+  }
+}
+
+.powered{
+  position: absolute;
+  bottom: 1rem;
+  left:50%;
+  transform: translateX(-50%);
+  width: 12.025rem;
+  font-size: .75rem;
+  img{
+    margin: 0 .5rem;
+  }
+}

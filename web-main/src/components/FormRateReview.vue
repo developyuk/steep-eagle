@@ -105,7 +105,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  $mdc-theme-primary: #ED235C;
+  @import "../assets/shared";
+
   #form-rate-review {
     padding: 0 2rem;
     background-color: #fff;
@@ -171,12 +172,12 @@
 
   .submit button {
     width: 100%;
-    background-color: #1FEEB2;
+    background-color: map-get($palettes, green);
     margin: 1rem 0;
   }
 
   .absence a {
-    color: #EB5757;
+    color: map-get($palettes, green);
     margin-bottom: 1rem;
   }
 

@@ -94,9 +94,11 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+  @import "../assets/shared";
+
   header {
     position: relative;
-    background-color: var(--mdc-theme-primary, #6200ee);
+    background-color: $mdc-theme-primary;
   }
 
   img.logo {
@@ -176,7 +178,7 @@
       }
     }
     .mdc-drawer__content {
-      color: #9B51E0;
+      color: map-get($palettes, purple-darken1);
     }
     .content {
       position: absolute;
@@ -197,7 +199,7 @@
     }
     .mdc-list-item {
       &, .material-icons {
-        color: var(--mdc-theme-primary);
+        color: $mdc-theme-primary;
       }
       bottom: 0;
     }

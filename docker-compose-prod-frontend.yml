@@ -1,0 +1,16 @@
+version:          '2'
+services:
+  web-main:
+    build:
+      context: ./web-main
+      dockerfile: Dockerfile-build
+    working_dir:  /usr/share/nginx/html
+    ports:
+      - "80:80"
+  web-main:
+    build:
+      context: ./web-main
+      dockerfile: Dockerfile-build
+    working_dir:  /usr/share/nginx/html
+    ports:
+      - "81:80"

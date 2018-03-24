@@ -1,22 +1,12 @@
 version:          '2'
 services:
-  web-main:
-    image: node
-    volumes:
-       - ./web-main:/project
-    working_dir:  /project
-    ports:
-      - "81:8080"
-    depends_on:
-      - api-main
-    command: npm run dev
   api-main:
     build:        ./api-main
     volumes:
        - ./api-main:/project
     working_dir:  /project
     ports:
-     - "82:3000"
+     - "91:3000"
     environment:
       - JWT_KEY=${JWT_KEY}
       - DB_API=${DB_API}

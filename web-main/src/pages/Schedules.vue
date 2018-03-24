@@ -263,6 +263,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "../assets/shared";
+
   #schedules {
     position: relative;
     height: 100vh;
@@ -306,7 +308,7 @@
       float: right;
       font-size: .75rem;
       text-transform: capitalize;
-      color: #6FCF97;
+      color: map-get($palettes, green-darken1);
     }
   }
 
@@ -318,7 +320,7 @@
       position: absolute;
       right: 1rem;
       font-size: .675rem;
-      background-color: #1FEEB2;
+      background-color: map-get($palettes, green);
       width: 5rem;
       top: 1.5rem;
     }
@@ -330,7 +332,7 @@
     }
     span.ongoing, span.late-ongoing {
       text-transform: uppercase;
-      background-color: #56CCF2;
+      background-color: map-get($palettes, blue);
       color: #fff;
       line-height: 2.25rem;
       text-align: center;
@@ -358,7 +360,7 @@
     text-transform: capitalize;
     font-size: .75rem;
     &.tutor {
-      color: #BB6BD9;
+      color: map-get($palettes, purple);
       font-weight: bold;
     }
   }
@@ -368,7 +370,7 @@
   }
 
   .mdc-dialog__header {
-    background-color: var(--mdc-theme-primary);
+    background-color: $mdc-theme-primary;
   }
 
 </style>

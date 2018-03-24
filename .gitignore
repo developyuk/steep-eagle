@@ -2,6 +2,7 @@
 .env
 client-secret.json
 *.old*
+*-lock.json
 api-main/gin-bin
 api-main/main
 migrate/*.csv

@@ -33,6 +33,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "../assets/shared";
+
   .mdc-tab-bar {
     position: absolute;
     bottom: 0;
@@ -43,10 +45,11 @@
   }
 
   .mdc-tab--active, .mdc-tab--active .mdc-tab__icon {
-    color: #ED235C;
+    color: $mdc-theme-primary;
   }
+
   .mdc-tab {
-    padding:0 2rem;
+    padding: 0 2rem;
   }
 
   .mdc-tab__icon {

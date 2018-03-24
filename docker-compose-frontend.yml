@@ -1,0 +1,18 @@
+version:          '2'
+services:
+  web-main:
+    image: node
+    volumes:
+       - ./web-main:/project
+    working_dir:  /project
+    ports:
+      - "81:8080"
+    command: npm run dev
+  web-operation:
+    image: node
+    volumes:
+       - ./web-operation:/project
+    working_dir:  /project
+    ports:
+      - "82:8080"
+    command: npm run dev

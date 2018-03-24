@@ -238,6 +238,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "../assets/shared";
   @import "@material/animation/functions";
 
   #students {
@@ -261,13 +262,13 @@
     }
     .mdc-button {
       font-size: .675rem;
-      background-color: #1FEEB2;
+      background-color: map-get($palettes, green);
       width: 5rem;
     }
   }
 
   .mdc-list {
-    background-color: #F29E4C;
+    background-color: map-get($palettes, orange-lighten1);
   }
 
   .mdc-list-item {

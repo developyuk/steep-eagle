@@ -4,9 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from "axios";
-// require("material-components-web/dist/material-components-web.min.js");
 import * as mdc from 'material-components-web/dist/material-components-web';
-// import EventBus from './event-bus.js';
 
 Vue.config.productionTip = false;
 require("normalize.css/normalize.css");
@@ -29,6 +27,8 @@ router.beforeEach((to, from, next) => {
       setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 8);
       setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 13);
       setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 21);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 34);
+      setTimeout(() => router.app.$bus.$emit('currentAuth', response.data), 99 * 55);
     })
     .catch(error => {
       // console.log(error.response, to.path);

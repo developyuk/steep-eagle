@@ -1,6 +1,6 @@
 <template lang="pug">
   #sign.mdc-typography
-    form(@submit.prevent="sign")
+    form(@submit.prevent="sign").login
       img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")
       .mdc-form-field
         .mdc-text-field(data-mdc-auto-init="MDCTextField")
@@ -29,7 +29,6 @@
       }
     },
     mounted() {
-//      Array.from(document.querySelectorAll('.mdc-text-field')).forEach(v => MDCRipple.attachTo(v));
       window.mdc.autoInit();
     },
     methods: {
@@ -61,19 +60,10 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  /*@import '~@material/textfield/mdc-text-field';*/
-  /*@import '~@material/button/mdc-button';*/
   #sign {
   }
 
-  .logo {
-    width: 5rem;
-
-    margin: 0 auto 4rem auto;
-    display: block;
-  }
-
-  form {
+  form.login {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -85,24 +75,4 @@
   button {
     margin-top: 2rem;
   }
-  .powered{
-    position: absolute;
-    bottom: 1rem;
-    left:50%;
-    transform: translateX(-50%);
-    width: 12.025rem;
-    font-size: .75rem;
-    img{
-      margin: 0 .5rem;
-    }
-  }
-
-  .mdc-form-field {
-    display: block;
-  }
-
-  .mdc-text-field, .mdc-button {
-    width: 100%;
-  }
-
 </style>
