@@ -1,6 +1,6 @@
 {
-    "name": "Classbro",
-    "short_name": "Classbro",
+    "name": "M by codingcamp.id",
+    "short_name": "M",
     "icons": [
         {
             "src": "/static/img/icons/android-chrome-36x36.png?v=00Q3O3wRj9",
@@ -23,7 +23,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
+    "theme_color": "#ed235c",
     "background_color": "#ffffff",
     "display": "standalone"
 }
