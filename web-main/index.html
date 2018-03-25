@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="M by codingcamp.id">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
     <% for (var chunk of webpack.chunks) {
         for (var file of chunk.files) {
           if (file.match(/\.(js|css)$/)) { %>
@@ -43,7 +44,6 @@
     <noscript id="deferred-styles">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
     </noscript>
     <script> var loadDeferredStyles = function() {var addStylesNode = document.getElementById("deferred-styles");var replacement = document.createElement("div");replacement.innerHTML = addStylesNode.textContent;document.body.appendChild(replacement);addStylesNode.parentElement.removeChild(addStylesNode);};var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); }); else window.addEventListener('load', loadDeferredStyles);</script>
   </body>

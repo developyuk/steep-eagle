@@ -15,7 +15,7 @@ export default new Router({
     {
       path: '/students',
       name: 'Students',
-      component: () => import('@/pages/Students'),
+      component: () => import('@/pages/Students/Students'),
       meta: {requiresAuth: true}
     },
     {

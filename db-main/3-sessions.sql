@@ -58,29 +58,40 @@ WHERE sst.created_at > (now() - '12:00:00'::interval) AND cs.student_id NOT IN (
 CREATE
 	OR replace VIEW _stats_tutors AS
 
-SELECT a.ts
-	,c.id
-	,(a.ts::DATE::TEXT || ' ' || c.start_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' start_at_ts
-	,(a.ts::DATE::TEXT || ' ' || c.finish_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' finish_at_ts
-	,cs.class_id cs_class_id
-	,cs.student_id cs_student_id
-	,_st.id s_id
-	,_st.created_at s_created_at
-	,_st.class_id s_class_id
-	,_st.tutor_id s_tutor_id
-	,ss.*
+SELECT b.*
+	,_st.id _st_id
+	,_st.created_at _st_created_at
+	,_st.tutor_id _st_tutor_id
+	,ss.created_at
+	,ss.STATUS
+	,ss.feedback
+	,ss.rating_interaction
+	,ss.rating_cognition
+	,ss.rating_creativity
 FROM (
-	SELECT ts
-	FROM generate_series((
-				SELECT min(created_at)::DATE
-				FROM sessions
-				), now()::DATE, '1 day') g(ts)
-	) a
-INNER JOIN classes c ON c.day::TEXT = to_char(a.ts, 'fmday')
-INNER JOIN class_students cs ON cs.class_id = c.id
-LEFT JOIN _sessions_tutors _st ON c.id = _st.class_id
-	AND a.ts::DATE = _st.created_at::DATE
-LEFT JOIN sessions_students ss ON _st.tutor_id = ss.tutor_id
-	AND _st.id = ss.session_id
-	AND cs.student_id = ss.student_id
-ORDER BY start_at_ts ASC
+	SELECT a.ts::DATE
+		,c.id
+		,c.tutor_id
+		,(a.ts::DATE::TEXT || ' ' || c.start_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' start_at_ts
+		,(a.ts::DATE::TEXT || ' ' || c.finish_at || ':00')::TIMESTAMP at TIME zone 'asia/jakarta' finish_at_ts
+		,cs.student_id
+	FROM (
+		SELECT ts
+		FROM generate_series((
+					SELECT min(created_at)::DATE
+					FROM sessions
+					), now()::DATE, '1 day') g(ts)
+		) a
+	INNER JOIN classes c ON c.day::TEXT = to_char(a.ts, 'fmday')
+	INNER JOIN class_students cs ON cs.class_id = c.id
+	ORDER BY start_at_ts DESC
+	) b
+LEFT JOIN _sessions_tutors _st ON b.id = _st.class_id
+	AND _st.created_at > b.start_at_ts + interval '5 minutes'
+	AND _st.created_at < b.finish_at_ts + interval '2 hours'
+LEFT JOIN sessions_students ss ON _st.id = ss.session_id
+	AND b.student_id = ss.student_id
+	AND _st.tutor_id = ss.tutor_id
+WHERE b.ts >= '2018-03-24'::DATE
+ORDER BY b.start_at_ts DESC
+	,_st.id DESC

@@ -28,7 +28,7 @@
             span.late-ongoing(v-if="buttonStatus(v)==='late-ongoing'") activated
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
-      .mdc-dialog__surface
+      form(@submit.prevent="checkPin($event)").mdc-dialog__surface
         header.mdc-dialog__header
           h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
         section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{thisClass._embedded.module.name.toUpperCase()}}.
@@ -37,7 +37,7 @@
           .errMsg(v-if="errMsg") {{errMsg}}
         footer.mdc-dialog__footer
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
-          button.mdc-button.mdc-dialog__footer__button(type='button' @click="checkPin($event)") Yes
+          button.mdc-button.mdc-dialog__footer__button(type='button') Yes
       .mdc-dialog__backdrop
 
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
@@ -315,8 +315,10 @@
 
   $size: 3rem;
   .mdc-list-item {
-    height: $size+2rem;
+    height: $size+3rem;
     border-bottom: thin solid rgba(0, 0, 0, .12);
+    /*box-sizing: content-box;*/
+    padding: 0;
     .mdc-button, span.ongoing, span.late-ongoing {
       position: absolute;
       right: 1rem;
@@ -341,7 +343,7 @@
   }
 
   .mdc-list-item__graphic {
-    /*overflow: hidden;*/
+    margin-left: 1rem;
     width: 64px;
     height: 64px;
     img {

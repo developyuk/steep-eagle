@@ -16,14 +16,8 @@
           span.day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
         ul.mdc-list
           template(v-for="(vv,ii) in v._embedded.items")
-            li.mdc-list-item(:data-sid="vv.id" :data-uid="vv._embedded.student.id" :data-name="vv._embedded.student.name")
-              .mdc-list-item__graphic
-                img(':src'="vv._embedded.student.photo")
-              span.mdc-list-item__text {{vv._embedded.student.name}}
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="vv.id" :student="vv._embedded.student" :isActive="vv.isActive")
             hr.mdc-list-divider
-          .wrapper
-            component(:is="currentClickedStudent.is" :sid="currentClickedStudent.sid" :uid="currentClickedStudent.uid" :name="currentClickedStudent.name")
-
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
       .mdc-snackbar__text
       .mdc-snackbar__action-wrapper
@@ -35,9 +29,10 @@
   import axios from 'axios';
   import moment from 'moment';
   import Hammer from 'hammerjs';
-  import mixinHal from '../mixins/hal';
-  import mixinDom from '../mixins/dom';
+  import mixinHal from '../../mixins/hal';
+  import mixinDom from '../../mixins/dom';
   import _isEqual from 'lodash/isEqual';
+  import _cloneDeep from 'lodash/cloneDeep';
 
   export default {
     name: 'students',
@@ -46,8 +41,7 @@
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
       'header1': () => import('@/components/Header'),
-      'form-rate-review': () => import('@/components/FormRateReview'),
-      'empty': () => import('@/components/Empty')
+      'card': () => import('./Card')
     },
     data() {
       return {
@@ -65,22 +59,7 @@
       }
     },
     methods: {
-      onClickList(e) {
-        const $el = e.target.closest('.mdc-list-item');
-        let {sid, uid, name} = $el.dataset;
-        let {sid: currentSid, uid: currentUid, name: currentName} = this.currentClickedStudent;
-
-        const $formWrapper = $el.closest(".mdc-list").querySelector(".wrapper");
-        this.insertAfter($formWrapper, $el.nextSibling);
-        if (_isEqual({sid: currentSid, uid: currentUid, name: currentName}, {sid, uid, name})) {
-          this.currentClickedStudent = {sid: "0", uid: "0", name: "", is: "empty"};
-        } else {
-          this.currentClickedStudent = {sid, uid, name, is: 'form-rate-review'};
-        }
-        console.log(this.currentClickedStudent);
-      },
       getStudentsSessions() {
-        const _this = this;
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
         axios.get(url)
           .then(response => {
@@ -106,7 +85,6 @@
                 });
                 return v;
               });
-//              console.log(sessions);
             }
             else {
               sessions = [];
@@ -119,7 +97,6 @@
               return;
             }
             this.sessions.forEach((v, i, a) => {
-//              j++;
               setTimeout(() => this.parseEmbedded('class', v._links.class.href, a[i]['_embedded'], (item) => {
                 if (!item['_embedded']) {
                   this.$set(item, '_embedded', {
@@ -127,18 +104,15 @@
                     branch: {name: "..."},
                   });
                 }
-//                j++;
                 setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), j * d);
-//                j++;
                 setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), j * d);
                 return item
               }), j * d);
 
-//              j++;
               setTimeout(() => {
                 if (!!v._embedded.items) {
-
                   v._embedded.items.forEach((v2, i2, a2) => {
+                    this.$set(a2[i2], 'isActive', false);
                     if (!a2[i2]['_embedded']) {
                       this.$set(a2[i2], '_embedded', {});
                     }
@@ -156,49 +130,9 @@
                 }
               }, j * d);
 
-              setTimeout(() => {
-                console.log('start binding list item');
-                Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => {
-                  const hammertime = new Hammer(v, {});
-                  hammertime
-                    .on('panend', e => {
-                      const $el = e.target.closest(".mdc-list-item");
-                      let {sid, uid, name} = $el.dataset;
-                      _this.currentClickedStudent = {sid, uid, name};
-
-                      if (Math.abs(e.deltaX) > e.target.closest('.mdc-list').offsetWidth * (1 / 3)) {
-                        const url = `${process.env.API}/sessions/${$el.dataset.sid}/students/${$el.dataset.uid}`;
-
-                        axios.post(url, {
-                          interaction: 0,
-                          creativity: 0,
-                          cognition: 0,
-                          review: "",
-                          status: 0,
-                        })
-                          .then(response => {
-                            _this.$bus.$emit('onAfterSubmitRateReview', response.data);
-                          })
-                          .catch(error => {
-                            console.log(error);
-                            _this.$bus.$emit('onAfterSubmitRateReview', {});
-                          });
-                      } else {
-                        $el.style.marginLeft = 0;
-                      }
-                    })
-                    .on('panleft panright', e => {
-                      e.target.closest(".mdc-list-item").style.marginLeft = `${e.deltaX}px`;
-                    })
-                    .on('tap', e => this.onClickList(e));
-                });
-              }, 99*13);
             });
-//            }
           })
           .catch(error => console.log(error));
-
-
       }
     },
     mounted() {
@@ -210,36 +144,62 @@
         }
         this.currentAuth = auth;
         this.getStudentsSessions();
+
+        window.mdc.autoInit();
       });
-      this.$bus.$on('onAfterSubmitRateReview', (resp) => {
-        Array.from(document.querySelectorAll(".mdc-list-item")).forEach(v => v.style.marginLeft = 0);
+
+      this.$bus.$on('onTapStudent', (key) => {
+        const [i, ii] = key.split('.');
+        const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+
+        this.sessions.forEach((v, i, a) => {
+          v._embedded.items.forEach((v2, i2, a2) => {
+            this.$set(a2[i2], 'isActive', false)
+          });
+        });
+        console.log(key, i, ii, item['isActive']);
+        this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+      });
+
+      this.$bus.$on('onUndoRateReview', (v) => {
+        let {sid, uid, name, $el} = v;
+        $el.className = 'animated slideInDownHeight';
+        $el.style.marginLeft = 0;
+      });
+      this.$bus.$on('onSuccessRateReview', (v) => {
 //        console.log(resp, this.currentClickedStudent);
-        let {sid, uid, name} = this.currentClickedStudent;
-        this.currentClickedStudent = {sid: "0", uid: "0", name: "...", is: "empty"};
+        let {sid, uid, name, $el, index: key} = v;
+//        this.getStudentsSessions();
+        if (!!key) {
+          const [i, ii] = key.split('.');
+          this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
+        }
         this.snackbar.show({
           message: `${name.split(" ")[0].toUpperCase()} has been saved`,
           actionText: 'Undo',
           actionHandler: function () {
+            _this.$bus.$emit('onUndoRateReview', v);
             const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
 
             axios.delete(url)
               .then(response => {
-                _this.getStudentsSessions();
+                _this.$bus.$emit('onUndoRateReview', v);
               })
-              .catch(error => console.log(error));
+              .catch(error => {
+                console.log(error);
+                _this.$bus.$emit('onSuccessRateReview', v);
+              });
           }
         });
-        this.getStudentsSessions();
       });
 
-      window.mdc.autoInit();
     }
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  @import "../assets/shared";
+  @import "../../assets/shared";
   @import "@material/animation/functions";
 
   #students {
@@ -270,30 +230,7 @@
 
   .mdc-list {
     background-color: map-get($palettes, orange-lighten1);
-  }
-
-  .mdc-list-item {
-    padding: .5rem 1rem;
-    background-color: #fff;
-    z-index: 2;
-    max-width: 100%;
-    min-width: 90%;
-  }
-
-  .mdc-list-divider {
-    border-bottom-color: #dcdcdc;
-  }
-
-  .mdc-list-item__text {
-    text-transform: capitalize;
-  }
-
-  .mdc-list-item__graphic {
-    &, img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
+    overflow: hidden;
   }
 
   span.module {

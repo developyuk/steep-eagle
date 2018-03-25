@@ -31,10 +31,11 @@
 
 <script>
   import axios from 'axios';
+  import {getCorrectEventName} from '@material/animation';
 
   export default {
     name: 'form-rate-review',
-    props: ['sid', 'uid', 'name'],
+    props: ['sid', 'uid', 'name', 'index'],
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
@@ -67,6 +68,22 @@
         });
       },
       submit() {
+        const $el = this.$el.closest('li');
+        $el.classList.add('animated', `slideOutUpHeight`);
+        $el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
+          console.log(e);
+          if ('slideOutUpHeight' === e.animationName) {
+            this.$bus.$emit('onSuccessRateReview', {
+              $el,
+              index: this.index,
+              sid: this.sid,
+              uid: this.uid,
+              name: this.name,
+            });
+          }
+//          $el.className = '';
+//          $el.style.display = 'none';
+        });
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
         axios.post(url, {
           interaction: parseInt(this.ratingInteraction),
@@ -76,11 +93,33 @@
           status: true,
         })
           .then(response => {
-            this.$bus.$emit('onAfterSubmitRateReview', response.data);
           })
-          .catch(error => console.log(error))
+          .catch(error => {
+            this.$bus.$emit('onUndoRateReview', {
+              $el,
+              index: this.index,
+              sid: this.sid,
+              uid: this.uid,
+              name: this.name,
+            });
+            console.log(error)
+          })
       },
       absence() {
+        const $el = this.$el.closest('li');
+        $el.classList.add('animated', `slideOutUpHeight`);
+        $el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
+          console.log(e);
+          if ('slideOutUpHeight' === e.animationName) {
+            this.$bus.$emit('onSuccessRateReview', {
+              $el,
+              index: this.index,
+              sid: this.sid,
+              uid: this.uid,
+              name: this.name,
+            });
+          }
+        });
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
 
         axios.post(url, {
@@ -91,10 +130,17 @@
           status: false,
         })
           .then(response => {
-            this.$bus.$emit('onAfterSubmitRateReview', response.data);
           })
-          .catch(error => console.log(error));
-        console.log(this.sid, this.uid);
+          .catch(error => {
+            console.log(error);
+            this.$bus.$emit('onUndoRateReview', {
+              $el: $el,
+              index: this.index,
+              sid: this.sid,
+              uid: this.uid,
+              name: this.name,
+            });
+          });
       }
     },
     mounted() {
@@ -105,7 +151,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../assets/shared";
+  @import "../../assets/shared";
+  @import "../../assets/animate";
 
   #form-rate-review {
     padding: 0 2rem;
@@ -168,6 +215,8 @@
   .submit, .absence {
     width: 100%;
     text-align: center;
+    margin-bottom: 1rem;
+    display: inline-block;
   }
 
   .submit button {
@@ -178,7 +227,6 @@
 
   .absence a {
     color: map-get($palettes, orange);
-    margin-bottom: 1rem;
   }
 
   .mdc-text-field--textarea .mdc-text-field__input {

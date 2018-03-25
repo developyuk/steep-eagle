@@ -49,3 +49,21 @@ form.login {
     margin: 0 .5rem;
   }
 }
+
+.mdc-list-divider {
+  border-bottom-color: #dcdcdc;
+}
+
+.hide {
+  display: none;
+}
+.clearfix{
+  &::before,&::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+}
+.mdc-snackbar {
+  z-index: 9;
+}

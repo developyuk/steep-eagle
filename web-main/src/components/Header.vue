@@ -39,7 +39,8 @@
         currentAuth: {},
         q: ''
       }
-    }, watch: {
+    },
+    watch: {
       q: _debounce(function (val) {
         if (!val) {
           const $cont = document.querySelector('.search');

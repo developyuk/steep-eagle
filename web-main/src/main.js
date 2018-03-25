@@ -15,6 +15,7 @@ router.beforeEach((to, from, next) => sharedVue.routerBeforeEach(router, to, fro
 
 Vue.prototype.$bus = new Vue({});
 /* eslint-disable no-new */
+
 new Vue({
   el: '#app',
   router,

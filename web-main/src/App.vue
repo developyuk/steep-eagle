@@ -51,19 +51,6 @@
     padding: 0.75rem 16px;
   }
 
-  .hide {
-    display: none;
-  }
-  .clearfix{
-    &::before,&::after {
-      content: "";
-      clear: both;
-      display: table;
-    }
-  }
-  .mdc-snackbar {
-    z-index: 9;
-  }
 
   /*h1.title {*/
   /*background-color: var(--mdc-theme-primary, #6200ee);*/
