@@ -19,7 +19,7 @@
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
               span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
               span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
-            button-status(:class="v" :index="`${ii}.${i}`")
+            button-status(:class_="v" :index="`${ii}.${i}`")
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       form(@submit.prevent="checkPin($event)").mdc-dialog__surface
@@ -31,7 +31,7 @@
           .errMsg(v-if="errMsg") {{errMsg}}
         footer.mdc-dialog__footer
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
-          button.mdc-button.mdc-dialog__footer__button(type='button') Yes
+          button.mdc-button.mdc-dialog__footer__button(type='submit') Yes
       .mdc-dialog__backdrop
 
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
@@ -62,14 +62,14 @@
         classes: null,
         dialog: null,
         snackbar: null,
+        currentAuth: null,
         thisClass: {
           id: 0,
           _embedded: {
             module: {name: "..."}
           }
         },
-        thisClassSession: {},
-        currentAuth: null,
+        thisClassSession: {id: 0},
         errMsg: null,
       }
     },
@@ -77,7 +77,17 @@
       checkPin(e) {
         const _this = this;
         if (this.pin === "1234") {
-          this.activate(this.thisClass.id);
+          const url = `${process.env.API}/classes/${this.thisClass.id}/sessions`;
+
+          axios.post(url, {
+            id: this.currentAuth.id
+          })
+            .then(response => {
+              this.thisClassSession = response.data;
+              this.pin = "";
+//              this.getSchedules();
+            })
+            .catch(error => console.log(error));
 
           this.snackbar.show({
             message: `Start class ${this.thisClass._embedded.module.name.toUpperCase()}`,
@@ -87,12 +97,11 @@
 
               axios.delete(url)
                 .then(response => {
-                  _this.getSchedules();
+//                  _this.getSchedules();
                 })
                 .catch(error => console.log(error));
             }
           });
-          this.pin = "";
           this.dialog.close();
         } else {
           this.errMsg = "invalid. Check pin again!";
@@ -179,6 +188,7 @@
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getSchedules();
+
       this.$bus.$on('currentAuth', auth => {
         if (!!this.currentAuth) {
           return;
@@ -188,6 +198,11 @@
       this.$bus.$on('onKeyupSearch', q => {
         this.q = `ilike.*${q}*`;
         this.getSchedules();
+      });
+      this.$bus.$on('onStartClass', v => {
+        this.thisClass = v.class_;
+        this.dialog.lastFocusedTarget = v.e.target;
+        this.dialog.show();
       });
 
       window.mdc.autoInit();

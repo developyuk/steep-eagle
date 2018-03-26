@@ -1,12 +1,12 @@
 <template lang="pug">
   #buttonStatus
-    button(v-if="status === 'start'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'start-ongoing'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact ongoing
-    button(v-if="status === 'start-late-ongoing'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact activated
-    button(v-if="status === 'disabled'" disabled @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'late'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
-    span.ongoing(v-if="status ==='ongoing'") ongoing
-    span.late-ongoing(v-if="status ==='late-ongoing'") activated
+    button(v-if="status === 'start'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
+    button(v-if="status === 'start-ongoing'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Ongoing
+    button(v-if="status === 'start-late-ongoing'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activated
+    button(v-if="status === 'disabled'" disabled @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
+    button(v-if="status === 'late'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
+    span.ongoing(v-if="status ==='ongoing'") Ongoing
+    span.late-ongoing(v-if="status ==='late-ongoing'") Activated
 </template>
 
 <script>
@@ -14,11 +14,12 @@
 
   export default {
     name: 'buttonStatus',
-    props: ['class', 'index'],
+    props: ['class_', 'index'],
     data() {
       return {
         msg: 'Welcome to Your Vue.js PWA',
-        status: null
+        status: null,
+        currentAuth: null,
       }
     },
 //    watch: {
@@ -28,27 +29,21 @@
 //    },
     methods: {
       activate(cid) {
-        const url = `${process.env.API}/classes/${cid}/sessions`;
-
-        axios.post(url, {
-          id: this.currentAuth.id
-        })
-          .then(response => {
-            this.thisClassSession = response.data;
-            this.getSchedules();
-          })
-          .catch(error => console.log(error))
       },
-      start(e, id, ii, i) {
-        this.thisClass = this.classes[ii].items[i];
-
-        this.dialog.lastFocusedTarget = e.target;
-        this.dialog.show();
+      start(e) {
+        this.$bus.$emit('onStartClass', {e,index: this.index, class_: this.class_,});
       },
 
     },
     mounted() {
-      const class_ = this.class;
+      this.$bus.$on('currentAuth', auth => {
+        if (!!this.currentAuth) {
+          return;
+        }
+        this.currentAuth = auth;
+      });
+
+      const class_ = this.class_;
       const msts = moment(class_.start_at_ts);
       const mfts = moment(class_.finish_at_ts);
       const mnow = moment();
@@ -92,6 +87,7 @@
       }
 
       this.status = status;
+      window.mdc.autoInit();
     }
   }
 </script>
