@@ -19,13 +19,7 @@
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
               span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
               span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
-            button(v-if="buttonStatus(v) === 'start'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'start-ongoing'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact ongoing
-            button(v-if="buttonStatus(v) === 'start-late-ongoing'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact activated
-            button(v-if="buttonStatus(v) === 'disabled'" disabled @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-            button(v-if="buttonStatus(v) === 'late'" @click='start($event,v.id,ii,i)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
-            span.ongoing(v-if="buttonStatus(v)==='ongoing'") ongoing
-            span.late-ongoing(v-if="buttonStatus(v)==='late-ongoing'") activated
+            button-status(:class="v" :index="`${ii}.${i}`")
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       form(@submit.prevent="checkPin($event)").mdc-dialog__surface
@@ -49,10 +43,8 @@
 </template>
 
 <script>
-  //  import {MDCRipple} from '@material/ripple';
-  import moment from 'moment';
   import axios from 'axios';
-  import sharedHal from '../mixins/hal';
+  import sharedHal from '../../mixins/hal';
 
   export default {
     name: 'schedules',
@@ -61,6 +53,7 @@
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
       'header1': () => import('@/components/Header'),
+      'button-status': () => import('./ButtonStatus'),
     },
     data() {
       return {
@@ -81,48 +74,6 @@
       }
     },
     methods: {
-      buttonStatus(class_) {
-        const msts = moment(class_.start_at_ts);
-        const mfts = moment(class_.finish_at_ts);
-        const mnow = moment();
-        let status = 'disabled';
-        let ls = class_._embedded.last_session;
-//        console.log(class_._embedded.module.name, msts.diff(mnow, 'days') < 1);
-        if (!!ls && !!ls.items.length && !!ls.items[0].created_at
-          && msts.diff(mnow, 'days') < 1) {
-          ls = ls.items;
-          const mls = moment(ls[0].created_at);
-//          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
-//          console.log(this.currentAuth,ls[0]._embedded.tutor);
-          if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
-            && !ls.filter(v => v._embedded.tutor.id === this.currentAuth.id).length >= 1) {
-            if (mls.isBefore(mfts)) {
-              status = 'start-ongoing';
-            }
-            if (mls.isAfter(mfts)) {
-              status = 'start-late-ongoing';
-            }
-            return status;
-          } else {
-            if (mls.isBefore(mfts)) {
-              status = 'ongoing';
-            }
-            if (mls.isAfter(mfts)) {
-              status = 'late-ongoing';
-            }
-          }
-        } else {
-//        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
-          if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
-            status = 'start';
-          }
-          if (mnow.isAfter(mfts)) {
-            status = 'late';
-          }
-        }
-
-        return status;
-      },
       checkPin(e) {
         const _this = this;
         if (this.pin === "1234") {
@@ -147,24 +98,6 @@
           this.errMsg = "invalid. Check pin again!";
         }
 
-      },
-      activate(cid) {
-        const url = `${process.env.API}/classes/${cid}/sessions`;
-
-        axios.post(url, {
-          id: this.currentAuth.id
-        })
-          .then(response => {
-            this.thisClassSession = response.data;
-            this.getSchedules();
-          })
-          .catch(error => console.log(error))
-      },
-      start(e, id, ii, i) {
-        this.thisClass = this.classes[ii].items[i];
-
-        this.dialog.lastFocusedTarget = e.target;
-        this.dialog.show();
       },
       parseLastSessionTutorName(array) {
         return array.map(v => v['_embedded']['tutor'] ? v['_embedded']['tutor']['name'] : "").join(", ");
@@ -264,7 +197,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  @import "../assets/shared";
+  @import "../../assets/shared";
 
   #schedules {
     position: relative;
@@ -319,27 +252,6 @@
     border-bottom: thin solid rgba(0, 0, 0, .12);
     /*box-sizing: content-box;*/
     padding: 0;
-    .mdc-button, span.ongoing, span.late-ongoing {
-      position: absolute;
-      right: 1rem;
-      font-size: .675rem;
-      background-color: map-get($palettes, green);
-      width: 5rem;
-      top: 1.5rem;
-    }
-    .mdc-button {
-      &:disabled {
-        background-color: #999999;
-        color: #fff;
-      }
-    }
-    span.ongoing, span.late-ongoing {
-      text-transform: uppercase;
-      background-color: map-get($palettes, blue);
-      color: #fff;
-      line-height: 2.25rem;
-      text-align: center;
-    }
   }
 
   .mdc-list-item__graphic {

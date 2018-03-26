@@ -9,7 +9,7 @@ export default new Router({
     {
       path: '/',
       name: 'Schedules',
-      component: () => import('@/pages/Schedules'),
+      component: () => import('@/pages/Schedules/Schedules'),
       meta: {requiresAuth: true}
     },
     {
