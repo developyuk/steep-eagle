@@ -98,7 +98,7 @@
         return array.map(v => v['_embedded']['tutor'] ? v['_embedded']['tutor']['name'] : "").join(", ");
       },
       getSchedules(page = 1) {
-        const path = `/classes/group/date`;
+        const url = `${process.env.API}/classes/group/date`;
         const params = {
           'sort': 'start_at_ts.asc',
         };
@@ -129,7 +129,7 @@
 
         };
         const _this = this;
-        const ws = new WebSocket(`${process.env.WS}${path}`);
+        const ws = new WebSocket(`${process.env.WS}/`);
         ws.onmessage = function (e) {
           console.log(e);
           _this.currentClassSession = JSON.parse(e.data);
@@ -158,10 +158,9 @@
               }
             });
           }
-
         };
 
-        axios.get(`${process.env.API}${path}`, {params})
+        axios.get(url, {params})
           .then(response => {
             let classes = response.data._embedded.items;
             if (!!classes) {
@@ -170,7 +169,7 @@
                   v2._embedded = {
                     module: {
                       name: "...",
-//                      image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
+                      image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
                     },
                     branch: {name: "..."},
                     tutor: {name: "..."},

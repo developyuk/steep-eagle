@@ -1,5 +1,5 @@
 <template lang="pug">
-  li#card
+  li#card(:data-index="index" :data-sid="sid" :data-student="student" :data-isActive="isActive")
     .mdc-list-item
       .mdc-list-item__graphic
         img(':src'="student.photo")
@@ -48,31 +48,28 @@
           if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
             this.$el.classList.add('animated', `slideOut${this.direction}Height`);
             this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-              if (['slideOutRightHeight', 'slideOutLeftHeight'].indexOf(e.animationName) >= 0) {
+              console.log(e.animationName);
+              if (['slideOutRightHeight', 'slideOutLeftHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
                 this.$bus.$emit('onSuccessRateReview', {
-                  $el: this.$el,
                   sid: this.sid,
                   uid: this.student.id,
                   name: this.student.name
                 });
               }
             });
-            const url = `${process.env.API}/sessions/${this.sid}/students/${this.student.id}`;
+            const path = `/sessions/${this.sid}/students/${this.student.id}`;
 
-            axios.post(url, {
+            axios.post(`${process.env.API}${path}`, {
               interaction: 0,
               creativity: 0,
               cognition: 0,
               review: "",
               status: 0,
             })
-              .then(response => {
-              })
               .catch(error => {
                 console.log(error);
 
                 this.$bus.$emit('onUndoRateReview', {
-                  $el: this.$el,
                   sid: this.sid,
                   uid: this.student.id,
                   name: this.student.name
@@ -89,7 +86,11 @@
         .on('panleft', e => this.direction = 'Left')
         .on('panright', e => this.direction = 'Right')
         .on('tap', e => {
-          this.$bus.$emit('onTapStudent', this.index)
+          this.$bus.$emit('onTapStudent', {
+            sid: this.sid,
+            uid: this.student.id,
+            name: this.student.name
+          })
         });
     }
   }

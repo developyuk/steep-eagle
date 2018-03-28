@@ -16,12 +16,14 @@ type (
   }
   SessionStudent struct {
     myShared.Hal
-    Id        uint64               `json:"id"`
+    //Id        uint64               `json:"id"`
     CreatedAt time.Time            `json:"created_at"`
     Status    bool                 `json:"status"`
     Feedback  string               `json:"feedback"`
     Rating    SessionStudentRating `json:"rating"`
     StudentId uint64               `json:"student_id" `
+    SessionId uint64               `json:"session_id" `
+    TutorId   uint64               `json:"tutor_id" `
   }
 
   Session struct {

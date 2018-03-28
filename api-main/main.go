@@ -28,57 +28,67 @@ func main() {
     return c.String(http.StatusOK, "Hello, World!")
   })
   e.POST("/sign", myUsers.Sign)
-  hub := mySharedWs.NewHub()
-  go hub.Run()
-  e.GET("/ws/classes/group/:by", func(c echo.Context) error {
-    mySharedWs.ServeWs(hub, c.Response(), c.Request())
+
+  websocket := e.Group("/ws")
+  hubHome := mySharedWs.NewHub()
+  go hubHome.Run()
+  websocket.GET("/", func(c echo.Context) error {
+    mySharedWs.ClientHome, _ = mySharedWs.ServeWs(hubHome, c.Response(), c.Request())
 
     return c.String(http.StatusOK, "Hello, World!")
   })
 
-  a := e.Group("/")
-  a.Use(middleware.JWT([]byte(mySharedJwt.Key)))
-  a.Use(mySharedJwt.GetAuthMiddleware)
+  hubStudents := mySharedWs.NewHub()
+  go hubStudents.Run()
+  websocket.GET("/students", func(c echo.Context) error {
+    mySharedWs.ClientStudents, _ = mySharedWs.ServeWs(hubStudents, c.Response(), c.Request())
 
-  a.GET("auth", myUsers.Auth)
+    return c.String(http.StatusOK, "Hello, World!")
+  })
 
-  a.GET("programs/types", myProgramsTypes.List)
-  a.GET("programs/types/:id", myProgramsTypes.Item)
+  authJWT := e.Group("/")
+  authJWT.Use(middleware.JWT([]byte(mySharedJwt.Key)))
+  authJWT.Use(mySharedJwt.GetAuthMiddleware)
 
-  a.GET("programs", myPrograms.List)
-  a.GET("programs/:id", myPrograms.Item)
+  authJWT.GET("auth", myUsers.Auth)
 
-  a.GET("modules", myModules.List)
-  a.GET("modules/:id", myModules.Item)
+  authJWT.GET("programs/types", myProgramsTypes.List)
+  authJWT.GET("programs/types/:id", myProgramsTypes.Item)
 
-  a.GET("classes", myClasses.List)
-  a.GET("classes/group/:by", myClasses.ListGroup)
-  a.GET("classes/:id", myClasses.Item)
-  a.GET("classes/:id/sessions", mySessionsClasses.ListByClassId)
-  a.POST("classes/:id/sessions", mySessionsClasses.CreateByClassId)
+  authJWT.GET("programs", myPrograms.List)
+  authJWT.GET("programs/:id", myPrograms.Item)
 
-  a.GET("sessions", mySessionsClasses.List)
-  a.GET("sessions/classes", mySessionsClasses.List)
-  a.GET("sessions/:id", mySessionsClasses.Item)
-  a.DELETE("sessions/:id", mySessionsClasses.Delete)
-  a.GET("sessions/classes/:id", mySessionsClasses.Item)
-  //a.GET("sessions/:id/students/:sid", mySessionsClasses.ItemStudentsBySessionId)
-  a.POST("sessions/:id/students/:sid", mySessionsClasses.CreateByStudentId)
-  a.DELETE("sessions/:id/students/:sid", mySessionsClasses.DeleteByStudentId)
-  a.POST("sessions/classes/:id/students/:sid", mySessionsClasses.CreateByStudentId)
+  authJWT.GET("modules", myModules.List)
+  authJWT.GET("modules/:id", myModules.Item)
 
-  a.GET("branches", myBranches.List)
-  a.GET("branches/:id", myBranches.Item)
+  authJWT.GET("classes", myClasses.List)
+  authJWT.GET("classes/group/:by", myClasses.ListGroup)
+  authJWT.GET("classes/:id", myClasses.Item)
+  authJWT.GET("classes/:id/sessions", mySessionsClasses.ListByClassId)
+  authJWT.POST("classes/:id/sessions", mySessionsClasses.CreateByClassId)
 
-  a.GET("users", myUsers.List)
-  a.GET("users/:id", myUsers.Item)
+  authJWT.GET("sessions", mySessionsClasses.List)
+  authJWT.GET("sessions/classes", mySessionsClasses.List)
+  authJWT.GET("sessions/:id", mySessionsClasses.Item)
+  authJWT.DELETE("sessions/:id", mySessionsClasses.Delete)
+  authJWT.GET("sessions/classes/:id", mySessionsClasses.Item)
+  //authJWT.GET("sessions/:id/students/:sid", mySessionsClasses.ItemStudentsBySessionId)
+  authJWT.POST("sessions/:id/students/:sid", mySessionsClasses.CreateByStudentId)
+  authJWT.DELETE("sessions/:id/students/:sid", mySessionsClasses.DeleteByStudentId)
+  authJWT.POST("sessions/classes/:id/students/:sid", mySessionsClasses.CreateByStudentId)
 
-  a.GET("tutors", myUsers.List)
-  a.GET("tutors/:id", myUsers.Item)
-  a.GET("tutors/:id/sessions", mySessionsClasses.ListByTutorId)
+  authJWT.GET("branches", myBranches.List)
+  authJWT.GET("branches/:id", myBranches.Item)
 
-  a.GET("students", myUsers.List)
-  a.GET("students/:id", myUsers.Item)
+  authJWT.GET("users", myUsers.List)
+  authJWT.GET("users/:id", myUsers.Item)
+
+  authJWT.GET("tutors", myUsers.List)
+  authJWT.GET("tutors/:id", myUsers.Item)
+  authJWT.GET("tutors/:id/sessions", mySessionsClasses.ListByTutorId)
+
+  authJWT.GET("students", myUsers.List)
+  authJWT.GET("students/:id", myUsers.Item)
 
   e.Logger.Fatal(e.Start(":1323"))
 }

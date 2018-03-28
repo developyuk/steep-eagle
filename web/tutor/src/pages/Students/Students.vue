@@ -31,12 +31,14 @@
   import Hammer from 'hammerjs';
   import mixinHal from '../../mixins/hal';
   import mixinDom from '../../mixins/dom';
+  import mixinImage from '../../mixins/image';
   import _isEqual from 'lodash/isEqual';
   import _cloneDeep from 'lodash/cloneDeep';
+  import _findIndex from 'lodash/findIndex';
 
   export default {
     name: 'students',
-    mixins: [mixinHal, mixinDom],
+    mixins: [mixinHal, mixinDom, mixinImage],
     components: {
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
@@ -47,19 +49,41 @@
       return {
         sessions: null,
         currentAuth: null,
-        snackbar: null,
-
-        currentClickedStudent: {
+        currentStudent: {
           sid: "0",
           uid: "0",
           name: "",
           is: "empty",
-        }
+        },
+
+        snackbar: null,
+        ws: new WebSocket(`${process.env.WS}/students`),
       }
     },
     methods: {
+      getSessionIndex(sessionId, studentId) {
+        let i, ii;
+        sessionId = parseInt(sessionId);
+        studentId = parseInt(studentId);
+
+        i = _findIndex(this.sessions, v => {
+          ii = _findIndex(v._embedded.items, vv => {
+            return vv._embedded.student.id === studentId && vv.id === sessionId
+          });
+          return ii > -1;
+        });
+        return [i, ii]
+      },
+      getSessionElement(sessionId, studentId) {
+        const [i, ii] = this.getSessionIndex(sessionId, studentId);
+
+        return Array.from(document.querySelectorAll('ul.mdc-list > li')).filter(v => {
+          return v.dataset.index === `${i}.${ii}`
+        })[0];
+      },
       getStudentsSessions() {
         const url = `${process.env.API}/tutors/${this.currentAuth.id}/sessions`;
+
         axios.get(url)
           .then(response => {
             let sessions = response.data._embedded.items;
@@ -89,8 +113,7 @@
               sessions = [];
             }
             this.sessions = sessions;
-            let j = 0;
-            const d = 200;
+            const timeout = 1;
 
             if (!this.sessions.length) {
               return;
@@ -103,10 +126,10 @@
                     branch: {name: "..."},
                   });
                 }
-                setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), j * d);
-                setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), j * d);
+                setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), timeout);
+                setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), timeout);
                 return item
-              }), j * d);
+              }), timeout);
 
               setTimeout(() => {
                 if (!!v._embedded.items) {
@@ -116,18 +139,12 @@
                       this.$set(a2[i2], '_embedded', {});
                     }
                     this.parseEmbedded('student', v2._links.student.href, a2[i2]['_embedded'], item => {
-                      item.photo = item.photo ? item.photo : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
-                      if (item.photo.indexOf('data:image/gif') < 0) {
-                        let image = item.photo;
-                        image = image.replace('https://', '').replace('http://', '');
-                        image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
-                        item.photo = image;
-                      }
+                      item.photo = this.normalizeImage(item.photo);
                       return item;
                     });
                   })
                 }
-              }, j * d);
+              }, timeout);
 
             });
           })
@@ -147,49 +164,96 @@
         window.mdc.autoInit();
       });
 
-      this.$bus.$on('onTapStudent', (key) => {
-        const [i, ii] = key.split('.');
-        const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+      this.ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        const {sid, uid, name} = data.v;
+        const $el = this.getSessionElement(sid, uid);
+        const [i, ii] = this.getSessionIndex(sid, uid);
 
-        this.sessions.forEach((v, i, a) => {
-          v._embedded.items.forEach((v2, i2, a2) => {
-            this.$set(a2[i2], 'isActive', false)
-          });
-        });
-        console.log(key, i, ii, item['isActive']);
-        this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+        switch (data.on) {
+          case 'tapStudent': {
+            const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+
+            this.sessions.forEach((v, i, a) => {
+              v._embedded.items.forEach((v2, i2, a2) => {
+                this.$set(a2[i2], 'isActive', false)
+              });
+            });
+            console.log(i, ii, item['isActive']);
+            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+            break;
+          }
+          case 'clickRating': {
+            const {form} = data.v;
+            for (const k in form) {
+              const value = form[k];
+              if (!value) {
+                return
+              }
+              if (k !== 'review') {
+                const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
+                console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
+                const $rating = $elIcon.closest('.rating');
+                $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
+                [...Array(parseInt(value)).keys()].forEach(v => {
+                  $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
+                });
+              } else {
+                const $elTextbox = $el.querySelector(`.review textarea`);
+                $elTextbox.innerText = value;
+
+              }
+            }
+//            const $creativity = $el.querySelector(`.creativity .material-icons[data-value="${form.cognition}"]`);
+//            const $interaction = $el.querySelector(`.interaction .material-icons[data-value="${form.cognition}"]`);
+//            const value = $target.dataset.value;
+            console.log(form);
+            break;
+          }
+          case 'undoRateReview': {
+            $el.className = "animated slideInLeftHeight";
+            $el.style.marginLeft = 0;
+            break;
+          }
+          case 'successRateReview': {
+            $el.className = "animated slideOutLeftHeight";
+            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
+
+            this.snackbar.show({
+              message: `${name.split(" ")[0].toUpperCase()} has been saved`,
+              actionText: 'Undo',
+              actionHandler: function () {
+                _this.$bus.$emit('onUndoRateReview', data.v);
+                const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
+
+                axios.delete(url)
+                  .then(response => {
+                    _this.$bus.$emit('onUndoRateReview', data.v);
+                  })
+                  .catch(error => {
+                    console.log(error);
+                    _this.$bus.$emit('onSuccessRateReview', data.v);
+                  });
+              }
+            });
+            break;
+          }
+        }
+
+      };
+
+      this.$bus.$on('onTapStudent', (v) => {
+        this.ws.send(JSON.stringify({on: 'tapStudent', v}))
+      });
+      this.$bus.$on('onClickRating', (v) => {
+        this.ws.send(JSON.stringify({on: 'clickRating', v}))
       });
 
       this.$bus.$on('onUndoRateReview', (v) => {
-        let {sid, uid, name, $el} = v;
-        $el.className = 'animated slideInDownHeight';
-        $el.style.marginLeft = 0;
+        this.ws.send(JSON.stringify({on: 'undoRateReview', v}));
       });
       this.$bus.$on('onSuccessRateReview', (v) => {
-//        console.log(resp, this.currentClickedStudent);
-        let {sid, uid, name, $el, index: key} = v;
-//        this.getStudentsSessions();
-        if (!!key) {
-          const [i, ii] = key.split('.');
-          this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
-        }
-        this.snackbar.show({
-          message: `${name.split(" ")[0].toUpperCase()} has been saved`,
-          actionText: 'Undo',
-          actionHandler: function () {
-            _this.$bus.$emit('onUndoRateReview', v);
-            const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
-
-            axios.delete(url)
-              .then(response => {
-                _this.$bus.$emit('onUndoRateReview', v);
-              })
-              .catch(error => {
-                console.log(error);
-                _this.$bus.$emit('onSuccessRateReview', v);
-              });
-          }
-        });
+        this.ws.send(JSON.stringify({on: 'successRateReview', v}));
       });
 
     }
@@ -234,6 +298,13 @@
 
   span.module {
     text-transform: uppercase;
+
+    max-width: 8rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
   }
 
   span.branch, span.day-time {

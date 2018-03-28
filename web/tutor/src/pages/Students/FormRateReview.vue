@@ -44,6 +44,21 @@
         review: '',
       }
     },
+    watch: {
+      review(val){
+        this.$bus.$emit('onClickRating', {
+          sid: this.sid,
+          uid: this.uid,
+          name: this.name,
+          form: {
+            interaction: parseInt(this.ratingInteraction),
+            creativity: parseInt(this.ratingCreativity),
+            cognition: parseInt(this.ratingCognition),
+            review: this.review,
+          },
+        });
+      }
+    },
     methods: {
       onClickRating(e) {
         const value = e.target.dataset.value;
@@ -61,9 +76,16 @@
         if (isCreativity) {
           this.ratingCreativity = value;
         }
-        $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
-        [...Array(parseInt(value)).keys()].forEach(v => {
-          $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
+        this.$bus.$emit('onClickRating', {
+          sid: this.sid,
+          uid: this.uid,
+          name: this.name,
+          form: {
+            interaction: parseInt(this.ratingInteraction),
+            creativity: parseInt(this.ratingCreativity),
+            cognition: parseInt(this.ratingCognition),
+            review: this.review,
+          },
         });
       },
       submit() {
@@ -73,8 +95,6 @@
           console.log(e);
           if ('slideOutUpHeight' === e.animationName) {
             this.$bus.$emit('onSuccessRateReview', {
-              $el,
-              index: this.index,
               sid: this.sid,
               uid: this.uid,
               name: this.name,
@@ -91,12 +111,8 @@
           review: this.review,
           status: true,
         })
-          .then(response => {
-          })
           .catch(error => {
             this.$bus.$emit('onUndoRateReview', {
-              $el,
-              index: this.index,
               sid: this.sid,
               uid: this.uid,
               name: this.name,
@@ -111,8 +127,6 @@
           console.log(e);
           if ('slideOutUpHeight' === e.animationName) {
             this.$bus.$emit('onSuccessRateReview', {
-              $el,
-              index: this.index,
               sid: this.sid,
               uid: this.uid,
               name: this.name,
@@ -133,8 +147,6 @@
           .catch(error => {
             console.log(error);
             this.$bus.$emit('onUndoRateReview', {
-              $el: $el,
-              index: this.index,
               sid: this.sid,
               uid: this.uid,
               name: this.name,

@@ -126,20 +126,25 @@ func (c *Client) writePump() {
     }
   }
 }
-var CurrentClient *Client
+
+var ClientStudents *Client
+var ClientHome *Client
 
 // ServeWs handles websocket requests from the peer.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) (*Client, error) {
   conn, err := upgrader.Upgrade(w, r, nil)
   if err != nil {
     log.Println(err)
-    return
+    return nil, err
   }
-  CurrentClient = &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-  CurrentClient.hub.register <- CurrentClient
+  client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+  //client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+  client.hub.register <- client
 
   // Allow collection of memory referenced by the caller by doing all work in
   // new goroutines.
-  go CurrentClient.writePump()
-  go CurrentClient.readPump()
+  go client.writePump()
+  go client.readPump()
+
+  return client, err
 }

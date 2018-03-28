@@ -28,7 +28,7 @@
 //    },
     computed: {
       status() {
-        console.log(this.class_);
+//        console.log(this.class_);
         const class_ = this.class_;
         const msts = moment(class_.start_at_ts);
         const mfts = moment(class_.finish_at_ts);
@@ -44,7 +44,7 @@
 //          console.log(this.currentAuth.id,ls[0]._embedded.tutor.id);
           if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
             && !ls.filter(v => {
-              console.log(v._embedded.tutor.id, this.currentAuth.id);
+//              console.log(v._embedded.tutor.id, this.currentAuth.id);
               return v._embedded.tutor.id === this.currentAuth.id
             }).length >= 1) {
             if (mls.isBefore(mfts)) {

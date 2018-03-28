@@ -180,6 +180,15 @@ func DeleteByStudentId(c echo.Context) error {
     End(); err != nil {
     return c.JSON(400, myShared.CreateResponse(err.Error()))
   }
+  if v, err := json.Marshal(map[string]string{
+    "session_id":  c.Param("id"),
+    "student_id": c.Param("sid"),
+    "tutor_id": fmt.Sprint(myJwt.CurrentAuth.Id),
+  }); err != nil {
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
+  } else {
+    mySharedWs.ClientStudents.Write(v)
+  }
   return c.JSON(http.StatusOK, myShared.CreateResponse(""))
 }
 func CreateByStudentId(c echo.Context) error {
@@ -200,6 +209,12 @@ func CreateByStudentId(c echo.Context) error {
     "status":             fmt.Sprint(data["status"]),
   }).EndStruct(&item); err != nil {
     return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
+  }
+
+  if v, err := json.Marshal(item); err != nil {
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
+  } else {
+    mySharedWs.ClientStudents.Write(v)
   }
   return c.JSON(http.StatusOK, item)
 }
@@ -235,7 +250,7 @@ func CreateByClassId(c echo.Context) error {
   if v, err := json.Marshal(itemSessions); err != nil {
     return c.JSON(400, myShared.CreateResponse(err.Error()))
   } else {
-    mySharedWs.CurrentClient.Write(v)
+    mySharedWs.ClientHome.Write(v)
   }
   return c.JSON(http.StatusOK, itemSessions)
 }
