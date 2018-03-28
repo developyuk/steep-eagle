@@ -187,26 +187,22 @@
             const {form} = data.v;
             for (const k in form) {
               const value = form[k];
-              if (!value) {
-                return
-              }
-              if (k !== 'review') {
-                const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
-                console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
-                const $rating = $elIcon.closest('.rating');
-                $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
-                [...Array(parseInt(value)).keys()].forEach(v => {
-                  $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
-                });
-              } else {
-                const $elTextbox = $el.querySelector(`.review textarea`);
-                $elTextbox.innerText = value;
+              if (value) {
+                if (k !== 'review') {
+                  const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
+                  console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
+                  const $rating = $elIcon.closest('.rating');
+                  $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
+                  [...Array(parseInt(value)).keys()].forEach(v => {
+                    $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
+                  });
+                } else {
+                  const $elTextbox = $el.querySelector(`.review textarea`);
+                  $elTextbox.innerText = value;
 
+                }
               }
             }
-//            const $creativity = $el.querySelector(`.creativity .material-icons[data-value="${form.cognition}"]`);
-//            const $interaction = $el.querySelector(`.interaction .material-icons[data-value="${form.cognition}"]`);
-//            const value = $target.dataset.value;
             console.log(form);
             break;
           }
@@ -217,7 +213,13 @@
           }
           case 'successRateReview': {
             $el.className = "animated slideOutLeftHeight";
-            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
+
+            this.sessions.forEach((v, i, a) => {
+              v._embedded.items.forEach((v2, i2, a2) => {
+                this.$set(a2[i2], 'isActive', false)
+              });
+            });
+//            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
 
             this.snackbar.show({
               message: `${name.split(" ")[0].toUpperCase()} has been saved`,

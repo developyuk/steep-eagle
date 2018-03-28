@@ -142,8 +142,6 @@
           review: this.review,
           status: false,
         })
-          .then(response => {
-          })
           .catch(error => {
             console.log(error);
             this.$bus.$emit('onUndoRateReview', {
