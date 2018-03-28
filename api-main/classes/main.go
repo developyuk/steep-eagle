@@ -7,7 +7,6 @@ import (
   "net/http"
   "strconv"
   "time"
-  //"github.com/davecgh/go-spew/spew"
 )
 
 type (
@@ -55,6 +54,7 @@ func timeToRelativeText(timeTs time.Time) string {
   return text
 }
 func ListGroup(c echo.Context) error {
+
   params := make(map[string]string)
 
   if val := c.QueryParam("by"); len(val) > 0 {
@@ -101,6 +101,7 @@ func ListGroup(c echo.Context) error {
     Count:    uint64(len(classGroupDates)),
     Total:    uint64(len(classGroupDates)),
   }
+
   return c.JSON(http.StatusOK, response)
 }
 func List(c echo.Context) error {

@@ -17,7 +17,6 @@
     name: 'tabBottom',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA'
       }
     },
     methods: {

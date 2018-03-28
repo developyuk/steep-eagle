@@ -30,7 +30,6 @@
     data() {
       return {
         currentComponent: 'empty',
-        msg: 'Welcome to Your Vue.js PWA',
         direction: null
       }
     },

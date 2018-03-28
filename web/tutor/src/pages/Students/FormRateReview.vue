@@ -38,7 +38,6 @@
     props: ['sid', 'uid', 'name', 'index'],
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
         ratingInteraction: 0,
         ratingCreativity: 0,
         ratingCognition: 0,

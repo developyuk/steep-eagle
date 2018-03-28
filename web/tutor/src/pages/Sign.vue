@@ -22,7 +22,6 @@
     name: 'sign',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
 //        id: 'user3@ex.co',
         username: '',
         errMsg: ''

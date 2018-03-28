@@ -7,7 +7,6 @@ export default {
   name: 'empty',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js PWA'
     }
   }
 }

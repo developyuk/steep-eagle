@@ -11,7 +11,6 @@
     name: 'spinner',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA'
       }
     }
   }

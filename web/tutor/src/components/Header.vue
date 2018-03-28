@@ -35,7 +35,6 @@
     name: 'header',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
         currentAuth: {},
         q: ''
       }

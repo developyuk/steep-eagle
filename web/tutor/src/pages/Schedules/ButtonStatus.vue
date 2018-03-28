@@ -17,23 +17,70 @@
     props: ['class_', 'index'],
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
-        status: null,
+//        status: null,
         currentAuth: null,
       }
     },
 //    watch: {
-//      index(val) {
-//
+//      class_(val) {
+//        this.calculateStatus(val);
 //      }
 //    },
+    computed: {
+      status() {
+        console.log(this.class_);
+        const class_ = this.class_;
+        const msts = moment(class_.start_at_ts);
+        const mfts = moment(class_.finish_at_ts);
+        const mnow = moment();
+        let status = 'disabled';
+        let ls = class_._embedded.last_session;
+//        console.log(class_._embedded.module.name, msts.diff(mnow, 'days') < 1);
+        if (!!ls && !!ls.items.length && !!ls.items[0].created_at
+          && msts.diff(mnow, 'days') < 1) {
+          ls = ls.items;
+          const mls = moment(ls[0].created_at);
+//          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
+//          console.log(this.currentAuth.id,ls[0]._embedded.tutor.id);
+          if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
+            && !ls.filter(v => {
+              console.log(v._embedded.tutor.id, this.currentAuth.id);
+              return v._embedded.tutor.id === this.currentAuth.id
+            }).length >= 1) {
+            if (mls.isBefore(mfts)) {
+              status = 'start-ongoing';
+            }
+            if (mls.isAfter(mfts)) {
+              status = 'start-late-ongoing';
+            }
+            return status;
+          } else {
+            if (mls.isBefore(mfts)) {
+              status = 'ongoing';
+            }
+            if (mls.isAfter(mfts)) {
+              status = 'late-ongoing';
+            }
+          }
+        } else {
+//        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
+          if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
+            status = 'start';
+          }
+          if (mnow.isAfter(mfts)) {
+            status = 'late';
+          }
+        }
+
+        return status;
+      }
+    },
     methods: {
       activate(cid) {
       },
       start(e) {
-        this.$bus.$emit('onStartClass', {e,index: this.index, class_: this.class_,});
-      },
-
+        this.$bus.$emit('onStartClass', {e, index: this.index, class_: this.class_,});
+      }
     },
     mounted() {
       this.$bus.$on('currentAuth', auth => {
@@ -43,50 +90,6 @@
         this.currentAuth = auth;
       });
 
-      const class_ = this.class_;
-      const msts = moment(class_.start_at_ts);
-      const mfts = moment(class_.finish_at_ts);
-      const mnow = moment();
-      let status = 'disabled';
-      let ls = class_._embedded.last_session;
-//        console.log(class_._embedded.module.name, msts.diff(mnow, 'days') < 1);
-      if (!!ls && !!ls.items.length && !!ls.items[0].created_at
-        && msts.diff(mnow, 'days') < 1) {
-        ls = ls.items;
-        const mls = moment(ls[0].created_at);
-//          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
-//          console.log(this.currentAuth.id,ls[0]._embedded.tutor.id);
-        if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
-          && !ls.filter(v => {
-            console.log(v._embedded.tutor.id, this.currentAuth.id);
-            return v._embedded.tutor.id === this.currentAuth.id
-          }).length >= 1) {
-          if (mls.isBefore(mfts)) {
-            status = 'start-ongoing';
-          }
-          if (mls.isAfter(mfts)) {
-            status = 'start-late-ongoing';
-          }
-          return status;
-        } else {
-          if (mls.isBefore(mfts)) {
-            status = 'ongoing';
-          }
-          if (mls.isAfter(mfts)) {
-            status = 'late-ongoing';
-          }
-        }
-      } else {
-//        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
-        if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
-          status = 'start';
-        }
-        if (mnow.isAfter(mfts)) {
-          status = 'late';
-        }
-      }
-
-      this.status = status;
       window.mdc.autoInit();
     }
   }

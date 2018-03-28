@@ -13,6 +13,7 @@ import (
   myPrograms "./programs"
   myProgramsTypes "./programs/types"
   mySharedJwt "./shared/jwt"
+  mySharedWs "./shared/ws"
   mySessionsClasses "./sessions/classes"
   myUsers "./users"
 )
@@ -27,6 +28,13 @@ func main() {
     return c.String(http.StatusOK, "Hello, World!")
   })
   e.POST("/sign", myUsers.Sign)
+  hub := mySharedWs.NewHub()
+  go hub.Run()
+  e.GET("/ws/classes/group/:by", func(c echo.Context) error {
+    mySharedWs.ServeWs(hub, c.Response(), c.Request())
+
+    return c.String(http.StatusOK, "Hello, World!")
+  })
 
   a := e.Group("/")
   a.Use(middleware.JWT([]byte(mySharedJwt.Key)))

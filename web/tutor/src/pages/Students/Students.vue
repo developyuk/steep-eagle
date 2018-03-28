@@ -45,7 +45,6 @@
     },
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
         sessions: null,
         currentAuth: null,
         snackbar: null,

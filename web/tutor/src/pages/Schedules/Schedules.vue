@@ -17,15 +17,15 @@
             span.mdc-list-item__text {{v._embedded.module.name}}
               span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session.items.length") Tutor : {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session || (!!v._embedded.last_session && !v._embedded.last_session.items.length)") Tutor : {{v._embedded.tutor.name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
             button-status(:class_="v" :index="`${ii}.${i}`")
 
     aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
       form(@submit.prevent="checkPin($event)").mdc-dialog__surface
         header.mdc-dialog__header
           h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
-        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{thisClass._embedded.module.name.toUpperCase()}}.
+        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{currentClass._embedded.module.name.toUpperCase()}}.
           p
           input(type="text" name="username" v-model.trim="pin")
           .errMsg(v-if="errMsg") {{errMsg}}
@@ -45,10 +45,12 @@
 <script>
   import axios from 'axios';
   import sharedHal from '../../mixins/hal';
+  import sharedImage from '../../mixins/image';
+  import _findIndex from 'lodash/findIndex';
 
   export default {
     name: 'schedules',
-    mixins: [sharedHal],
+    mixins: [sharedHal, sharedImage],
     components: {
       'spinner': () => import('@/components/Spinner'),
       'tab-bottom': () => import('@/components/TabBottom'),
@@ -57,51 +59,34 @@
     },
     data() {
       return {
-        msg: 'Welcome to Your Vue.js PWA',
-        pin: '',
+        pin: null,
         classes: null,
         dialog: null,
         snackbar: null,
         currentAuth: null,
-        thisClass: {
+        currentClass: {
           id: 0,
           _embedded: {
             module: {name: "..."}
           }
         },
-        thisClassSession: {id: 0},
+        currentClassSession: {id: 0},
         errMsg: null,
       }
     },
     methods: {
       checkPin(e) {
-        const _this = this;
         if (this.pin === "1234") {
-          const url = `${process.env.API}/classes/${this.thisClass.id}/sessions`;
+          const url = `${process.env.API}/classes/${this.currentClass.id}/sessions`;
 
           axios.post(url, {
             id: this.currentAuth.id
           })
             .then(response => {
-              this.thisClassSession = response.data;
-              this.pin = "";
-//              this.getSchedules();
+              this.pin = null;
             })
             .catch(error => console.log(error));
 
-          this.snackbar.show({
-            message: `Start class ${this.thisClass._embedded.module.name.toUpperCase()}`,
-            actionText: 'Undo',
-            actionHandler: function () {
-              const url = `${process.env.API}/sessions/${_this.thisClassSession.id}`;
-
-              axios.delete(url)
-                .then(response => {
-//                  _this.getSchedules();
-                })
-                .catch(error => console.log(error));
-            }
-          });
           this.dialog.close();
         } else {
           this.errMsg = "invalid. Check pin again!";
@@ -109,10 +94,11 @@
 
       },
       parseLastSessionTutorName(array) {
+//        console.log(array);
         return array.map(v => v['_embedded']['tutor'] ? v['_embedded']['tutor']['name'] : "").join(", ");
       },
       getSchedules(page = 1) {
-        const url = `${process.env.API}/classes/group/date`;
+        const path = `/classes/group/date`;
         const params = {
           'sort': 'start_at_ts.asc',
         };
@@ -120,24 +106,74 @@
           params['q'] = this.q;
         }
 
-        axios.get(url, {params})
+        const parseClass = (isToday, _class) => {
+          const timeout = 1;
+          setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded'], item => {
+            item.image = this.normalizeImage(item.image);
+            return item;
+          }), timeout);
+          setTimeout(() => this.parseEmbedded('branch', _class._links.branch.href, _class['_embedded']), timeout);
+          setTimeout(() => this.parseEmbedded('tutor', _class._links.tutor.href, _class['_embedded']), timeout);
+
+          if (isToday) {
+            setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
+              item.items.forEach((v3, i3, a3) => {
+                if (!a3[i3]['_embedded']) {
+                  this.$set(a3[i3], '_embedded', {});
+                }
+                this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
+              });
+              return item
+            }), timeout);
+          }
+
+        };
+        const _this = this;
+        const ws = new WebSocket(`${process.env.WS}${path}`);
+        ws.onmessage = function (e) {
+          console.log(e);
+          _this.currentClassSession = JSON.parse(e.data);
+          let i, ii;
+          i = _findIndex(_this.classes, v => {
+            ii = _findIndex(v.items, {
+              id: _this.currentClassSession.class_id,
+            });
+            return ii > -1;
+          });
+          parseClass(true, _this.classes[i].items[ii]);
+          if(!_this.currentClassSession.isDelete){
+            _this.snackbar.show({
+              message: `Start class ${_this.currentClass._embedded.module.name.toUpperCase()}`,
+              actionText: 'Undo',
+              actionHandler: function () {
+                const url = `${process.env.API}/sessions/${_this.currentClassSession.id}`;
+
+                axios.delete(url)
+                  .then(response => {
+                    _this.$set(_this.currentClassSession,'isDelete',true);
+                    ws.send(JSON.stringify(_this.currentClassSession));
+                    _this.$set(_this.currentClassSession,'isDelete',false);
+                  })
+                  .catch(error => console.log(error));
+              }
+            });
+          }
+
+        };
+
+        axios.get(`${process.env.API}${path}`, {params})
           .then(response => {
             let classes = response.data._embedded.items;
             if (!!classes) {
               classes = classes.map(v => {
                 v.items = v.items.map(v2 => {
                   v2._embedded = {
-                    module: {image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="},
+                    module: {
+                      name: "...",
+//                      image: "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="
+                    },
                     branch: {name: "..."},
                     tutor: {name: "..."},
-                    last_session: {
-                      items: [
-                        {
-                          _embedded: {
-                            tutor: {name: "..."}
-                          }
-                        }]
-                    },
                   };
                   return v2
                 });
@@ -147,39 +183,10 @@
               classes = []
             }
             this.classes = classes;
-            let j = 0;
-            const d = 200;
 
             this.classes.forEach((v, i, a) => {
-              v.items.forEach((v2, i2, a2) => {
-//                j++;
-                setTimeout(() => this.parseEmbedded('module', v2._links.module.href, a2[i2]['_embedded'], item => {
-                  item.image = item.image ? item.image : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
-                  if (item.image.indexOf('data:image/gif') < 0) {
-                    let image = item.image;
-                    image = image.replace('https://', '').replace('http://', '');
-                    image = `//images.weserv.nl/?output=jpg&il&q=100&w=96&h=96&t=square&url=${image}`;
-                    item.image = image;
-                  }
-                  return item;
-                }), j * d);
-                setTimeout(() => this.parseEmbedded('branch', v2._links.branch.href, a2[i2]['_embedded']), j * d);
-                setTimeout(() => this.parseEmbedded('tutor', v2._links.tutor.href, a2[i2]['_embedded']), j * d);
-
-//                j++;
-                setTimeout(() => this.parseEmbedded('last_session', v2._links.last_session.href, a2[i2]['_embedded'], item => {
-                  item.items.forEach((v3, i3, a3) => {
-                    if (!a3[i3]['_embedded']) {
-                      this.$set(a3[i3], '_embedded', {});
-                    }
-                    this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
-                  });
-                  return item
-                }), j * d);
-
-              })
+              v.items.forEach((v2, i2, a2) => parseClass(v.text === 'today', a2[i2]))
             });
-//            console.log(this.classes)
           })
           .catch(error => console.log(error))
       },
@@ -200,7 +207,7 @@
         this.getSchedules();
       });
       this.$bus.$on('onStartClass', v => {
-        this.thisClass = v.class_;
+        this.currentClass = v.class_;
         this.dialog.lastFocusedTarget = v.e.target;
         this.dialog.show();
       });

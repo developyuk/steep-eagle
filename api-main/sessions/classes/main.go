@@ -6,11 +6,12 @@ import (
   myUser "../../users"
   myClass "../../classes"
   myJwt "../../shared/jwt"
+  mySharedWs "../../shared/ws"
   "github.com/labstack/echo"
   "net/http"
   "fmt"
   "time"
-  //"github.com/davecgh/go-spew/spew"
+  "encoding/json"
 )
 
 func List(c echo.Context) error {
@@ -204,7 +205,7 @@ func CreateByStudentId(c echo.Context) error {
 }
 
 func CreateByClassId(c echo.Context) error {
-  var itemSessionTutor, itemSessions _SessionTutor
+  var itemSessions _SessionTutor
 
   _, err := mySharedRest.New().GetItem("/_sessions_tutors").
     SetQuery("class_id=" + "eq." + c.Param("id")).
@@ -226,10 +227,15 @@ func CreateByClassId(c echo.Context) error {
     if resp, err := mySharedRest.New().PostItem("/sessions_tutors").
       Send("session_id=" + fmt.Sprint(itemSessions.Id)).
       Send("tutor_id=" + fmt.Sprint(myJwt.CurrentAuth.Id)).
-      EndStruct(&itemSessionTutor); err != nil {
+      EndStruct(&itemSessions); err != nil {
       return c.JSON(resp.StatusCode, myShared.CreateResponse(err.Error()))
     }
   }
 
+  if v, err := json.Marshal(itemSessions); err != nil {
+    return c.JSON(400, myShared.CreateResponse(err.Error()))
+  } else {
+    mySharedWs.CurrentClient.Write(v)
+  }
   return c.JSON(http.StatusOK, itemSessions)
 }

@@ -24,7 +24,7 @@ docker-compose -v
 then run with
 ```
 $ cd /path/to/project
-$ ./scripts/up-dev.sh
+$ ./up-dev.sh
 ```
 
 ## Develop
