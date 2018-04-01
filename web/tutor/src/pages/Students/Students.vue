@@ -57,7 +57,7 @@
         },
 
         snackbar: null,
-        ws: new WebSocket(`${process.env.WS}/students`),
+        ws: null,
       }
     },
     methods: {
@@ -163,101 +163,117 @@
 
         window.mdc.autoInit();
       });
+      this.$bus.$on('onCreatedWs', (data) => {
+        if (!!this.ws) {
+          return;
+        }
+        const {wsStudents} = data;
+        this.ws = wsStudents;
 
-      this.ws.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        const {sid, uid, name} = data.v;
-        const $el = this.getSessionElement(sid, uid);
-        const [i, ii] = this.getSessionIndex(sid, uid);
+        this.ws.onmessage = (e) => {
+          console.log(e.data);
+          const data = JSON.parse(e.data);
+          console.log(data);
+          const {sid, uid, name} = data.v;
+          const $el = _this.getSessionElement(sid, uid);
+          const [i, ii] = _this.getSessionIndex(sid, uid);
 
-        switch (data.on) {
-          case 'tapStudent': {
-            const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+          switch (data.on) {
+            case 'tapStudent': {
+              const item = _cloneDeep(_this.sessions[i]._embedded.items[ii]);
 
-            this.sessions.forEach((v, i, a) => {
-              v._embedded.items.forEach((v2, i2, a2) => {
-                this.$set(a2[i2], 'isActive', false)
+              _this.sessions.forEach((v, i, a) => {
+                v._embedded.items.forEach((v2, i2, a2) => {
+                  _this.$set(a2[i2], 'isActive', false)
+                });
               });
-            });
-            console.log(i, ii, item['isActive']);
-            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
-            break;
-          }
-          case 'clickRating': {
-            const {form} = data.v;
-            for (const k in form) {
-              const value = form[k];
-              if (value) {
-                if (k !== 'review') {
-                  const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
-                  console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
-                  const $rating = $elIcon.closest('.rating');
-                  $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
-                  [...Array(parseInt(value)).keys()].forEach(v => {
-                    $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
-                  });
-                } else {
-                  const $elTextbox = $el.querySelector(`.review textarea`);
-                  $elTextbox.innerText = value;
+              console.log(i, ii, item['isActive']);
+              _this.$set(_this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+              break;
+            }
+            case 'clickRating': {
+              const {form} = data.v;
+              for (const k in form) {
+                const value = form[k];
+                if (value) {
+                  if (k !== 'review') {
+                    const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
+                    console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
+                    const $rating = $elIcon.closest('.rating');
+                    $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
+                    [...Array(parseInt(value)).keys()].forEach(v => {
+                      $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
+                    });
+                  } else {
+                    const $elTextbox = $el.querySelector(`.review textarea`);
+                    $elTextbox.innerText = value;
 
+                  }
                 }
               }
+              console.log(form);
+              break;
             }
-            console.log(form);
-            break;
-          }
-          case 'undoRateReview': {
-            $el.className = "animated slideInLeftHeight";
-            $el.style.marginLeft = 0;
-            break;
-          }
-          case 'successRateReview': {
-            $el.className = "animated slideOutLeftHeight";
+            case 'undoRateReview': {
+              $el.className = "animated slideInLeftHeight";
+              $el.style.marginLeft = 0;
+              break;
+            }
+            case 'successRateReview': {
+              $el.className = "hide";
 
-            this.sessions.forEach((v, i, a) => {
-              v._embedded.items.forEach((v2, i2, a2) => {
-                this.$set(a2[i2], 'isActive', false)
+              _this.sessions.forEach((v, i, a) => {
+                v._embedded.items.forEach((v2, i2, a2) => {
+                  _this.$set(a2[i2], 'isActive', false)
+                });
               });
-            });
 //            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
 
-            this.snackbar.show({
-              message: `${name.split(" ")[0].toUpperCase()} has been saved`,
-              actionText: 'Undo',
-              actionHandler: function () {
-                _this.$bus.$emit('onUndoRateReview', data.v);
-                const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
+              _this.snackbar.show({
+                message: `${name.split(" ")[0].toUpperCase()} has been saved`,
+                actionText: 'Undo',
+                actionHandler: function () {
+                  _this.$bus.$emit('onUndoRateReview', data.v);
+                  const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
 
-                axios.delete(url)
-                  .then(response => {
-                    _this.$bus.$emit('onUndoRateReview', data.v);
-                  })
-                  .catch(error => {
-                    console.log(error);
-                    _this.$bus.$emit('onSuccessRateReview', data.v);
-                  });
-              }
-            });
-            break;
+                  axios.delete(url)
+                    .then(response => {
+                      _this.$bus.$emit('onUndoRateReview', data.v);
+                    })
+                    .catch(error => {
+                      console.log(error);
+                      _this.$bus.$emit('onSuccessRateReview', data.v);
+                    });
+                }
+              });
+              break;
+            }
           }
-        }
 
-      };
+        };
+      }).$emit('reqCreatedWs')
+        .$on('onTapStudent', (v) => {
+          console.log(this.ws);
+          this.ws.send(JSON.stringify({on: 'tapStudent', v}))
+        })
+        .$on('onClickRating', (v) => {
+          this.ws.send(JSON.stringify({on: 'clickRating', v}))
+        })
+        .$on('onUndoRateReview', (v) => {
+          this.ws.send(JSON.stringify({on: 'undoRateReview', v}));
+        })
+        .$on('onSuccessRateReview', (v) => {
+          this.ws.send(JSON.stringify({on: 'successRateReview', v}));
+        });
 
-      this.$bus.$on('onTapStudent', (v) => {
-        this.ws.send(JSON.stringify({on: 'tapStudent', v}))
-      });
-      this.$bus.$on('onClickRating', (v) => {
-        this.ws.send(JSON.stringify({on: 'clickRating', v}))
-      });
-
-      this.$bus.$on('onUndoRateReview', (v) => {
-        this.ws.send(JSON.stringify({on: 'undoRateReview', v}));
-      });
-      this.$bus.$on('onSuccessRateReview', (v) => {
-        this.ws.send(JSON.stringify({on: 'successRateReview', v}));
-      });
-
+    },
+    beforeDestroy() {
+      this.$bus
+        .$off('onCreatedWs')
+        .$off('onTapStudent')
+        .$off('onClickRating')
+        .$off('onUndoRateReview')
+        .$off('onSuccessRateReview');
     }
   }
 </script>

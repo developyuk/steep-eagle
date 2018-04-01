@@ -28,23 +28,21 @@
 //    },
     computed: {
       status() {
-//        console.log(this.class_);
         const class_ = this.class_;
         const msts = moment(class_.start_at_ts);
         const mfts = moment(class_.finish_at_ts);
         const mnow = moment();
         let status = 'disabled';
-        let ls = class_._embedded.last_session;
-//        console.log(class_._embedded.module.name, msts.diff(mnow, 'days') < 1);
+        const ls = class_._embedded.last_session;
+
         if (!!ls && !!ls.items.length && !!ls.items[0].created_at
           && msts.diff(mnow, 'days') < 1) {
-          ls = ls.items;
-          const mls = moment(ls[0].created_at);
-//          console.log(mls.toISOString(), mfts.toISOString(), mnow.isAfter(mls), mls.isBefore(mfts), mls.isAfter(mfts));
-//          console.log(this.currentAuth.id,ls[0]._embedded.tutor.id);
-          if (!!this.currentAuth && !!ls[0]._embedded.tutor && !!ls[0]._embedded.tutor.id
-            && !ls.filter(v => {
-//              console.log(v._embedded.tutor.id, this.currentAuth.id);
+          const lsItems = ls.items;
+          const mls = moment(lsItems[0].created_at);
+
+          if (!!this.currentAuth && !!lsItems[0]._embedded.tutor && !!lsItems[0]._embedded.tutor.id
+            && !lsItems.filter(v => {
+
               return v._embedded.tutor.id === this.currentAuth.id
             }).length >= 1) {
             if (mls.isBefore(mfts)) {
@@ -63,7 +61,7 @@
             }
           }
         } else {
-//        console.log(msts.diff(mnow, 'minutes') < 5, mfts.diff(mnow, 'minutes') > 0);
+
           if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
             status = 'start';
           }

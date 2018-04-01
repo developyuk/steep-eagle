@@ -91,18 +91,6 @@
       submit() {
         const $el = this.$el.closest('li');
         $el.classList.add('animated', `slideOutUpHeight`);
-        $el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-          console.log(e);
-          if ('slideOutUpHeight' === e.animationName) {
-            this.$bus.$emit('onSuccessRateReview', {
-              sid: this.sid,
-              uid: this.uid,
-              name: this.name,
-            });
-          }
-//          $el.className = '';
-//          $el.style.display = 'none';
-        });
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
         axios.post(url, {
           interaction: parseInt(this.ratingInteraction),
@@ -123,16 +111,6 @@
       absence() {
         const $el = this.$el.closest('li');
         $el.classList.add('animated', `slideOutUpHeight`);
-        $el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-          console.log(e);
-          if ('slideOutUpHeight' === e.animationName) {
-            this.$bus.$emit('onSuccessRateReview', {
-              sid: this.sid,
-              uid: this.uid,
-              name: this.name,
-            });
-          }
-        });
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
 
         axios.post(url, {

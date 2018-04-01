@@ -72,9 +72,32 @@
         },
         currentClassSession: {id: 0},
         errMsg: null,
+        ws: null
       }
     },
     methods: {
+      parseClass(isToday, _class) {
+        const timeout = 1;
+        setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded'], item => {
+          item.image = this.normalizeImage(item.image);
+          return item;
+        }), timeout);
+        setTimeout(() => this.parseEmbedded('branch', _class._links.branch.href, _class['_embedded']), timeout);
+        setTimeout(() => this.parseEmbedded('tutor', _class._links.tutor.href, _class['_embedded']), timeout);
+
+        if (isToday) {
+          setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
+            item.items.forEach((v3, i3, a3) => {
+              if (!a3[i3]['_embedded']) {
+                this.$set(a3[i3], '_embedded', {});
+              }
+              this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
+            });
+            return item
+          }), timeout);
+        }
+
+      },
       checkPin(e) {
         if (this.pin === "1234") {
           const url = `${process.env.API}/classes/${this.currentClass.id}/sessions`;
@@ -106,60 +129,6 @@
           params['q'] = this.q;
         }
 
-        const parseClass = (isToday, _class) => {
-          const timeout = 1;
-          setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded'], item => {
-            item.image = this.normalizeImage(item.image);
-            return item;
-          }), timeout);
-          setTimeout(() => this.parseEmbedded('branch', _class._links.branch.href, _class['_embedded']), timeout);
-          setTimeout(() => this.parseEmbedded('tutor', _class._links.tutor.href, _class['_embedded']), timeout);
-
-          if (isToday) {
-            setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
-              item.items.forEach((v3, i3, a3) => {
-                if (!a3[i3]['_embedded']) {
-                  this.$set(a3[i3], '_embedded', {});
-                }
-                this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
-              });
-              return item
-            }), timeout);
-          }
-
-        };
-        const _this = this;
-        const ws = new WebSocket(`${process.env.WS}/`);
-        ws.onmessage = function (e) {
-          console.log(e);
-          _this.currentClassSession = JSON.parse(e.data);
-          let i, ii;
-          i = _findIndex(_this.classes, v => {
-            ii = _findIndex(v.items, {
-              id: _this.currentClassSession.class_id,
-            });
-            return ii > -1;
-          });
-          parseClass(true, _this.classes[i].items[ii]);
-          if(!_this.currentClassSession.isDelete){
-            _this.snackbar.show({
-              message: `Start class ${_this.currentClass._embedded.module.name.toUpperCase()}`,
-              actionText: 'Undo',
-              actionHandler: function () {
-                const url = `${process.env.API}/sessions/${_this.currentClassSession.id}`;
-
-                axios.delete(url)
-                  .then(response => {
-                    _this.$set(_this.currentClassSession,'isDelete',true);
-                    ws.send(JSON.stringify(_this.currentClassSession));
-                    _this.$set(_this.currentClassSession,'isDelete',false);
-                  })
-                  .catch(error => console.log(error));
-              }
-            });
-          }
-        };
-
         axios.get(url, {params})
           .then(response => {
             let classes = response.data._embedded.items;
@@ -184,7 +153,7 @@
             this.classes = classes;
 
             this.classes.forEach((v, i, a) => {
-              v.items.forEach((v2, i2, a2) => parseClass(v.text === 'today', a2[i2]))
+              v.items.forEach((v2, i2, a2) => this.parseClass(v.text === 'today', a2[i2]))
             });
           })
           .catch(error => console.log(error))
@@ -210,6 +179,46 @@
         this.dialog.lastFocusedTarget = v.e.target;
         this.dialog.show();
       });
+
+      const _this = this;
+      this.$bus.$on('onCreatedWs', (data) => {
+        if (!!this.ws) {
+          return;
+        }
+        const {wsHome} = data;
+        this.ws = wsHome;
+
+        this.ws.onmessage = e=> {
+          console.log(e);
+
+          _this.currentClassSession = JSON.parse(e.data);
+          let i, ii;
+          i = _findIndex(_this.classes, v => {
+            ii = _findIndex(v.items, {
+              id: _this.currentClassSession.class_id,
+            });
+            return ii > -1;
+          });
+          _this.parseClass(true, _this.classes[i].items[ii]);
+          if (!_this.currentClassSession.isDelete) {
+            _this.snackbar.show({
+              message: `Start class ${_this.currentClass._embedded.module.name.toUpperCase()}`,
+              actionText: 'Undo',
+              actionHandler: function () {
+                const url = `${process.env.API}/sessions/${_this.currentClassSession.id}`;
+
+                axios.delete(url)
+                  .then(response => {
+                    _this.$set(_this.currentClassSession, 'isDelete', true);
+                    _this.ws.send(JSON.stringify(_this.currentClassSession));
+                    _this.$set(_this.currentClassSession, 'isDelete', false);
+                  })
+                  .catch(error => console.log(error));
+              }
+            });
+          }
+        };
+      }).$emit('reqCreatedWs');
 
       window.mdc.autoInit();
     }

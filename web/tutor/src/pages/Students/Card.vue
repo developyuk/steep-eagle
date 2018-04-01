@@ -30,7 +30,8 @@
     data() {
       return {
         currentComponent: 'empty',
-        direction: null
+        direction: null,
+        hammertime: null
       }
     },
     methods: {
@@ -42,21 +43,23 @@
       console.log();
       const $el = this.$el.querySelector('.mdc-list-item');
 //      const $form = this.$el.querySelector('.mdc-list-item').nextSibling.nextSibling;
-      const hammertime = new Hammer($el, {});
-      hammertime
+
+      this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
+        console.log(e.animationName);
+        if (['slideOutRightHeight', 'slideOutLeftHeight', 'slideOutUpHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
+          this.$bus.$emit('onSuccessRateReview', {
+            sid: this.sid,
+            uid: this.student.id,
+            name: this.student.name
+          });
+        }
+      });
+      
+      this.hammertime = new Hammer($el, {});
+      this.hammertime
         .on('panend', e => {
           if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
             this.$el.classList.add('animated', `slideOut${this.direction}Height`);
-            this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-              console.log(e.animationName);
-              if (['slideOutRightHeight', 'slideOutLeftHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
-                this.$bus.$emit('onSuccessRateReview', {
-                  sid: this.sid,
-                  uid: this.student.id,
-                  name: this.student.name
-                });
-              }
-            });
             const path = `/sessions/${this.sid}/students/${this.student.id}`;
 
             axios.post(`${process.env.API}${path}`, {

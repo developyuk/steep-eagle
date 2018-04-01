@@ -6,6 +6,13 @@
 <script>
   export default {
     name: 'app',
+    mounted() {
+      const wsStudents = new WebSocket(`${process.env.WS}/students`);
+      const wsHome = new WebSocket(`${process.env.WS}/`);
+      this.$bus.$on('reqCreatedWs', ()=>{
+        this.$bus.$emit('onCreatedWs', {wsHome, wsStudents});
+      });
+    }
   }
 </script>
 
@@ -16,7 +23,6 @@
   html, body {
     font-family: 'Roboto', sans-serif;
   }
-
 
   #app {
     background-color: #f9f9f9;
@@ -50,7 +56,6 @@
     margin: 0;
     padding: 0.75rem 16px;
   }
-
 
   /*h1.title {*/
   /*background-color: var(--mdc-theme-primary, #6200ee);*/

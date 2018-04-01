@@ -22,6 +22,7 @@ $palettes: (
 
 $palettes: map-merge($palettes, $colors);
 $mdc-theme-primary: map-get($palettes, red);
+$generate-keyframes: false;
 
 form.login {
   .mdc-text-field, .mdc-button {
