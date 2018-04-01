@@ -54,7 +54,7 @@
           });
         }
       });
-      
+
       this.hammertime = new Hammer($el, {});
       this.hammertime
         .on('panend', e => {

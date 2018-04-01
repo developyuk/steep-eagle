@@ -1,15 +1,15 @@
 version:          '2'
 services:
-  web-main:
+  tutor:
     build:
-      context: ./web-main
+      context: ./tutor
       dockerfile: Dockerfile-build
     working_dir:  /usr/share/nginx/html
     ports:
       - "80:80"
-  web-operation:
+  operation:
     build:
-      context: ./web-operation
+      context: ./operation
       dockerfile: Dockerfile-build
     working_dir:  /usr/share/nginx/html
     ports:
