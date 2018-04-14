@@ -1,8 +1,9 @@
+**/letsencrypt
 .idea
 .env
 client-secret.json
 *.old*
 *-lock.json
 api-main/gin-bin
-api-main/main
+api-main/main*
 migrate/*.csv
