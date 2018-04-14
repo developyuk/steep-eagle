@@ -309,7 +309,7 @@ module.exports = now;
         _this.$el.classList.add('animated', 'slideOut' + _this.direction + 'Height');
         var path = '/sessions/' + _this.sid + '/students/' + _this.student.id;
 
-        __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('' + "http://35.187.229.48:90" + path, {
+        __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('' + "https://mtutor.codingcamp.id:90" + path, {
           interaction: 0,
           creativity: 0,
           cognition: 0,
@@ -579,4 +579,4 @@ var esExports = { render: render, staticRenderFns: staticRenderFns }
 /***/ })
 
 });
-//# sourceMappingURL=9.fc8918c088bd58ac1c25.js.map
+//# sourceMappingURL=9.bc06638b91cbb582f98c.js.map

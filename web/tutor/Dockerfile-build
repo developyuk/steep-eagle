@@ -1,3 +1,5 @@
 FROM nginx
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx-default.conf /etc/nginx/conf.d/nginx-default.conf
 COPY dist /usr/share/nginx/html
+COPY letsencrypt /etc/letsencrypt

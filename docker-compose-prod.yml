@@ -15,7 +15,7 @@ services:
       - db-main
     links:
       - db-main
-    command: bash -c "go build main.go && ./main"
+    command: bash -c "go build main-prod.go && ./main-prod"
     restart: unless-stopped
   db-api:
     image: postgrest/postgrest

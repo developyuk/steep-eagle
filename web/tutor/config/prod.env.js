@@ -1,5 +1,5 @@
 module.exports = {
   NODE_ENV: '"production"',
-  API: '"http://35.187.229.48:90"',
-  WS: '"ws://35.187.229.48:90/ws"'
+  API: '"https://mtutor.codingcamp.id:90"',
+  WS: '"wss://mtutor.codingcamp.id:90/ws"'
 }
