@@ -8,8 +8,9 @@ import (
 
 type (
   Auth struct {
-    Id   float64
-    Role string
+    Id       float64
+    Username string
+    Role     string
   }
 )
 
@@ -20,15 +21,15 @@ var (
 )
 
 func GetAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-
   return func(c echo.Context) error {
     AuthHeader = c.Request().Header.Get("Authorization")
     user := c.Get("user").(*jwt.Token)
     claims := user.Claims.(jwt.MapClaims)
 
     CurrentAuth = Auth{
-      Id:   claims["id"].(float64),
-      Role: claims["role"].(string),
+      Id:       claims["id"].(float64),
+      Username: claims["username"].(string),
+      Role:     claims["role"].(string),
     }
     // c.Response().Header().Set(echo.HeaderServer, "Echo/3.0")
     return next(c)

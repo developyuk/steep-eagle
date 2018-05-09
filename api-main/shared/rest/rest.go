@@ -45,6 +45,7 @@ func New() *MyRest {
   r := &MyRest{}
   r.Clear()
   r.request = gorequest.New()
+
   return r
 }
 func (r *MyRest) End() (*http.Response, error) {
@@ -141,8 +142,8 @@ func (r *MyRest) Send(d interface{}) *MyRest {
 func (r *MyRest) GetItems(path string) *MyRest {
   r.request.Get(DbApiUrl + path).
     Set("Accept", "application/json").
-    Set("Authorization", mySharedJwt.AuthHeader).
-    Set("Prefer", "count=exact")
+    Set("Prefer", "count=exact").
+    Set("Authorization", mySharedJwt.AuthHeader)
 
   return r
 }
@@ -159,8 +160,8 @@ func (r *MyRest) PostItem(path string) *MyRest {
   r.request.
     Post(DbApiUrl + path).
     Set("Accept", "application/vnd.pgrst.object+json").
-    Set("Authorization", mySharedJwt.AuthHeader).
-    Set("Prefer", "return=representation")
+    Set("Prefer", "return=representation").
+    Set("Authorization", mySharedJwt.AuthHeader)
 
   return r
 }

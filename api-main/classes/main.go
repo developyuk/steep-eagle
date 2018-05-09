@@ -2,11 +2,13 @@ package classes
 
 import (
   myShared "../shared"
+  mySharedJwt "../shared/jwt"
   mySharedRest "../shared/rest"
   "github.com/labstack/echo"
   "net/http"
   "strconv"
   "time"
+  "strings"
 )
 
 type (
@@ -21,7 +23,7 @@ type (
 )
 
 func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Class_, error) {
-  var list []Class_
+  var list, listFiltered []Class_
   var resp *http.Response
   path := "/_classes_ts"
   if _, ok := params["q"]; ok {
@@ -34,10 +36,15 @@ func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Cla
     return resp, rest, list, err
   }
 
-  for i, v := range list {
-    list[i].Links = ItemLinks(&v)
+  for _, v := range list {
+    if !(!strings.Contains(mySharedJwt.CurrentAuth.Username, "tester") && (v.ProgramModuleID == 11 || v.ProgramModuleID == 12)) {
+      listFiltered = append(listFiltered, v)
+    }
   }
-  return resp, rest, list, nil
+  for i, v := range listFiltered {
+    listFiltered[i].Links = ItemLinks(&v)
+  }
+  return resp, rest, listFiltered, nil
 }
 func timeToRelativeText(timeTs time.Time) string {
   loc, _ := time.LoadLocation(myShared.TimeZone)
