@@ -11,22 +11,16 @@
 
 <script>
   import moment from 'moment';
+  import {mapState} from 'vuex'
 
   export default {
     name: 'buttonStatus',
     props: ['class_', 'index'],
     data() {
-      return {
-//        status: null,
-        currentAuth: null,
-      }
+      return {}
     },
-//    watch: {
-//      class_(val) {
-//        this.calculateStatus(val);
-//      }
-//    },
     computed: {
+      ...mapState(['currentAuth']),
       status() {
         const class_ = this.class_;
         const msts = moment(class_.start_at_ts);
@@ -81,13 +75,6 @@
       }
     },
     mounted() {
-      this.$bus.$on('currentAuth', auth => {
-        if (!!this.currentAuth) {
-          return;
-        }
-        this.currentAuth = auth;
-      });
-
       window.mdc.autoInit();
     }
   }

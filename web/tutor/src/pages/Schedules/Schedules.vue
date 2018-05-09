@@ -47,6 +47,7 @@
   import sharedHal from '../../mixins/hal';
   import sharedImage from '../../mixins/image';
   import _findIndex from 'lodash/findIndex';
+  import {mapState} from 'vuex'
 
   export default {
     name: 'schedules',
@@ -57,13 +58,15 @@
       'header1': () => import('@/components/Header'),
       'button-status': () => import('./ButtonStatus'),
     },
+    computed: {
+      ...mapState(['currentAuth']),
+    },
     data() {
       return {
         pin: null,
         classes: null,
         dialog: null,
         snackbar: null,
-        currentAuth: null,
         currentClass: {
           id: 0,
           _embedded: {
@@ -164,12 +167,6 @@
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getSchedules();
 
-      this.$bus.$on('currentAuth', auth => {
-        if (!!this.currentAuth) {
-          return;
-        }
-        this.currentAuth = auth;
-      });
       this.$bus.$on('onKeyupSearch', q => {
         this.q = `ilike.*${q}*`;
         this.getSchedules();

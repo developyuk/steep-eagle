@@ -12,7 +12,6 @@
 <script>
   import axios from 'axios';
   import _debounce from 'lodash/debounce';
-  import vue from '../../assets/vue';
   import {getCorrectEventName} from '@material/animation';
 
   export default {

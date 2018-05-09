@@ -35,6 +35,7 @@
   import _isEqual from 'lodash/isEqual';
   import _cloneDeep from 'lodash/cloneDeep';
   import _findIndex from 'lodash/findIndex';
+  import {mapState} from 'vuex'
 
   export default {
     name: 'students',
@@ -45,10 +46,12 @@
       'header1': () => import('@/components/Header'),
       'card': () => import('./Card')
     },
+    computed: {
+      ...mapState(['currentAuth']),
+    },
     data() {
       return {
         sessions: null,
-        currentAuth: null,
         currentStudent: {
           sid: "0",
           uid: "0",
@@ -154,15 +157,8 @@
     mounted() {
       const _this = this;
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
-      this.$bus.$on('currentAuth', (auth) => {
-        if (!!this.currentAuth) {
-          return;
-        }
-        this.currentAuth = auth;
-        this.getStudentsSessions();
-
-        window.mdc.autoInit();
-      });
+      this.getStudentsSessions();
+      window.mdc.autoInit();
       this.$bus.$on('onCreatedWs', (data) => {
         if (!!this.ws) {
           return;

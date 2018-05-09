@@ -30,12 +30,15 @@
 <script>
   import _debounce from "lodash/debounce";
   import _throttle from "lodash/throttle";
+  import {mapState} from 'vuex'
 
   export default {
     name: 'header',
+    computed: {
+      ...mapState(['currentAuth']),
+    },
     data() {
       return {
-        currentAuth: {},
         q: ''
       }
     },
@@ -77,22 +80,12 @@
       }
     },
     destroyed() {
-      this.$bus.$off('currentAuth');
     },
     mounted() {
       let drawer = new mdc.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
       document.querySelector('img.logo').addEventListener('click', () => {
         drawer.open = true;
       });
-      this.$bus.$on('currentAuth', (auth) => {
-        auth.photo = auth.photo ? auth.photo : "data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=";
-        if (auth.photo.indexOf('data:image/gif') < 0) {
-          auth.photo = auth.photo.replace('https://', '').replace('http://', '');
-          auth.photo = `//images.weserv.nl/?il&q=100&w=64&h=64&t=square&shape=circle&url=${auth.photo}`;
-        }
-        this.currentAuth = auth;
-      });
-
     }
   }
 </script>
