@@ -35,7 +35,8 @@
   import _isEqual from 'lodash/isEqual';
   import _cloneDeep from 'lodash/cloneDeep';
   import _findIndex from 'lodash/findIndex';
-  import {mapState} from 'vuex'
+  import {mapState, mapMutations} from 'vuex';
+  import mqtt from "mqtt";
 
   export default {
     name: 'students',
@@ -60,10 +61,11 @@
         },
 
         snackbar: null,
-        ws: null,
+        mqtt: null,
       }
     },
     methods: {
+      ...mapMutations(['nextMqtt']),
       getSessionIndex(sessionId, studentId) {
         let i, ii;
         sessionId = parseInt(sessionId);
@@ -159,22 +161,24 @@
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getStudentsSessions();
       window.mdc.autoInit();
-      this.$bus.$on('onCreatedWs', (data) => {
-        if (!!this.ws) {
-          return;
-        }
-        const {wsStudents} = data;
-        this.ws = wsStudents;
 
-        this.ws.onmessage = (e) => {
-          console.log(e.data);
-          const data = JSON.parse(e.data);
-          console.log(data);
-          const {sid, uid, name} = data.v;
+      this.mqtt = mqtt.connect(process.env.WS);
+
+      this.mqtt
+        .on('connect', () => {
+          const topic = 'students';
+          this.nextMqtt({topic, mqtt: this.mqtt});
+          this.mqtt.subscribe(topic);
+        })
+        .on('message', (topic, message) => {
+          console.log(topic, message.toString());
+          const parsedMessage = JSON.parse(message.toString());
+
+          const {sid, uid, name} = parsedMessage;
           const $el = _this.getSessionElement(sid, uid);
           const [i, ii] = _this.getSessionIndex(sid, uid);
 
-          switch (data.on) {
+          switch (parsedMessage.on) {
             case 'tapStudent': {
               const item = _cloneDeep(_this.sessions[i]._embedded.items[ii]);
 
@@ -188,7 +192,7 @@
               break;
             }
             case 'clickRating': {
-              const {form} = data.v;
+              const {form} = parsedMessage;
               for (const k in form) {
                 const value = form[k];
                 if (value) {
@@ -203,7 +207,6 @@
                   } else {
                     const $elTextbox = $el.querySelector(`.review textarea`);
                     $elTextbox.innerText = value;
-
                   }
                 }
               }
@@ -229,47 +232,33 @@
                 message: `${name.split(" ")[0].toUpperCase()} has been saved`,
                 actionText: 'Undo',
                 actionHandler: function () {
-                  _this.$bus.$emit('onUndoRateReview', data.v);
+                  _this.mqtt
+                    .publish('undoRateReview', parsedMessage);
                   const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
 
                   axios.delete(url)
                     .then(response => {
-                      _this.$bus.$emit('onUndoRateReview', data.v);
+                      _this.mqtt
+                        .publish('undoRateReview', parsedMessage);
                     })
                     .catch(error => {
                       console.log(error);
-                      _this.$bus.$emit('onSuccessRateReview', data.v);
+                      _this.mqtt
+                        .publish(successRateReview, parsedMessage);
                     });
                 }
               });
               break;
             }
           }
-
-        };
-      }).$emit('reqCreatedWs')
-        .$on('onTapStudent', (v) => {
-          console.log(this.ws);
-          this.ws.send(JSON.stringify({on: 'tapStudent', v}))
-        })
-        .$on('onClickRating', (v) => {
-          this.ws.send(JSON.stringify({on: 'clickRating', v}))
-        })
-        .$on('onUndoRateReview', (v) => {
-          this.ws.send(JSON.stringify({on: 'undoRateReview', v}));
-        })
-        .$on('onSuccessRateReview', (v) => {
-          this.ws.send(JSON.stringify({on: 'successRateReview', v}));
         });
 
     },
     beforeDestroy() {
-      this.$bus
-        .$off('onCreatedWs')
-        .$off('onTapStudent')
-        .$off('onClickRating')
-        .$off('onUndoRateReview')
-        .$off('onSuccessRateReview');
+      console.log('beforeDestroy');
+
+      this.nextMqtt(null);
+      this.mqtt.end();
     }
   }
 </script>

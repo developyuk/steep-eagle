@@ -73,7 +73,7 @@
         this.currentMqtt.mqtt
           .publish(this.currentMqtt.topic, JSON.stringify({
             class_: this.class_,
-            action: "start",
+            on: "start",
           }));
       }
     },

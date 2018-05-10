@@ -32,10 +32,14 @@
 <script>
   import axios from 'axios';
   import {getCorrectEventName} from '@material/animation';
+  import {mapState} from 'vuex';
 
   export default {
     name: 'form-rate-review',
     props: ['sid', 'uid', 'name', 'index'],
+    computed: {
+      ...mapState(['currentMqtt']),
+    },
     data() {
       return {
         ratingInteraction: 0,
@@ -45,18 +49,20 @@
       }
     },
     watch: {
-      review(val){
-        this.$bus.$emit('onClickRating', {
-          sid: this.sid,
-          uid: this.uid,
-          name: this.name,
-          form: {
-            interaction: parseInt(this.ratingInteraction),
-            creativity: parseInt(this.ratingCreativity),
-            cognition: parseInt(this.ratingCognition),
-            review: this.review,
-          },
-        });
+      review(val) {
+        this.currentMqtt.mqtt
+          .publish(this.currentMqtt.topic, JSON.stringify({
+            sid: this.sid,
+            uid: this.uid,
+            name: this.name,
+            form: {
+              interaction: parseInt(this.ratingInteraction),
+              creativity: parseInt(this.ratingCreativity),
+              cognition: parseInt(this.ratingCognition),
+              review: this.review,
+            },
+            on: "clickRating",
+          }));
       }
     },
     methods: {
@@ -76,17 +82,19 @@
         if (isCreativity) {
           this.ratingCreativity = value;
         }
-        this.$bus.$emit('onClickRating', {
-          sid: this.sid,
-          uid: this.uid,
-          name: this.name,
-          form: {
-            interaction: parseInt(this.ratingInteraction),
-            creativity: parseInt(this.ratingCreativity),
-            cognition: parseInt(this.ratingCognition),
-            review: this.review,
-          },
-        });
+        this.currentMqtt.mqtt
+          .publish(this.currentMqtt.topic, JSON.stringify({
+            sid: this.sid,
+            uid: this.uid,
+            name: this.name,
+            form: {
+              interaction: parseInt(this.ratingInteraction),
+              creativity: parseInt(this.ratingCreativity),
+              cognition: parseInt(this.ratingCognition),
+              review: this.review,
+            },
+            on: "clickRating",
+          }));
       },
       submit() {
         const $el = this.$el.closest('li');
@@ -100,11 +108,13 @@
           status: true,
         })
           .catch(error => {
-            this.$bus.$emit('onUndoRateReview', {
-              sid: this.sid,
-              uid: this.uid,
-              name: this.name,
-            });
+            this.currentMqtt.mqtt
+              .publish(this.currentMqtt.topic, JSON.stringify({
+                sid: this.sid,
+                uid: this.uid,
+                name: this.name,
+                on: "undoRateReview",
+              }));
             console.log(error)
           })
       },
@@ -122,11 +132,13 @@
         })
           .catch(error => {
             console.log(error);
-            this.$bus.$emit('onUndoRateReview', {
-              sid: this.sid,
-              uid: this.uid,
-              name: this.name,
-            });
+            this.currentMqtt.mqtt
+              .publish(this.currentMqtt.topic, JSON.stringify({
+                sid: this.sid,
+                uid: this.uid,
+                name: this.name,
+                on: "undoRateReview",
+              }));
           });
       }
     },

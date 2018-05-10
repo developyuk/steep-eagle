@@ -13,18 +13,22 @@
   import axios from 'axios';
   import _debounce from 'lodash/debounce';
   import {getCorrectEventName} from '@material/animation';
+  import {mapState} from 'vuex';
 
   export default {
     name: 'card',
+    components: {
+      'form-rate-review': () => import('./FormRateReview'),
+      'empty': () => import('./Empty'),
+    },
+    computed: {
+      ...mapState(['currentMqtt']),
+    },
     props: ['index', 'sid', 'student', 'isActive'],
     watch: {
       isActive(v) {
         this.currentComponent = v ? 'form-rate-review' : 'empty'
       }
-    },
-    components: {
-      'form-rate-review': () => import('./FormRateReview'),
-      'empty': () => import('./Empty'),
     },
     data() {
       return {
@@ -46,11 +50,13 @@
       this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
         console.log(e.animationName);
         if (['slideOutRightHeight', 'slideOutLeftHeight', 'slideOutUpHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
-          this.$bus.$emit('onSuccessRateReview', {
-            sid: this.sid,
-            uid: this.student.id,
-            name: this.student.name
-          });
+          this.currentMqtt.mqtt
+            .publish(this.currentMqtt.topic, JSON.stringify({
+              sid: this.sid,
+              uid: this.student.id,
+              name: this.student.name,
+              on: "successRateReview",
+            }));
         }
       });
 
@@ -71,11 +77,13 @@
               .catch(error => {
                 console.log(error);
 
-                this.$bus.$emit('onUndoRateReview', {
-                  sid: this.sid,
-                  uid: this.student.id,
-                  name: this.student.name
-                });
+                this.currentMqtt.mqtt
+                  .publish(this.currentMqtt.topic, JSON.stringify({
+                    sid: this.sid,
+                    uid: this.student.id,
+                    name: this.student.name,
+                    on: "undoRateReview",
+                  }));
               });
           } else {
             this.setPosition();
@@ -88,11 +96,13 @@
         .on('panleft', e => this.direction = 'Left')
         .on('panright', e => this.direction = 'Right')
         .on('tap', e => {
-          this.$bus.$emit('onTapStudent', {
-            sid: this.sid,
-            uid: this.student.id,
-            name: this.student.name
-          })
+          this.currentMqtt.mqtt
+            .publish(this.currentMqtt.topic, JSON.stringify({
+              sid: this.sid,
+              uid: this.student.id,
+              name: this.student.name,
+              on: "tapStudent",
+            }));
         });
     }
   }

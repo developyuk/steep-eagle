@@ -75,7 +75,7 @@
         dialog: null,
         snackbar: null,
         errMsg: null,
-        ws: null
+        mqtt: null
       }
     },
     methods: {
@@ -110,9 +110,9 @@
             .then(response => {
               this.pin = null;
 
-              this.ws
+              this.mqtt
                 .publish('schedules', JSON.stringify({
-                  action: "start-yes",
+                  on: "startYes",
                   by: this.currentAuth,
                   class_: this.currentStartedClass,
                   session: response.data
@@ -181,13 +181,13 @@
       });
 
       const _this = this;
-      this.ws = mqtt.connect(process.env.WS);
+      this.mqtt = mqtt.connect(process.env.WS);
 
-      this.ws
+      this.mqtt
         .on('connect', () => {
           const topic = 'schedules';
-          this.nextMqtt({topic, mqtt: this.ws});
-          this.ws.subscribe(topic);
+          this.nextMqtt({topic, mqtt: this.mqtt});
+          this.mqtt.subscribe(topic);
         })
         .on('message', (topic, message) => {
 //        console.log(topic, message.toString());
@@ -195,10 +195,10 @@
 
           console.log(parsedMessage);
 
-          if (parsedMessage.action === 'start') {
+          if (parsedMessage.on === 'start') {
             this.currentStartedClass = parsedMessage.class_;
           }
-          if (parsedMessage.action === 'start-yes') {
+          if (parsedMessage.on === 'startYes') {
             this.currentStartedClass = parsedMessage.class_;
 
             let i, ii;
@@ -222,9 +222,9 @@
 
                   axios.delete(url)
                     .then(response => {
-                      this.ws
+                      this.mqtt
                         .publish('schedules', JSON.stringify({
-                          action: "undo",
+                          on: "undo",
                           class_: this.currentStartedClass,
                         }));
                     })
@@ -234,7 +234,7 @@
             }
             this.snackbar.show(snackbarOpts);
           }
-          if (parsedMessage.action === 'undo') {
+          if (parsedMessage.on === 'undo') {
             this.currentStartedClass = parsedMessage.class_;
 
             let i, ii;
@@ -258,7 +258,7 @@
       console.log('beforeDestroy');
 
       this.nextMqtt(null);
-      this.ws.end()
+      this.mqtt.end()
     }
   }
 </script>
