@@ -8,7 +8,7 @@
           label.mdc-text-field__label(for="id") Yourname
           .mdc-line-ripple
       .mdc-form-field
-        .errMsg(v-if="errMsg") {{errMsg}}
+        .errMsg(v-if="errMsg" v-html="errMsg")
         button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Login
     .powered powered by
       img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
