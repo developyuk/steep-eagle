@@ -12,6 +12,7 @@ services:
     image: node
     volumes:
        - ./operation:/project
+       - ./tutor/src/store:/project/src/store
        - ./tutor/src/assets:/project/src/assets
        - ./tutor/src/static:/project/src/static
        - ./tutor/src/mixins:/project/src/mixins

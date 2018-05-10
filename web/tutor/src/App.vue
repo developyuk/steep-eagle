@@ -7,11 +7,6 @@
   export default {
     name: 'app',
     mounted() {
-      const wsStudents = new WebSocket(`${process.env.WS}/students`);
-      const wsHome = new WebSocket(`${process.env.WS}/`);
-      this.$bus.$on('reqCreatedWs', ()=>{
-        this.$bus.$emit('onCreatedWs', {wsHome, wsStudents});
-      });
     }
   }
 </script>

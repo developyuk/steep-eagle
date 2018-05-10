@@ -9,10 +9,16 @@ services:
      - "91:3000"
     environment:
       - JWT_KEY=${JWT_KEY}
-      - DB_API=${DB_API}
+      - HOST=${HOST}
     depends_on:
       - db-main
     command:      gin run
+  mqtt:
+    image: emqttd-docker-v2.3.7
+    network_mode: "host"
+    environment:
+      - EMQ_HOST=${HOST}
+      - EMQ_WAIT_TIME=21
   db-main:
     build:       ./db-main
     environment:

@@ -5,7 +5,6 @@ import (
 
   "github.com/labstack/echo"
   "github.com/labstack/echo/middleware"
-  // "github.com/dgrijalva/jwt-go"
 
   myBranches "./branches"
   myClasses "./classes"
@@ -13,9 +12,12 @@ import (
   myPrograms "./programs"
   myProgramsTypes "./programs/types"
   mySharedJwt "./shared/jwt"
-  mySharedWs "./shared/ws"
+  mySharedMqtt "./shared/mqtt"
+  mqtt "github.com/eclipse/paho.mqtt.golang"
   mySessionsClasses "./sessions/classes"
   myUsers "./users"
+  "os"
+  "log"
 )
 
 func main() {
@@ -29,22 +31,18 @@ func main() {
   })
   e.POST("/sign", myUsers.Sign)
 
-  websocket := e.Group("/ws")
-  hubHome := mySharedWs.NewHub()
-  go hubHome.Run()
-  websocket.GET("/", func(c echo.Context) error {
-    mySharedWs.ClientHome, _ = mySharedWs.ServeWs(hubHome, c.Response(), c.Request())
+  opts := mqtt.NewClientOptions().AddBroker("tcp://" + os.Getenv("HOST") + ":1883")
 
-    return c.String(http.StatusOK, "Hello, World!")
-  })
-
-  hubStudents := mySharedWs.NewHub()
-  go hubStudents.Run()
-  websocket.GET("/students", func(c echo.Context) error {
-    mySharedWs.ClientStudents, _ = mySharedWs.ServeWs(hubStudents, c.Response(), c.Request())
-
-    return c.String(http.StatusOK, "Hello, World!")
-  })
+  c := mqtt.NewClient(opts)
+  if token := c.Connect(); token.Wait() && token.Error() != nil {
+    log.Println(token.Error())
+  }
+  if token := c.Subscribe("schedules", 0, mySharedMqtt.MqttSchedules); token.Wait() && token.Error() != nil {
+    log.Println(token.Error())
+  }
+  if token := c.Subscribe("students", 0, mySharedMqtt.MqttStudents); token.Wait() && token.Error() != nil {
+    log.Println(token.Error())
+  }
 
   authJWT := e.Group("/")
   authJWT.Use(middleware.JWT([]byte(mySharedJwt.Key)))

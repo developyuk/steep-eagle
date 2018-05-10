@@ -5,6 +5,6 @@ const prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  API: '"http://localhost:91"',
-  WS: '"ws://localhost:91/ws"'
+  API: '"http://192.168.2.50:91"',
+  WS: '"ws://192.168.2.50:8083/mqtt"'
 })

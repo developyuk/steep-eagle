@@ -6,7 +6,6 @@ import (
   myUser "../../users"
   myClass "../../classes"
   myJwt "../../shared/jwt"
-  mySharedWs "../../shared/ws"
   "github.com/labstack/echo"
   "net/http"
   "fmt"
@@ -247,10 +246,8 @@ func CreateByClassId(c echo.Context) error {
     }
   }
 
-  if v, err := json.Marshal(itemSessions); err != nil {
+  if _, err := json.Marshal(itemSessions); err != nil {
     return c.JSON(400, myShared.CreateResponse(err.Error()))
-  } else {
-    mySharedWs.ClientHome.Write(v)
   }
   return c.JSON(http.StatusOK, itemSessions)
 }

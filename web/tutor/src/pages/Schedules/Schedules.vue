@@ -25,7 +25,7 @@
       form(@submit.prevent="checkPin($event)").mdc-dialog__surface
         header.mdc-dialog__header
           h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
-        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{currentClass._embedded.module.name.toUpperCase()}}.
+        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{currentStartedClass._embedded.module.name.toUpperCase()}}.
           p
           input(type="text" name="username" v-model.trim="pin")
           .errMsg(v-if="errMsg") {{errMsg}}
@@ -47,7 +47,8 @@
   import sharedHal from '../../mixins/hal';
   import sharedImage from '../../mixins/image';
   import _findIndex from 'lodash/findIndex';
-  import {mapState} from 'vuex'
+  import {mapState, mapMutations} from 'vuex';
+  import mqtt from "mqtt";
 
   export default {
     name: 'schedules',
@@ -65,20 +66,20 @@
       return {
         pin: null,
         classes: null,
-        dialog: null,
-        snackbar: null,
-        currentClass: {
+        currentStartedClass: {
           id: 0,
           _embedded: {
             module: {name: "..."}
           }
         },
-        currentClassSession: {id: 0},
+        dialog: null,
+        snackbar: null,
         errMsg: null,
         ws: null
       }
     },
     methods: {
+      ...mapMutations(['nextMqtt', 'nextDialog']),
       parseClass(isToday, _class) {
         const timeout = 1;
         setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded'], item => {
@@ -87,29 +88,35 @@
         }), timeout);
         setTimeout(() => this.parseEmbedded('branch', _class._links.branch.href, _class['_embedded']), timeout);
         setTimeout(() => this.parseEmbedded('tutor', _class._links.tutor.href, _class['_embedded']), timeout);
-
         if (isToday) {
           setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
-            item.items.forEach((v3, i3, a3) => {
-              if (!a3[i3]['_embedded']) {
-                this.$set(a3[i3], '_embedded', {});
+            item.items.forEach((v, i, arr) => {
+              if (!arr[i]['_embedded']) {
+                this.$set(arr[i], '_embedded', {});
               }
-              this.parseEmbedded('tutor', v3._links.tutor.href, a3[i3]['_embedded']);
+              this.parseEmbedded('tutor', v._links.tutor.href, arr[i]['_embedded']);
             });
             return item
           }), timeout);
         }
-
       },
       checkPin(e) {
         if (this.pin === "1234") {
-          const url = `${process.env.API}/classes/${this.currentClass.id}/sessions`;
+          const url = `${process.env.API}/classes/${this.currentStartedClass.id}/sessions`;
 
           axios.post(url, {
             id: this.currentAuth.id
           })
             .then(response => {
               this.pin = null;
+
+              this.ws
+                .publish('schedules', JSON.stringify({
+                  action: "start-yes",
+                  by: this.currentAuth,
+                  class_: this.currentStartedClass,
+                  session: response.data
+                }));
             })
             .catch(error => console.log(error));
 
@@ -164,6 +171,7 @@
     },
     mounted() {
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
+      this.nextDialog(this.dialog);
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getSchedules();
 
@@ -171,53 +179,86 @@
         this.q = `ilike.*${q}*`;
         this.getSchedules();
       });
-      this.$bus.$on('onStartClass', v => {
-        this.currentClass = v.class_;
-        this.dialog.lastFocusedTarget = v.e.target;
-        this.dialog.show();
-      });
 
       const _this = this;
-      this.$bus.$on('onCreatedWs', (data) => {
-        if (!!this.ws) {
-          return;
-        }
-        const {wsHome} = data;
-        this.ws = wsHome;
+      this.ws = mqtt.connect(process.env.WS);
 
-        this.ws.onmessage = e=> {
-          console.log(e);
+      this.ws
+        .on('connect', () => {
+          const topic = 'schedules';
+          this.nextMqtt({topic, mqtt: this.ws});
+          this.ws.subscribe(topic);
+        })
+        .on('message', (topic, message) => {
+//        console.log(topic, message.toString());
+          const parsedMessage = JSON.parse(message.toString());
 
-          _this.currentClassSession = JSON.parse(e.data);
-          let i, ii;
-          i = _findIndex(_this.classes, v => {
-            ii = _findIndex(v.items, {
-              id: _this.currentClassSession.class_id,
-            });
-            return ii > -1;
-          });
-          _this.parseClass(true, _this.classes[i].items[ii]);
-          if (!_this.currentClassSession.isDelete) {
-            _this.snackbar.show({
-              message: `Start class ${_this.currentClass._embedded.module.name.toUpperCase()}`,
-              actionText: 'Undo',
-              actionHandler: function () {
-                const url = `${process.env.API}/sessions/${_this.currentClassSession.id}`;
+          console.log(parsedMessage);
 
-                axios.delete(url)
-                  .then(response => {
-                    _this.$set(_this.currentClassSession, 'isDelete', true);
-                    _this.ws.send(JSON.stringify(_this.currentClassSession));
-                    _this.$set(_this.currentClassSession, 'isDelete', false);
-                  })
-                  .catch(error => console.log(error));
-              }
-            });
+          if (parsedMessage.action === 'start') {
+            this.currentStartedClass = parsedMessage.class_;
           }
-        };
-      }).$emit('reqCreatedWs');
+          if (parsedMessage.action === 'start-yes') {
+            this.currentStartedClass = parsedMessage.class_;
+
+            let i, ii;
+            i = _findIndex(this.classes, v => {
+              ii = _findIndex(v.items, {id: this.currentStartedClass.id,});
+              return ii > -1;
+            });
+            console.log(i, ii, this.classes);
+
+            setTimeout(() => this.parseClass(true, this.classes[i].items[ii]), 200);
+
+            let snackbarOpts = {
+              message: `Started class ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+            };
+            if (parsedMessage.by.id === this.currentAuth.id) {
+              console.log(parsedMessage.session);
+              snackbarOpts = Object.assign(snackbarOpts, {
+                actionText: 'Undo',
+                actionHandler: () => {
+                  const url = `${process.env.API}/sessions/${parsedMessage.session.id}`;
+
+                  axios.delete(url)
+                    .then(response => {
+                      this.ws
+                        .publish('schedules', JSON.stringify({
+                          action: "undo",
+                          class_: this.currentStartedClass,
+                        }));
+                    })
+                    .catch(error => console.log(error));
+                }
+              })
+            }
+            this.snackbar.show(snackbarOpts);
+          }
+          if (parsedMessage.action === 'undo') {
+            this.currentStartedClass = parsedMessage.class_;
+
+            let i, ii;
+            i = _findIndex(this.classes, v => {
+              ii = _findIndex(v.items, {id: this.currentStartedClass.id,});
+              return ii > -1;
+            });
+            console.log(i, ii, this.classes);
+
+            setTimeout(() => this.parseClass(true, this.classes[i].items[ii]), 200);
+            let snackbarOpts = {
+              message: `Undo class ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+            };
+            this.snackbar.show(snackbarOpts);
+          }
+        });
 
       window.mdc.autoInit();
+    },
+    beforeDestroy() {
+      console.log('beforeDestroy');
+
+      this.nextMqtt(null);
+      this.ws.end()
     }
   }
 </script>

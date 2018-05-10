@@ -6,7 +6,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    currentWs: null,
+    currentMqtt: null,
+    currentDialog: null,
     currentAuth: {
       id: 0,
       name: "...",
@@ -24,8 +25,11 @@ export default new Vuex.Store({
       nextVal.photo = authPhoto;
       state.currentAuth = nextVal
     },
-    nextWs(state, nextVal) {
-      state.currentWs = nextVal
+    nextMqtt(state, nextVal) {
+      state.currentMqtt = nextVal
+    },
+    nextDialog(state, nextVal) {
+      state.currentDialog = nextVal
     },
   },
   actions: {},

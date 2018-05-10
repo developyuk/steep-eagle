@@ -20,7 +20,7 @@
       return {}
     },
     computed: {
-      ...mapState(['currentAuth']),
+      ...mapState(['currentAuth', 'currentMqtt', 'currentDialog']),
       status() {
         const class_ = this.class_;
         const msts = moment(class_.start_at_ts);
@@ -68,10 +68,13 @@
       }
     },
     methods: {
-      activate(cid) {
-      },
       start(e) {
-        this.$bus.$emit('onStartClass', {e, index: this.index, class_: this.class_,});
+        this.currentDialog.show();
+        this.currentMqtt.mqtt
+          .publish(this.currentMqtt.topic, JSON.stringify({
+            class_: this.class_,
+            action: "start",
+          }));
       }
     },
     mounted() {
