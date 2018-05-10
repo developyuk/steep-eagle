@@ -1,4 +1,6 @@
 2018-05-10
+- update vue bus to vuex
+- update websocket to mqtt
 - update class database
 - fixed some bugs
 - cleanup code
