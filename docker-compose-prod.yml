@@ -45,6 +45,7 @@ services:
     volumes:
       - ./web/tutor/dist:/usr/share/nginx/html/mtutor:ro
       - ./web/operation/dist:/usr/share/nginx/html/mops:ro
+      - /etc/letsencrypt:/etc/letsencrypt
       - ./web/ssl.conf:/etc/nginx/ssl.conf
       - ./web/security.conf:/etc/nginx/security.conf
       - ./web/basic.conf:/etc/nginx/basic.conf
