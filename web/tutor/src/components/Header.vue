@@ -30,7 +30,7 @@
 <script>
   import _debounce from "lodash/debounce";
   import _throttle from "lodash/throttle";
-  import {mapState} from 'vuex'
+  import {mapState, mapMutations} from 'vuex'
 
   export default {
     name: 'header',
@@ -45,16 +45,18 @@
     watch: {
       q: _debounce(function (val) {
         if (!val) {
+          this.nextSearch(null);
           const $cont = document.querySelector('.search');
           $cont.classList.toggle('is-opened');
           $cont.classList.remove('fadeInRight');
           $cont.classList.add('fadeOutRight');
           setTimeout(() => $cont.classList.remove('fadeOutRight'), 100);
         }
-        this.$bus.$emit('onKeyupSearch', val);
+        this.nextSearch(val);
       }, 500)
     },
     methods: {
+      ...mapMutations(['nextSearch']),
       signOut(e) {
         localStorage.removeItem('token');
         window.location.reload();

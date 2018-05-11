@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-Vue.prototype.$bus = new Vue({});
+
 /* eslint-disable no-new */
 
 new Vue({

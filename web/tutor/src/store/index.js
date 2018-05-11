@@ -14,6 +14,7 @@ export default new Vuex.Store({
       photo: "",
       role: "...",
     },
+    currentSearch: null,
   },
   mutations: {
     nextAuth(state, nextVal) {
@@ -30,6 +31,9 @@ export default new Vuex.Store({
     },
     nextDialog(state, nextVal) {
       state.currentDialog = nextVal
+    },
+    nextSearch(state, nextVal) {
+      state.currentSearch = nextVal
     },
   },
   actions: {},

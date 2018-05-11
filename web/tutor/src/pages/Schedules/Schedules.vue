@@ -59,9 +59,6 @@
       'header1': () => import('@/components/Header'),
       'button-status': () => import('./ButtonStatus'),
     },
-    computed: {
-      ...mapState(['currentAuth']),
-    },
     data() {
       return {
         pin: null,
@@ -78,9 +75,19 @@
         mqtt: null
       }
     },
+    computed: {
+      ...mapState(['currentAuth', 'currentSearch']),
+    },
+    watch: {
+      currentSearch(v) {
+        console.log('search', v);
+        this.q = `ilike.*${v}*`;
+        this.getSchedules();
+      }
+    },
     methods: {
-      ...mapMutations(['nextMqtt', 'nextDialog']),
-      parseClass(isToday, _class) {
+      ...mapMutations(['nextMqtt', 'nextDialog', 'nextSearch']),
+      _parseClass(isToday, _class) {
         const timeout = 1;
         setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded'], item => {
           item.image = this.normalizeImage(item.image);
@@ -114,8 +121,8 @@
                 .publish('schedules', JSON.stringify({
                   on: "startYes",
                   by: this.currentAuth,
-                  class_: this.currentStartedClass,
-                  session: response.data
+                  id: this.currentStartedClass.id,
+                  sid: response.data.id
                 }));
             })
             .catch(error => console.log(error));
@@ -163,11 +170,20 @@
             this.classes = classes;
 
             this.classes.forEach((v, i, a) => {
-              v.items.forEach((v2, i2, a2) => this.parseClass(v.text === 'today', a2[i2]))
+              v.items.forEach((v2, i2, a2) => this._parseClass(v.text === 'today', a2[i2]))
             });
           })
           .catch(error => console.log(error))
       },
+      findClassById(id) {
+        let i, ii;
+        i = _findIndex(this.classes, v => {
+          ii = _findIndex(v.items, {id});
+          return ii > -1;
+        });
+        console.log(i, ii, this.classes);
+        return {i, ii}
+      }
     },
     mounted() {
       this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
@@ -175,12 +191,6 @@
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getSchedules();
 
-      this.$bus.$on('onKeyupSearch', q => {
-        this.q = `ilike.*${q}*`;
-        this.getSchedules();
-      });
-
-      const _this = this;
       this.mqtt = mqtt.connect(process.env.WS);
 
       this.mqtt
@@ -190,42 +200,37 @@
           this.mqtt.subscribe(topic);
         })
         .on('message', (topic, message) => {
-//        console.log(topic, message.toString());
+          console.log(topic, message.toString());
           const parsedMessage = JSON.parse(message.toString());
+          const {id: msgId, on: msgOn} = parsedMessage;
 
-          console.log(parsedMessage);
-
-          if (parsedMessage.on === 'start') {
-            this.currentStartedClass = parsedMessage.class_;
+          if (msgOn === 'start') {
+            const {i, ii} = this.findClassById(msgId);
+            this.currentStartedClass = this.classes[i].items[ii];
           }
-          if (parsedMessage.on === 'startYes') {
-            this.currentStartedClass = parsedMessage.class_;
+          if (msgOn === 'startYes') {
+            const {i, ii} = this.findClassById(msgId);
+            this.currentStartedClass = this.classes[i].items[ii];
 
-            let i, ii;
-            i = _findIndex(this.classes, v => {
-              ii = _findIndex(v.items, {id: this.currentStartedClass.id,});
-              return ii > -1;
-            });
-            console.log(i, ii, this.classes);
-
-            setTimeout(() => this.parseClass(true, this.classes[i].items[ii]), 200);
+            setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
 
             let snackbarOpts = {
-              message: `Started class ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+              message: `Class started: ${this.currentStartedClass._embedded.module.name.toUpperCase()}`
             };
-            if (parsedMessage.by.id === this.currentAuth.id) {
-              console.log(parsedMessage.session);
+            const {by: msgBy, sid: MsgSid} = parsedMessage;
+            if (msgBy.id === this.currentAuth.id) {
+              console.log(MsgSid);
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: 'Undo',
                 actionHandler: () => {
-                  const url = `${process.env.API}/sessions/${parsedMessage.session.id}`;
+                  const url = `${process.env.API}/sessions/${MsgSid}`;
 
                   axios.delete(url)
                     .then(response => {
                       this.mqtt
                         .publish('schedules', JSON.stringify({
                           on: "undo",
-                          class_: this.currentStartedClass,
+                          id: this.currentStartedClass.id,
                         }));
                     })
                     .catch(error => console.log(error));
@@ -234,19 +239,13 @@
             }
             this.snackbar.show(snackbarOpts);
           }
-          if (parsedMessage.on === 'undo') {
-            this.currentStartedClass = parsedMessage.class_;
+          if (msgOn === 'undo') {
+            const {i, ii} = this.findClassById(msgId);
+            this.currentStartedClass = this.classes[i].items[ii];
 
-            let i, ii;
-            i = _findIndex(this.classes, v => {
-              ii = _findIndex(v.items, {id: this.currentStartedClass.id,});
-              return ii > -1;
-            });
-            console.log(i, ii, this.classes);
-
-            setTimeout(() => this.parseClass(true, this.classes[i].items[ii]), 200);
+            setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
             let snackbarOpts = {
-              message: `Undo class ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+              message: `Undo class: ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
           }
@@ -257,8 +256,10 @@
     beforeDestroy() {
       console.log('beforeDestroy');
 
+      this.mqtt.end();
       this.nextMqtt(null);
-      this.mqtt.end()
+      this.nextSearch(null);
+      this.nextDialog(null);
     }
   }
 </script>

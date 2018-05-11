@@ -257,8 +257,8 @@
     beforeDestroy() {
       console.log('beforeDestroy');
 
-      this.nextMqtt(null);
       this.mqtt.end();
+      this.nextMqtt(null);
     }
   }
 </script>

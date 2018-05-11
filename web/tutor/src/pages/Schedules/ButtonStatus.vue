@@ -72,7 +72,7 @@
         this.currentDialog.show();
         this.currentMqtt.mqtt
           .publish(this.currentMqtt.topic, JSON.stringify({
-            class_: this.class_,
+            id: this.class_.id,
             on: "start",
           }));
       }
