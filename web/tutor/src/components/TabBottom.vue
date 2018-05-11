@@ -6,6 +6,9 @@
     router-link(to="/students" :class="{'mdc-tab--active': isActivePath('/students')}").mdc-tab.mdc-tab--with-icon-and-text
       i.material-icons.mdc-tab__icon(aria-hidden="true") face
       span.mdc-tab__icon-text Student
+    router-link(to="/progress" :class="{'mdc-tab--active': isActivePath('/progress')}").mdc-tab.mdc-tab--with-icon-and-text
+      i.material-icons.mdc-tab__icon(aria-hidden="true") insert_chart
+      span.mdc-tab__icon-text Progress
 
     //span.mdc-tab-bar__indicator
 </template>

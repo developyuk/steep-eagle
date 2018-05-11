@@ -8,14 +8,17 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Schedules',
       component: () => import('@/pages/Schedules/Schedules'),
       meta: {requiresAuth: true}
     },
     {
       path: '/students',
-      name: 'Students',
       component: () => import('@/pages/Students/Students'),
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/progress',
+      component: () => import('@/pages/Progress/Progress'),
       meta: {requiresAuth: true}
     },
     {

@@ -80,7 +80,6 @@
     },
     watch: {
       currentSearch(v) {
-        console.log('search', v);
         this.q = `ilike.*${v}*`;
         this.getSchedules();
       }
@@ -122,7 +121,7 @@
                   on: "startYes",
                   by: this.currentAuth,
                   id: this.currentStartedClass.id,
-                  sid: response.data.id
+//                  sid: response.data.id
                 }));
             })
             .catch(error => console.log(error));
@@ -181,7 +180,7 @@
           ii = _findIndex(v.items, {id});
           return ii > -1;
         });
-        console.log(i, ii, this.classes);
+//        console.log(i, ii, this.classes);
         return {i, ii}
       }
     },
@@ -219,7 +218,7 @@
             };
             const {by: msgBy, sid: MsgSid} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
-              console.log(MsgSid);
+//              console.log(MsgSid);
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: 'Undo',
                 actionHandler: () => {
@@ -254,7 +253,7 @@
       window.mdc.autoInit();
     },
     beforeDestroy() {
-      console.log('beforeDestroy');
+//      console.log('beforeDestroy');
 
       this.mqtt.end();
       this.nextMqtt(null);
