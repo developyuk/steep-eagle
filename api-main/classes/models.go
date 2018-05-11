@@ -36,6 +36,7 @@ type (
     ProgramModuleID uint64    `json:"program_module_id"`
     BranchId        uint64    `json:"branch_id"`
     TutorId         uint64    `json:"tutor_id"`
+    Q               string    `json:"q"`
   }
 )
 

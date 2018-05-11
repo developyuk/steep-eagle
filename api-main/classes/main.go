@@ -25,21 +25,24 @@ type (
 func list(params map[string]string) (*http.Response, *mySharedRest.MyRest, []Class_, error) {
   var list, listFiltered []Class_
   var resp *http.Response
-  path := "/_classes_ts"
-  if _, ok := params["q"]; ok {
-    //do something here
-    path = "/_classes_ts_search"
-  }
-  rest := mySharedRest.New().GetItems(path)
+
+  rest := mySharedRest.New().GetItems("/_classes_ts_search")
   if resp, err := rest.SetQuery(params).EndStruct(&list); err != nil {
     //spew.Dump(params,resp,list)
     return resp, rest, list, err
   }
 
   for _, v := range list {
-    if !(!strings.Contains(mySharedJwt.CurrentAuth.Username, "tester") && (v.ProgramModuleID == 11 || v.ProgramModuleID == 12)) {
+    qArr := strings.Split(v.Q, ", ")
+
+    if strings.Contains(qArr[0], "dummies") {
+      if strings.Contains(mySharedJwt.CurrentAuth.Username, "tester"){
+        listFiltered = append(listFiltered, v)
+      }
+    } else {
       listFiltered = append(listFiltered, v)
     }
+
   }
   for i, v := range listFiltered {
     listFiltered[i].Links = ItemLinks(&v)
