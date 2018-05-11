@@ -10,6 +10,8 @@ services:
     environment:
       - JWT_KEY=${JWT_KEY}
       - HOST=${HOST}
+      - HOST_DB_API=${HOST_DB_API}
+      - HOST_MQTT=${HOST_MQTT}
       - BIN_APP_PORT=1323
     depends_on:
       - db-api

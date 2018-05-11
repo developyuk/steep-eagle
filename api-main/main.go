@@ -31,7 +31,7 @@ func main() {
   })
   e.POST("/sign", myUsers.Sign)
 
-  opts := mqtt.NewClientOptions().AddBroker("tcp://" + os.Getenv("HOST") + ":1883")
+  opts := mqtt.NewClientOptions().AddBroker("tcp://" + os.Getenv("HOST_MQTT") + ":1883")
 
   c := mqtt.NewClient(opts)
   if token := c.Connect(); token.Wait() && token.Error() != nil {

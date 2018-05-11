@@ -1,3 +1,4 @@
+web/nginx-log
 **/letsencrypt
 .idea
 .env
