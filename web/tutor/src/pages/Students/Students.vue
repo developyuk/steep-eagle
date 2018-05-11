@@ -48,17 +48,54 @@
       'card': () => import('./Card')
     },
     computed: {
-      ...mapState(['currentAuth']),
+      ...mapState(['currentAuth', 'currentStudentSession']),
+    },
+    watch: {
+      currentStudentSession(v) {
+        const {sid, uid, on: stateOn} = v;
+        const [i, ii] = this.getSessionIndex(sid, uid);
+
+        switch (stateOn) {
+          case 'tapStudent': {
+            const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+            this.sessions.forEach((v, i, a) => {
+              v._embedded.items.forEach((v2, i2, a2) => {
+                this.$set(a2[i2], 'isActive', false)
+              });
+            });
+//            console.log(i, ii, item['isActive']);
+            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+            break;
+          }
+          case 'clickRating': {
+            const $el = this.getSessionElement(sid, uid);
+            const {form} = v;
+            for (const k in form) {
+              const value = form[k];
+              if (value) {
+                if (k !== 'review') {
+                  const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
+//                  console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
+                  const $rating = $elIcon.closest('.rating');
+                  $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
+                  [...Array(parseInt(value)).keys()].forEach(v => {
+                    $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
+                  });
+                } else {
+                  const $elTextbox = $el.querySelector(`.review textarea`);
+                  $elTextbox.innerText = value;
+                }
+              }
+            }
+//            console.log(form);
+            break;
+          }
+        }
+      }
     },
     data() {
       return {
         sessions: null,
-        currentStudent: {
-          sid: "0",
-          uid: "0",
-          name: "",
-          is: "empty",
-        },
 
         snackbar: null,
         mqtt: null,
@@ -157,7 +194,6 @@
       }
     },
     mounted() {
-      const _this = this;
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
       this.getStudentsSessions();
       window.mdc.autoInit();
@@ -175,79 +211,54 @@
           const parsedMessage = JSON.parse(message.toString());
 
           const {sid, uid, name} = parsedMessage;
-          const $el = _this.getSessionElement(sid, uid);
-          const [i, ii] = _this.getSessionIndex(sid, uid);
+          const $el = this.getSessionElement(sid, uid);
+          const [i, ii] = this.getSessionIndex(sid, uid);
 
           switch (parsedMessage.on) {
-            case 'tapStudent': {
-              const item = _cloneDeep(_this.sessions[i]._embedded.items[ii]);
-
-              _this.sessions.forEach((v, i, a) => {
-                v._embedded.items.forEach((v2, i2, a2) => {
-                  _this.$set(a2[i2], 'isActive', false)
-                });
-              });
-              console.log(i, ii, item['isActive']);
-              _this.$set(_this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
-              break;
-            }
-            case 'clickRating': {
-              const {form} = parsedMessage;
-              for (const k in form) {
-                const value = form[k];
-                if (value) {
-                  if (k !== 'review') {
-                    const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
-                    console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
-                    const $rating = $elIcon.closest('.rating');
-                    $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
-                    [...Array(parseInt(value)).keys()].forEach(v => {
-                      $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
-                    });
-                  } else {
-                    const $elTextbox = $el.querySelector(`.review textarea`);
-                    $elTextbox.innerText = value;
-                  }
-                }
-              }
-              console.log(form);
-              break;
-            }
             case 'undoRateReview': {
+//              console.log($el);
               $el.className = "animated slideInLeftHeight";
               $el.style.marginLeft = 0;
+              let snackbarOpts = {
+                message: `Undo student: ${name.split(" ")[0].toUpperCase()}`
+              };
+              this.snackbar.show(snackbarOpts);
               break;
             }
             case 'successRateReview': {
+              const {by: msgBy} = parsedMessage;
               $el.className = "hide";
 
-              _this.sessions.forEach((v, i, a) => {
+              this.sessions.forEach((v, i, a) => {
                 v._embedded.items.forEach((v2, i2, a2) => {
-                  _this.$set(a2[i2], 'isActive', false)
+                  this.$set(a2[i2], 'isActive', false)
                 });
               });
 //            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
+              let snackbarOpts = {
+                message: `Student ${name.split(" ")[0].toUpperCase()} has been saved`,
+              };
+              if (msgBy.id === this.currentAuth.id) {
+                snackbarOpts = Object.assign(snackbarOpts, {
+                  actionText: 'Undo',
+                  actionHandler: () => {
+                    this.mqtt
+                      .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
+                    const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
 
-              _this.snackbar.show({
-                message: `${name.split(" ")[0].toUpperCase()} has been saved`,
-                actionText: 'Undo',
-                actionHandler: function () {
-                  _this.mqtt
-                    .publish('undoRateReview', parsedMessage);
-                  const url = `${process.env.API}/sessions/${sid}/students/${uid}`;
-
-                  axios.delete(url)
-                    .then(response => {
-                      _this.mqtt
-                        .publish('undoRateReview', parsedMessage);
-                    })
-                    .catch(error => {
-                      console.log(error);
-                      _this.mqtt
-                        .publish(successRateReview, parsedMessage);
-                    });
-                }
-              });
+                    axios.delete(url)
+                      .then(response => {
+                        console.log(response.data)
+                      })
+                      .catch(error => {
+                        console.log(error);
+                        this.mqtt
+                          .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'successRateReview'})));
+                      });
+                  }
+                })
+              }
+              this.snackbar.show(snackbarOpts);
               break;
             }
           }

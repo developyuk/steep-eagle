@@ -13,7 +13,7 @@
   import axios from 'axios';
   import _debounce from 'lodash/debounce';
   import {getCorrectEventName} from '@material/animation';
-  import {mapState} from 'vuex';
+  import {mapState, mapMutations} from 'vuex';
 
   export default {
     name: 'card',
@@ -22,7 +22,7 @@
       'empty': () => import('./Empty'),
     },
     computed: {
-      ...mapState(['currentMqtt']),
+      ...mapState(['currentAuth', 'currentMqtt']),
     },
     props: ['index', 'sid', 'student', 'isActive'],
     watch: {
@@ -38,27 +38,21 @@
       }
     },
     methods: {
+      ...mapMutations(['nextStudentSession']),
       setPosition(v = 0) {
         this.$el.style.marginLeft = `${v}px`;
       }
     },
     mounted() {
-      console.log();
+//      console.log();
       const $el = this.$el.querySelector('.mdc-list-item');
 //      const $form = this.$el.querySelector('.mdc-list-item').nextSibling.nextSibling;
 
-      this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-        console.log(e.animationName);
-        if (['slideOutRightHeight', 'slideOutLeftHeight', 'slideOutUpHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
-          this.currentMqtt.mqtt
-            .publish(this.currentMqtt.topic, JSON.stringify({
-              sid: this.sid,
-              uid: this.student.id,
-              name: this.student.name,
-              on: "successRateReview",
-            }));
-        }
-      });
+//      this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
+//        console.log(e.animationName);
+//        if (['slideOutRightHeight', 'slideOutLeftHeight', 'slideOutUpHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
+//        }
+//      });
 
       this.hammertime = new Hammer($el, {});
       this.hammertime
@@ -67,6 +61,14 @@
             this.$el.classList.add('animated', `slideOut${this.direction}Height`);
             const path = `/sessions/${this.sid}/students/${this.student.id}`;
 
+            this.currentMqtt.mqtt
+              .publish(this.currentMqtt.topic, JSON.stringify({
+                sid: this.sid,
+                uid: this.student.id,
+                name: this.student.name,
+                by: this.currentAuth,
+                on: "successRateReview",
+              }));
             axios.post(`${process.env.API}${path}`, {
               interaction: 0,
               creativity: 0,
@@ -74,6 +76,9 @@
               review: "",
               status: 0,
             })
+              .then(response => {
+                console.log(response.data);
+              })
               .catch(error => {
                 console.log(error);
 
@@ -82,6 +87,7 @@
                     sid: this.sid,
                     uid: this.student.id,
                     name: this.student.name,
+                    by: this.currentAuth,
                     on: "undoRateReview",
                   }));
               });
@@ -96,13 +102,12 @@
         .on('panleft', e => this.direction = 'Left')
         .on('panright', e => this.direction = 'Right')
         .on('tap', e => {
-          this.currentMqtt.mqtt
-            .publish(this.currentMqtt.topic, JSON.stringify({
-              sid: this.sid,
-              uid: this.student.id,
-              name: this.student.name,
-              on: "tapStudent",
-            }));
+          this.nextStudentSession({
+            sid: this.sid,
+            uid: this.student.id,
+            name: this.student.name,
+            on: "tapStudent",
+          })
         });
     }
   }

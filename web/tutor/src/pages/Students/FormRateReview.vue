@@ -32,13 +32,13 @@
 <script>
   import axios from 'axios';
   import {getCorrectEventName} from '@material/animation';
-  import {mapState} from 'vuex';
+  import {mapState, mapMutations} from 'vuex';
 
   export default {
     name: 'form-rate-review',
     props: ['sid', 'uid', 'name', 'index'],
     computed: {
-      ...mapState(['currentMqtt']),
+      ...mapState(['currentAuth', 'currentMqtt']),
     },
     data() {
       return {
@@ -50,22 +50,22 @@
     },
     watch: {
       review(val) {
-        this.currentMqtt.mqtt
-          .publish(this.currentMqtt.topic, JSON.stringify({
-            sid: this.sid,
-            uid: this.uid,
-            name: this.name,
-            form: {
-              interaction: parseInt(this.ratingInteraction),
-              creativity: parseInt(this.ratingCreativity),
-              cognition: parseInt(this.ratingCognition),
-              review: this.review,
-            },
-            on: "clickRating",
-          }));
+        this.nextStudentSession({
+          sid: this.sid,
+          uid: this.uid,
+          name: this.name,
+          form: {
+            interaction: parseInt(this.ratingInteraction),
+            creativity: parseInt(this.ratingCreativity),
+            cognition: parseInt(this.ratingCognition),
+            review: this.review,
+          },
+          on: "clickRating",
+        })
       }
     },
     methods: {
+      ...mapMutations(['nextStudentSession']),
       onClickRating(e) {
         const value = e.target.dataset.value;
         const ParentClassList = e.target.closest('.clearfix').classList;
@@ -82,24 +82,33 @@
         if (isCreativity) {
           this.ratingCreativity = value;
         }
-        this.currentMqtt.mqtt
-          .publish(this.currentMqtt.topic, JSON.stringify({
-            sid: this.sid,
-            uid: this.uid,
-            name: this.name,
-            form: {
-              interaction: parseInt(this.ratingInteraction),
-              creativity: parseInt(this.ratingCreativity),
-              cognition: parseInt(this.ratingCognition),
-              review: this.review,
-            },
-            on: "clickRating",
-          }));
+
+        this.nextStudentSession({
+          sid: this.sid,
+          uid: this.uid,
+          name: this.name,
+          form: {
+            interaction: parseInt(this.ratingInteraction),
+            creativity: parseInt(this.ratingCreativity),
+            cognition: parseInt(this.ratingCognition),
+            review: this.review,
+          },
+          on: "clickRating",
+        })
       },
       submit() {
         const $el = this.$el.closest('li');
         $el.classList.add('animated', `slideOutUpHeight`);
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
+
+        this.currentMqtt.mqtt
+          .publish(this.currentMqtt.topic, JSON.stringify({
+            sid: this.sid,
+            uid: this.uid,
+            name: this.name,
+            by: this.currentAuth,
+            on: "successRateReview",
+          }));
         axios.post(url, {
           interaction: parseInt(this.ratingInteraction),
           creativity: parseInt(this.ratingCreativity),
@@ -107,12 +116,16 @@
           review: this.review,
           status: true,
         })
+          .then(response => {
+            console.log(response.data);
+          })
           .catch(error => {
             this.currentMqtt.mqtt
               .publish(this.currentMqtt.topic, JSON.stringify({
                 sid: this.sid,
                 uid: this.uid,
                 name: this.name,
+                by: this.currentAuth,
                 on: "undoRateReview",
               }));
             console.log(error)
@@ -123,6 +136,14 @@
         $el.classList.add('animated', `slideOutUpHeight`);
         const url = `${process.env.API}/sessions/${this.sid}/students/${this.uid}`;
 
+        this.currentMqtt.mqtt
+          .publish(this.currentMqtt.topic, JSON.stringify({
+            sid: this.sid,
+            uid: this.uid,
+            name: this.name,
+            by: this.currentAuth,
+            on: "successRateReview",
+          }));
         axios.post(url, {
           interaction: parseInt(this.ratingInteraction),
           creativity: parseInt(this.ratingCreativity),
@@ -130,6 +151,9 @@
           review: this.review,
           status: false,
         })
+          .then(response => {
+            console.log(response.data);
+          })
           .catch(error => {
             console.log(error);
             this.currentMqtt.mqtt
@@ -137,6 +161,7 @@
                 sid: this.sid,
                 uid: this.uid,
                 name: this.name,
+                by: this.currentAuth,
                 on: "undoRateReview",
               }));
           });

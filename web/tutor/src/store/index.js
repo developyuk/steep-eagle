@@ -7,14 +7,17 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     currentMqtt: null,
-    currentDialog: null,
     currentAuth: {
       id: 0,
       name: "...",
       photo: "",
       role: "...",
     },
+
+    currentDialog: null,
     currentSearch: null,
+
+    currentStudentSession: null,
   },
   mutations: {
     nextAuth(state, nextVal) {
@@ -29,11 +32,16 @@ export default new Vuex.Store({
     nextMqtt(state, nextVal) {
       state.currentMqtt = nextVal
     },
+
     nextDialog(state, nextVal) {
       state.currentDialog = nextVal
     },
     nextSearch(state, nextVal) {
       state.currentSearch = nextVal
+    },
+
+    nextStudentSession(state, nextVal) {
+      state.currentStudentSession = nextVal
     },
   },
   actions: {},
