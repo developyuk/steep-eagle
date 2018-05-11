@@ -1,4 +1,4 @@
-//DB_API=localhost:3000 go run *.go
+//HOST_DB_API=localhost:3000 go run *.go
 package main
 
 import (
