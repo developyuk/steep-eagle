@@ -7,8 +7,6 @@
         br
         br
         | we are still under construction ~~
-        br
-        | or perhaps you just want to sign out?
     tab-bottom
 </template>
 
