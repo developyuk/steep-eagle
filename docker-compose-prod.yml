@@ -3,7 +3,8 @@ services:
   api-main:
     build:        ./api-main
     volumes:
-       - ./api-main:/project
+      - ./api-main:/project
+      - /etc/letsencrypt:/etc/letsencrypt
     working_dir:  /project
     ports:
       - "90:1323"
