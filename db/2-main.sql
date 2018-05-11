@@ -1,3 +1,16 @@
+-- truncate all table
+--SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;' FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
+DROP TABLE IF EXISTS class_students CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS classes CASCADE;
+DROP TABLE IF EXISTS branches CASCADE;
+DROP TABLE IF EXISTS programs_modules CASCADE;
+DROP TABLE IF EXISTS users_profile CASCADE;
+DROP TABLE IF EXISTS programs CASCADE;
+DROP TABLE IF EXISTS modules CASCADE;
+DROP TABLE IF EXISTS program_types CASCADE;
+
+
 CREATE TABLE program_types (
   id   BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL UNIQUE

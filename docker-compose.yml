@@ -6,39 +6,35 @@ services:
        - ./api-main:/project
     working_dir:  /project
     ports:
-     - "91:3000"
+      - "91:3000"
     environment:
       - JWT_KEY=${JWT_KEY}
       - HOST=${HOST}
+      - BIN_APP_PORT=1323
     depends_on:
-      - db-main
+      - db-api
     command:      gin run
-  mqtt:
-    image: emqttd-docker-v2.3.7
-    network_mode: "host"
+  db-api:
+    image: postgrest/postgrest
+#    remove ports on production
+    ports:
+      - "3000:3000"
     environment:
-      - EMQ_HOST=${HOST}
-      - EMQ_WAIT_TIME=21
-  db-main:
-    build:       ./db-main
+      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - PGRST_DB_SCHEMA=public
+      - PGRST_DB_ANON_ROLE=anon
+      - PGRST_JWT_SECRET=${JWT_KEY}
+    depends_on:
+      - db
+  db-admin:
+    image:      adminer
+    ports:
+      - "99:8080"
+    depends_on:
+      - db
+  db:
+    build:       ./db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-  db-api:
-    image: postgrest/postgrest
-    ports:
-      - "3000:3000"
-    links:
-      - db-main:db
-    environment:
-      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db-main:5432/${POSTGRES_DB}
-      - PGRST_DB_SCHEMA=public
-      - PGRST_DB_ANON_ROLE=anon
-      - PGRST_JWT_SECRET=${JWT_KEY}
-  db-admin:
-    image:      adminer
-    ports:
-      - "5050:8080"
-    links:
-      - db-main:db

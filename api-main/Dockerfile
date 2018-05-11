@@ -14,5 +14,3 @@ RUN set -ex \
   && go get github.com/eclipse/paho.mqtt.golang \
   && go get github.com/davecgh/go-spew/spew \
   && go get github.com/codegangsta/gin
-
-ENV BIN_APP_PORT 1323
