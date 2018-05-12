@@ -14,13 +14,28 @@
             .name {{currentAuth.name}}
             .email {{currentAuth.email}}
         nav#icon-with-text-demo.mdc-drawer__content.mdc-list
-          .content
-            img(src="static/img/uc.gif")
-            br
-            br
-            | we are still under construction ~~
-            br
-            | or perhaps you just want to sign out?
+          .stats.stats--icons
+            .mdc-layout-grid
+              .mdc-layout-grid__inner
+                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
+                  i.material-icons.mdc-tab__icon(aria-hidden="true") class
+                  .text {{currentStats.classes}} classes
+                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
+                  i.material-icons.mdc-tab__icon(aria-hidden="true") clock
+                  .text {{currentStats.hours}} hours
+                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
+                  i.material-icons.mdc-tab__icon(aria-hidden="true") stars
+                  .text {{currentStats.feedbacks}} feedbacks
+          .stats.stats--texts
+            .ratings
+              .title ratings given
+              .text {{currentStats.ratings}}%
+            .reviews
+              .title reviews given
+              .text {{currentStats.reviews}}%
+            .attendances
+              .title teaching attendances
+              .text {{currentStats.attendances}}%
           .mdc-list-divider(role="separator")
           a.mdc-list-item(href='#' @click.prevent="signOut($event)")
             i.material-icons.mdc-list-item__graphic(aria-hidden='true') power_settings_new
@@ -30,12 +45,12 @@
 <script>
   import _debounce from "lodash/debounce";
   import _throttle from "lodash/throttle";
-  import {mapState, mapMutations} from 'vuex'
+  import {mapState, mapMutations, mapActions} from 'vuex'
 
   export default {
     name: 'header',
     computed: {
-      ...mapState(['currentAuth']),
+      ...mapState(['currentAuth', 'currentStats']),
     },
     data() {
       return {
@@ -57,6 +72,7 @@
     },
     methods: {
       ...mapMutations(['nextSearch']),
+      ...mapActions(['updateStats']),
       signOut(e) {
         localStorage.removeItem('token');
         window.location.reload();
@@ -88,6 +104,7 @@
       document.querySelector('img.logo').addEventListener('click', () => {
         drawer.open = true;
       });
+      this.updateStats();
     }
   }
 </script>
@@ -95,6 +112,7 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   @import "../assets/shared";
+  @import "~sass-bem";
 
   header {
     position: relative;
@@ -179,9 +197,25 @@
       }
     }
     .mdc-drawer__content {
-      color: map-get($palettes, purple-darken1);
+      color: map-get($palettes, red);
     }
-    .content {
+    .stats {
+      color: map_get($palettes, red);
+      .title {
+        text-transform: capitalize;
+      }
+      @include m(icons) {
+      }
+      @include m(texts) {
+        > div {
+          margin: 1rem 0;
+          padding: 1rem;
+          background-color: map_get($palettes, grey);
+          border-radius: 1rem;
+        }
+      }
+    }
+    /*.content {
       position: absolute;
       top: 60%;
       left: 50%;
@@ -189,7 +223,7 @@
       width: 80%;
       text-align: center;
       font-size: .675rem;
-    }
+    }*/
     img {
       width: 8rem;
       border-radius: 50%;

@@ -18,6 +18,15 @@ export default new Vuex.Store({
     currentSearch: null,
 
     currentStudentSession: null,
+
+    currentStats: {
+      classes: 0,
+      hours: 0,
+      feedbacks: 0,
+      ratings: 0,
+      reviews: 0,
+      attendances: 0,
+    },
   },
   mutations: {
     nextAuth(state, nextVal) {
@@ -43,6 +52,14 @@ export default new Vuex.Store({
     nextStudentSession(state, nextVal) {
       state.currentStudentSession = nextVal
     },
+    nextStats(state, nextVal) {
+      state.currentStats = Object.assign(state.currentStats, nextVal)
+    },
   },
-  actions: {},
+  actions: {
+    updateStats({commit, state}) {
+      console.log('state.currentAuth',state.currentAuth.id);
+      commit('nextStats', {})
+    }
+  },
 })

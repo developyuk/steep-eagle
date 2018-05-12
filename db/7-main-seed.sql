@@ -41,3 +41,21 @@
 --SELECT SETVAL('public.programs_modules_id_seq', COALESCE(MAX(id), 1) ) FROM public.programs_modules;
 --SELECT SETVAL('public.sessions_id_seq', COALESCE(MAX(id), 1) ) FROM public.sessions;
 --SELECT SETVAL('public.users_id_seq', COALESCE(MAX(id), 1) ) FROM public.users;
+
+-- select count(id)
+-- from (
+-- SELECT DISTINCT ON (id,ts) *
+-- FROM "_stats_tutors"
+-- where tutor_id=1) a;
+--
+-- select sum(duration)
+-- from (
+-- select finish_at_ts-start_at_ts duration,*
+-- FROM (
+-- SELECT DISTINCT ON (id,ts) *
+-- FROM "_stats_tutors"
+-- where tutor_id=1) a) b;
+--
+-- select sum(id)
+-- FROM "_stats_tutors"
+-- where tutor_id=1 and feedback is not null and btrim(feedback,'') != ''

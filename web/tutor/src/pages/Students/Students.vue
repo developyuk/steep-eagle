@@ -195,7 +195,7 @@
     },
     mounted() {
       this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
-      this.getStudentsSessions();
+      setTimeout(() => this.getStudentsSessions(), 1);
       window.mdc.autoInit();
 
       this.mqtt = mqtt.connect(process.env.WS);

@@ -1,12 +1,13 @@
 $colors: (
-  amaranth: #ED235C,
-  burnt-sienna: #EB5757,
-  sea-buckthorn: #F29E4C,
-  bright-turquoise: #1FEEB2,
-  medium-aquamarine: #6FCF97,
-  maya-blue: #56CCF2,
-  medium-orchid: #BB6BD9,
-  medium-purple: #9B51E0,
+  amaranth: #ed235c,
+  burnt-sienna: #eb5757,
+  sea-buckthorn: #f29e4c,
+  bright-turquoise: #1feeb2,
+  medium-aquamarine: #6fcf97,
+  maya-blue: #56ccf2,
+  medium-orchid: #bb6bd9,
+  medium-purple: #9b51e0,
+  gainsboro: #e6e6e6,
 );
 
 $palettes: (
@@ -18,6 +19,7 @@ $palettes: (
   blue:map-get($colors, maya-blue),
   purple:map-get($colors, medium-orchid),
   purple-darken1:map-get($colors, medium-purple),
+  grey:map-get($colors, gainsboro),
 );
 
 $palettes: map-merge($palettes, $colors);

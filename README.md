@@ -57,6 +57,8 @@ $ HOST_DB_API=localhost:3000 go run *.go
 - [PostgREST](//postgrest.com/) PostgREST is a standalone web server that turns your PostgreSQL database directly into a RESTful API.
 - [Vue.js](//vuejs.org/) The Progressive JavaScript Framework
 - [Docker](//www.docker.com/) Operating-system-level virtualization also known as containers
+- [Let’s Encrypt](//letsencrypt.org) free, automated, and open Certificate Authority.
+
 
 ## Library
 - [JSON Web Tokens](//jwt.io) JSON Web Tokens are an open, industry standard RFC 7519 method for representing claims securely between two parties. JWT.IO allows you to decode, verify and generate JWT.
