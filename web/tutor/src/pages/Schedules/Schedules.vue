@@ -120,7 +120,7 @@
                   on: "startYes",
                   by: this.currentAuth,
                   id: this.currentStartedClass.id,
-//                  sid: response.data.id
+                  sid: response.data.id
                 }));
             })
             .catch(error => console.log(error));
