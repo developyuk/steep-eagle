@@ -17,7 +17,6 @@
   import Hammer from 'hammerjs';
 
   export default {
-    name: 'card',
     components: {
       'form-rate-review': () => import('./FormRateReview'),
       'empty': () => import('./Empty'),

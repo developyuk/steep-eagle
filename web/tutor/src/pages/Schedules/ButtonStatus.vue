@@ -15,7 +15,6 @@
   import {MDCRipple} from '@material/ripple';
 
   export default {
-    name: 'buttonStatus',
     props: ['class_', 'index'],
     data() {
       return {}
@@ -79,7 +78,7 @@
       }
     },
     mounted() {
-      new MDCRipple(document.querySelector('.mdc-button'));
+      new MDCRipple(this.$el.querySelector('.mdc-button'));
     }
   }
 </script>

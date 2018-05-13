@@ -35,6 +35,7 @@
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
   import {MDCSnackbar} from '@material/snackbar';
+  import {MDCRipple} from '@material/ripple';
   import TemplateMain from '@/templates/TemplateMain';
 
   export default {
@@ -117,7 +118,7 @@
       getSessionElement(sessionId, studentId) {
         const [i, ii] = this.getSessionIndex(sessionId, studentId);
 
-        return Array.from(document.querySelectorAll('ul.mdc-list > li')).filter(v => {
+        return Array.from(this.$el.querySelectorAll('ul.mdc-list > li')).filter(v => {
           return v.dataset.index === `${i}.${ii}`
         })[0];
       },
@@ -192,7 +193,10 @@
       }
     },
     mounted() {
-      this.snackbar = new MDCSnackbar(document.querySelector('.mdc-snackbar'));
+      if (!!this.$el.querySelector('.mdc-button')) {
+        new MDCRipple(this.$el.querySelector('.mdc-button'));
+      }
+      this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
       setTimeout(() => this.getStudentsSessions(), 1);
 
       this.mqtt = mqtt.connect(process.env.WS);

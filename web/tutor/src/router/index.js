@@ -23,7 +23,6 @@ export default new Router({
     },
     {
       path: '/sign',
-      name: 'Sign',
       component: () => import('@/pages/Sign'),
     }
   ]

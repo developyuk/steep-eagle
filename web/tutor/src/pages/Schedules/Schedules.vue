@@ -52,7 +52,6 @@
   import TemplateMain from '@/templates/TemplateMain';
 
   export default {
-    name: 'schedules',
     mixins: [sharedHal, sharedImage],
     components: {
       'template-main': TemplateMain,
@@ -185,10 +184,10 @@
       }
     },
     mounted() {
-      new MDCRipple(document.querySelector('.mdc-button'));
-      this.dialog = new MDCDialog(document.querySelector('#my-mdc-dialog'));
+      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      this.dialog = new MDCDialog(this.$el.querySelector('#my-mdc-dialog'));
       this.nextDialog(this.dialog);
-      this.snackbar = new MDCSnackbar(document.querySelector('.mdc-snackbar'));
+      this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
       this.getSchedules();
 
       this.mqtt = mqtt.connect(process.env.WS);

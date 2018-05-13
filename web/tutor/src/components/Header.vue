@@ -48,7 +48,6 @@
   import {MDCTemporaryDrawer} from '@material/drawer';
 
   export default {
-    name: 'header',
     computed: {
       ...mapState(['currentAuth', 'currentStats']),
     },
@@ -61,7 +60,7 @@
       q: _debounce(function (val) {
         if (!val) {
           this.nextSearch(null);
-          const $cont = document.querySelector('.search');
+          const $cont = this.$el.querySelector('.search');
           $cont.classList.toggle('is-opened');
           $cont.classList.remove('fadeInRight');
           $cont.classList.add('fadeOutRight');
@@ -100,8 +99,8 @@
     destroyed() {
     },
     mounted() {
-      const drawer = new MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
-      document.querySelector('img.logo').addEventListener('click', () => drawer.open = true);
+      const drawer = new MDCTemporaryDrawer(this.$el.querySelector('.mdc-drawer--temporary'));
+      this.$el.querySelector('img.logo').addEventListener('click', () => drawer.open = true);
       this.updateStats();
     }
   }

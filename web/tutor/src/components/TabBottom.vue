@@ -17,7 +17,6 @@
   import {MDCTabBar, MDCTabBarFoundation} from '@material/tabs';
 
   export default {
-    name: 'tabBottom',
     data() {
       return {
       }

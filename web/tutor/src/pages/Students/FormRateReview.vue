@@ -37,7 +37,6 @@
   import {MDCTextField} from '@material/textfield';
 
   export default {
-    name: 'form-rate-review',
     props: ['sid', 'uid', 'name', 'index'],
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
@@ -170,8 +169,8 @@
       }
     },
     mounted() {
-      new MDCTextField(document.querySelector('.mdc-text-field'));
-      new MDCRipple(document.querySelector('.mdc-button'));
+      new MDCTextField(this.$el.querySelector('.mdc-text-field'));
+      new MDCRipple(this.$el.querySelector('.mdc-button'));
     }
   }
 </script>
