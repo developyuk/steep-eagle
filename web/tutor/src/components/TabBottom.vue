@@ -1,5 +1,5 @@
 <template lang="pug">
-  nav#icon-text-tab-bar.mdc-tab-bar.mdc-tab-bar--icons-with-text.mdc-elevation--z8(data-mdc-auto-init="MDCTabBar")
+  nav#icon-text-tab-bar.mdc-tab-bar.mdc-tab-bar--icons-with-text.mdc-elevation--z8()
     router-link(to="/" :class="{'mdc-tab--active': isActivePath('/')}").mdc-tab.mdc-tab--with-icon-and-text
       i.material-icons.mdc-tab__icon(aria-hidden="true") home
       span.mdc-tab__icon-text Home
@@ -9,12 +9,12 @@
     router-link(to="/progress" :class="{'mdc-tab--active': isActivePath('/progress')}").mdc-tab.mdc-tab--with-icon-and-text
       i.material-icons.mdc-tab__icon(aria-hidden="true") assessment
       span.mdc-tab__icon-text Progress
-
-    //span.mdc-tab-bar__indicator
+    span.mdc-tab-bar__indicator.hide
 </template>
 
 <script>
-  //  import {MDCRipple} from '@material/ripple';
+//  import {MDCTab, MDCTabFoundation} from '@material/tabs';
+  import {MDCTabBar, MDCTabBarFoundation} from '@material/tabs';
 
   export default {
     name: 'tabBottom',
@@ -28,7 +28,7 @@
       }
     },
     mounted() {
-      window.mdc.autoInit();
+      new MDCTabBar(document.querySelector('#icon-text-tab-bar'));
     }
   }
 </script>
@@ -38,12 +38,8 @@
   @import "../assets/shared";
 
   .mdc-tab-bar {
-    position: absolute;
-    bottom: 0;
-    max-width: 30rem;
     width: 100%;
     background-color: #fff;
-    z-index: 4;
   }
 
   .mdc-tab--active, .mdc-tab--active .mdc-tab__icon {

@@ -6,11 +6,6 @@ import router from './router'
 import store from './store/index'
 import axios from "axios";
 
-import * as mdc from 'material-components-web/dist/material-components-web';
-
-window.mdc = mdc;
-require("normalize.css/normalize.css");
-
 Vue.config.productionTip = false;
 
 router.beforeEach((to, from, next) => {

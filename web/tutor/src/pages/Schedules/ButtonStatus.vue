@@ -1,17 +1,18 @@
 <template lang="pug">
   #buttonStatus
-    button(v-if="status === 'start'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'start-ongoing'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Ongoing
-    button(v-if="status === 'start-late-ongoing'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activated
-    button(v-if="status === 'disabled'" disabled @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'late'" @click='start($event)' data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
+    button(v-if="status === 'start'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
+    button(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Ongoing
+    button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activated
+    button(v-if="status === 'disabled'" disabled @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
+    button(v-if="status === 'late'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activate
     span.ongoing(v-if="status ==='ongoing'") Ongoing
     span.late-ongoing(v-if="status ==='late-ongoing'") Activated
 </template>
 
 <script>
   import moment from 'moment';
-  import {mapState} from 'vuex'
+  import {mapState} from 'vuex';
+  import {MDCRipple} from '@material/ripple';
 
   export default {
     name: 'buttonStatus',
@@ -78,7 +79,7 @@
       }
     },
     mounted() {
-      window.mdc.autoInit();
+      new MDCRipple(document.querySelector('.mdc-button'));
     }
   }
 </script>

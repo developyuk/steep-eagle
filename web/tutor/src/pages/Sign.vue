@@ -1,34 +1,36 @@
 <template lang="pug">
-  #sign.mdc-typography
+  template-empty#sign
     form(@submit.prevent="sign").login
       img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")
-      .mdc-form-field
-        .mdc-text-field(data-mdc-auto-init="MDCTextField")
-          input#id.mdc-text-field__input(v-model.trim="username" name="username" type="text" required)
-          label.mdc-text-field__label(for="id") Yourname
-          .mdc-line-ripple
-      .mdc-form-field
-        .errMsg(v-if="errMsg" v-html="errMsg")
-        button(type="submit" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised Login
+      .mdc-text-field
+        input#id.mdc-text-field__input(v-model.trim="username" name="username" type="text" required)
+        label.mdc-text-field__label(for="id") Yourname
+        .mdc-line-ripple
+      .errMsg(v-if="errMsg" v-html="errMsg")
+      button(type="submit").mdc-button.mdc-button--raised Login
     .powered powered by
       img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
 </template>
 
 <script>
   import axios from 'axios';
-  //  import {MDCRipple} from '@material/ripple';
+  import {MDCRipple} from '@material/ripple';
+  import {MDCTextField} from '@material/textfield';
+  import TemplateEmpty from '@/templates/TemplateEmpty';
 
   export default {
-    name: 'sign',
+    components: {
+      'template-empty': TemplateEmpty,
+    },
     data() {
       return {
-//        id: 'user3@ex.co',
         username: '',
         errMsg: ''
       }
     },
     mounted() {
-      window.mdc.autoInit();
+      new MDCTextField(this.$el.querySelector('.mdc-text-field'));
+      new MDCRipple(this.$el.querySelector('.mdc-button'));
     },
     methods: {
       sign() {

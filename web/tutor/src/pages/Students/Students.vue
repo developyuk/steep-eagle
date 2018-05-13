@@ -1,6 +1,5 @@
 <template lang="pug">
-  #students.mdc-typography
-    header1
+  template-main#students
     spinner(v-if="!sessions")
     .empty(v-if="!!sessions && !sessions.length")
       router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start Class
@@ -22,13 +21,11 @@
       .mdc-snackbar__text
       .mdc-snackbar__action-wrapper
         button.mdc-snackbar__action-button(type='button')
-    tab-bottom
 </template>
 
 <script>
   import axios from 'axios';
   import moment from 'moment';
-  import Hammer from 'hammerjs';
   import mixinHal from '../../mixins/hal';
   import mixinDom from '../../mixins/dom';
   import mixinImage from '../../mixins/image';
@@ -37,14 +34,15 @@
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
+  import {MDCSnackbar} from '@material/snackbar';
+  import TemplateMain from '@/templates/TemplateMain';
 
   export default {
     name: 'students',
     mixins: [mixinHal, mixinDom, mixinImage],
     components: {
+      'template-main': TemplateMain,
       'spinner': () => import('@/components/Spinner'),
-      'tab-bottom': () => import('@/components/TabBottom'),
-      'header1': () => import('@/components/Header'),
       'card': () => import('./Card')
     },
     computed: {
@@ -194,9 +192,8 @@
       }
     },
     mounted() {
-      this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
+      this.snackbar = new MDCSnackbar(document.querySelector('.mdc-snackbar'));
       setTimeout(() => this.getStudentsSessions(), 1);
-      window.mdc.autoInit();
 
       this.mqtt = mqtt.connect(process.env.WS);
 
@@ -220,7 +217,7 @@
               $el.className = "animated slideInLeftHeight";
               $el.style.marginLeft = 0;
               let snackbarOpts = {
-                message: `Undo student: ${name.split(" ")[0].toUpperCase()}`
+                message: `Undo ${name.split(" ")[0].toUpperCase()}`
               };
               this.snackbar.show(snackbarOpts);
               break;
@@ -236,7 +233,7 @@
               });
 //            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
               let snackbarOpts = {
-                message: `Student ${name.split(" ")[0].toUpperCase()} has been saved`,
+                message: `Submit ${name.split(" ")[0].toUpperCase()}`,
               };
               if (msgBy.id === this.currentAuth.id) {
                 snackbarOpts = Object.assign(snackbarOpts, {
@@ -281,7 +278,6 @@
 
   #students {
     position: relative;
-    height: 100vh;
   }
 
   #form-rate-review {

@@ -1,6 +1,5 @@
 <template lang="pug">
-  #schedules.mdc-typography
-    header1
+  template-main#schedules
     spinner(v-if="!classes")
     .empty(v-if="!!classes && !classes.length") class not found
     .mdc-list-group
@@ -38,8 +37,6 @@
       .mdc-snackbar__text
       .mdc-snackbar__action-wrapper
         button.mdc-snackbar__action-button(type='button')
-    tab-bottom
-
 </template>
 
 <script>
@@ -49,14 +46,17 @@
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
+  import {MDCDialog} from '@material/dialog';
+  import {MDCSnackbar} from '@material/snackbar';
+  import {MDCRipple} from '@material/ripple';
+  import TemplateMain from '@/templates/TemplateMain';
 
   export default {
     name: 'schedules',
     mixins: [sharedHal, sharedImage],
     components: {
+      'template-main': TemplateMain,
       'spinner': () => import('@/components/Spinner'),
-      'tab-bottom': () => import('@/components/TabBottom'),
-      'header1': () => import('@/components/Header'),
       'button-status': () => import('./ButtonStatus'),
     },
     data() {
@@ -185,9 +185,10 @@
       }
     },
     mounted() {
-      this.dialog = mdc.dialog.MDCDialog.attachTo(document.querySelector('#my-mdc-dialog'));
+      new MDCRipple(document.querySelector('.mdc-button'));
+      this.dialog = new MDCDialog(document.querySelector('#my-mdc-dialog'));
       this.nextDialog(this.dialog);
-      this.snackbar = mdc.snackbar.MDCSnackbar.attachTo(document.querySelector('.mdc-snackbar'));
+      this.snackbar = new MDCSnackbar(document.querySelector('.mdc-snackbar'));
       this.getSchedules();
 
       this.mqtt = mqtt.connect(process.env.WS);
@@ -214,7 +215,7 @@
             setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
 
             let snackbarOpts = {
-              message: `Class started: ${this.currentStartedClass._embedded.module.name.toUpperCase()}`
+              message: `Start ${this.currentStartedClass._embedded.module.name.toUpperCase()}`
             };
             const {by: msgBy, sid: MsgSid} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
@@ -244,13 +245,12 @@
 
             setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
             let snackbarOpts = {
-              message: `Undo class: ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+              message: `Undo ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
           }
         });
 
-      window.mdc.autoInit();
     },
     beforeDestroy() {
 //      console.log('beforeDestroy');
@@ -269,7 +269,6 @@
 
   #schedules {
     position: relative;
-    height: 100vh;
   }
 
   .mdc-list {

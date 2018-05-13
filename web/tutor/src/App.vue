@@ -1,5 +1,5 @@
 <template lang="pug">
-  #app.mdc-layout-grid
+  #app.mdc-typography
     router-view
 </template>
 
@@ -12,8 +12,9 @@
 </script>
 
 <style lang="scss">
+  @import "~normalize.css";
   @import "assets/shared";
-  @import "~material-components-web/material-components-web";
+  @import "assets/material-components-web";
 
   html, body {
     font-family: 'Roboto', sans-serif;
@@ -21,6 +22,11 @@
 
   #app {
     background-color: #f9f9f9;
+    /*background-color: #fff;*/
+    max-width: 30rem;
+    padding: 0;
+    height: 100vh;
+    margin: 0 auto;
   }
 
   .errMsg {
@@ -28,18 +34,6 @@
     color: red;
     padding: 1rem;
     margin: 1rem 0;
-  }
-
-  .mdc-layout-grid {
-    background-color: #fff;
-    max-width: 30rem;
-    padding: 0;
-    /*height: 100vh;*/
-  }
-
-  .mdc-list-group {
-    height: calc(100vh - 8rem);
-    overflow: auto;
   }
 
   .mdc-list-item {

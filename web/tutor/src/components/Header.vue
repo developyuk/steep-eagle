@@ -6,7 +6,7 @@
         i.material-icons search
         input(type="text" name="q" v-model.trim="q" )
         .remove(@click="onClickClearSearch($event)") x
-    aside.mdc-drawer.mdc-drawer--temporary.mdc-typography
+    aside.mdc-drawer.mdc-drawer--temporary
       nav.mdc-drawer__drawer
         header.mdc-drawer__header
           .mdc-drawer__header-content
@@ -14,18 +14,17 @@
             .name {{currentAuth.name}}
             .email {{currentAuth.email}}
         nav#icon-with-text-demo.mdc-drawer__content.mdc-list
-          .stats.stats--icons
-            .mdc-layout-grid
-              .mdc-layout-grid__inner
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") class
-                  .text {{currentStats.classes}} classes
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") clock
-                  .text {{currentStats.hours}} hours
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-4
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") stars
-                  .text {{currentStats.feedbacks}} feedbacks
+          .stats.stats--icons.mdc-layout-grid
+            .mdc-layout-grid__inner
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
+                i.material-icons.mdc-tab__icon(aria-hidden="true") class
+                .text {{currentStats.classes}} classes
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
+                i.material-icons.mdc-tab__icon(aria-hidden="true") clock
+                .text {{currentStats.hours}} hours
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
+                i.material-icons.mdc-tab__icon(aria-hidden="true") stars
+                .text {{currentStats.feedbacks}} feedbacks
           .stats.stats--texts
             .ratings
               .title ratings given
@@ -46,6 +45,7 @@
   import _debounce from "lodash/debounce";
   import _throttle from "lodash/throttle";
   import {mapState, mapMutations, mapActions} from 'vuex'
+  import {MDCTemporaryDrawer} from '@material/drawer';
 
   export default {
     name: 'header',
@@ -100,10 +100,8 @@
     destroyed() {
     },
     mounted() {
-      let drawer = new mdc.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
-      document.querySelector('img.logo').addEventListener('click', () => {
-        drawer.open = true;
-      });
+      const drawer = new MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
+      document.querySelector('img.logo').addEventListener('click', () => drawer.open = true);
       this.updateStats();
     }
   }
@@ -199,22 +197,6 @@
     .mdc-drawer__content {
       color: map-get($palettes, red);
     }
-    .stats {
-      color: map_get($palettes, red);
-      .title {
-        text-transform: capitalize;
-      }
-      @include m(icons) {
-      }
-      @include m(texts) {
-        > div {
-          margin: 1rem 0;
-          padding: 1rem;
-          background-color: map_get($palettes, grey);
-          border-radius: 1rem;
-        }
-      }
-    }
     /*.content {
       position: absolute;
       top: 60%;
@@ -240,6 +222,23 @@
     }
     .mdc-list-divider {
       bottom: 3rem;
+    }
+  }
+
+  .stats {
+    color: map_get($palettes, red);
+    .title {
+      text-transform: capitalize;
+    }
+    @include m(icons) {
+    }
+    @include m(texts) {
+      > div {
+        margin: .5rem 1rem;
+        padding: .5rem 1rem;
+        background-color: map_get($palettes, grey);
+        border-radius: .5rem;
+      }
     }
   }
 </style>

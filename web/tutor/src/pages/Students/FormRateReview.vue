@@ -33,6 +33,8 @@
   import axios from 'axios';
   import {getCorrectEventName} from '@material/animation';
   import {mapState, mapMutations} from 'vuex';
+  import {MDCRipple} from '@material/ripple';
+  import {MDCTextField} from '@material/textfield';
 
   export default {
     name: 'form-rate-review',
@@ -168,7 +170,8 @@
       }
     },
     mounted() {
-      mdc.ripple.MDCRipple.attachTo(document.querySelector('button'));
+      new MDCTextField(document.querySelector('.mdc-text-field'));
+      new MDCRipple(document.querySelector('.mdc-button'));
     }
   }
 </script>

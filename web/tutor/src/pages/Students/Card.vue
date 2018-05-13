@@ -14,6 +14,7 @@
   import _debounce from 'lodash/debounce';
   import {getCorrectEventName} from '@material/animation';
   import {mapState, mapMutations} from 'vuex';
+  import Hammer from 'hammerjs';
 
   export default {
     name: 'card',
@@ -55,6 +56,8 @@
 //      });
 
       this.hammertime = new Hammer($el, {});
+      this.hammertime.get('pan').set({ direction: Hammer.DIRECTION_VERTICAL });
+
       this.hammertime
         .on('panend', e => {
           if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
