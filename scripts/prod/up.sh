@@ -17,10 +17,10 @@ set -x
 #  --publish 8083:8083 --publish 8084:8084 \
 #  --publish 18083:18083 --publish 18084:18084 \
 #  emqttd-docker-v2.2.0
+#echo "waiting mqtt server ready to connect"
+##sleep 1m
+#sleep 13
 
 sudo docker-compose -f docker-compose-prod.yml build
-echo "waiting mqtt server ready to connect"
-#sleep 1m
-sleep 13
 sudo docker-compose -f docker-compose-prod.yml up -d
 sudo docker-compose -f docker-compose-prod.yml logs -f
