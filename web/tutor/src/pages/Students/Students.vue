@@ -2,9 +2,9 @@
   template-main#students
     spinner(v-if="!sessions")
     .empty(v-if="!!sessions && !sessions.length")
-      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start Class
+      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Start Class
       p or
-      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
+      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Activate
     .mdc-list-group(v-else)
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
@@ -193,11 +193,14 @@
       }
     },
     mounted() {
-      if (!!this.$el.querySelector('.mdc-button')) {
-        new MDCRipple(this.$el.querySelector('.mdc-button'));
-      }
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
       setTimeout(() => this.getStudentsSessions(), 1);
+      setTimeout(() => {
+        const buttons = Array.from(this.$el.querySelectorAll('.mdc-button'));
+        if (!!buttons) {
+          buttons.forEach(v => MDCRipple.attachTo(v));
+        }
+      }, 100);
 
       this.mqtt = mqtt.connect(process.env.WS);
 

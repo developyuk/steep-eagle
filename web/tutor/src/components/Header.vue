@@ -16,13 +16,13 @@
         nav#icon-with-text-demo.mdc-drawer__content.mdc-list
           .stats.stats--icons.mdc-layout-grid
             .mdc-layout-grid__inner
-              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
                 i.material-icons.mdc-tab__icon(aria-hidden="true") class
                 .text {{currentStats.classes}} classes
-              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
-                i.material-icons.mdc-tab__icon(aria-hidden="true") clock
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") watch_later
                 .text {{currentStats.hours}} hours
-              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-2
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
                 i.material-icons.mdc-tab__icon(aria-hidden="true") stars
                 .text {{currentStats.feedbacks}} feedbacks
           .stats.stats--texts
@@ -110,6 +110,7 @@
 <style scoped lang="scss">
   @import "../assets/shared";
   @import "~sass-bem";
+  @import "~@material/layout-grid/mixins";
 
   header {
     position: relative;
@@ -230,8 +231,22 @@
       text-transform: capitalize;
     }
     @include m(icons) {
+      text-align: center;
+      .mdc-layout-grid{
+      }
+      .mdc-layout-grid__inner {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-gap: 0;
+
+      }
+      .mdc-layout-grid__cell {
+      }
+      .text {
+        font-size: .8rem;
+      }
     }
     @include m(texts) {
+      font-size: .8rem;
       > div {
         margin: .5rem 1rem;
         padding: .5rem 1rem;

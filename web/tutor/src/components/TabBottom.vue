@@ -27,7 +27,7 @@
       }
     },
     mounted() {
-      new MDCTabBar(document.querySelector('#icon-text-tab-bar'));
+      MDCTabBar.attachTo(this.$el);
     }
   }
 </script>

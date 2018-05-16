@@ -169,8 +169,8 @@
       }
     },
     mounted() {
-      new MDCTextField(this.$el.querySelector('.mdc-text-field'));
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      MDCTextField.attachTo(this.$el.querySelector('.mdc-text-field'));
+      MDCRipple.attachTo(this.$el.querySelector('.mdc-button'));
     }
   }
 </script>

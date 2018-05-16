@@ -184,7 +184,6 @@
       }
     },
     mounted() {
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
       this.dialog = new MDCDialog(this.$el.querySelector('#my-mdc-dialog'));
       this.nextDialog(this.dialog);
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));

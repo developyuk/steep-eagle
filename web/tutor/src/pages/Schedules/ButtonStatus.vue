@@ -1,10 +1,10 @@
 <template lang="pug">
   #buttonStatus
-    button(v-if="status === 'start'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Ongoing
-    button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activated
-    button(v-if="status === 'disabled'" disabled @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'late'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activate
+    button(v-if="status === 'start'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Start
+    button(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Ongoing
+    button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Activated
+    button(v-if="status === 'disabled'" disabled @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Start
+    button(v-if="status === 'late'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact.mdc-ripple-surface Activate
     span.ongoing(v-if="status ==='ongoing'") Ongoing
     span.late-ongoing(v-if="status ==='late-ongoing'") Activated
 </template>
@@ -78,7 +78,11 @@
       }
     },
     mounted() {
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      const button = this.$el.querySelector('.mdc-button');
+      if (!!button) {
+        MDCRipple.attachTo(this.$el.querySelector('.mdc-button'));
+      }
+
     }
   }
 </script>

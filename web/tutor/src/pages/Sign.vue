@@ -7,7 +7,7 @@
         label.mdc-text-field__label(for="id") Yourname
         .mdc-line-ripple
       .errMsg(v-if="errMsg" v-html="errMsg")
-      button(type="submit").mdc-button.mdc-button--raised Login
+      button(type="submit").mdc-button.mdc-button--raised.mdc-ripple-surface Login
     .powered powered by
       img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
 </template>
@@ -29,8 +29,8 @@
       }
     },
     mounted() {
-      new MDCTextField(this.$el.querySelector('.mdc-text-field'));
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      MDCTextField.attachTo(this.$el.querySelector('.mdc-text-field'));
+      MDCRipple.attachTo(this.$el.querySelector('.mdc-button'));
     },
     methods: {
       sign() {
@@ -61,6 +61,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import "../assets/shared";
+  @import "@material/animation/functions";
   #sign {
   }
 
@@ -73,7 +75,7 @@
     width: calc(100% - 5rem);
   }
 
-  button {
+  .mdc-button {
     margin-top: 2rem;
   }
 </style>
