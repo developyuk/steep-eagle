@@ -1,3 +1,10 @@
+src/assets/sass
+src/components
+static/fonts
+test
+documentation
+
+
 .DS_Store
 node_modules/
 dist/
