@@ -13,4 +13,4 @@ RUN set -ex \
   && go get github.com/parnurzeal/gorequest \
   && go get github.com/eclipse/paho.mqtt.golang \
   && go get github.com/davecgh/go-spew/spew \
-  && go get github.com/codegangsta/gin
+  && go get github.com/pilu/fresh

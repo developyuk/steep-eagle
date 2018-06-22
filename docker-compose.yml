@@ -6,7 +6,7 @@ services:
        - ./api-main:/project
     working_dir:  /project
     ports:
-      - "91:3000"
+      - "91:1323"
     environment:
       - JWT_KEY=${JWT_KEY}
       - HOST=${HOST}
@@ -15,7 +15,7 @@ services:
       - BIN_APP_PORT=1323
     depends_on:
       - db-api
-    command:      gin run
+    command:      fresh
   db-api:
     image: postgrest/postgrest
 #    remove ports on production
