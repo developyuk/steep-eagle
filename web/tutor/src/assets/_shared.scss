@@ -1,0 +1,71 @@
+$colors: (
+  amaranth: #ed235c,
+  burnt-sienna: #eb5757,
+  sea-buckthorn: #f29e4c,
+  bright-turquoise: #1feeb2,
+  medium-aquamarine: #6fcf97,
+  maya-blue: #56ccf2,
+  medium-orchid: #bb6bd9,
+  medium-purple: #9b51e0,
+  gainsboro: #e6e6e6,
+);
+
+$palettes: (
+  red:map-get($colors, amaranth),
+  orange:map-get($colors, burnt-sienna),
+  orange-lighten1:map-get($colors, sea-buckthorn),
+  green:map-get($colors, bright-turquoise),
+  green-darken1:map-get($colors, medium-aquamarine),
+  blue:map-get($colors, maya-blue),
+  purple:map-get($colors, medium-orchid),
+  purple-darken1:map-get($colors, medium-purple),
+  grey:map-get($colors, gainsboro),
+);
+
+$palettes: map-merge($palettes, $colors);
+$mdc-theme-primary: map-get($palettes, red);
+$generate-keyframes: false;
+
+form.login {
+  .mdc-text-field, .mdc-button {
+    width: 100%;
+  }
+  .logo {
+    width: 5rem;
+
+    margin: 0 auto 4rem auto;
+    display: block;
+  }
+}
+
+.powered {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12.025rem;
+  font-size: .75rem;
+  img {
+    margin: 0 .5rem;
+  }
+}
+
+.mdc-list-divider {
+  border-bottom-color: #dcdcdc;
+}
+
+.hide {
+  display: none;
+}
+
+.clearfix {
+  &::before, &::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+}
+
+.mdc-snackbar {
+  z-index: 9;
+}
