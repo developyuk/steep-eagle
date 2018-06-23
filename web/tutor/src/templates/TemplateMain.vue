@@ -1,9 +1,10 @@
 <template lang="pug">
-  transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    #TemplateMain
-      header1
-      main: slot
-      tab-bottom
+  #TemplateMain
+    header1
+    transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
+      main(:key="$route.fullPath")
+        slot
+    tab-bottom
 </template>
 
 <script>
@@ -22,10 +23,11 @@
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
   main {
-    min-height: calc(500px - 8rem);
-    height: calc(100vh - 8rem);
+    $remain: 8.5rem;
+    min-height: calc(500px - #{$remain});
+    height: calc(100vh - #{$remain});
     overflow: auto;
   }
 </style>

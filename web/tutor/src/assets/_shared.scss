@@ -45,3 +45,7 @@ $generate-keyframes: false;
 .mdc-snackbar {
   z-index: 9;
 }
+
+.mdc-drawer--temporary .mdc-drawer__drawer {
+  max-width: 90%;
+}

@@ -23,7 +23,7 @@
             .text {{currentStats.hours}} hours
           .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
             i.material-icons.mdc-tab__icon(aria-hidden="true") stars
-            .text {{currentStats.feedbacks}} feeds
+            .text {{currentStats.feedbacks}} feedbacks
       .stats.stats--texts
         .ratings
           .title ratings given

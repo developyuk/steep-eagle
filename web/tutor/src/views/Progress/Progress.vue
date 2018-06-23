@@ -12,7 +12,7 @@
 
   export default {
     components: {
-      'template-main': TemplateMain,
+      TemplateMain,
     },
     data() {
       return {
