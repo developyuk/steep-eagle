@@ -1,56 +1,29 @@
-<template lang="pug">
-  #app.mdc-typography
-    router-view
+<template>
+  <div id="app">
+    <div id="nav">
+      <router-link to="/">Home</router-link> |
+      <router-link to="/about">About</router-link>
+    </div>
+    <router-view/>
+  </div>
 </template>
 
-<script>
-  export default {
-    name: 'app',
-    mounted() {
+<style lang="scss">
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+#nav {
+  padding: 30px;
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+    &.router-link-exact-active {
+      color: #42b983;
     }
   }
-</script>
-
-<style lang="scss">
-  @import "~normalize.css";
-  @import "assets/shared";
-  @import "assets/material-components-web";
-
-  html, body {
-    font-family: 'Roboto', sans-serif;
-  }
-
-  #app {
-    background-color: #f9f9f9;
-    /*background-color: #fff;*/
-    max-width: 30rem;
-    padding: 0;
-    height: 100vh;
-    margin: 0 auto;
-  }
-
-  .errMsg {
-    background-color: pink;
-    color: red;
-    padding: 1rem;
-    margin: 1rem 0;
-  }
-
-  .mdc-list-item {
-    padding: .25rem 1rem;
-  }
-
-  .mdc-list-group__subheader {
-    background-color: #E0E0E0;
-    margin: 0;
-    padding: 0.75rem 16px;
-  }
-
-  /*h1.title {*/
-  /*background-color: var(--mdc-theme-primary, #6200ee);*/
-  /*color: #fff;*/
-  /*text-align: center;*/
-  /*padding: 1rem 0;*/
-  /*margin: 0;*/
-  /*}*/
+}
 </style>
