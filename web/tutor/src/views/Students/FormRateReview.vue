@@ -99,7 +99,7 @@
       },
       submit() {
         const $el = this.$el.closest('li');
-        $el.classList.add('animated', `slideOutUpHeight`);
+//        $el.classList.add('animated', `slideOutUpHeight`);
         const url = `${process.env.VUE_APP_API}/sessions/${this.sid}/students/${this.uid}`;
 
         this.currentMqtt.mqtt
@@ -134,7 +134,7 @@
       },
       absence() {
         const $el = this.$el.closest('li');
-        $el.classList.add('animated', `slideOutUpHeight`);
+//        $el.classList.add('animated', `slideOutUpHeight`);
         const url = `${process.env.VUE_APP_API}/sessions/${this.sid}/students/${this.uid}`;
 
         this.currentMqtt.mqtt
@@ -178,7 +178,6 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
   @import "../../assets/shared";
-  @import "../../assets/animate";
 
   #form-rate-review {
     padding: 0 2rem;

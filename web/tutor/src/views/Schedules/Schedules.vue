@@ -12,26 +12,27 @@
         ul.mdc-list
           li.mdc-list-item(v-for="(v,i) in vv.items")
             .mdc-list-item__graphic
-              my-img(:src="v._embedded.module.image" myIs="module")
-            span.mdc-list-item__text {{v._embedded.module.name}}
-              span.mdc-list-item__secondary-text {{v._embedded.branch.name}}
+              .image(:class="['image--'+v._embedded.module.name.replace(' ','-')]")
+                my-img(:src="v._embedded.module.image" myIs="module")
+            span.mdc-list-item__text
+              placeholder(:class="{'is-wait':!v._embedded.module.name}") {{v._embedded.module.name}}
+              placeholder(:class="{'is-wait':!v._embedded.branch.name}").mdc-list-item__secondary-text {{v._embedded.branch.name}}
               span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session || (!!v._embedded.last_session && !v._embedded.last_session.items.length)") Tutor : {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by {{parseLastSessionTutorName(v._embedded.last_session.items)}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session || (!!v._embedded.last_session && !v._embedded.last_session.items.length)") Tutor :
+                placeholder(:class="{'is-wait':!v._embedded.tutor.name,'is-inline':true}") {{v._embedded.tutor.name}}
+              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by
+                placeholder(:class="{'is-wait':!parseLastSessionTutorName(v._embedded.last_session.items),'is-inline':true}") {{parseLastSessionTutorName(v._embedded.last_session.items)}}
             button-status(:class_="v" :index="`${ii}.${i}`")
 
-    aside#my-mdc-dialog.mdc-dialog(role='alertdialog' aria-labelledby='my-mdc-dialog-label' aria-describedby='my-mdc-dialog-description')
-      form(@submit.prevent="checkPin($event)").mdc-dialog__surface
-        header.mdc-dialog__header
-          h2#my-mdc-dialog-label.mdc-dialog__header__title Start this class?
-        section#my-mdc-dialog-description.mdc-dialog__body Insert 1234 to activate {{currentStartedClass._embedded.module.name.toUpperCase()}}.
-          p
-          input(type="text" name="username" v-model.trim="pin")
-          .errMsg(v-if="errMsg") {{errMsg}}
-        footer.mdc-dialog__footer
+    form(@submit.prevent="checkPin($event)")
+      my-dialog(@mounted="onDialogMounted")
+        span Insert 1234 to activate {{currentStartedClass._embedded.module.name.toUpperCase()}}.
+        p
+        input(type="text" name="username" v-model.trim="pin")
+        .errMsg(v-if="errMsg") {{errMsg}}
+        template(slot="footer")
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
           button.mdc-button.mdc-dialog__footer__button(type='submit') Yes
-      .mdc-dialog__backdrop
 
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
       .mdc-snackbar__text
@@ -49,13 +50,17 @@
   import {MDCSnackbar} from '@material/snackbar';
   import {MDCRipple} from '@material/ripple';
   import TemplateMain from '@/templates/TemplateMain';
+  import Placeholder from '@/components/Placeholder';
+  import MyDialog from '@/components/Dialog';
 
   export default {
     mixins: [sharedHal],
     components: {
-      'template-main': TemplateMain,
+      TemplateMain,
       'spinner': () => import('@/components/Spinner'),
       'my-img': () => import('@/components/Img'),
+      MyDialog,
+      Placeholder,
       'button-status': () => import('./ButtonStatus'),
     },
     data() {
@@ -85,6 +90,9 @@
     },
     methods: {
       ...mapMutations(['nextMqtt', 'nextDialog', 'nextSearch']),
+      onDialogMounted(e) {
+        this.dialog = e;
+      },
       _parseClass(isToday, _class) {
         const timeout = 1;
         setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded']), timeout);
@@ -148,11 +156,9 @@
               classes = classes.map(v => {
                 v.items = v.items.map(v2 => {
                   v2._embedded = {
-                    module: {
-                      name: "...",
-                    },
-                    branch: {name: "..."},
-                    tutor: {name: "..."},
+                    module: {},
+                    branch: {},
+                    tutor: {},
                   };
                   return v2
                 });
@@ -180,7 +186,7 @@
       }
     },
     mounted() {
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+//      new MDCRipple(this.$el.querySelector('.mdc-button'));
       this.dialog = new MDCDialog(this.$el.querySelector('#my-mdc-dialog'));
       this.nextDialog(this.dialog);
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
@@ -261,6 +267,7 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   @import "../../assets/shared";
+  @import "~sass-bem";
 
   #schedules {
     position: relative;
@@ -320,13 +327,30 @@
     margin-left: 1rem;
     width: 64px;
     height: 64px;
-    img {
-      width: 64px;
-      height: 64px;
-      border-radius: .5rem;
-    }
 
     margin-right: 1rem;
+  }
+
+  .image {
+    border-radius: .5rem;
+    width: 4rem;
+    height: 4rem;
+    background-color: #C3C3C3;
+    img {
+      margin: .5rem;
+      width: 3rem;
+      height: 3rem;
+    }
+
+    @include m(hw-1 hw-2) {
+      background-color: #F2994A;
+    }
+    @include m(app-inventor) {
+      background-color: #75C044;
+    }
+    @include m(unity-2d weblite project-based dummies-web) {
+      background-color: #F2F2F2;
+    }
   }
 
   .mdc-list-item__text {
@@ -340,14 +364,6 @@
       color: map-get($palettes, purple);
       font-weight: bold;
     }
-  }
-
-  .mdc-dialog__header__title {
-    color: #fff;
-  }
-
-  .mdc-dialog__header {
-    background-color: $mdc-theme-primary;
   }
 
 </style>

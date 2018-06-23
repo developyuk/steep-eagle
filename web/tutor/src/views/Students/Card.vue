@@ -1,12 +1,15 @@
 <template lang="pug">
-  li#card(:data-index="index" :data-sid="sid" :data-student="student" :data-isActive="isActive")
-    .mdc-list-item
-      .mdc-list-item__graphic
-        my-img(:src="student.photo" myIs="profile")
-      span.mdc-list-item__text {{student.name}}
-    hr.mdc-list-divider(v-if="isActive")
 
-    component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.name" :index="index" class="")
+  transition(enter-active-class="" leave-class="animated fadeOutUp")
+    li#card(:data-index="index" :data-sid="sid" :data-student="student" :data-isActive="isActive")
+      .mdc-list-item
+        .mdc-list-item__graphic
+          my-img(:src="student.photo" myIs="profile")
+        span.mdc-list-item__text {{student.name}}
+      hr.mdc-list-divider(v-if="isActive")
+
+      transition(enter-active-class="animated fadeInDown" leave-class="animated fadeOutUp")
+        component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.name" :index="index" class="")
 </template>
 
 <script>
@@ -45,23 +48,16 @@
       }
     },
     mounted() {
-//      console.log();
       const $el = this.$el.querySelector('.mdc-list-item');
 //      const $form = this.$el.querySelector('.mdc-list-item').nextSibling.nextSibling;
 
-//      this.$el.addEventListener(getCorrectEventName(window, 'animationend'), e => {
-//        console.log(e.animationName);
-//        if (['slideOutRightHeight', 'slideOutLeftHeight', 'slideOutUpHeight'].indexOf(e.animationName.split('-')[0]) >= 0) {
-//        }
-//      });
-
       this.hammertime = new Hammer($el, {});
-      this.hammertime.get('pan').set({ direction: Hammer.DIRECTION_VERTICAL });
+      this.hammertime.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
 
       this.hammertime
         .on('panend', e => {
           if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
-            this.$el.classList.add('animated', `slideOut${this.direction}Height`);
+//            this.$el.classList.add('animated', `slideOut${this.direction}Height`);
             const path = `/sessions/${this.sid}/students/${this.student.id}`;
 
             this.currentMqtt.mqtt
@@ -102,8 +98,8 @@
         .on('panleft panright', e => {
           this.setPosition(e.deltaX);
         })
-        .on('panleft', e => this.direction = 'Left')
-        .on('panright', e => this.direction = 'Right')
+//        .on('panleft', e => this.direction = 'Left')
+//        .on('panright', e => this.direction = 'Right')
         .on('tap', e => {
           this.nextStudentSession({
             sid: this.sid,
@@ -119,7 +115,6 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   @import "../../assets/shared";
-  @import "../../assets/animate";
   /*@import "@material/animation/functions";*/
 
   #card {

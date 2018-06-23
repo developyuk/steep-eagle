@@ -8,11 +8,11 @@
     .mdc-list-group(v-else)
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
-          span.module(v-if="!!v._embedded.class._embedded.module") {{v._embedded.class._embedded.module.name}}
-          | &nbsp;-&nbsp;
-          span.branch(v-if="!!v._embedded.class._embedded.branch") {{v._embedded.class._embedded.branch.name}}
+          placeholder(:class="{'is-wait':!v._embedded.class._embedded.module.name,'is-inline':true}").module(v-if="!!v._embedded.class._embedded.module") {{v._embedded.class._embedded.module.name}}
+          br
+          placeholder(:class="{'is-wait':!v._embedded.class._embedded.branch.name,'is-inline':true}").branch(v-if="!!v._embedded.class._embedded.branch") {{v._embedded.class._embedded.branch.name}}
           | &nbsp;&nbsp;
-          span.day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
+          placeholder(:class="{'is-wait':!(v._embedded.class.start_at && v._embedded.class.finish_at)}").day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
         ul.mdc-list
           template(v-for="(vv,ii) in v._embedded.items")
             card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="vv.id" :student="vv._embedded.student" :isActive="vv.isActive")
@@ -41,8 +41,9 @@
     name: 'students',
     mixins: [mixinHal, mixinDom],
     components: {
-      'template-main': TemplateMain,
+      TemplateMain,
       'spinner': () => import('@/components/Spinner'),
+      'placeholder': () => import('@/components/Placeholder'),
       'card': () => import('./Card')
     },
     computed: {
@@ -131,17 +132,14 @@
               sessions = sessions.map(v => {
                 v._embedded['class'] = {
                   _embedded: {
-                    module: {name: "..."},
-                    branch: {name: "..."}
+                    module: {},
+                    branch: {}
                   },
-                  start_at: "...",
-                  finish_at: "...",
+
                 };
                 v._embedded.items = v._embedded.items.map(v2 => {
                   v2._embedded = {
-                    student: {
-                      name: "...",
-                    }
+                    student: {}
                   };
                   return v2
                 });
@@ -161,8 +159,8 @@
               setTimeout(() => this.parseEmbedded('class', v._links.class.href, a[i]['_embedded'], (item) => {
                 if (!item['_embedded']) {
                   this.$set(item, '_embedded', {
-                    module: {name: "..."},
-                    branch: {name: "..."},
+                    module: {},
+                    branch: {},
                   });
                 }
                 setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), timeout);
@@ -188,11 +186,14 @@
       }
     },
     mounted() {
-      if (!!this.$el.querySelector('.mdc-button')) {
-        new MDCRipple(this.$el.querySelector('.mdc-button'));
-      }
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
-      setTimeout(() => this.getStudentsSessions(), 1);
+      setTimeout(() => {
+        this.getStudentsSessions();
+        const $button = this.$el.querySelector('.mdc-button');
+        if (!!$button) {
+          new MDCRipple($button);
+        }
+      }, 1);
 
       this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
 
@@ -213,7 +214,7 @@
           switch (parsedMessage.on) {
             case 'undoRateReview': {
 //              console.log($el);
-              $el.className = "animated slideInLeftHeight";
+//              $el.className = "animated slideInLeftHeight";
               $el.style.marginLeft = 0;
               let snackbarOpts = {
                 message: `Undo ${name.split(" ")[0].toUpperCase()}`
@@ -308,12 +309,12 @@
   span.module {
     text-transform: uppercase;
 
-    max-width: 8rem;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: middle;
+    /*max-width: 8rem;*/
+    /*text-overflow: ellipsis;*/
+    /*overflow: hidden;*/
+    /*white-space: nowrap;*/
+    /*display: inline-block;*/
+    /*vertical-align: middle;*/
   }
 
   span.branch, span.day-time {
