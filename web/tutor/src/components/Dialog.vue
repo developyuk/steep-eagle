@@ -18,7 +18,7 @@
   export default {
     mounted() {
       const $dialog = new MDCDialog(this.$el);
-//      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      new MDCRipple(this.$el.querySelector('.mdc-button'));
 
       this.$emit('mounted', $dialog);
     }
