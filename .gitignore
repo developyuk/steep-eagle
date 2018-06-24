@@ -6,5 +6,6 @@ client-secret.json
 *.old*
 *-lock.json
 api-main/gin-bin
+runner-build
 api-main/main*
 migrate/*.csv

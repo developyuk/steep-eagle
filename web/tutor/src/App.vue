@@ -4,7 +4,6 @@
 </template>
 
 <style lang="scss">
-  @import "~normalize.css";
   @import "assets/shared";
   @import "assets/material-components-web";
 
