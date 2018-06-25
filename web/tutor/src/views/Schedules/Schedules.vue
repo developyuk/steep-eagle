@@ -12,7 +12,7 @@
         ul.mdc-list
           li.mdc-list-item(v-for="(v,i) in vv.items")
             .mdc-list-item__graphic
-              .image(:class="['image--'+v._embedded.module.name.replace(' ','-')]")
+              .image(:class="[`image--${slug(v._embedded.module.name)}`]")
                 my-img(:src="v._embedded.module.image" myIs="module")
             span.mdc-list-item__text
               placeholder(:class="{'is-wait':!v._embedded.module.name}") {{v._embedded.module.name}}
@@ -42,19 +42,20 @@
 
 <script>
   import axios from 'axios';
-  import sharedHal from '../../mixins/hal';
+  import mixinHal from '../../mixins/hal';
+  import mixinDom from '../../mixins/dom';
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
   import {MDCDialog} from '@material/dialog';
   import {MDCSnackbar} from '@material/snackbar';
   import {MDCRipple} from '@material/ripple';
-  import TemplateMain from '@/templates/TemplateMain';
+  import TemplateMain from '@/components/views/Main';
   import Placeholder from '@/components/Placeholder';
   import MyDialog from '@/components/Dialog';
 
   export default {
-    mixins: [sharedHal],
+    mixins: [mixinHal, mixinDom],
     components: {
       TemplateMain,
       'spinner': () => import('@/components/Spinner'),
@@ -342,6 +343,9 @@
       height: 3rem;
     }
 
+    @include m(construct2 construct2-part-ii dummies-construct) {
+      background-color: #4F4F4F;
+    }
     @include m(hw-1 hw-2) {
       background-color: #F2994A;
     }
