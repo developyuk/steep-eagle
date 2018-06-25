@@ -1,14 +1,14 @@
 <template lang="pug">
   template-main#progress
-    .content
-      img(src="img/uc.gif")
-      br
-      br
-      | we are still under construction ~~
+    .empty
+      img(src="https://images.weserv.nl/?il&crop=400,100,0,80&url=dl.dropboxusercontent.com/s/n7l2woy0sqh09f8/no-progress.png")
+      h1.mdc-typography--headline6 No record
+      p.mdc-typography--body2 It seems you haven't rated your students from your class. Please make sure to do so
+      router-link(to="/students").mdc-button.mdc-button--raised Rate Students
 </template>
 
 <script>
-  import TemplateMain from '@/templates/TemplateMain';
+  import TemplateMain from '@/components/views/Main';
 
   export default {
     components: {
@@ -25,17 +25,28 @@
 <style lang="scss" scoped>
   @import "../../assets/shared";
 
-  .content {
-    color: map-get($palettes, purple-darken1);
+  .empty {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 50%;
+    /*left: 50%;
+    transform: translate(-50%, -50%);*/
+    transform: translateY(-60%);
+    margin: 2rem;
+    width: calc(100% - 4rem);
     text-align: center;
-    font-size: .675rem;
+
+    h1 {
+      color: #58595B;
+    }
+    p {
+      color: #BDBDBD;
+    }
     img {
       width: 100%;
     }
+  }
+  .mdc-button {
+    background-color: map-get($palettes, green);
+    width: 100%;
   }
 </style>

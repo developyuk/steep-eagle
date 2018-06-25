@@ -1,10 +1,7 @@
 <template lang="pug">
   template-main#students
     spinner(v-if="!sessions")
-    .empty(v-if="!!sessions && !sessions.length")
-      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Start Class
-      p or
-      router-link(to="/" data-mdc-auto-init="MDCRipple").mdc-button.mdc-button--raised.mdc-button--compact Activate
+    empty(v-if="!!sessions && !sessions.length")
     .mdc-list-group(v-else)
       template(v-for="(v,i) in sessions")
         h3.mdc-list-group__subheader
@@ -34,8 +31,7 @@
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
   import {MDCSnackbar} from '@material/snackbar';
-  import {MDCRipple} from '@material/ripple';
-  import TemplateMain from '@/templates/TemplateMain';
+  import TemplateMain from '@/components/views/Main';
 
   export default {
     name: 'students',
@@ -44,7 +40,8 @@
       TemplateMain,
       'spinner': () => import('@/components/Spinner'),
       'placeholder': () => import('@/components/Placeholder'),
-      'card': () => import('./Card')
+      'card': () => import('./Card'),
+      'empty': () => import('./Empty'),
     },
     computed: {
       ...mapState(['currentAuth', 'currentStudentSession']),
@@ -189,10 +186,6 @@
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
       setTimeout(() => {
         this.getStudentsSessions();
-        const $button = this.$el.querySelector('.mdc-button');
-        if (!!$button) {
-          new MDCRipple($button);
-        }
       }, 1);
 
       this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
@@ -282,23 +275,6 @@
 
   #form-rate-review {
     transition: mdc-animation-enter(height, 300ms);
-  }
-
-  .empty {
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-70%);
-    width: 100%;
-    p {
-      text-align: center;
-      margin: .75rem 0;
-    }
-    .mdc-button {
-      font-size: .675rem;
-      background-color: map-get($palettes, green);
-      width: 5rem;
-    }
   }
 
   .mdc-list {
