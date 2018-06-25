@@ -214,7 +214,7 @@
     }
     .mdc-list-item {
       &, .material-icons {
-        color: $mdc-theme-primary;
+        color: #fff;
       }
       bottom: 0;
     }
@@ -224,7 +224,7 @@
   }
 
   .stats {
-    color: map_get($palettes, red);
+    color: #fff;
     .title {
       text-transform: capitalize;
     }
@@ -236,10 +236,11 @@
       }
     }
     @include m(texts) {
+      color: map_get($palettes, red);
       > div {
+        background-color: #fff;
         margin: .5rem 1rem;
         padding: .5rem 1rem;
-        background-color: map_get($palettes, grey);
         border-radius: .5rem;
       }
     }

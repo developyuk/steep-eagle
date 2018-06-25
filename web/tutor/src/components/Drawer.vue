@@ -24,8 +24,12 @@
   @import "../assets/shared";
 
   .mdc-drawer {
+    .mdc-drawer__drawer {
+      background-color: map-get($palettes, red);
+      color:#fff;
+    }
     .mdc-drawer__header {
-      background-image: url(https://images.weserv.nl/?il&q=100&w=300&url=dl.dropboxusercontent.com/s/51ibl3twvtei59x/bg-drawer.jpg);
+      /*background-image: url(https://images.weserv.nl/?il&q=100&w=300&url=dl.dropboxusercontent.com/s/51ibl3twvtei59x/bg-drawer.jpg);*/
     }
     .mdc-drawer__header-content {
       display: block;
@@ -43,7 +47,8 @@
       }
     }
     .mdc-drawer__content {
-      color: map-get($palettes, red);
+      //color: map-get($palettes, red);
+      color:#fff;
     }
   }
 </style>
