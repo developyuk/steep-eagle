@@ -8,8 +8,8 @@
         span.mdc-list-item__text {{student.name}}
       hr.mdc-list-divider(v-if="isActive")
 
-      transition(enter-active-class="animated fadeInDown" leave-class="animated fadeOutUp")
-        component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.name" :index="index" class="")
+      //transition(enter-active-class="animated fadeInDown" leave-class="animated fadeOutUp")
+      component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.name" :index="index" class="")
 </template>
 
 <script>
@@ -23,7 +23,6 @@
     components: {
       'form-rate-review': () => import('./FormRateReview'),
       'my-img': () => import('@/components/Img'),
-      'empty': () => import('./Empty'),
     },
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
@@ -31,12 +30,12 @@
     props: ['index', 'sid', 'student', 'isActive'],
     watch: {
       isActive(v) {
-        this.currentComponent = v ? 'form-rate-review' : 'empty'
+        this.currentComponent = v ? 'form-rate-review' : ''
       }
     },
     data() {
       return {
-        currentComponent: 'empty',
+        currentComponent: '',
         direction: null,
         hammertime: null
       }
