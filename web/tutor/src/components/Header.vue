@@ -131,18 +131,20 @@
       text-transform: capitalize;
     }
     @include m(icons) {
+      font-size: .675rem;
       .material-icons {
-        font-size: 3rem;
-        width: 3rem;
-        height: 3rem;
+        font-size: 2.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
       }
     }
     @include m(texts) {
+      font-size: .75rem;
       color: map_get($palettes, red);
       > div {
         background-color: #fff;
-        margin: .5rem 1rem;
-        padding: .5rem 1rem;
+        margin: .325rem 1rem;
+        padding: .325rem 1rem;
         border-radius: .5rem;
       }
     }

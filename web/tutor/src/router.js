@@ -2,10 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import axios from "axios";
 import store from './store';
-import Schedules from '@/views/Schedules/Schedules'
-import Students from '@/views/Students/Students'
-import Progress from '@/views/Progress/Progress'
-import Sign from '@/views/Sign'
 
 Vue.use(Router);
 
@@ -13,22 +9,22 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      component: Schedules,
+      component: () => import('@/views/Schedules/Schedules'),
       meta: {requiresAuth: true}
     },
     {
       path: '/students',
-      component: Students,
+      component: () => import('@/views/Students/Students'),
       meta: {requiresAuth: true}
     },
     {
       path: '/progress',
-      component: Progress,
+      component: () => import('@/views/Progress/Progress'),
       meta: {requiresAuth: true}
     },
     {
       path: '/sign',
-      component: Sign,
+      component: () => import('@/views/Sign'),
     }
   ]
 });
