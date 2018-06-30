@@ -1,4 +1,4 @@
-import DashboardLayout from '../components/Dashboard/Layout/DashboardLayout.vue'
+import DashboardLayout from '../views/DashboardLayout.vue'
 // GeneralViews
 import NotFound from '../components/GeneralViews/NotFoundPage.vue'
 // Dashboard pages
@@ -8,7 +8,8 @@ import Stats from 'src/components/Dashboard/Views/Dashboard/Stats.vue'
 // Pages
 import User from 'src/components/Dashboard/Views/Pages/UserProfile.vue'
 import TimeLine from 'src/components/Dashboard/Views/Pages/TimeLinePage.vue'
-import Login from 'src/components/Dashboard/Views/Pages/Login.vue'
+// import Login from 'src/components/Dashboard/Views/Pages/Login.vue'
+import Login from 'src/views/Login.vue'
 import Register from 'src/components/Dashboard/Views/Pages/Register.vue'
 import Lock from 'src/components/Dashboard/Views/Pages/Lock.vue'
 
@@ -195,47 +196,58 @@ let lockPage = {
 
 const routes = [
   {
+    path: '/sign',
+    component: Login,
+  },
+  {
     path: '/',
     component: DashboardLayout,
-    redirect: '/admin/overview',
-    children: [
-      {
-        path: 'calendar',
-        name: 'Calendar',
-        component: Calendar
-      },
-      {
-        path: 'charts',
-        name: 'Charts',
-        component: Charts
-      }
-    ]
+    meta: {
+      requiresAuth: true,
+    }
   },
-  componentsMenu,
-  formsMenu,
-  tablesMenu,
-  mapsMenu,
-  pagesMenu,
-  loginPage,
-  registerPage,
-  lockPage,
-  {
-    path: '/admin',
-    component: DashboardLayout,
-    redirect: '/admin/overview',
-    children: [
-      {
-        path: 'overview',
-        name: 'Overview',
-        component: Overview
-      },
-      {
-        path: 'stats',
-        name: 'Stats',
-        component: Stats
-      }
-    ]
-  },
+  // {
+  //   path: '/',
+  //   component: DashboardLayout,
+  //   redirect: '/admin/overview',
+  //   children: [
+  //     {
+  //       path: 'calendar',
+  //       name: 'Calendar',
+  //       component: Calendar
+  //     },
+  //     {
+  //       path: 'charts',
+  //       name: 'Charts',
+  //       component: Charts
+  //     }
+  //   ]
+  // },
+  // componentsMenu,
+  // formsMenu,
+  // tablesMenu,
+  // mapsMenu,
+  // pagesMenu,
+  // loginPage,
+  // registerPage,
+  // lockPage,
+  // {
+  //   path: '/admin',
+  //   component: DashboardLayout,
+  //   redirect: '/admin/overview',
+  //   children: [
+  //     {
+  //       path: 'overview',
+  //       name: 'Overview',
+  //       component: Overview
+  //     },
+  //     {
+  //       path: 'stats',
+  //       name: 'Stats',
+  //       component: Stats
+  //     }
+  //   ]
+  // },
   {path: '*', component: NotFound}
 ]
 

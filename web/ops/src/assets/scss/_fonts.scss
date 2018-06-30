@@ -1,0 +1,12 @@
+@mixin gotham-rounded() {
+  //font-family: 'GothamRoundedBook';
+  font-family: 'GothamRoundedMedium';
+}
+@mixin logo() {
+  //font-family: 'GothamRoundedBook';
+  font-family: 'GothamRoundedMedium';
+  //font-weight: 900;
+  font-style: italic;
+  font-size: 5rem;
+  color: $default-color;
+}

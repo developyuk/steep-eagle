@@ -5,6 +5,4 @@ web/nginx-log
 client-secret.json
 *.old*
 *-lock.json
-api-main/tmp/runner-build
-api-main/main*
 migrate/*.csv
