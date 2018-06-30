@@ -85,6 +85,20 @@ func itemByUsername(param *UserLoginRequest) (User, error) {
   return item, nil
 
 }
+func itemByUsernamePassword(param *UserLoginRequest) (User, error) {
+  var item User
+
+  if _, err := mySharedRest.New().GetItem("/_users_profile").
+    SetQuery(myShared.RequestRest{Select: "id,username,email,role,name,photo"}).
+    SetQuery("username=eq." + param.Username).
+    SetQuery("pass=eq." + param.Password).
+    EndStruct(&item); err != nil {
+    return item, err
+  }
+
+  return item, nil
+
+}
 
 //func itemByEmailPass(param *UserLoginRequest) (myShared.User, error) {
 //

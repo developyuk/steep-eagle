@@ -14,6 +14,7 @@ import (
 type (
   UserLoginRequest struct {
     Username string `json:"username" xml:"username" form:"username" query:"username"`
+    Password string `json:"password" xml:"password" form:"password" query:"password"`
   }
 )
 
@@ -23,6 +24,7 @@ func Sign(c echo.Context) error {
     return err
   }
   //var userId uint64
+  spew.Dump(p)
 
   // Create token
   token := jwt.New(jwt.SigningMethodHS256)
