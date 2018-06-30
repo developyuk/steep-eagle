@@ -1,6 +1,7 @@
 <template lang="pug">
-  span.placeholder
-    slot
+  transition(enter-active-class="animated fadeIn")
+    span.placeholder()
+      slot
 </template>
 
 <script>

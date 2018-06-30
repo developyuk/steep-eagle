@@ -6,6 +6,13 @@
 <style lang="scss">
   @import "assets/shared";
   @import "assets/material-components-web";
+  @import "~foundation-sites/scss/foundation";
+
+  @include foundation-xy-grid-classes;
+  @include foundation-float-classes;
+  @include foundation-flex-classes
+  @include foundation-visibility-classes;
+
 
   html, body {
     font-family: 'Roboto', sans-serif;

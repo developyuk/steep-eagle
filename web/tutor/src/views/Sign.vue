@@ -1,24 +1,27 @@
 <template lang="pug">
-  transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    #sign
-      form(@submit.prevent="sign").login
-        img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")
-        .mdc-text-field
-          input#my-text-field.mdc-text-field__input(v-model.trim="username" name="username" type="text")
-          label.mdc-floating-label(for="my-text-field") Enter your name
-          .mdc-line-ripple
+  transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
+    #sign.grid-y.grid-frame.align-center
+      .cell.auto
+        form(@submit.prevent="sign").login
+          h1.logo M
+          <!--img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")-->
+          .mdc-text-field
+            input#my-text-field.mdc-text-field__input(v-model.trim="username" name="username" type="text" @focus="errMsg=null")
+            label.mdc-floating-label(for="my-text-field") Enter your name
+            .mdc-line-ripple
 
-        transition(enter-active-class="animated fadeInUp" leave-class="animated fadeOutDown")
-          .errMsg(v-if="errMsg" v-html="errMsg")
-        button.mdc-fab(aria-label="Login")
-          span.mdc-fab__icon.material-icons arrow_forward
-        .faq
-          .faq__item
-            a(@click="onClickFaq($event,0)") Why no password?
-          .faq__item
-            a(@click="onClickFaq($event,1)") I'm not sure if i registered?
-      .powered powered by
-        img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
+          transition(enter-active-class="animated bounceInUp" leave-active-class="animated bounceOutDown")
+            .errMsg(v-if="!!errMsg") {{errMsg}}
+          button.mdc-fab(aria-label="Login")
+            span.mdc-fab__icon.material-icons arrow_forward
+          .faq
+            .faq__item
+              a(@click="onClickFaq($event,0)") Why no password?
+            .faq__item
+              a(@click="onClickFaq($event,1)") I'm not sure if i registered?
+      .cell.shrink
+        .powered powered by
+          img(src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
       my-dialog(@mounted="onDialogMounted")
         span(v-html="dialogText.opts[dialogText.idx]")
         template(slot="footer")
@@ -67,7 +70,7 @@
             console.log(error);
             const {status, data} = error.response;
             if (status !== 200) {
-              this.errMsg = `${data.message}.<br/> Re-check your authentication.`;
+              this.errMsg = `Check your username.`;
             } else {
               console.log(error);
             }
@@ -94,26 +97,22 @@
   @import "../assets/shared";
   @import "~sass-bem";
   @import "~@material/fab/mixins";
+  @import "~foundation-sites/scss/util/util";
 
   #sign {
+    min-height: 21rem;
   }
 
   form.login {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -55%);
+    @include absolute-center;
     max-width: 30rem;
     width: calc(100% - 5rem);
 
-    .mdc-text-field, .mdc-button {
+    .mdc-text-field{
       width: 100%;
     }
     .logo {
-      width: 5rem;
 
-      margin: 0 auto 4rem auto;
-      display: block;
     }
   }
 
@@ -129,17 +128,15 @@
       margin: .75rem 0;
       &, a {
         color: #9E9E9E;
-        font-size: .75rem;
+        font-size: .875rem;
       }
     }
   }
 
   .powered {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12.025rem;
+    height: 1rem;
+    margin: .5rem 0;
+    text-align: center;
     font-size: .75rem;
     img {
       margin: 0 .5rem;

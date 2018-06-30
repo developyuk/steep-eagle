@@ -12,8 +12,7 @@
         ul.mdc-list
           li.mdc-list-item(v-for="(v,i) in vv.items")
             .mdc-list-item__graphic
-              .image(:class="[`image--${slug(v._embedded.module.name)}`]")
-                my-img(:src="v._embedded.module.image" myIs="module")
+              my-img(:src="v._embedded.module.image" myIs="module")
             span.mdc-list-item__text
               placeholder(:class="{'is-wait':!v._embedded.module.name}") {{v._embedded.module.name}}
               placeholder(:class="{'is-wait':!v._embedded.branch.name}").mdc-list-item__secondary-text {{v._embedded.branch.name}}
@@ -330,27 +329,20 @@
     height: 64px;
 
     margin-right: 1rem;
+    img {
+      width: 4rem;
+      height: 4rem;
+      border-radius: .5rem;
+    }
   }
 
   .image {
-    border-radius: .5rem;
     width: 4rem;
     height: 4rem;
     background-color: #C3C3C3;
-    img {
-      margin: .5rem;
-      width: 3rem;
-      height: 3rem;
-    }
 
     @include m(construct2 construct2-part-ii dummies-construct) {
       background-color: #4F4F4F;
-    }
-    @include m(hw-1 hw-2) {
-      background-color: #F2994A;
-    }
-    @include m(app-inventor) {
-      background-color: #75C044;
     }
     @include m(unity-2d weblite project-based dummies-web) {
       background-color: #F2F2F2;

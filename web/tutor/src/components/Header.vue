@@ -6,7 +6,7 @@
     my-drawer(@mounted="onMountedDrawer")
       template(slot="header")
         .photo
-          my-img(:src="currentAuth.photo" myIs="profile")
+          my-img(:src="currentAuth.photo" myIs="tutor")
         .name.mdc-typography--headline6 {{currentAuth.name}}
         .email {{currentAuth.email}}
 

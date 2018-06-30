@@ -26,6 +26,17 @@ $palettes: map-merge($palettes, $colors);
 $mdc-theme-primary: map-get($palettes, red);
 $generate-keyframes: false;
 
+h1.logo {
+  font-family: 'GothamRoundedMedium';
+  font-style: italic;
+  text-align: center;
+  font-size: 5rem;
+  color: map-get($palettes, red);
+  font-weight: 900;
+  //line-height: 1rem;
+  margin:0;
+}
+
 .mdc-list-divider {
   border-bottom-color: #dcdcdc;
 }
