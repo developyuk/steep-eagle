@@ -3,10 +3,11 @@ from eve_sqlalchemy import SQL
 from eve_sqlalchemy.validation import ValidatorSQL
 
 from tables import Base
-from links import before_returning_items, before_returning_item
-from auth import MyAuth, blueprint
+# from links import before_returning_items, before_returning_item
+from auth import MyAuth
+from blueprints import blueprint
 
-app = Eve(auth=None, validator=ValidatorSQL, data=SQL)
+app = Eve(auth=MyAuth, validator=ValidatorSQL, data=SQL)
 app.register_blueprint(blueprint)
 
 # bind SQLAlchemy

@@ -1,9 +1,9 @@
 from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property, relationship
 import jwt
-from flask import current_app as app
+from flask import current_app as app, jsonify
 
 Base = declarative_base()
 
@@ -22,24 +22,27 @@ class Users(CommonColumns):
   email = Column(String)
   role = Column(String)
   pass_ = Column('pass', String)
-  # classes = relationship("Classes", back_populates="tutor")
   profile = relationship("UsersProfile", uselist=False, back_populates="user")
 
   @staticmethod
   def auth(token):
     try:
       data = jwt.decode(token, app.config['JWT_SECRET'])
-    except jwt.ExpiredSignatureError:
+    except (jwt.ExpiredSignatureError, jwt.DecodeError):
       # Signature has expired
-      return None
-    except jwt.DecodeError:
-      # Signature has expired
-      return None
+      return jsonify({}), 400
 
     return data
 
   def sign(self):
-    return jwt.encode({'username': self.username, 'id': self.id}, app.config['JWT_SECRET'])
+    data = {
+      'id': self.id,
+      'username': self.username,
+      'email': self.email,
+      'role': self.role,
+      'photo': self.profile.photo,
+    }
+    return jwt.encode(data, app.config['JWT_SECRET'])
 
 
 class UsersProfile(Base):
@@ -147,3 +150,96 @@ class SessionsTutorsStudents(CommonColumns):
   session_tutor = relationship("SessionsTutors", back_populates="session_students")
   student_id = Column(Integer, ForeignKey('users.id'))
   student = relationship("Users")
+
+
+class ClassesTs(Classes):
+  pass
+
+class Exports(ClassStudents):
+  @hybrid_property
+  def program_name(self):
+    return self.class_.program_module.program.type.name
+
+  @program_name.expression
+  def program_name(cls):
+    return Classes.program_module
+
+  @hybrid_property
+  def program(self):
+    return self.class_.program_module.program.name
+
+  @program.expression
+  def program(cls):
+    return Classes.program_module
+
+  @hybrid_property
+  def module(self):
+    return self.class_.program_module.module.name
+
+  @module.expression
+  def module(cls):
+    return Classes.program_module
+
+  @hybrid_property
+  def branch(self):
+    return self.class_.branch.name
+
+  @branch.expression
+  def branch(cls):
+    return Classes.branch
+
+  @hybrid_property
+  def day(self):
+    return self.class_.day
+
+  @day.expression
+  def day(cls):
+    return Classes.day
+
+  @hybrid_property
+  def start_at(self):
+    return self.class_.start_at
+
+  @start_at.expression
+  def start_at(cls):
+    return Classes.start_at
+
+  @hybrid_property
+  def finish_at(self):
+    return self.class_.finish_at
+
+  @finish_at.expression
+  def finish_at(cls):
+    return Classes.finish_at
+
+  @hybrid_property
+  def student_name(self):
+    return self.student.profile.name
+
+  @student_name.expression
+  def student_name(cls):
+    return Users.profile
+
+  @hybrid_property
+  def tutor_email(self):
+    return self.class_.tutor.email
+
+  @tutor_email.expression
+  def tutor_email(cls):
+    return Classes.tutor
+
+  @hybrid_property
+  def tutor_username(self):
+    return self.class_.tutor.username
+
+  @tutor_username.expression
+  def tutor_username(cls):
+    return Classes.tutor
+
+  @hybrid_property
+  def tutor_name(self):
+    return self.class_.tutor.profile.name
+
+  @tutor_name.expression
+  def tutor_name(cls):
+    return Classes.tutor

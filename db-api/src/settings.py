@@ -1,6 +1,7 @@
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
 from tables import Users, UsersProfile, Branches, Classes, ClassStudents, Modules, ProgramTypes, Programs, \
-  ProgramsModules, Sessions, SessionsTutors, SessionsTutorsStudents
+  ProgramsModules, Sessions, SessionsTutors, SessionsTutorsStudents, \
+  Exports, ClassesTs
 import os
 import pprint
 
@@ -26,6 +27,7 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 PAGINATION_DEFAULT = 5
 EMBEDDING = True
+JSONIFY_PRETTYPRINT_REGULAR = False
 
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned
@@ -48,6 +50,8 @@ DOMAIN = DomainConfig({
   'sessions': ResourceConfig(Sessions),
   'sessions_tutors': ResourceConfig(SessionsTutors),
   'sessions_tutors_students': ResourceConfig(SessionsTutorsStudents),
+  'exports': ResourceConfig(Exports),
+  'classes_ts': ResourceConfig(ClassesTs),
 }).render()
 
 DOMAIN['users']['schema']['profile']['data_relation'].update({u'embeddable': True})
@@ -66,6 +70,7 @@ DOMAIN['classes'].update({u'embedded_fields': [
 DOMAIN['programs_modules']['schema']['module']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs_modules']['schema']['program']['data_relation'].update({u'embeddable': True})
 DOMAIN['class_students']['schema']['student']['data_relation'].update({u'embeddable': True})
+DOMAIN['class_students']['schema']['class_']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs']['schema']['type']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs']['schema']['modules']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs'].update({u'embedded_fields': [
