@@ -31,7 +31,8 @@ import Wizard from 'src/components/Dashboard/Views/Forms/Wizard.vue'
 // TableList pages
 import RegularTables from 'src/components/Dashboard/Views/Tables/RegularTables.vue'
 import ExtendedTables from 'src/components/Dashboard/Views/Tables/ExtendedTables.vue'
-import PaginatedTables from 'src/components/Dashboard/Views/Tables/PaginatedTables.vue'
+import PaginatedTables from 'src/views/PaginatedTables.vue'
+// import PaginatedTables from 'src/components/Dashboard/Views/Tables/PaginatedTables.vue'
 // Maps pages
 import GoogleMaps from 'src/components/Dashboard/Views/Maps/GoogleMaps.vue'
 import FullScreenMap from 'src/components/Dashboard/Views/Maps/FullScreenMap.vue'
@@ -202,6 +203,45 @@ const routes = [
   {
     path: '/',
     component: DashboardLayout,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/admin',
+    component: DashboardLayout,
+    redirect: '/admin/modules',
+    children:[
+
+      {
+        path: 'modules',
+        component: PaginatedTables,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'branches',
+        component: PaginatedTables,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'classes',
+        component: PaginatedTables,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'users',
+        component: PaginatedTables,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+    ],
     meta: {
       requiresAuth: true,
     }

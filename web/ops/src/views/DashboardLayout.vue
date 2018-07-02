@@ -1,7 +1,7 @@
 <template lang="pug">
   .wrapper
     side-bar(type='sidebar' :sidebar-links='$sidebar.sidebarLinks')
-      user-menu
+      //user-menu
       form.navbar-form.navbar-left.navbar-search-form.navbar-search-form-mobile(role='search')
         .input-group
           span.input-group-addon

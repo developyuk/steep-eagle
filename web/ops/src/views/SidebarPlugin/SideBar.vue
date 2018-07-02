@@ -1,11 +1,6 @@
 <template lang="pug">
   div(:class='sidebarClasses' :data-background-color='backgroundColor' :data-active-color='activeColor')
-    .logo
-      a.simple-text.logo-mini(href='https://www.creative-tim.com/product/vue-paper-dashboard-pro')
-        .logo-img
-          img(:src='logo' alt='')
-      a.simple-text.logo-normal(href='https://www.creative-tim.com/vue-paper-dashboard-pro')
-        | {{ title }}
+    h1.logo M
     .sidebar-wrapper(ref='sidebarScrollArea')
       slot
       ul(:class='navClasses')
@@ -87,7 +82,9 @@
   }
 
 </script>
-<style>
+<style lang="scss">
+  @import "../../assets/scss/_shared.scss";
+
   @media (min-width: 992px) {
     .navbar-search-form-mobile,
     .nav-mobile-menu{

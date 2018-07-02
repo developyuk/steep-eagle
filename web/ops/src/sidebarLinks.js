@@ -18,7 +18,7 @@ export default [
     path: '/activites'
   },
   {
-    name: 'Admin',
+    name: 'Administration',
     icon: 'ti-panel',
     collapsed: false,
     children: [

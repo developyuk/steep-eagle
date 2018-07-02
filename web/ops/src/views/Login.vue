@@ -1,4 +1,4 @@
-<template lang="pug">div
+<template lang="pug">
   <!--nav.navbar.navbar-transparent.navbar-absolute-->
   <!--.container-->
   <!--.navbar-header-->
@@ -25,7 +25,7 @@
                 .card(data-background='color' data-color='blue')
                   .card-header
                     //h3.card-title Login
-                    h3.card-title M
+                    h1.logo.card-title M
 
                   .card-content
                     .form-group
@@ -90,16 +90,14 @@
 </script>
 
 <style scoped lang="scss">
-  @import "../assets/scss/colors";
-  @import "../assets/scss/fonts";
+  @import "../assets/scss/shared";
 
   .card {
     background-color: #F2F2F2;
   }
 
   .card-header {
-    h3 {
-      @include logo;
+    h1 {
       text-align: center;
     }
   }
