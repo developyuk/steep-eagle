@@ -1,46 +1,24 @@
 -- truncate all table
---SELECT 'TRUNCATE ' || table_name || ' CASCADE;' FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
---
---TRUNCATE sessions_tutors CASCADE;
---TRUNCATE sessions CASCADE;
---TRUNCATE sessions_logins CASCADE;
---TRUNCATE sessions_students CASCADE;
---TRUNCATE class_students CASCADE;
---TRUNCATE classes CASCADE;
---TRUNCATE programs_modules CASCADE;
---TRUNCATE users CASCADE;
---TRUNCATE branches CASCADE;
---TRUNCATE programs CASCADE;
---TRUNCATE program_types CASCADE;
---TRUNCATE modules CASCADE;
---TRUNCATE users_profile CASCADE;
+SELECT 'TRUNCATE ' || table_name || ' CASCADE;' FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
 
 -- fixing sequence
---SELECT 'SELECT SETVAL(' ||
---       quote_literal(quote_ident(PGT.schemaname) || '.' || quote_ident(S.relname)) ||
---       ', COALESCE(MAX(' ||quote_ident(C.attname)|| '), 1) ) FROM ' ||
---       quote_ident(PGT.schemaname)|| '.'||quote_ident(T.relname)|| ';'
---FROM pg_class AS S,
---     pg_depend AS D,
---     pg_class AS T,
---     pg_attribute AS C,
---     pg_tables AS PGT
---WHERE S.relkind = 'S'
---    AND S.oid = D.objid
---    AND D.refobjid = T.oid
---    AND D.refobjid = C.attrelid
---    AND D.refobjsubid = C.attnum
---    AND T.relname = PGT.tablename
---ORDER BY S.relname;
---
---SELECT SETVAL('public.branches_id_seq', COALESCE(MAX(id), 1) ) FROM public.branches;
---SELECT SETVAL('public.classes_id_seq', COALESCE(MAX(id), 1) ) FROM public.classes;
---SELECT SETVAL('public.modules_id_seq', COALESCE(MAX(id), 1) ) FROM public.modules;
---SELECT SETVAL('public.program_types_id_seq', COALESCE(MAX(id), 1) ) FROM public.program_types;
---SELECT SETVAL('public.programs_id_seq', COALESCE(MAX(id), 1) ) FROM public.programs;
---SELECT SETVAL('public.programs_modules_id_seq', COALESCE(MAX(id), 1) ) FROM public.programs_modules;
---SELECT SETVAL('public.sessions_id_seq', COALESCE(MAX(id), 1) ) FROM public.sessions;
---SELECT SETVAL('public.users_id_seq', COALESCE(MAX(id), 1) ) FROM public.users;
+SELECT 'SELECT SETVAL(' ||
+      quote_literal(quote_ident(PGT.schemaname) || '.' || quote_ident(S.relname)) ||
+      ', COALESCE(MAX(' ||quote_ident(C.attname)|| '), 1) ) FROM ' ||
+      quote_ident(PGT.schemaname)|| '.'||quote_ident(T.relname)|| ';'
+FROM pg_class AS S,
+    pg_depend AS D,
+    pg_class AS T,
+    pg_attribute AS C,
+    pg_tables AS PGT
+WHERE S.relkind = 'S'
+   AND S.oid = D.objid
+   AND D.refobjid = T.oid
+   AND D.refobjid = C.attrelid
+   AND D.refobjsubid = C.attnum
+   AND T.relname = PGT.tablename
+ORDER BY S.relname;
+
 
 -- select count(id)
 -- from (
