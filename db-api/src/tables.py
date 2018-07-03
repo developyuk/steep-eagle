@@ -1,9 +1,13 @@
 from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func
-from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property, relationship
+from sqlservice import declarative_base
 import jwt
+from pprint import pprint
+from datetime import datetime, timedelta
 from flask import current_app as app, jsonify
+from pytz import timezone
 
 Base = declarative_base()
 
@@ -151,9 +155,40 @@ class SessionsTutorsStudents(CommonColumns):
   student_id = Column(Integer, ForeignKey('users.id'))
   student = relationship("Users")
 
+dow = dict(zip('monday tuesday wednesday thursday friday saturday sunday'.split(), range(7)))
 
 class ClassesTs(Classes):
-  pass
+  def onDay(self):
+    now = datetime.now()
+    return now + timedelta(days=(dow[self.day] - now.weekday() + 7) % 7)
+
+  @hybrid_property
+  def start_at_ts(self):
+    dt = datetime.strptime('%sT%s' % (self.onDay().date(), self.start_at), '%Y-%m-%dT%H:%M')
+    return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
+
+  @start_at_ts.expression
+  def start_at_ts(cls):
+    return cls
+
+  @hybrid_property
+  def finish_at_ts(self):
+    dt = datetime.strptime('%sT%s' % (self.onDay().date(), self.finish_at), '%Y-%m-%dT%H:%M')
+    return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
+
+  @finish_at_ts.expression
+  def finish_at_ts(cls):
+    return cls
+
+  @hybrid_property
+  def q(self):
+    return ', '.join((self.program_module.module.name, self.branch.name, self.day, self.start_at, self.finish_at,
+                      self.tutor.username, self.tutor.profile.name))
+
+  @q.expression
+  def q(cls):
+    return cls
+
 
 class Exports(ClassStudents):
   @hybrid_property

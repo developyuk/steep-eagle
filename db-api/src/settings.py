@@ -25,7 +25,7 @@ CACHE_EXPIRES = 10
 DEBUG = os.environ['DEBUG']
 JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
-PAGINATION_DEFAULT = 5
+PAGINATION_DEFAULT = 8
 EMBEDDING = True
 JSONIFY_PRETTYPRINT_REGULAR = False
 
@@ -61,9 +61,20 @@ DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': Tru
 DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['program_module']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes'].update({u'embedded_fields': [
+  # 'branch',
+  # 'tutor', 'tutor.profile',
+  # 'students', 'students.student', 'students.student.profile',
+  # 'program_module', 'program_module.module', 'program_module.program',
+  # 'program_module.program.type'
+]})
+DOMAIN['classes_ts']['schema']['branch']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes_ts']['schema']['tutor']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes_ts']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes_ts']['schema']['program_module']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes_ts'].update({u'embedded_fields': [
   'branch',
   'tutor', 'tutor.profile',
-  'students', 'students.student', 'students.student.profile',
+  # 'students', 'students.student', 'students.student.profile',
   'program_module', 'program_module.module', 'program_module.program',
   'program_module.program.type'
 ]})
