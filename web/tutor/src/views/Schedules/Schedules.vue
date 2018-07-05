@@ -11,12 +11,12 @@
           span.text
             placeholder(:value="v.text")
 
-        transition-group(tag="ul" leave-active-class="animated slideOutLeft").mdc-list
+        transition-group(tag="ul" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutLeft").mdc-list
           item(v-for="(vv,ii) in v._items" :item="vv" :key="`${i}-${ii}`")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onDialogMounted")
-        span Insert 1234 to activate {{currentStartedClass._embedded.module.name.toUpperCase()}}.
+        span Insert 1234 to activate {{currentStartedClass.module.name.toUpperCase()}}.
         p
         input(type="text" name="username" v-model.trim="pin")
         .errMsg(v-if="errMsg") {{errMsg}}
@@ -91,9 +91,7 @@
         classes: defaultClass,
         currentStartedClass: {
           id: 0,
-          _embedded: {
-            module: {name: "..."}
-          }
+          module: {name: ""}
         },
         dialog: null,
         snackbar: null,
@@ -206,16 +204,16 @@
 
           if (msgOn === 'start') {
             const {i, ii} = this.findClassById(msgId);
-            this.currentStartedClass = this.classes[i].items[ii];
+            this.currentStartedClass = this.classes[i]._items[ii];
           }
           if (msgOn === 'startYes') {
             const {i, ii} = this.findClassById(msgId);
-            this.currentStartedClass = this.classes[i].items[ii];
+            this.currentStartedClass = this.classes[i]._items[ii];
 
-            setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
+            setTimeout(() => this._parseClass(true, this.classes[i]._items[ii]), 200);
 
             let snackbarOpts = {
-              message: `Start ${this.currentStartedClass._embedded.module.name.toUpperCase()}`
+              message: `Start ${this.currentStartedClass.module.name.toUpperCase()}`
             };
             const {by: msgBy, sid: MsgSid} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
@@ -241,11 +239,11 @@
           }
           if (msgOn === 'undo') {
             const {i, ii} = this.findClassById(msgId);
-            this.currentStartedClass = this.classes[i].items[ii];
+            this.currentStartedClass = this.classes[i]._items[ii];
 
-            setTimeout(() => this._parseClass(true, this.classes[i].items[ii]), 200);
+            setTimeout(() => this._parseClass(true, this.classes[i]._items[ii]), 200);
             let snackbarOpts = {
-              message: `Undo ${this.classes[i].items[ii]._embedded.module.name.toUpperCase()}`
+              message: `Undo ${this.classes[i].items[ii].module.name.toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
           }
