@@ -1,11 +1,17 @@
 <template lang="pug">
   transition(enter-active-class="animated fadeIn")
-    span.placeholder()
-      slot
+    span.placeholder(:class="classList") {{value}}
 </template>
 
 <script>
-  export default {}
+  export default {
+    props: ['value'],
+    computed: {
+      classList() {
+        return [!!this.value ? '' : 'is-wait']
+      }
+    }
+  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -30,18 +36,19 @@
       display: flex;
       min-height: 1rem;
 
-      margin:{
-        top:.125rem;
-        bottom:.125rem;
-      };
+      margin: {
+        top: .125rem;
+        bottom: .125rem;
+      }
       min-width: 5rem;
       background-color: $ph-color;
 
       &.is-inline {
         display: inline-flex;
         margin-left: .25rem;
+        min-width: 3rem;
       }
-      &::before {
+      /*&::before {
         content: " ";
         position: absolute;
         top: 0;
@@ -51,7 +58,7 @@
         background: linear-gradient(to right, rgba($ph-bg, 0) 46%, rgba($ph-bg, .35) 50%, rgba($ph-bg, 0) 54%) 50% 50%;
 
         animation: phAnimation .8s linear infinite;
-      }
+      }*/
     }
   }
 

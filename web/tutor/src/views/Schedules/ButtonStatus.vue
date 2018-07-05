@@ -27,17 +27,17 @@
         const mfts = moment(class_.finish_at_ts);
         const mnow = moment();
         let status = 'disabled';
-        const ls = class_._embedded.last_session;
+        const ls = class_.last_sessions;
 
-        if (!!ls && !!ls.items.length && !!ls.items[0].created_at
+        if (!!ls && !!ls.length && !!ls[0]._created_at
           && msts.diff(mnow, 'days') < 1) {
-          const lsItems = ls.items;
-          const mls = moment(lsItems[0].created_at);
+          const lsItems = ls;
+          const mls = moment(lsItems[0]._created_at);
 
-          if (!!this.currentAuth && !!lsItems[0]._embedded.tutor && !!lsItems[0]._embedded.tutor.id
+          if (!!this.currentAuth && !!lsItems[0].tutor && !!lsItems[0].tutor.id
             && !lsItems.filter(v => {
 
-              return v._embedded.tutor.id === this.currentAuth.id
+              return v.tutor.id === this.currentAuth.id
             }).length >= 1) {
             if (mls.isBefore(mfts)) {
               status = 'start-ongoing';

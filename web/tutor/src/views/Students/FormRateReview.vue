@@ -100,7 +100,7 @@
       submit() {
         const $el = this.$el.closest('li');
 //        $el.classList.add('animated', `slideOutUpHeight`);
-        const url = `${process.env.VUE_APP_API}/sessions/${this.sid}/students/${this.uid}`;
+        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.sid}/students/${this.uid}`;
 
         this.currentMqtt.mqtt
           .publish(this.currentMqtt.topic, JSON.stringify({
@@ -135,7 +135,7 @@
       absence() {
         const $el = this.$el.closest('li');
 //        $el.classList.add('animated', `slideOutUpHeight`);
-        const url = `${process.env.VUE_APP_API}/sessions/${this.sid}/students/${this.uid}`;
+        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.sid}/students/${this.uid}`;
 
         this.currentMqtt.mqtt
           .publish(this.currentMqtt.topic, JSON.stringify({

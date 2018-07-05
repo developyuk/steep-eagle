@@ -32,19 +32,14 @@ class Users(CommonColumns):
   def auth(token):
     try:
       data = jwt.decode(token, app.config['JWT_SECRET'])
-    except (jwt.ExpiredSignatureError, jwt.DecodeError):
-      # Signature has expired
-      return jsonify({}), 400
+    except Exception as e:
+      return jsonify({'message':str(e)}), 400
 
     return data
 
   def sign(self):
     data = {
       'id': self.id,
-      'username': self.username,
-      'email': self.email,
-      'role': self.role,
-      'photo': self.profile.photo,
     }
     return jwt.encode(data, app.config['JWT_SECRET'])
 

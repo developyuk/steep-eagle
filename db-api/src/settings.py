@@ -95,8 +95,8 @@ DOMAIN['modules'].update({u'embedded_fields': [
 DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions'].update({u'embedded_fields': [
   'session_tutors', 'session_tutors.tutor', 'session_tutors.tutor.profile',
-  'session_tutors.session_students', 'session_tutors.session_students.student',
-  'session_tutors.session_students.student.profile'
+  # 'session_tutors.session_students', 'session_tutors.session_students.student',
+  # 'session_tutors.session_students.student.profile'
 ]})
 DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update({u'embeddable': True})

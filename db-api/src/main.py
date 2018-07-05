@@ -5,10 +5,12 @@ from eve_sqlalchemy.validation import ValidatorSQL
 from tables import Base
 # from links import before_returning_items, before_returning_item
 from auth import MyAuth
-from blueprints import blueprint
+from blueprints import auth, schedules, students
 
 app = Eve(auth=MyAuth, validator=ValidatorSQL, data=SQL)
-app.register_blueprint(blueprint)
+app.register_blueprint(auth.blueprint)
+app.register_blueprint(schedules.blueprint)
+app.register_blueprint(students.blueprint)
 
 # bind SQLAlchemy
 db = app.data.driver

@@ -120,7 +120,7 @@
         })[0];
       },
       getStudentsSessions() {
-        const url = `${process.env.VUE_APP_API}/tutors/${this.currentAuth.id}/sessions`;
+        const url = `${process.env.VUE_APP_DBAPI}/tutors/${this.currentAuth.id}/sessions`;
 
         axios.get(url)
           .then(response => {
@@ -234,7 +234,7 @@
                   actionHandler: () => {
                     this.mqtt
                       .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
-                    const url = `${process.env.VUE_APP_API}/sessions/${sid}/students/${uid}`;
+                    const url = `${process.env.VUE_APP_DBAPI}/sessions/${sid}/students/${uid}`;
 
                     axios.delete(url)
                       .then(response => {

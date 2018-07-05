@@ -4,3 +4,5 @@ PyJWT==1.6.4
 pytz==2018.5
 sqlservice==0.22.0
 humanize==0.5.1
+Flask-Cors==3.0.6
+gunicorn==19.9.0

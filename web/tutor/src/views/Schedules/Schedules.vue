@@ -1,27 +1,18 @@
 <template lang="pug">
   template-main#schedules
-    spinner(v-if="!classes")
-    .empty(v-if="!!classes && !classes.length") class not found
     .mdc-list-group
-      template(v-for="(vv,ii) in classes")
+      template(v-for="(v,i) in classes")
         h3.mdc-list-group__subheader
           span.date-day
-            .date {{vv.date}}
-            .day {{vv.day}}
-          span.text {{vv.text}}
-        ul.mdc-list
-          li.mdc-list-item(v-for="(v,i) in vv.items")
-            .mdc-list-item__graphic
-              my-img(:src="v._embedded.module.image" myIs="module")
-            span.mdc-list-item__text
-              placeholder(:class="{'is-wait':!v._embedded.module.name}") {{v._embedded.module.name}}
-              placeholder(:class="{'is-wait':!v._embedded.branch.name}").mdc-list-item__secondary-text {{v._embedded.branch.name}}
-              span.mdc-list-item__secondary-text {{v.start_at}} - {{v.finish_at}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!v._embedded.last_session || (!!v._embedded.last_session && !v._embedded.last_session.items.length)") Tutor :
-                placeholder(:class="{'is-wait':!v._embedded.tutor.name,'is-inline':true}") {{v._embedded.tutor.name}}
-              span.mdc-list-item__secondary-text.tutor(v-if="!!v._embedded.last_session && !!v._embedded.last_session.items.length") Class started by
-                placeholder(:class="{'is-wait':!parseLastSessionTutorName(v._embedded.last_session.items),'is-inline':true}") {{parseLastSessionTutorName(v._embedded.last_session.items)}}
-            button-status(:class_="v" :index="`${ii}.${i}`")
+            .date
+              placeholder(:value="v.dateDay")
+            .day
+              placeholder(:value="v.day")
+          span.text
+            placeholder(:value="v.text")
+
+        transition-group(tag="ul" leave-active-class="animated slideOutLeft").mdc-list
+          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${i}-${ii}`")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onDialogMounted")
@@ -50,23 +41,54 @@
   import {MDCSnackbar} from '@material/snackbar';
   import {MDCRipple} from '@material/ripple';
   import TemplateMain from '@/components/views/Main';
-  import Placeholder from '@/components/Placeholder';
   import MyDialog from '@/components/Dialog';
 
+  const defaultClass =
+    [1, 2].map(v => {
+      const items = [1, 2, 3].map(vv => {
+        return {
+          "start_at": "",
+          "program_module": {
+            "module": {
+              "image": "",
+              "name": "",
+            },
+          },
+          "finish_at_ts": "Sun, 08 Jul 2018 03:30:00 GMT",
+          "start_at_ts": "Sun, 08 Jul 2018 02:00:00 GMT",
+          "finish_at": "",
+          "tutor": {
+            "profile": {
+              "name": ""
+            },
+            "email": ""
+          },
+          "branch": {
+            "name": "",
+          },
+          "last_session": [],
+        }
+      });
+      return {
+        "date": "2018-07-07",
+        "text": "",
+        "dateDay": null,
+        "day": "",
+        "_items": items
+      }
+    });
   export default {
     mixins: [mixinHal, mixinDom],
     components: {
       TemplateMain,
-      'spinner': () => import('@/components/Spinner'),
-      'my-img': () => import('@/components/Img'),
       MyDialog,
-      Placeholder,
-      'button-status': () => import('./ButtonStatus'),
+      'item': () => import('./Item'),
+      'placeholder': () => import('@/components/Placeholder'),
     },
     data() {
       return {
         pin: null,
-        classes: null,
+        classes: defaultClass,
         currentStartedClass: {
           id: 0,
           _embedded: {
@@ -95,9 +117,7 @@
       },
       _parseClass(isToday, _class) {
         const timeout = 1;
-        setTimeout(() => this.parseEmbedded('module', _class._links.module.href, _class['_embedded']), timeout);
-        setTimeout(() => this.parseEmbedded('branch', _class._links.branch.href, _class['_embedded']), timeout);
-        setTimeout(() => this.parseEmbedded('tutor', _class._links.tutor.href, _class['_embedded']), timeout);
+
         if (isToday) {
           setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
             item.items.forEach((v, i, arr) => {
@@ -112,7 +132,7 @@
       },
       checkPin(e) {
         if (this.pin === "1234") {
-          const url = `${process.env.VUE_APP_API}/classes/${this.currentStartedClass.id}/sessions`;
+          const url = `${process.env.VUE_APP_DBAPI}/classes/${this.currentStartedClass.id}/sessions`;
 
           axios.post(url, {
             id: this.currentAuth.id
@@ -136,42 +156,21 @@
         }
 
       },
-      parseLastSessionTutorName(array) {
-//        console.log(array);
-        return array.map(v => v['_embedded']['tutor'] ? v['_embedded']['tutor']['name'] : "").join(", ");
-      },
       getSchedules(page = 1) {
-        const url = `${process.env.VUE_APP_API}/classes/group/date`;
-        const params = {
-          'sort': 'start_at_ts.asc',
-        };
+        const url = `${process.env.VUE_APP_DBAPI}/schedules`;
+        const params = {};
         if (!!this.q) {
           params['q'] = this.q;
         }
 
         axios.get(url, {params})
           .then(response => {
-            let classes = response.data._embedded.items;
-            if (!!classes) {
-              classes = classes.map(v => {
-                v.items = v.items.map(v2 => {
-                  v2._embedded = {
-                    module: {},
-                    branch: {},
-                    tutor: {},
-                  };
-                  return v2
-                });
-                return v
-              });
-            } else {
-              classes = []
-            }
-            this.classes = classes;
+            this.classes = Object.assign({}, this.classes, response.data._items);
+            console.log(this.classes)
 
-            this.classes.forEach((v, i, a) => {
-              v.items.forEach((v2, i2, a2) => this._parseClass(v.text === 'today', a2[i2]))
-            });
+//            this.classes.forEach((v, i, a) => {
+//              v.items.forEach((v2, i2, a2) => this._parseClass(v.text === 'today', a2[i2]))
+//            });
           })
           .catch(error => console.log(error))
       },
@@ -224,7 +223,7 @@
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: 'Undo',
                 actionHandler: () => {
-                  const url = `${process.env.VUE_APP_API}/sessions/${MsgSid}`;
+                  const url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgSid}`;
 
                   axios.delete(url)
                     .then(response => {
@@ -315,27 +314,6 @@
     }
   }
 
-  $size: 3rem;
-  .mdc-list-item {
-    height: $size+3rem;
-    border-bottom: thin solid rgba(0, 0, 0, .12);
-    /*box-sizing: content-box;*/
-    padding: 0;
-  }
-
-  .mdc-list-item__graphic {
-    margin-left: 1rem;
-    width: 64px;
-    height: 64px;
-
-    margin-right: 1rem;
-    img {
-      width: 4rem;
-      height: 4rem;
-      border-radius: .5rem;
-    }
-  }
-
   .image {
     width: 4rem;
     height: 4rem;
@@ -349,17 +327,5 @@
     }
   }
 
-  .mdc-list-item__text {
-    text-transform: uppercase;
-  }
-
-  .mdc-list-item__secondary-text {
-    text-transform: capitalize;
-    font-size: .75rem;
-    &.tutor {
-      color: map-get($palettes, purple);
-      font-weight: bold;
-    }
-  }
 
 </style>

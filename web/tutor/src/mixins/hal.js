@@ -11,7 +11,7 @@ export default {
      * @param onSuccesss callback before modify array
      */
     parseEmbedded(name, url, array, onSuccesss) {
-      axios.get(`${process.env.VUE_APP_API}${url}`)
+      axios.get(`${process.env.VUE_APP_DBAPI}${url}`)
         .then(response => {
           let v = response.data._embedded ? response.data._embedded : response.data;
           if (!!onSuccesss) {

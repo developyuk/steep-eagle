@@ -67,7 +67,7 @@
                 by: this.currentAuth,
                 on: "successRateReview",
               }));
-            axios.post(`${process.env.VUE_APP_API}${path}`, {
+            axios.post(`${process.env.VUE_APP_DBAPI}${path}`, {
               interaction: 0,
               creativity: 0,
               cognition: 0,

@@ -54,7 +54,7 @@
     },
     methods: {
       sign() {
-        const url = `${process.env.VUE_APP_API}/sign`;
+        const url = `${process.env.VUE_APP_DBAPI}/sign`;
         const data = {
           username: this.username.toLowerCase().slice(0, -3),
         };
