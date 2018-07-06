@@ -11,22 +11,24 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 RESOURCE_METHODS = [
   'GET',
-  # 'POST', 'DELETE'
+  'POST',
+  # 'DELETE'
 ]
-
 ITEM_METHODS = [
   'GET',
-  # 'PATCH', 'PUT', 'DELETE'
+  # 'PATCH', 'PUT',
+  'DELETE'
 ]
 X_DOMAINS = "*"
 CACHE_CONTROL = 'max-age=10,must-revalidate'
 CACHE_EXPIRES = 10
+# X_ALLOW_CREDENTIALS = True
+X_HEADERS = ['Authorization', 'Content-Type', 'If-Match']
 
 DEBUG = os.environ['DEBUG']
 JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 PAGINATION_DEFAULT = 8
-EMBEDDING = True
 JSONIFY_PRETTYPRINT_REGULAR = False
 
 # The following two lines will output the SQL statements executed by

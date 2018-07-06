@@ -22,7 +22,7 @@ services:
        - ./db-api/src:/app
 #    remove ports on production
     ports:
-      - "3000:5000"
+      - "3000:3000"
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_KEY}
@@ -30,6 +30,7 @@ services:
       - DEBUG=1
     depends_on:
       - db
+    command: gunicorn -w 4 -b 0.0.0.0:3000 --reload main:app
   db-admin:
     image:      adminer
     ports:

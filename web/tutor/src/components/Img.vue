@@ -1,5 +1,5 @@
 <template lang="pug">
-  transition(enter-active-class="animated fadeIn")
+  transition(appear-active-class="animated flipInY" leave-active-class="animated flipOutY")
     img(:src="newSrc" :key="newSrc")
 </template>
 

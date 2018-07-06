@@ -25,6 +25,7 @@ def schedules():
 
     sessions = app.data.driver.session.query(Sessions) \
       .filter(Sessions._created >= class_.start_at_ts) \
+      .filter(Sessions.class_id == class_.id) \
       .all()
 
     sessions_list = []
@@ -89,3 +90,14 @@ def schedules():
     '_items': classes_group_list,
     'meta': {'total': len(classes_group_list)}
   })
+
+# @blueprint.after_request
+# def add_header(response):
+#   response.cache_control.max_age = app.config['CACHE_EXPIRES']
+#   response.cache_control.public = True
+#   response.cache_control.must_revalidate = True
+#
+#   now = datetime.now()
+#   then = now + timedelta(days=app.config['CACHE_EXPIRES'])
+#   response.headers['Expires'] = then
+#   return response

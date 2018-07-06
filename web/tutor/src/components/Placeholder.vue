@@ -1,12 +1,18 @@
 <template lang="pug">
-  transition(enter-active-class="animated fadeIn")
-    span.placeholder(:class="classList") {{value}}
+  transition(enter-active-class="animated fadeIn" leave-active-class="")
+    span.placeholder(:class="classList" :key="value") {{newValue}}
 </template>
 
 <script>
   export default {
-    props: ['value'],
+    props: ['value', 'length', 'valEmpty'],
     computed: {
+      newValue() {
+        if (!this.value) {
+          return !!this.valEmpty ? this.valEmpty : 'lorem ipsum';
+        }
+        return this.value;
+      },
       classList() {
         return [!!this.value ? '' : 'is-wait']
       }
@@ -18,36 +24,25 @@
 <style scoped lang="scss">
   @import "~sass-bem";
 
-  $ph-bg: #fff !default;
+  /*$ph-bg: #fff !default;
   $ph-color: #ced4da !default;
   $ph-border-radius: 2px !default;
 
   $ph-gutter: 30px !default;
   $ph-spacer: 15px !default;
 
-  $ph-avatar-border-radius: 50% !default;
+  $ph-avatar-border-radius: 50% !default;*/
 
   .placeholder {
     position: relative;
-    @include is('inline') {
-      margin-left: .25rem;
-    }
     @include is('wait') {
-      display: flex;
-      min-height: 1rem;
-
-      margin: {
-        top: .125rem;
-        bottom: .125rem;
+      background-color: #C3C3C3;
+      color: #C3C3C3;
+      &::selection {
+        background: #C3C3C3;
+        color: #C3C3C3;
       }
-      min-width: 5rem;
-      background-color: $ph-color;
 
-      &.is-inline {
-        display: inline-flex;
-        margin-left: .25rem;
-        min-width: 3rem;
-      }
       /*&::before {
         content: " ";
         position: absolute;
@@ -62,12 +57,12 @@
     }
   }
 
-  @keyframes phAnimation {
+  /*@keyframes phAnimation {
     0% {
       transform: translate3d(-30%, 0, 0);
     }
     100% {
       transform: translate3d(30%, 0, 0);
     }
-  }
+  }*/
 </style>

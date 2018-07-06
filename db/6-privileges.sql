@@ -1,38 +1,25 @@
-CREATE ROLE anon nologin;
+DROP ROLE IF EXISTS operation;
+DROP ROLE IF EXISTS tutor;
+CREATE ROLE operation NOLOGIN;
+CREATE ROLE tutor NOLOGIN;
 
-CREATE ROLE operation nologin;
-
-CREATE ROLE tutor nologin;
-
-GRANT ALL PRIVILEGES
-	ON sequence users_id_seq
-	TO anon;
 
 GRANT ALL PRIVILEGES
-	ON FUNCTION user_by_email_pass
-	TO anon;
+ON ALL SEQUENCES IN SCHEMA PUBLIC
+TO operation
+, tutor;
+
+GRANT ALL PRIVILEGES
+ON ALL TABLES IN SCHEMA PUBLIC
+TO operation;
 
 GRANT SELECT
-	ON _users_profile
-	TO anon;
-
-GRANT ALL PRIVILEGES
-	ON ALL sequences IN SCHEMA PUBLIC
-	TO operation
-		,tutor;
-
-GRANT ALL PRIVILEGES
-	ON ALL tables IN SCHEMA PUBLIC
-	TO operation;
-
-GRANT SELECT
-	ON ALL tables IN SCHEMA PUBLIC
-	TO tutor;
+ON ALL TABLES IN SCHEMA PUBLIC
+TO tutor;
 
 GRANT INSERT
-  ,DELETE
-	ON TABLE sessions
-		,sessions_tutors
-		,sessions_logins
-		,sessions_students
-	TO tutor;
+, DELETE
+ON TABLE sessions
+, sessions_tutors
+, sessions_tutors_students
+TO tutor;

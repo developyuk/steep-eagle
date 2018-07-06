@@ -6,13 +6,13 @@
       placeholder(:value="item.program_module.module.name")
       placeholder(:value="item.branch.name").mdc-list-item__secondary-text
       span.mdc-list-item__secondary-text
-        placeholder.is-inline(:value="item.start_at")
-        | -
-        placeholder.is-inline(:value="item.finish_at")
-      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_sessions || (!!item.last_sessions && !item.last_sessions.length)") Tutor :
-        placeholder.is-inline(:value="item.tutor.profile.name")
-      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_sessions && !!item.last_sessions.length") Class started by
-        placeholder.is-inline(:value="parseLastSessionTutorName(item.last_sessions)")
+        placeholder(:value="item.start_at")
+        | &nbsp;-&nbsp;
+        placeholder(:value="item.finish_at")
+      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_sessions || (!!item.last_sessions && !item.last_sessions.length)") Tutor:&nbsp;
+        placeholder(:value="item.tutor.profile.name")
+      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_sessions && !!item.last_sessions.length") Class started by&nbsp;
+        placeholder(:value="parseLastSessionTutorName(item.last_sessions)")
     button-status(:class_="item")
 </template>
 

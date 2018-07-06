@@ -29,15 +29,14 @@
         let status = 'disabled';
         const ls = class_.last_sessions;
 
-        if (!!ls && !!ls.length && !!ls[0]._created_at
+        if (!!ls && !!ls.length && !!ls[0]._created
           && msts.diff(mnow, 'days') < 1) {
           const lsItems = ls;
-          const mls = moment(lsItems[0]._created_at);
+          const mls = moment(lsItems[0]._created);
 
-          if (!!this.currentAuth && !!lsItems[0].tutor && !!lsItems[0].tutor.id
+          if (!!this.currentAuth && !!lsItems[0].session_tutors[0].tutor && !!lsItems[0].session_tutors[0].tutor.id
             && !lsItems.filter(v => {
-
-              return v.tutor.id === this.currentAuth.id
+              return v.session_tutors[0].tutor.id === this.currentAuth.id
             }).length >= 1) {
             if (mls.isBefore(mfts)) {
               status = 'start-ongoing';
@@ -78,7 +77,10 @@
       }
     },
     mounted() {
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+      const $el = this.$el.querySelector('.mdc-button')
+      if (!!$el) {
+        new MDCRipple(this.$el.querySelector('.mdc-button'));
+      }
     }
   }
 </script>

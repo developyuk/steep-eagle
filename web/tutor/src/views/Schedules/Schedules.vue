@@ -5,18 +5,19 @@
         h3.mdc-list-group__subheader
           span.date-day
             .date
-              placeholder(:value="v.dateDay")
+              placeholder(:value="v.dateDay" val-empty="00")
             .day
-              placeholder(:value="v.day")
+              placeholder(:value="v.day" val-empty="lorem ipsum")
           span.text
             placeholder(:value="v.text")
-
-        transition-group(tag="ul" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutLeft").mdc-list
-          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${i}-${ii}`")
+        .mdc-list
+          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv.id}`")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onDialogMounted")
-        span Insert 1234 to activate {{currentStartedClass.module.name.toUpperCase()}}.
+        span Insert 1234 to activate&nbsp;
+          placeholder(:value="currentStartedClass.program_module.module.name.toUpperCase()" val-empty="lorem ipsum")
+          | .
         p
         input(type="text" name="username" v-model.trim="pin")
         .errMsg(v-if="errMsg") {{errMsg}}
@@ -43,10 +44,11 @@
   import TemplateMain from '@/components/views/Main';
   import MyDialog from '@/components/Dialog';
 
-  const defaultClass =
-    [1, 2].map(v => {
-      const items = [1, 2, 3].map(vv => {
+  const placeholderClass =
+    [1, 2, 3].map(v => {
+      const items = [1, 2].map(vv => {
         return {
+          "id": vv,
           "start_at": "",
           "program_module": {
             "module": {
@@ -70,9 +72,9 @@
         }
       });
       return {
-        "date": "2018-07-07",
+        "date": v,
         "text": "",
-        "dateDay": null,
+        "dateDay": "",
         "day": "",
         "_items": items
       }
@@ -88,10 +90,12 @@
     data() {
       return {
         pin: null,
-        classes: defaultClass,
+        classes: placeholderClass,
         currentStartedClass: {
           id: 0,
-          module: {name: ""}
+          program_module: {
+            module: {name: ""}
+          },
         },
         dialog: null,
         snackbar: null,
@@ -113,38 +117,37 @@
       onDialogMounted(e) {
         this.dialog = e;
       },
-      _parseClass(isToday, _class) {
-        const timeout = 1;
-
-        if (isToday) {
-          setTimeout(() => this.parseEmbedded('last_session', _class._links.last_session.href, _class['_embedded'], item => {
-            item.items.forEach((v, i, arr) => {
-              if (!arr[i]['_embedded']) {
-                this.$set(arr[i], '_embedded', {});
-              }
-              this.parseEmbedded('tutor', v._links.tutor.href, arr[i]['_embedded']);
-            });
-            return item
-          }), timeout);
-        }
-      },
       checkPin(e) {
         if (this.pin === "1234") {
-          const url = `${process.env.VUE_APP_DBAPI}/classes/${this.currentStartedClass.id}/sessions`;
+          let url = `${process.env.VUE_APP_DBAPI}/sessions`;
+          let params = {class_: this.currentStartedClass.id};
 
-          axios.post(url, {
-            id: this.currentAuth.id
-          })
+          axios.post(url, params)
             .then(response => {
-              this.pin = null;
+              const session = response.data.id;
+              const sessionEtag = response.data._etag;
 
-              this.mqtt
-                .publish('schedules', JSON.stringify({
-                  on: "startYes",
-                  by: this.currentAuth,
-                  id: this.currentStartedClass.id,
-                  sid: response.data.id
-                }));
+              url = `${process.env.VUE_APP_DBAPI}/sessions_tutors`;
+              params = {session, tutor: this.currentAuth.id};
+
+              axios.post(url, params)
+                .then(response => {
+
+                  this.pin = null;
+                  const sessionTutor = response.data.id;
+                  const sessionTutorEtag = response.data._etag;
+                  this.mqtt
+                    .publish('schedules', JSON.stringify({
+                      on: "startYes",
+                      by: this.currentAuth,
+                      id: this.currentStartedClass.id,
+                      sid: session,
+                      set: sessionEtag,
+                      stid: sessionTutor,
+                      stet: sessionTutorEtag,
+                    }));
+                })
+                .catch(error => console.log(error));
             })
             .catch(error => console.log(error));
 
@@ -154,7 +157,7 @@
         }
 
       },
-      getSchedules(page = 1) {
+      getSchedules() {
         const url = `${process.env.VUE_APP_DBAPI}/schedules`;
         const params = {};
         if (!!this.q) {
@@ -163,19 +166,14 @@
 
         axios.get(url, {params})
           .then(response => {
-            this.classes = Object.assign({}, this.classes, response.data._items);
-            console.log(this.classes)
-
-//            this.classes.forEach((v, i, a) => {
-//              v.items.forEach((v2, i2, a2) => this._parseClass(v.text === 'today', a2[i2]))
-//            });
+            this.classes = Object.assign([], this.classes, response.data._items);
           })
           .catch(error => console.log(error))
       },
       findClassById(id) {
         let i, ii;
         i = _findIndex(this.classes, v => {
-          ii = _findIndex(v.items, {id});
+          ii = _findIndex(v._items, {id});
           return ii > -1;
         });
 //        console.log(i, ii, this.classes);
@@ -204,32 +202,37 @@
 
           if (msgOn === 'start') {
             const {i, ii} = this.findClassById(msgId);
+            console.log(i, ii, msgId, this.classes);
             this.currentStartedClass = this.classes[i]._items[ii];
           }
           if (msgOn === 'startYes') {
             const {i, ii} = this.findClassById(msgId);
             this.currentStartedClass = this.classes[i]._items[ii];
 
-            setTimeout(() => this._parseClass(true, this.classes[i]._items[ii]), 200);
-
+            this.getSchedules();
             let snackbarOpts = {
-              message: `Start ${this.currentStartedClass.module.name.toUpperCase()}`
+              message: `Start ${this.currentStartedClass.program_module.module.name.toUpperCase()}`
             };
-            const {by: msgBy, sid: MsgSid} = parsedMessage;
+            const {by: msgBy, sid: MsgSid, set: MsgSet, stid: MsgStid, stet: MsgStet} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
 //              console.log(MsgSid);
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: 'Undo',
                 actionHandler: () => {
-                  const url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgSid}`;
+                  let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors/${MsgStid}`;
 
-                  axios.delete(url)
+                  axios.delete(url, {headers: {'If-Match': MsgStet}})
                     .then(response => {
-                      this.mqtt
-                        .publish('schedules', JSON.stringify({
-                          on: "undo",
-                          id: this.currentStartedClass.id,
-                        }));
+                      url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgSid}`;
+                      axios.delete(url, {headers: {'If-Match': MsgSet}})
+                        .then(response => {
+                          this.mqtt
+                            .publish('schedules', JSON.stringify({
+                              on: "undo",
+                              id: this.currentStartedClass.id,
+                            }));
+                        })
+                        .catch(error => console.log(error));
                     })
                     .catch(error => console.log(error));
                 }
@@ -241,9 +244,9 @@
             const {i, ii} = this.findClassById(msgId);
             this.currentStartedClass = this.classes[i]._items[ii];
 
-            setTimeout(() => this._parseClass(true, this.classes[i]._items[ii]), 200);
+            this.getSchedules();
             let snackbarOpts = {
-              message: `Undo ${this.classes[i].items[ii].module.name.toUpperCase()}`
+              message: `Undo ${this.classes[i]._items[ii].program_module.module.name.toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
           }

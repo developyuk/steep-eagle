@@ -1,17 +1,20 @@
 -- truncate all table
---SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;' FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
-DROP TABLE IF EXISTS sessions_tutors_students CASCADE;
-DROP TABLE IF EXISTS sessions_tutors CASCADE;
-DROP TABLE IF EXISTS sessions CASCADE;
-DROP TABLE IF EXISTS class_students CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS classes CASCADE;
-DROP TABLE IF EXISTS users_profile CASCADE;
+SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;'
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
 DROP TABLE IF EXISTS branches CASCADE;
+DROP TABLE IF EXISTS users_profile CASCADE;
 DROP TABLE IF EXISTS programs_modules CASCADE;
 DROP TABLE IF EXISTS programs CASCADE;
 DROP TABLE IF EXISTS modules CASCADE;
 DROP TABLE IF EXISTS program_types CASCADE;
+DROP TABLE IF EXISTS sessions_tutors_students CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS classes CASCADE;
+DROP TABLE IF EXISTS sessions_tutors CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS class_students CASCADE;
+DROP TABLE IF EXISTS sessions_students CASCADE;
 
 
 DROP TYPE IF EXISTS DAYS CASCADE;
@@ -20,16 +23,18 @@ DROP TYPE IF EXISTS ROLES CASCADE;
 CREATE TABLE program_types (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL UNIQUE,
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW()
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE TABLE programs (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL,
   type_id  INT REFERENCES program_types (id),
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW(),
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT,
   UNIQUE (
     name,
     type_id
@@ -40,8 +45,9 @@ CREATE TABLE modules (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL UNIQUE,
   image    TEXT NULL,
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW()
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE TABLE programs_modules (
@@ -58,8 +64,9 @@ CREATE TABLE branches (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL UNIQUE,
   address  TEXT NULL,
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW()
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE TYPE DAYS AS ENUM (
@@ -86,8 +93,9 @@ CREATE TABLE users (
   email    TEXT  NULL,
   pass     TEXT  NULL,
   ROLE     ROLES NOT NULL,
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW(),
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT,
   UNIQUE (
     username
     , email
@@ -113,8 +121,9 @@ CREATE TABLE classes (
   program_module_id INT REFERENCES programs_modules (id),
   branch_id         INT REFERENCES branches (id),
   tutor_id          INT REFERENCES users (id),
-  _created          TIMESTAMPTZ DEFAULT NOW(),
-  _updated          TIMESTAMPTZ DEFAULT NOW(),
+  _created          TIMESTAMP DEFAULT NOW(),
+  _updated          TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT,
   UNIQUE (
     day,
     start_at,
@@ -184,16 +193,18 @@ CREATE OR REPLACE VIEW _classes_ts AS
 CREATE TABLE sessions (
   id       BIGSERIAL PRIMARY KEY,
   class_id INT REFERENCES classes (id),
-  _created TIMESTAMPTZ DEFAULT NOW(),
-  _updated TIMESTAMPTZ DEFAULT NOW()
+  _created TIMESTAMP DEFAULT NOW(),
+  _updated TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE TABLE sessions_tutors (
   id         BIGSERIAL PRIMARY KEY,
   session_id INT REFERENCES sessions (id),
   tutor_id   INT REFERENCES users (id),
-  _created   TIMESTAMPTZ DEFAULT NOW(),
-  _updated   TIMESTAMPTZ DEFAULT NOW()
+  _created   TIMESTAMP DEFAULT NOW(),
+  _updated   TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE TABLE sessions_tutors_students (
@@ -205,8 +216,9 @@ CREATE TABLE sessions_tutors_students (
   rating_creativity  SMALLINT NULL,
   session_tutor_id   INT REFERENCES sessions_tutors (id),
   student_id         INT REFERENCES users (id),
-  _created           TIMESTAMPTZ DEFAULT NOW(),
-  _updated           TIMESTAMPTZ DEFAULT NOW()
+  _created           TIMESTAMP DEFAULT NOW(),
+  _updated           TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT
 );
 
 CREATE OR REPLACE VIEW _sessions_tutors AS

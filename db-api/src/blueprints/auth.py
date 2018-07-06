@@ -2,7 +2,7 @@ from flask import current_app as app, jsonify, Blueprint, request
 from flask_cors import CORS, cross_origin
 from tables import Users
 from pprint import pprint
-from datetime import timedelta
+from datetime import timedelta,datetime
 from eve.auth import requires_auth
 
 blueprint = Blueprint('auth', __name__)
@@ -51,3 +51,15 @@ def auth():
         "code": 400
       }
     }), 400
+
+
+# @blueprint.after_request
+# def add_header(response):
+#   response.cache_control.max_age = app.config['CACHE_EXPIRES']
+#   response.cache_control.public = True
+#   response.cache_control.must_revalidate = True
+#
+#   now = datetime.now()
+#   then = now + timedelta(days=app.config['CACHE_EXPIRES'])
+#   response.headers['Expires'] = then
+#   return response
