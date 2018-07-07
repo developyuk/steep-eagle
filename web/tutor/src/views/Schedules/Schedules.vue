@@ -44,7 +44,7 @@
   import TemplateMain from '@/components/views/Main';
   import MyDialog from '@/components/Dialog';
 
-  const placeholderClass =
+  const placeholderSchedules =
     [1, 2, 3].map(v => {
       const items = [1, 2].map(vv => {
         return {
@@ -90,7 +90,7 @@
     data() {
       return {
         pin: null,
-        classes: placeholderClass,
+        classes: placeholderSchedules,
         currentStartedClass: {
           id: 0,
           program_module: {
@@ -166,7 +166,8 @@
 
         axios.get(url, {params})
           .then(response => {
-            this.classes = Object.assign([], this.classes, response.data._items);
+//            this.classes = Object.assign([], this.classes, response.data._items);
+            this.classes = response.data._items;
           })
           .catch(error => console.log(error))
       },

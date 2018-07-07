@@ -37,7 +37,7 @@
   import {MDCTextField} from '@material/textfield';
 
   export default {
-    props: ['sid', 'uid', 'name', 'index'],
+    props: ['sid', 'uid', 'name'],
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
     },

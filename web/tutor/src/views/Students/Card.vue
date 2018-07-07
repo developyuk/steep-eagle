@@ -1,15 +1,15 @@
 <template lang="pug">
-
-  transition(enter-active-class="" leave-class="animated fadeOutUp")
+  transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
     li#card(:data-index="index" :data-sid="sid" :data-student="student" :data-isActive="isActive")
       .mdc-list-item
         .mdc-list-item__graphic
-          my-img(:src="student.photo" myIs="profile")
-        span.mdc-list-item__text {{student.name}}
+          my-img(:src="student.profile.photo" myIs="profile")
+        span.mdc-list-item__text
+          placeholder(:value="student.profile.name")
       hr.mdc-list-divider(v-if="isActive")
 
-      //transition(enter-active-class="animated fadeInDown" leave-class="animated fadeOutUp")
-      component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.name" :index="index" class="")
+      //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
+      component(:is="currentComponent" :sid="sid" :uid="student.id" :name="student.profile.name")
 </template>
 
 <script>
@@ -23,11 +23,12 @@
     components: {
       'form-rate-review': () => import('./FormRateReview'),
       'my-img': () => import('@/components/Img'),
+      'placeholder': () => import('@/components/Placeholder'),
     },
+    props: ['sid', 'student', 'isActive','index'],
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
     },
-    props: ['index', 'sid', 'student', 'isActive'],
     watch: {
       isActive(v) {
         this.currentComponent = v ? 'form-rate-review' : ''
@@ -51,31 +52,36 @@
 //      const $form = this.$el.querySelector('.mdc-list-item').nextSibling.nextSibling;
 
       this.hammertime = new Hammer($el, {});
-      this.hammertime.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+      this.hammertime.get('pan').set({direction: Hammer.DIRECTION_HORIZONTAL});
 
       this.hammertime
         .on('panend', e => {
           if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
-//            this.$el.classList.add('animated', `slideOut${this.direction}Height`);
-            const path = `/sessions/${this.sid}/students/${this.student.id}`;
 
-            this.currentMqtt.mqtt
-              .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.sid,
-                uid: this.student.id,
-                name: this.student.name,
-                by: this.currentAuth,
-                on: "successRateReview",
-              }));
-            axios.post(`${process.env.VUE_APP_DBAPI}${path}`, {
-              interaction: 0,
-              creativity: 0,
-              cognition: 0,
-              review: "",
-              status: 0,
-            })
+
+            let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
+            let params = {
+              session_tutor: this.sid, student: this.student.id,
+
+              rating_interaction: 0,
+              rating_creativity: 0,
+              rating_cognition: 0,
+              feedback: "",
+              status: false,
+            };
+            axios.post(url, params)
               .then(response => {
                 console.log(response.data);
+                this.currentMqtt.mqtt
+                  .publish(this.currentMqtt.topic, JSON.stringify({
+                    sid: this.sid,
+                    stsId: response.data.id,
+                    stsEt: response.data._etag,
+                    uid: this.student.id,
+                    name: this.student.profile.name,
+                    by: this.currentAuth,
+                    on: "successRateReview",
+                  }));
               })
               .catch(error => {
                 console.log(error);
@@ -84,7 +90,7 @@
                   .publish(this.currentMqtt.topic, JSON.stringify({
                     sid: this.sid,
                     uid: this.student.id,
-                    name: this.student.name,
+                    name: this.student.profile.name,
                     by: this.currentAuth,
                     on: "undoRateReview",
                   }));
@@ -97,13 +103,13 @@
         .on('panleft panright', e => {
           this.setPosition(e.deltaX);
         })
-//        .on('panleft', e => this.direction = 'Left')
-//        .on('panright', e => this.direction = 'Right')
+        //        .on('panleft', e => this.direction = 'Left')
+        //        .on('panright', e => this.direction = 'Right')
         .on('tap', e => {
           this.nextStudentSession({
             sid: this.sid,
             uid: this.student.id,
-            name: this.student.name,
+            name: this.student.profile.name,
             on: "tapStudent",
           })
         });

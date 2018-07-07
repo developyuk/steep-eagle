@@ -33,7 +33,7 @@ class Users(CommonColumns):
     try:
       data = jwt.decode(token, app.config['JWT_SECRET'])
     except Exception as e:
-      return jsonify({'message':str(e)}), 400
+      return jsonify({'message': str(e)}), 400
 
     return data
 
@@ -98,7 +98,7 @@ class ClassStudents(Base):
   __tablename__ = 'class_students'
   id = Column(Integer, primary_key=True, autoincrement=True)
   class_id = Column(Integer, ForeignKey('classes.id'))
-  class_ = relationship("Classes")
+  class_ = relationship("ClassesTs")
   student_id = Column(Integer, ForeignKey('users.id'))
   student = relationship("Users")
 
@@ -123,7 +123,7 @@ class Sessions(CommonColumns):
   __tablename__ = 'sessions'
   id = Column(Integer, primary_key=True, autoincrement=True)
   class_id = Column(Integer, ForeignKey('classes.id'))
-  class_ = relationship("Classes")
+  class_ = relationship("ClassesTs")
   session_tutors = relationship("SessionsTutors", back_populates="session")
 
 
@@ -150,16 +150,19 @@ class SessionsTutorsStudents(CommonColumns):
   student_id = Column(Integer, ForeignKey('users.id'))
   student = relationship("Users")
 
+
 dow = dict(zip('monday tuesday wednesday thursday friday saturday sunday'.split(), range(7)))
 
-class ClassesTs(Classes):
-  def onDay(self):
-    now = datetime.now()
-    return now + timedelta(days=(dow[self.day] - now.weekday() + 7) % 7)
 
+def onDay(day):
+  now = datetime.now()
+  return now + timedelta(days=(dow[day] - now.weekday() + 7) % 7)
+
+
+class ClassesTs(Classes):
   @hybrid_property
   def start_at_ts(self):
-    dt = datetime.strptime('%sT%s' % (self.onDay().date(), self.start_at), '%Y-%m-%dT%H:%M')
+    dt = datetime.strptime('%sT%s' % (onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
     return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
 
   @start_at_ts.expression
@@ -168,7 +171,7 @@ class ClassesTs(Classes):
 
   @hybrid_property
   def finish_at_ts(self):
-    dt = datetime.strptime('%sT%s' % (self.onDay().date(), self.finish_at), '%Y-%m-%dT%H:%M')
+    dt = datetime.strptime('%sT%s' % (onDay(self.day).date(), self.finish_at), '%Y-%m-%dT%H:%M')
     return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
 
   @finish_at_ts.expression

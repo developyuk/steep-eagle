@@ -17,11 +17,13 @@ def schedules():
   classes = app.data.driver.session.query(ClassesTs) \
     .all()
 
-  # data = map(lambda x: x.to_dict(), classes)
+  classes = (filter(lambda v: v.finish_at_ts > (datetime.now(timezone('UTC')) - timedelta(hours=5)), classes))
+  classes = (filter(lambda v: v.finish_at_ts < (datetime.now(timezone('UTC')) + timedelta(days=7)), classes))
+  classes.sort(key=lambda v: v.start_at_ts)
 
   classes_list = []
   for class_ in classes:
-    w = class_.to_dict()
+    w = dict(class_).copy()
 
     sessions = app.data.driver.session.query(Sessions) \
       .filter(Sessions._created >= class_.start_at_ts) \
@@ -30,15 +32,15 @@ def schedules():
 
     sessions_list = []
     for session in sessions:
-      ww = session.to_dict()
+      ww = dict(session)
       session_tutors_list = []
       for vvv in session.session_tutors:
-        www = vvv.to_dict()
+        www = dict(vvv)
         www.update({
-          'tutor': vvv.tutor.to_dict(),
+          'tutor': dict(vvv.tutor),
         })
         www['tutor'].update({
-          'profile': vvv.tutor.profile.to_dict(),
+          'profile': dict(vvv.tutor.profile),
         })
         session_tutors_list.append(www)
 
@@ -48,27 +50,24 @@ def schedules():
       sessions_list.append(ww)
 
     w.update({
-      'branch': class_.branch.to_dict(),
-      'program_module': class_.program_module.to_dict(),
+      'branch': dict(class_.branch),
+      'program_module': dict(class_.program_module),
       'q': class_.q,
-      'tutor': class_.tutor.to_dict(),
+      'tutor': dict(class_.tutor),
       'finish_at_ts': class_.finish_at_ts,
       'start_at_ts': class_.start_at_ts,
-      'last_sessions': sessions_list,
+      # 'last_sessions': sessions_list,
     })
     w['tutor'].update({
-      'profile': class_.tutor.profile.to_dict(),
+      'profile': dict(class_.tutor.profile),
     })
     w['program_module'].update({
-      'module': class_.program_module.module.to_dict(),
+      'module': dict(class_.program_module.module),
     })
 
     classes_list.append(w)
 
-  classes_list.sort(key=lambda v: v['start_at_ts'])
-  classes_list = list(filter(lambda v: v['finish_at_ts'] < (datetime.now(timezone('UTC')) + timedelta(days=5)), classes_list))
   classes_group_list = []
-
   for class_ in classes_list:
     # pass
     date = class_['start_at_ts'].date().isoformat()

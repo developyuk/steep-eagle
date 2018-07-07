@@ -24,8 +24,8 @@
 <style scoped lang="scss">
   @import "~sass-bem";
 
-  /*$ph-bg: #fff !default;
   $ph-color: #ced4da !default;
+  /*$ph-bg: #fff !default;
   $ph-border-radius: 2px !default;
 
   $ph-gutter: 30px !default;
@@ -36,11 +36,11 @@
   .placeholder {
     position: relative;
     @include is('wait') {
-      background-color: #C3C3C3;
-      color: #C3C3C3;
+      background-color: $ph-color;
+      color: $ph-color;
       &::selection {
-        background: #C3C3C3;
-        color: #C3C3C3;
+        background: $ph-color;
+        color: $ph-color;
       }
 
       /*&::before {

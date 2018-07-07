@@ -26,7 +26,7 @@
     },
     methods: {
       parseLastSessionTutorName(array) {
-        return array.map(v => !!v['session_tutors'].length ? v['session_tutors'].map(w=>w['tutor']['profile']['name']) : "").join(", ");
+        return array.map(v => !!v['session_tutors'].length ? v['session_tutors'].map(w => w['tutor']['profile']['name']) : "").join(", ");
       },
     }
   }

@@ -1,18 +1,20 @@
 <template lang="pug">
   template-main#students
-    spinner(v-if="!sessions")
     empty(v-if="!!sessions && !sessions.length")
     .mdc-list-group(v-else)
-      template(v-for="(v,i) in sessions")
+      template(v-for="(v, i) in sessions")
         h3.mdc-list-group__subheader
-          placeholder(:class="{'is-wait':!v._embedded.class._embedded.module.name,'is-inline':true}").module(v-if="!!v._embedded.class._embedded.module") {{v._embedded.class._embedded.module.name}}
+          placeholder(:value="v.session.class.program_module.module.name").module
           br
-          placeholder(:class="{'is-wait':!v._embedded.class._embedded.branch.name,'is-inline':true}").branch(v-if="!!v._embedded.class._embedded.branch") {{v._embedded.class._embedded.branch.name}}
+          placeholder(:value="v.session.class.branch.name").branch
           | &nbsp;&nbsp;
-          placeholder(:class="{'is-wait':!(v._embedded.class.start_at && v._embedded.class.finish_at)}").day-time {{v._embedded.class.start_at}} - {{v._embedded.class.finish_at}}
+          .day-time
+            placeholder(:value="v.session.class.start_at" val-empty="00:00")
+            | &nbsp;-&nbsp;
+            placeholder(:value="v.session.class.finish_at" val-empty="00:00")
         ul.mdc-list
-          template(v-for="(vv,ii) in v._embedded.items")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="vv.id" :student="vv._embedded.student" :isActive="vv.isActive")
+          template(v-for="(vv,ii) in v.session.class.students")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="v.id" :student="vv.student" :isActive="vv.isActive")
             hr.mdc-list-divider
     .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
       .mdc-snackbar__text
@@ -33,12 +35,74 @@
   import {MDCSnackbar} from '@material/snackbar';
   import TemplateMain from '@/components/views/Main';
 
+  const placeholderStudents =
+    [1,].map(v => {
+      const students = [1].map(vv => {
+        return {
+          "class_id": 12,
+          "student_id": 84,
+          "id": 71,
+          "student": {
+            "username": "bruce banner",
+            "_updated": "Fri, 06 Jul 2018 21:46:21 GMT",
+            "pass_": null,
+            "email": null,
+            "role": "student",
+            "profile": {
+              "dob": null,
+              "photo": null,
+              "user_id": 84,
+              "name": ""
+            },
+            "id": 84
+          }
+        }
+      });
+      return {
+
+        "session": {
+
+          "class_id": 12,
+          "class": {
+
+            "branch_id": 1,
+            "start_at": "",
+            "program_module": {
+              "module_id": 10,
+              "module": {
+                "name": "",
+                "image": "https://images.weserv.nl/?il&bg=2084C6&w=96&h=96&t=square&url=dl.dropboxusercontent.com/s/kt4ww4h0s4ptldr/html.png",
+                "id": 10
+              },
+              "id": 11,
+              "program_id": 1
+            },
+            students,
+            "program_module_id": 11,
+            "tutor_id": 83,
+            "finish_at": "",
+            "branch": {
+              "name": "",
+              "address": null,
+              "id": 1
+            },
+            "id": 12,
+            "day": "saturday"
+          },
+          "id": 29,
+
+        },
+        "tutor_id": 83,
+
+        "session_id": 29,
+        "id": 29
+      }
+    });
   export default {
     name: 'students',
     mixins: [mixinHal, mixinDom],
     components: {
       TemplateMain,
-      'spinner': () => import('@/components/Spinner'),
       'placeholder': () => import('@/components/Placeholder'),
       'card': () => import('./Card'),
       'empty': () => import('./Empty'),
@@ -53,14 +117,14 @@
 
         switch (stateOn) {
           case 'tapStudent': {
-            const item = _cloneDeep(this.sessions[i]._embedded.items[ii]);
+            const item = _cloneDeep(this.sessions[i].session.class.students[ii]);
             this.sessions.forEach((v, i, a) => {
-              v._embedded.items.forEach((v2, i2, a2) => {
+              v.session.class.students.forEach((v2, i2, a2) => {
                 this.$set(a2[i2], 'isActive', false)
               });
             });
 //            console.log(i, ii, item['isActive']);
-            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', !item['isActive']);
+            this.$set(this.sessions[i].session.class.students[ii], 'isActive', !item['isActive']);
             break;
           }
           case 'clickRating': {
@@ -91,7 +155,7 @@
     },
     data() {
       return {
-        sessions: null,
+        sessions: placeholderStudents,
 
         snackbar: null,
         mqtt: null,
@@ -105,88 +169,35 @@
         studentId = parseInt(studentId);
 
         i = _findIndex(this.sessions, v => {
-          ii = _findIndex(v._embedded.items, vv => {
-            return vv._embedded.student.id === studentId && vv.id === sessionId
+          ii = _findIndex(v.session.class.students, vv => {
+            return vv.student.id === studentId && vv.id === sessionId
           });
           return ii > -1;
         });
         return [i, ii]
       },
-      getSessionElement(sessionId, studentId) {
-        const [i, ii] = this.getSessionIndex(sessionId, studentId);
+      getSessionElement(sessionTutorId, studentId) {
+        const [i, ii] = this.getSessionIndex(sessionTutorId, studentId);
 
         return Array.from(this.$el.querySelectorAll('ul.mdc-list > li')).filter(v => {
           return v.dataset.index === `${i}.${ii}`
         })[0];
       },
       getStudentsSessions() {
-        const url = `${process.env.VUE_APP_DBAPI}/tutors/${this.currentAuth.id}/sessions`;
+        const url = `${process.env.VUE_APP_DBAPI}/students`;
 
         axios.get(url)
           .then(response => {
-            let sessions = response.data._embedded.items;
-            if (!!sessions) {
-              sessions = sessions.map(v => {
-                v._embedded['class'] = {
-                  _embedded: {
-                    module: {},
-                    branch: {}
-                  },
-
-                };
-                v._embedded.items = v._embedded.items.map(v2 => {
-                  v2._embedded = {
-                    student: {}
-                  };
-                  return v2
-                });
-                return v;
-              });
-            }
-            else {
-              sessions = [];
-            }
-            this.sessions = sessions;
-            const timeout = 1;
-
-            if (!this.sessions.length) {
-              return;
-            }
-            this.sessions.forEach((v, i, a) => {
-              setTimeout(() => this.parseEmbedded('class', v._links.class.href, a[i]['_embedded'], (item) => {
-                if (!item['_embedded']) {
-                  this.$set(item, '_embedded', {
-                    module: {},
-                    branch: {},
-                  });
-                }
-                setTimeout(() => this.parseEmbedded('branch', item._links.branch.href, item['_embedded']), timeout);
-                setTimeout(() => this.parseEmbedded('module', item._links.module.href, item['_embedded']), timeout);
-                return item
-              }), timeout);
-
-              setTimeout(() => {
-                if (!!v._embedded.items) {
-                  v._embedded.items.forEach((v2, i2, a2) => {
-                    this.$set(a2[i2], 'isActive', false);
-                    if (!a2[i2]['_embedded']) {
-                      this.$set(a2[i2], '_embedded', {});
-                    }
-                    this.parseEmbedded('student', v2._links.student.href, a2[i2]['_embedded']);
-                  })
-                }
-              }, timeout);
-
-            });
+            this.sessions = [];
+            this.sessions = Object.assign([], this.sessions, response.data._items);
+//            this.sessions = response.data._items;
           })
           .catch(error => console.log(error));
       }
     },
     mounted() {
       this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
-      setTimeout(() => {
-        this.getStudentsSessions();
-      }, 1);
+      this.getStudentsSessions();
 
       this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
 
@@ -200,7 +211,7 @@
           console.log(topic, message.toString());
           const parsedMessage = JSON.parse(message.toString());
 
-          const {sid, uid, name} = parsedMessage;
+          const {sid, uid, name, stsId, stsEt} = parsedMessage;
           const $el = this.getSessionElement(sid, uid);
           const [i, ii] = this.getSessionIndex(sid, uid);
 
@@ -220,11 +231,11 @@
               $el.className = "hide";
 
               this.sessions.forEach((v, i, a) => {
-                v._embedded.items.forEach((v2, i2, a2) => {
+                v.session.class.students.forEach((v2, i2, a2) => {
                   this.$set(a2[i2], 'isActive', false)
                 });
               });
-//            this.$set(this.sessions[i]._embedded.items[ii], 'isActive', false);
+
               let snackbarOpts = {
                 message: `Submit ${name.split(" ")[0].toUpperCase()}`,
               };
@@ -234,9 +245,9 @@
                   actionHandler: () => {
                     this.mqtt
                       .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
-                    const url = `${process.env.VUE_APP_DBAPI}/sessions/${sid}/students/${uid}`;
+                    const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students/${stsId}`;
 
-                    axios.delete(url)
+                    axios.delete(url, {headers: {'If-Match': stsEt}})
                       .then(response => {
                         console.log(response.data)
                       })
@@ -297,7 +308,7 @@
     text-transform: capitalize;
   }
 
-  span.day-time {
+  .day-time {
     float: right;
   }
 

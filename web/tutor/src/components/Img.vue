@@ -4,7 +4,8 @@
 </template>
 
 <script>
-  const imgDefault = 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=';
+  const imgDefault = 'http://1x1px.me/CED4DA-1.png';
+//  const imgDefault = 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=';
   const tutorDefault = 'https://dl.dropboxusercontent.com/s/xdy592qcgjvbbnp/Teacher.png';
   const moduleOpts = 'il&q=100&w=96&h=96&t=square';
   const profileOpts = 'il&q=100&w=64&h=64&t=square&shape=circle';
@@ -36,7 +37,7 @@
       },
       newSrc() {
         let newSrc = !!this.newSrcType ? this.newSrcType : imgDefault;
-        if (newSrc.indexOf('data:image/') < 0) {
+        if (newSrc !== imgDefault) {
           newSrc = newSrc.replace('https://', '').replace('http://', '');
           newSrc = `//images.weserv.nl/?${this.opts}&url=${newSrc}`;
         }
