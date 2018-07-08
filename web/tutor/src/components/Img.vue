@@ -4,7 +4,7 @@
 </template>
 
 <script>
-  const imgDefault = 'http://1x1px.me/CED4DA-1.png';
+  const imgDefault = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXO1Nq/Gb1BAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==';
 //  const imgDefault = 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=';
   const tutorDefault = 'https://dl.dropboxusercontent.com/s/xdy592qcgjvbbnp/Teacher.png';
   const moduleOpts = 'il&q=100&w=96&h=96&t=square';

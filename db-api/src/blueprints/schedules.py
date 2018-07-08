@@ -56,7 +56,7 @@ def schedules():
       'tutor': dict(class_.tutor),
       'finish_at_ts': class_.finish_at_ts,
       'start_at_ts': class_.start_at_ts,
-      # 'last_sessions': sessions_list,
+      'last_sessions': sessions_list,
     })
     w['tutor'].update({
       'profile': dict(class_.tutor.profile),

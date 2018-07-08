@@ -33,6 +33,7 @@
 
 <script>
   import axios from 'axios';
+  import moment from 'moment';
   import mixinHal from '../../mixins/hal';
   import mixinDom from '../../mixins/dom';
   import _findIndex from 'lodash/findIndex';
@@ -119,38 +120,55 @@
       },
       checkPin(e) {
         if (this.pin === "1234") {
+//          console.log(moment.utc().format('YYYY-MM-DD'));
           let url = `${process.env.VUE_APP_DBAPI}/sessions`;
-          let params = {class_: this.currentStartedClass.id};
+          let params = {where: {_created: `>="${moment.utc().format('YYYY-MM-DD')}"`, class_: this.currentStartedClass.id}};
 
-          axios.post(url, params)
+          const postSessionTutor = (session) => {
+            const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors`;
+            const params = {session: session.id, tutor: this.currentAuth.id};
+
+            axios.post(url, params)
+              .then(response => {
+
+                this.pin = null;
+
+                this.mqtt
+                  .publish('schedules', JSON.stringify({
+                    on: "startYes",
+                    by: this.currentAuth,
+                    id: this.currentStartedClass.id,
+                    sid: session.id,
+                    set: session._etag,
+                    stid: response.data.id,
+                    stet: response.data._etag,
+                  }));
+              })
+              .catch(error => console.log(error));
+          };
+
+          axios.get(url, {params})
             .then(response => {
-              const session = response.data.id;
-              const sessionEtag = response.data._etag;
-
-              url = `${process.env.VUE_APP_DBAPI}/sessions_tutors`;
-              params = {session, tutor: this.currentAuth.id};
-
-              axios.post(url, params)
-                .then(response => {
-
-                  this.pin = null;
-                  const sessionTutor = response.data.id;
-                  const sessionTutorEtag = response.data._etag;
-                  this.mqtt
-                    .publish('schedules', JSON.stringify({
-                      on: "startYes",
-                      by: this.currentAuth,
-                      id: this.currentStartedClass.id,
-                      sid: session,
-                      set: sessionEtag,
-                      stid: sessionTutor,
-                      stet: sessionTutorEtag,
-                    }));
-                })
-                .catch(error => console.log(error));
+              if (!!response.data._items.length) {
+                const session = {
+                  id: response.data._items[0].id,
+                  _etag: response.data._items[0]._etag
+                };
+                postSessionTutor(session);
+              } else {
+                let params = {class_: this.currentStartedClass.id};
+                axios.post(url, params)
+                  .then(response => {
+                    const session = {
+                      id: response.data.id,
+                      _etag: response.data._etag
+                    };
+                    postSessionTutor(session);
+                  })
+                  .catch(error => console.log(error));
+              }
             })
             .catch(error => console.log(error));
-
           this.dialog.close();
         } else {
           this.errMsg = "invalid. Check pin again!";

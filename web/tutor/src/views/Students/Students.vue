@@ -36,8 +36,8 @@
   import TemplateMain from '@/components/views/Main';
 
   const placeholderStudents =
-    [1,].map(v => {
-      const students = [1].map(vv => {
+    [1,2].map(v => {
+      const students = [1,2,3].map(vv => {
         return {
           "class_id": 12,
           "student_id": 84,

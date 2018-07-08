@@ -10,7 +10,7 @@
             label.mdc-floating-label(for="my-text-field") Enter your name
             .mdc-line-ripple
 
-          transition(enter-active-class="animated bounceInUp" leave-active-class="animated bounceOutDown")
+          transition(enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp")
             .errMsg(v-if="!!errMsg") {{errMsg}}
           button.mdc-fab(aria-label="Login")
             span.mdc-fab__icon.material-icons arrow_forward

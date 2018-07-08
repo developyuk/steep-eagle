@@ -9,6 +9,7 @@ class MyAuth(TokenAuth):
     # pprint(resource)
     # pprint(method)
     user = Users.auth(token)
+    # pprint(user)
     self.set_request_auth_value(user['id'])
     # pprint(app.auth.get_request_auth_value())
     # current_app.auth.get_request_auth_value()

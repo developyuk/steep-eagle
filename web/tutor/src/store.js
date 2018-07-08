@@ -4,9 +4,9 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const defaultAuth = {
   id: 0,
-  name: "...",
+  name: "",
   photo: "",
-  role: "...",
+  role: "",
 };
 export default new Vuex.Store({
   state: {
