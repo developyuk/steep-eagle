@@ -12,11 +12,8 @@ export default new Vuex.Store({
   state: {
     currentMqtt: null,
     currentAuth: defaultAuth,
-
     currentSearch: null,
-
     currentStudentSession: null,
-
     currentStats: {
       classes: 0,
       hours: 0,
@@ -25,7 +22,6 @@ export default new Vuex.Store({
       reviews: 0,
       attendances: 0,
     },
-
   },
   mutations: {
     nextAuth(state, nextVal) {

@@ -9,17 +9,17 @@
           span.title cognition
           span.stars
             .rating
-              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
+              i.material-icons(v-for="v1 in [5,4,3,2,1]" :data-value="v1" @click="")
         .creativity.clearfix
           span.title creativity
           span.stars
             .rating
-              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
+              i.material-icons(v-for="v2 in [5,4,3,2,1]" :data-value="v2" @click="")
         .interaction.clearfix
           span.title interaction
           span.stars
             .rating
-              i.material-icons(v-for="v in [5,4,3,2,1]" :data-value="v" @click="onClickRating($event)")
+              i.material-icons(v-for="v3 in [5,4,3,2,1]" :data-value="v3" @click="")
       .review
         h4.title Comment for
           span.name  {{name}}
@@ -32,12 +32,13 @@
 <script>
   import axios from 'axios';
   import {getCorrectEventName} from '@material/animation';
-  import {mapState, mapMutations} from 'vuex';
+  import {mapState} from 'vuex';
+  //  import {mapState, mapMutations} from 'vuex';
   import {MDCRipple} from '@material/ripple';
   import {MDCTextField} from '@material/textfield';
 
   export default {
-    props: ['sid', 'uid', 'name'],
+    props: ['stid', 'uid', 'name'],
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
     },
@@ -49,62 +50,62 @@
         review: '',
       }
     },
-    watch: {
-      review(val) {
-        this.nextStudentSession({
-          sid: this.sid,
-          uid: this.uid,
-          name: this.name,
-          form: {
-            interaction: parseInt(this.ratingInteraction),
-            creativity: parseInt(this.ratingCreativity),
-            cognition: parseInt(this.ratingCognition),
-            review: this.review,
-          },
-          on: "clickRating",
-        })
-      }
-    },
+//    watch: {
+//      review(val) {
+//        this.nextStudentSession({
+//          sid: this.stid,
+//          uid: this.uid,
+//          name: this.name,
+//          form: {
+//            interaction: parseInt(this.ratingInteraction),
+//            creativity: parseInt(this.ratingCreativity),
+//            cognition: parseInt(this.ratingCognition),
+//            review: this.review,
+//          },
+//          on: "clickRating",
+//        })
+//      }
+//    },
     methods: {
-      ...mapMutations(['nextStudentSession']),
-      onClickRating(e) {
-        const value = e.target.dataset.value;
-        const ParentClassList = e.target.closest('.clearfix').classList;
-        const $rating = e.target.closest('.rating');
-        const isInteraction = ParentClassList.contains('interaction');
-        const isCognition = ParentClassList.contains('cognition');
-        const isCreativity = ParentClassList.contains('creativity');
-        if (isInteraction) {
-          this.ratingInteraction = value;
-        }
-        if (isCognition) {
-          this.ratingCognition = value;
-        }
-        if (isCreativity) {
-          this.ratingCreativity = value;
-        }
-
-        this.nextStudentSession({
-          sid: this.sid,
-          uid: this.uid,
-          name: this.name,
-          form: {
-            interaction: parseInt(this.ratingInteraction),
-            creativity: parseInt(this.ratingCreativity),
-            cognition: parseInt(this.ratingCognition),
-            review: this.review,
-          },
-          on: "clickRating",
-        })
-      },
+//      ...mapMutations(['nextStudentSession']),
+//      onClickRating(e) {
+//        const value = e.target.dataset.value;
+//        const ParentClassList = e.target.closest('.clearfix').classList;
+//        const $rating = e.target.closest('.rating');
+//        const isInteraction = ParentClassList.contains('interaction');
+//        const isCognition = ParentClassList.contains('cognition');
+//        const isCreativity = ParentClassList.contains('creativity');
+//        if (isInteraction) {
+//          this.ratingInteraction = value;
+//        }
+//        if (isCognition) {
+//          this.ratingCognition = value;
+//        }
+//        if (isCreativity) {
+//          this.ratingCreativity = value;
+//        }
+//
+//        this.nextStudentSession({
+//          sid: this.stid,
+//          uid: this.uid,
+//          name: this.name,
+//          form: {
+//            interaction: parseInt(this.ratingInteraction),
+//            creativity: parseInt(this.ratingCreativity),
+//            cognition: parseInt(this.ratingCognition),
+//            review: this.review,
+//          },
+//          on: "clickRating",
+//        })
+//      },
       submit() {
         const $el = this.$el.closest('li');
 //        $el.classList.add('animated', `slideOutUpHeight`);
-        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.sid}/students/${this.uid}`;
+        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
 
         this.currentMqtt.mqtt
           .publish(this.currentMqtt.topic, JSON.stringify({
-            sid: this.sid,
+            sid: this.stid,
             uid: this.uid,
             name: this.name,
             by: this.currentAuth,
@@ -123,7 +124,7 @@
           .catch(error => {
             this.currentMqtt.mqtt
               .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.sid,
+                sid: this.stid,
                 uid: this.uid,
                 name: this.name,
                 by: this.currentAuth,
@@ -135,31 +136,35 @@
       absence() {
         const $el = this.$el.closest('li');
 //        $el.classList.add('animated', `slideOutUpHeight`);
-        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.sid}/students/${this.uid}`;
-
-        this.currentMqtt.mqtt
-          .publish(this.currentMqtt.topic, JSON.stringify({
-            sid: this.sid,
-            uid: this.uid,
-            name: this.name,
-            by: this.currentAuth,
-            on: "successRateReview",
-          }));
-        axios.post(url, {
-          interaction: parseInt(this.ratingInteraction),
-          creativity: parseInt(this.ratingCreativity),
-          cognition: parseInt(this.ratingCognition),
-          review: this.review,
+        const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
+        const data = {
+          session_tutor: this.stid,
+          student: this.uid,
+          rating_interaction: parseInt(this.ratingInteraction),
+          rating_creativity: parseInt(this.ratingCreativity),
+          rating_cognition: parseInt(this.ratingCognition),
+          feedback: this.review,
           status: false,
-        })
+        };
+        axios.post(url, data)
           .then(response => {
             console.log(response.data);
+
+            this.currentMqtt.mqtt
+              .publish(this.currentMqtt.topic, JSON.stringify({
+                sid: this.stid,
+                uid: this.uid,
+                name: this.name,
+                by: this.currentAuth,
+                on: "successRateReview",
+              }));
           })
           .catch(error => {
             console.log(error);
+
             this.currentMqtt.mqtt
               .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.sid,
+                sid: this.stid,
                 uid: this.uid,
                 name: this.name,
                 by: this.currentAuth,

@@ -1,7 +1,7 @@
 <template lang="pug">
   template-main#students
     empty(v-if="!!sessions && !sessions.length")
-    .mdc-list-group(v-else)
+    .mdc-list-group()
       template(v-for="(v, i) in sessions")
         h3.mdc-list-group__subheader
           placeholder(:value="v.session.class.program_module.module.name").module
@@ -14,30 +14,25 @@
             placeholder(:value="v.session.class.finish_at" val-empty="00:00")
         ul.mdc-list
           template(v-for="(vv,ii) in v.session.class.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="v.id" :student="vv.student" :isActive="vv.isActive")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
-    .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
-      .mdc-snackbar__text
-      .mdc-snackbar__action-wrapper
-        button.mdc-snackbar__action-button(type='button')
+
+    snackbar
 </template>
 
 <script>
   import axios from 'axios';
   import moment from 'moment';
-  import mixinHal from '../../mixins/hal';
-  import mixinDom from '../../mixins/dom';
   import _isEqual from 'lodash/isEqual';
   import _cloneDeep from 'lodash/cloneDeep';
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
-  import {MDCSnackbar} from '@material/snackbar';
   import TemplateMain from '@/components/views/Main';
 
   const placeholderStudents =
-    [1,2].map(v => {
-      const students = [1,2,3].map(vv => {
+    [1, 2].map(v => {
+      const students = [1, 2, 3].map(vv => {
         return {
           "class_id": 12,
           "student_id": 84,
@@ -98,60 +93,17 @@
         "id": 29
       }
     });
+
   export default {
-    name: 'students',
-    mixins: [mixinHal, mixinDom],
     components: {
       TemplateMain,
       'placeholder': () => import('@/components/Placeholder'),
       'card': () => import('./Card'),
       'empty': () => import('./Empty'),
+      'snackbar': () => import('@/components/Snackbar'),
     },
     computed: {
-      ...mapState(['currentAuth', 'currentStudentSession']),
-    },
-    watch: {
-      currentStudentSession(v) {
-        const {sid, uid, on: stateOn} = v;
-        const [i, ii] = this.getSessionIndex(sid, uid);
-
-        switch (stateOn) {
-          case 'tapStudent': {
-            const item = _cloneDeep(this.sessions[i].session.class.students[ii]);
-            this.sessions.forEach((v, i, a) => {
-              v.session.class.students.forEach((v2, i2, a2) => {
-                this.$set(a2[i2], 'isActive', false)
-              });
-            });
-//            console.log(i, ii, item['isActive']);
-            this.$set(this.sessions[i].session.class.students[ii], 'isActive', !item['isActive']);
-            break;
-          }
-          case 'clickRating': {
-            const $el = this.getSessionElement(sid, uid);
-            const {form} = v;
-            for (const k in form) {
-              const value = form[k];
-              if (value) {
-                if (k !== 'review') {
-                  const $elIcon = $el.querySelector(`.${k} .material-icons[data-value="${value}"]`);
-//                  console.log(`.${k} .material-icons[data-value="${value}"]`, $elIcon);
-                  const $rating = $elIcon.closest('.rating');
-                  $rating.querySelectorAll(`.material-icons`).forEach(v => v.classList.remove('is-active'));
-                  [...Array(parseInt(value)).keys()].forEach(v => {
-                    $rating.querySelector(`.material-icons[data-value='${v + 1}']`).classList.add('is-active')
-                  });
-                } else {
-                  const $elTextbox = $el.querySelector(`.review textarea`);
-                  $elTextbox.innerText = value;
-                }
-              }
-            }
-//            console.log(form);
-            break;
-          }
-        }
-      }
+      ...mapState(['currentAuth']),
     },
     data() {
       return {
@@ -163,14 +115,27 @@
     },
     methods: {
       ...mapMutations(['nextMqtt']),
-      getSessionIndex(sessionId, studentId) {
+      onTapStudent(e) {
+        const {sid, uid} = e;
+        const [i, ii] = this.getSessionIndex(sid, uid);
+
+        const item = _cloneDeep(this.sessions[i].session.class.students[ii]);
+        this.sessions.forEach((v, i, a) => {
+          v.session.class.students.forEach((v2, i2, a2) => {
+            this.$set(a2[i2], 'isActive', false)
+          });
+        });
+
+        this.$set(this.sessions[i].session.class.students[ii], 'isActive', !item['isActive']);
+      },
+      getSessionIndex(sid, uid) {
         let i, ii;
-        sessionId = parseInt(sessionId);
-        studentId = parseInt(studentId);
+        sid = parseInt(sid);
+        uid = parseInt(uid);
 
         i = _findIndex(this.sessions, v => {
           ii = _findIndex(v.session.class.students, vv => {
-            return vv.student.id === studentId && vv.id === sessionId
+            return vv.student.id === uid && v.id === sid
           });
           return ii > -1;
         });
@@ -188,15 +153,12 @@
 
         axios.get(url)
           .then(response => {
-            this.sessions = [];
-            this.sessions = Object.assign([], this.sessions, response.data._items);
-//            this.sessions = response.data._items;
+            this.sessions = !!response.data._items.length ? response.data._items : [];
           })
           .catch(error => console.log(error));
       }
     },
     mounted() {
-      this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
       this.getStudentsSessions();
 
       this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
@@ -211,7 +173,7 @@
           console.log(topic, message.toString());
           const parsedMessage = JSON.parse(message.toString());
 
-          const {sid, uid, name, stsId, stsEt} = parsedMessage;
+          const {sid, uid, name, sts} = parsedMessage;
           const $el = this.getSessionElement(sid, uid);
           const [i, ii] = this.getSessionIndex(sid, uid);
 
@@ -219,7 +181,8 @@
             case 'undoRateReview': {
 //              console.log($el);
 //              $el.className = "animated slideInLeftHeight";
-              $el.style.marginLeft = 0;
+//              $el.style.marginLeft = 0;
+              this.getStudentsSessions();
               let snackbarOpts = {
                 message: `Undo ${name.split(" ")[0].toUpperCase()}`
               };
@@ -228,13 +191,14 @@
             }
             case 'successRateReview': {
               const {by: msgBy} = parsedMessage;
-              $el.className = "hide";
+//              $el.className = "hide";
 
-              this.sessions.forEach((v, i, a) => {
-                v.session.class.students.forEach((v2, i2, a2) => {
-                  this.$set(a2[i2], 'isActive', false)
-                });
-              });
+//              this.sessions.forEach((v, i, a) => {
+//                v.session.class.students.forEach((v2, i2, a2) => {
+//                  this.$set(a2[i2], 'isActive', false)
+//                });
+//              });
+              this.getStudentsSessions();
 
               let snackbarOpts = {
                 message: `Submit ${name.split(" ")[0].toUpperCase()}`,
@@ -245,9 +209,10 @@
                   actionHandler: () => {
                     this.mqtt
                       .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
-                    const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students/${stsId}`;
 
-                    axios.delete(url, {headers: {'If-Match': stsEt}})
+                    const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students/${sts.id}`;
+
+                    axios.delete(url, {headers: {'If-Match': sts.et}})
                       .then(response => {
                         console.log(response.data)
                       })

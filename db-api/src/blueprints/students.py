@@ -18,7 +18,7 @@ def students():
     .filter(SessionsTutors.tutor_id == app.auth.get_request_auth_value()) \
     .all()
 
-  def merge(v):
+  def parse(v):
     w = dict(v).copy()
     w.update({
       'session': dict(v.session)
@@ -43,7 +43,7 @@ def students():
       })
     return w
 
-  sessions = map(merge, sessions)
+  sessions = map(parse, sessions)
 
   # sessions = []
   return jsonify({

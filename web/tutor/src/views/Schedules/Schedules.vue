@@ -32,8 +32,6 @@
 <script>
   import axios from 'axios';
   import moment from 'moment';
-  import mixinHal from '../../mixins/hal';
-  import mixinDom from '../../mixins/dom';
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
@@ -78,7 +76,6 @@
     });
 
   export default {
-    mixins: [mixinHal, mixinDom],
     components: {
       TemplateMain,
       MyDialog,
