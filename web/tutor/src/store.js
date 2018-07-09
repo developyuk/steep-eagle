@@ -13,7 +13,6 @@ export default new Vuex.Store({
     currentMqtt: null,
     currentAuth: defaultAuth,
 
-    currentDialog: null,
     currentSearch: null,
 
     currentStudentSession: null,
@@ -36,9 +35,6 @@ export default new Vuex.Store({
       state.currentMqtt = nextVal
     },
 
-    nextDialog(state, nextVal) {
-      state.currentDialog = nextVal
-    },
     nextSearch(state, nextVal) {
       state.currentSearch = nextVal
     },

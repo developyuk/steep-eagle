@@ -13,7 +13,7 @@
         placeholder(:value="item.tutor.profile.name")
       span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_sessions && !!item.last_sessions.length") Class started by&nbsp;
         placeholder(:value="parseLastSessionTutorName(item.last_sessions)")
-    button-status(:class_="item")
+    button-status(:class_="item" @click-start="onClickStart")
 </template>
 
 <script>
@@ -25,6 +25,9 @@
       'placeholder': () => import('@/components/Placeholder'),
     },
     methods: {
+      onClickStart(e) {
+        this.$emit('click-start', e)
+      },
       parseLastSessionTutorName(array) {
         return array.map(v => !!v['session_tutors'].length ? v['session_tutors'].map(w => w['tutor']['profile']['name']) : "").join(", ");
       },

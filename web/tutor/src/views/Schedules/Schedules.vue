@@ -1,3 +1,4 @@
+.mqt
 <template lang="pug">
   template-main#schedules
     .empty(v-if="!!classes && !classes.length") classes not found
@@ -12,7 +13,7 @@
           span.text
             placeholder(:value="v.text")
         .mdc-list
-          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv.id}`")
+          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv.id}`" @click-start="onClickStart")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onMountedDialog")
@@ -111,12 +112,17 @@
       }
     },
     methods: {
-      ...mapMutations(['nextMqtt', 'nextDialog', 'nextSearch']),
+      ...mapMutations(['nextSearch']),
       onMountedSnackbar(e) {
         this.snackbar = e
       },
       onMountedDialog(e) {
         this.dialog = e;
+      },
+      onClickStart(e) {
+        this.dialog.show();
+        const {i, ii} = this.findClassById(e.id);
+        this.currentClass = this.classes[i]._items[ii];
       },
       checkPin(e) {
         if (this.pin === "1234") {
@@ -137,15 +143,19 @@
 
                 this.pin = null;
 
-                this.mqtt
-                  .publish('schedules', JSON.stringify({
+                this.mqtt.m
+                  .publish(this.mqtt.topic, JSON.stringify({
                     on: "startYes",
                     by: this.currentAuth,
                     id: this.currentClass.id,
-                    sid: session.id,
-                    set: session._etag,
-                    stid: response.data.id,
-                    stet: response.data._etag,
+                    s: {
+                      id: session.id,
+                      et: session._etag,
+                    },
+                    st: {
+                      id: response.data.id,
+                      et: response.data._etag,
+                    },
                   }));
               })
               .catch(error => console.log(error));
@@ -205,28 +215,23 @@
     mounted() {
 //      new MDCRipple(this.$el.querySelector('.mdc-button'));
       this.dialog = new MDCDialog(this.$el.querySelector('#my-mdc-dialog'));
-      this.nextDialog(this.dialog);
 
       this.getSchedules();
 
-      this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
+      this.mqtt = {
+        topic: 'schedules',
+        m: mqtt.connect(process.env.VUE_APP_WS),
+      };
 
-      this.mqtt
+      this.mqtt.m
         .on('connect', () => {
-          const topic = 'schedules';
-          this.nextMqtt({topic, mqtt: this.mqtt});
-          this.mqtt.subscribe(topic);
+          this.mqtt.m.subscribe(this.mqtt.topic);
         })
         .on('message', (topic, message) => {
           console.log(topic, message.toString());
           const parsedMessage = JSON.parse(message.toString());
           const {id: msgId, on: msgOn} = parsedMessage;
 
-          if (msgOn === 'start') {
-            const {i, ii} = this.findClassById(msgId);
-            console.log(i, ii, msgId, this.classes);
-            this.currentClass = this.classes[i]._items[ii];
-          }
           if (msgOn === 'startYes') {
             const {i, ii} = this.findClassById(msgId);
             this.currentClass = this.classes[i]._items[ii];
@@ -235,21 +240,21 @@
             let snackbarOpts = {
               message: `Start ${this.currentClass.program_module.module.name.toUpperCase()}`
             };
-            const {by: msgBy, sid: MsgSid, set: MsgSet, stid: MsgStid, stet: MsgStet} = parsedMessage;
+            const {by: msgBy, s: MsgS, st: MsgSt} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
 //              console.log(MsgSid);
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: 'Undo',
                 actionHandler: () => {
-                  let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors/${MsgStid}`;
+                  let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors/${MsgSt.id}`;
 
-                  axios.delete(url, {headers: {'If-Match': MsgStet}})
+                  axios.delete(url, {headers: {'If-Match': MsgSt.et}})
                     .then(response => {
-                      url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgSid}`;
-                      axios.delete(url, {headers: {'If-Match': MsgSet}})
+                      url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgS.id}`;
+                      axios.delete(url, {headers: {'If-Match': MsgS.et}})
                         .then(response => {
-                          this.mqtt
-                            .publish('schedules', JSON.stringify({
+                          this.mqtt.m
+                            .publish(this.mqtt.topic, JSON.stringify({
                               on: "undo",
                               id: this.currentClass.id,
                             }));
@@ -278,10 +283,8 @@
     beforeDestroy() {
 //      console.log('beforeDestroy');
 
-      this.mqtt.end();
-      this.nextMqtt(null);
+      this.mqtt.m.end();
       this.nextSearch(null);
-      this.nextDialog(null);
     }
   }
 </script>
