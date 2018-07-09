@@ -1,5 +1,6 @@
 <template lang="pug">
   template-main#schedules
+    .empty(v-if="!!classes && !classes.length") classes not found
     .mdc-list-group
       template(v-for="(v,i) in classes")
         h3.mdc-list-group__subheader
@@ -14,9 +15,9 @@
           item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv.id}`")
 
     form(@submit.prevent="checkPin($event)")
-      my-dialog(@mounted="onDialogMounted")
+      my-dialog(@mounted="onMountedDialog")
         span Insert 1234 to activate&nbsp;
-          placeholder(:value="currentStartedClass.program_module.module.name.toUpperCase()" val-empty="lorem ipsum")
+          placeholder(:value="currentClass.program_module.module.name.toUpperCase()" val-empty="lorem ipsum")
           | .
         p
         input(type="text" name="username" v-model.trim="pin")
@@ -24,11 +25,7 @@
         template(slot="footer")
           button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
           button.mdc-button.mdc-dialog__footer__button(type='submit') Yes
-
-    .mdc-snackbar(aria-live='assertive' aria-atomic='true' aria-hidden='true')
-      .mdc-snackbar__text
-      .mdc-snackbar__action-wrapper
-        button.mdc-snackbar__action-button(type='button')
+    snackbar(@mounted="onMountedSnackbar")
 </template>
 
 <script>
@@ -40,7 +37,6 @@
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
   import {MDCDialog} from '@material/dialog';
-  import {MDCSnackbar} from '@material/snackbar';
   import {MDCRipple} from '@material/ripple';
   import TemplateMain from '@/components/views/Main';
   import MyDialog from '@/components/Dialog';
@@ -57,8 +53,8 @@
               "name": "",
             },
           },
-          "finish_at_ts": "Sun, 08 Jul 2018 03:30:00 GMT",
-          "start_at_ts": "Sun, 08 Jul 2018 02:00:00 GMT",
+          "finish_at_ts": "",
+          "start_at_ts": "",
           "finish_at": "",
           "tutor": {
             "profile": {
@@ -69,7 +65,6 @@
           "branch": {
             "name": "",
           },
-          "last_session": [],
         }
       });
       return {
@@ -80,6 +75,7 @@
         "_items": items
       }
     });
+
   export default {
     mixins: [mixinHal, mixinDom],
     components: {
@@ -87,12 +83,13 @@
       MyDialog,
       'item': () => import('./Item'),
       'placeholder': () => import('@/components/Placeholder'),
+      'snackbar': () => import('@/components/Snackbar'),
     },
     data() {
       return {
         pin: null,
         classes: placeholderSchedules,
-        currentStartedClass: {
+        currentClass: {
           id: 0,
           program_module: {
             module: {name: ""}
@@ -115,14 +112,21 @@
     },
     methods: {
       ...mapMutations(['nextMqtt', 'nextDialog', 'nextSearch']),
-      onDialogMounted(e) {
+      onMountedSnackbar(e) {
+        this.snackbar = e
+      },
+      onMountedDialog(e) {
         this.dialog = e;
       },
       checkPin(e) {
         if (this.pin === "1234") {
-//          console.log(moment.utc().format('YYYY-MM-DD'));
           let url = `${process.env.VUE_APP_DBAPI}/sessions`;
-          let params = {where: {_created: `>="${moment.utc().format('YYYY-MM-DD')}"`, class_: this.currentStartedClass.id}};
+          let params = {
+            where: {
+              _created: `>="${moment.utc().format('YYYY-MM-DD')}"`,
+              class_: this.currentClass.id
+            }
+          };
 
           const postSessionTutor = (session) => {
             const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors`;
@@ -137,7 +141,7 @@
                   .publish('schedules', JSON.stringify({
                     on: "startYes",
                     by: this.currentAuth,
-                    id: this.currentStartedClass.id,
+                    id: this.currentClass.id,
                     sid: session.id,
                     set: session._etag,
                     stid: response.data.id,
@@ -156,7 +160,7 @@
                 };
                 postSessionTutor(session);
               } else {
-                let params = {class_: this.currentStartedClass.id};
+                let params = {class_: this.currentClass.id};
                 axios.post(url, params)
                   .then(response => {
                     const session = {
@@ -184,8 +188,7 @@
 
         axios.get(url, {params})
           .then(response => {
-//            this.classes = Object.assign([], this.classes, response.data._items);
-            this.classes = response.data._items;
+            this.classes = response.data._items
           })
           .catch(error => console.log(error))
       },
@@ -203,7 +206,7 @@
 //      new MDCRipple(this.$el.querySelector('.mdc-button'));
       this.dialog = new MDCDialog(this.$el.querySelector('#my-mdc-dialog'));
       this.nextDialog(this.dialog);
-      this.snackbar = new MDCSnackbar(this.$el.querySelector('.mdc-snackbar'));
+
       this.getSchedules();
 
       this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
@@ -222,15 +225,15 @@
           if (msgOn === 'start') {
             const {i, ii} = this.findClassById(msgId);
             console.log(i, ii, msgId, this.classes);
-            this.currentStartedClass = this.classes[i]._items[ii];
+            this.currentClass = this.classes[i]._items[ii];
           }
           if (msgOn === 'startYes') {
             const {i, ii} = this.findClassById(msgId);
-            this.currentStartedClass = this.classes[i]._items[ii];
+            this.currentClass = this.classes[i]._items[ii];
 
             this.getSchedules();
             let snackbarOpts = {
-              message: `Start ${this.currentStartedClass.program_module.module.name.toUpperCase()}`
+              message: `Start ${this.currentClass.program_module.module.name.toUpperCase()}`
             };
             const {by: msgBy, sid: MsgSid, set: MsgSet, stid: MsgStid, stet: MsgStet} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
@@ -248,7 +251,7 @@
                           this.mqtt
                             .publish('schedules', JSON.stringify({
                               on: "undo",
-                              id: this.currentStartedClass.id,
+                              id: this.currentClass.id,
                             }));
                         })
                         .catch(error => console.log(error));
@@ -261,7 +264,7 @@
           }
           if (msgOn === 'undo') {
             const {i, ii} = this.findClassById(msgId);
-            this.currentStartedClass = this.classes[i]._items[ii];
+            this.currentClass = this.classes[i]._items[ii];
 
             this.getSchedules();
             let snackbarOpts = {

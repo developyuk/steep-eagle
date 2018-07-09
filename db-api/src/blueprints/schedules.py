@@ -1,74 +1,48 @@
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS, cross_origin
-from tables import ClassesTs, Sessions
+from tables import Users, ClassesTs, Sessions
 from datetime import timedelta, datetime
 import humanize
 from eve.auth import requires_auth
 from pytz import timezone
+from pprint import pprint
 
 blueprint = Blueprint('schedules', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
 
 
-@blueprint.route('/schedules', methods=['GET'])
-@requires_auth('/schedules')
-def schedules():
-  # .filter(ClassesTs.finish_at_ts < (datetime.now(timezone('UTC')) + timedelta(days=5))) \
-  classes = app.data.driver.session.query(ClassesTs) \
+def last_session(class_):
+  sessions = app.data.driver.session.query(Sessions) \
+    .filter(Sessions._created >= class_.start_at_ts) \
+    .filter(Sessions.class_id == class_.id) \
     .all()
 
-  classes = (filter(lambda v: v.finish_at_ts > (datetime.now(timezone('UTC')) - timedelta(hours=5)), classes))
-  classes = (filter(lambda v: v.finish_at_ts < (datetime.now(timezone('UTC')) + timedelta(days=7)), classes))
-  classes.sort(key=lambda v: v.start_at_ts)
-
-  classes_list = []
-  for class_ in classes:
-    w = dict(class_).copy()
-
-    sessions = app.data.driver.session.query(Sessions) \
-      .filter(Sessions._created >= class_.start_at_ts) \
-      .filter(Sessions.class_id == class_.id) \
-      .all()
-
-    sessions_list = []
-    for session in sessions:
-      ww = dict(session)
-      session_tutors_list = []
-      for vvv in session.session_tutors:
-        www = dict(vvv)
-        www.update({
-          'tutor': dict(vvv.tutor),
-        })
-        www['tutor'].update({
-          'profile': dict(vvv.tutor.profile),
-        })
-        session_tutors_list.append(www)
-
-      ww.update({
-        'session_tutors': session_tutors_list
-      })
-      sessions_list.append(ww)
-
+  def parseTutor(v):
+    w = dict(v)
     w.update({
-      'branch': dict(class_.branch),
-      'program_module': dict(class_.program_module),
-      'q': class_.q,
-      'tutor': dict(class_.tutor),
-      'finish_at_ts': class_.finish_at_ts,
-      'start_at_ts': class_.start_at_ts,
-      'last_sessions': sessions_list,
+      'tutor': dict(v.tutor),
     })
     w['tutor'].update({
-      'profile': dict(class_.tutor.profile),
+      'profile': dict(v.tutor.profile),
     })
-    w['program_module'].update({
-      'module': dict(class_.program_module.module),
+    return w
+
+  def parse(v):
+    w = dict(v)
+
+    w.update({
+      'session_tutors': map(parseTutor, v.session_tutors)
     })
+    return w
 
-    classes_list.append(w)
+  sessions = map(parse, sessions)
 
+  return sessions
+
+
+def groupClass(classes):
   classes_group_list = []
-  for class_ in classes_list:
+  for class_ in classes:
     # pass
     date = class_['start_at_ts'].date().isoformat()
     ii = [i for i, j in enumerate(classes_group_list) if j['date'] == date]
@@ -84,10 +58,57 @@ def schedules():
     else:
       classes_group_list[ii[0]]['_items'].append(class_)
 
-  # classes_group_list = []
+  return classes_group_list
+
+
+@blueprint.route('/schedules', methods=['GET'])
+@requires_auth('/schedules')
+def schedules():
+  classes = app.data.driver.session.query(ClassesTs) \
+    .all()
+
+  pprint(app.auth.get_request_auth_value())
+  user = app.data.driver.session.query(Users).get(app.auth.get_request_auth_value())
+  pprint(user)
+
+  def exclude_dummies_non_tester(v):
+    if 'tester' not in user.username:
+      return 'dummies' not in v.program_module.module.name
+    else:
+      return True
+
+  classes = filter(lambda v: v.finish_at_ts > (datetime.now(timezone('UTC')) - timedelta(hours=2)), classes)
+  classes = filter(lambda v: v.finish_at_ts.date() < (datetime.now(timezone('UTC')) + timedelta(days=5)).date(),
+                   classes)
+  classes = filter(exclude_dummies_non_tester, classes)
+  classes.sort(key=lambda v: v.start_at_ts)
+
+  def parse(v):
+    w = dict(v).copy()
+
+    w.update({
+      'branch': dict(v.branch),
+      'program_module': dict(v.program_module),
+      'q': v.q,
+      'tutor': dict(v.tutor),
+      'finish_at_ts': v.finish_at_ts,
+      'start_at_ts': v.start_at_ts,
+      'last_sessions': last_session(v),
+    })
+    w['tutor'].update({
+      'profile': dict(v.tutor.profile),
+    })
+    w['program_module'].update({
+      'module': dict(v.program_module.module),
+    })
+    return w
+
+  classes = map(parse, classes)
+  classes = groupClass(classes)
+  # classes = []
   return jsonify({
-    '_items': classes_group_list,
-    'meta': {'total': len(classes_group_list)}
+    '_items': classes,
+    'meta': {'total': len(classes)}
   })
 
 # @blueprint.after_request

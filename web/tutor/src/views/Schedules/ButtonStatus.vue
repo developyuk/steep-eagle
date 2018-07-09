@@ -29,8 +29,7 @@
         let status = 'disabled';
         const ls = class_.last_sessions;
 
-        if (!!ls && !!ls.length && !!ls[0]._created
-          && msts.diff(mnow, 'days') < 1) {
+        if (!!ls && !!ls.length && !!ls[0]._created && msts.diff(mnow, 'days') < 1) {
           const lsItems = ls;
           const mls = moment(lsItems[0]._created);
 
@@ -54,7 +53,6 @@
             }
           }
         } else {
-
           if (msts.diff(mnow, 'minutes') < 5 && mfts.diff(mnow, 'minutes') > 0) {
             status = 'start';
           }
@@ -77,7 +75,7 @@
       }
     },
     mounted() {
-      const $el = this.$el.querySelector('.mdc-button')
+      const $el = this.$el.querySelector('.mdc-button');
       if (!!$el) {
         new MDCRipple(this.$el.querySelector('.mdc-button'));
       }

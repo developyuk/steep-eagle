@@ -6,12 +6,13 @@ import os
 from tables import Base
 # from links import before_returning_items, before_returning_item
 from auth import MyAuth
-from blueprints import auth, schedules, students
+from blueprints import auth, schedules, students, tutor_stats
 
 app = Eve(auth=MyAuth, validator=ValidatorSQL, data=SQL, settings=os.path.abspath('settings.py'))
 app.register_blueprint(auth.blueprint)
 app.register_blueprint(schedules.blueprint)
 app.register_blueprint(students.blueprint)
+app.register_blueprint(tutor_stats.blueprint)
 
 # bind SQLAlchemy
 db = app.data.driver
