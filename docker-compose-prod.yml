@@ -22,7 +22,6 @@ services:
     volumes:
       - ./db-api/src:/app
       - /etc/letsencrypt:/etc/letsencrypt
-#    remove ports on production
     ports:
       - "3000:3000"
     environment:
@@ -32,7 +31,7 @@ services:
       - DEBUG=0
     depends_on:
       - db
-    command: gunicorn -w 4 -b 0.0.0.0:3000 main:app
+    command: gunicorn -w 4 -b 0.0.0.0:3000 --certfile=/etc/letsencrypt/live/mtutor.codingcamp.id/fullchain.pem --keyfile=/etc/letsencrypt/live/mtutor.codingcamp.id/privkey.pem main:app
   db-admin:
     image: adminer
     ports:
