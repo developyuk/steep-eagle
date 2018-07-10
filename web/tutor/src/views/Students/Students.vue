@@ -17,7 +17,7 @@
             card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
 
-    snackbar
+    snackbar(@mounted="onMountedSnackbar")
 </template>
 
 <script>
@@ -115,6 +115,9 @@
     },
     methods: {
       ...mapMutations(['nextMqtt']),
+      onMountedSnackbar(e) {
+        this.snackbar = e
+      },
       onTapStudent(e) {
         const {sid, uid} = e;
         const [i, ii] = this.getSessionIndex(sid, uid);
@@ -140,13 +143,6 @@
           return ii > -1;
         });
         return [i, ii]
-      },
-      getSessionElement(sessionTutorId, studentId) {
-        const [i, ii] = this.getSessionIndex(sessionTutorId, studentId);
-
-        return Array.from(this.$el.querySelectorAll('ul.mdc-list > li')).filter(v => {
-          return v.dataset.index === `${i}.${ii}`
-        })[0];
       },
       getStudentsSessions() {
         const url = `${process.env.VUE_APP_DBAPI}/students`;
@@ -174,14 +170,10 @@
           const parsedMessage = JSON.parse(message.toString());
 
           const {sid, uid, name, sts} = parsedMessage;
-          const $el = this.getSessionElement(sid, uid);
-          const [i, ii] = this.getSessionIndex(sid, uid);
+//          const [i, ii] = this.getSessionIndex(sid, uid);
 
           switch (parsedMessage.on) {
             case 'undoRateReview': {
-//              console.log($el);
-//              $el.className = "animated slideInLeftHeight";
-//              $el.style.marginLeft = 0;
               this.getStudentsSessions();
               let snackbarOpts = {
                 message: `Undo ${name.split(" ")[0].toUpperCase()}`
@@ -191,13 +183,6 @@
             }
             case 'successRateReview': {
               const {by: msgBy} = parsedMessage;
-//              $el.className = "hide";
-
-//              this.sessions.forEach((v, i, a) => {
-//                v.session.class.students.forEach((v2, i2, a2) => {
-//                  this.$set(a2[i2], 'isActive', false)
-//                });
-//              });
               this.getStudentsSessions();
 
               let snackbarOpts = {
@@ -207,14 +192,13 @@
                 snackbarOpts = Object.assign(snackbarOpts, {
                   actionText: 'Undo',
                   actionHandler: () => {
-                    this.mqtt
-                      .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
-
                     const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students/${sts.id}`;
 
                     axios.delete(url, {headers: {'If-Match': sts.et}})
                       .then(response => {
                         console.log(response.data)
+                        this.mqtt
+                          .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
                       })
                       .catch(error => {
                         console.log(error);

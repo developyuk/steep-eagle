@@ -8,18 +8,15 @@
         .cognition.clearfix
           span.title cognition
           span.stars
-            .rating
-              i.material-icons(v-for="v1 in [5,4,3,2,1]" :data-value="v1" @click="")
+            rating(name="rating_cognition" @change="onChangeCognition")
         .creativity.clearfix
           span.title creativity
           span.stars
-            .rating
-              i.material-icons(v-for="v2 in [5,4,3,2,1]" :data-value="v2" @click="")
+            rating(name="rating_creativity" @change="onChangeCreativity")
         .interaction.clearfix
           span.title interaction
           span.stars
-            .rating
-              i.material-icons(v-for="v3 in [5,4,3,2,1]" :data-value="v3" @click="")
+            rating(name="rating_interaction" @change="onChangeInteraction")
       .review
         h4.title Comment for
           span.name  {{name}}
@@ -39,6 +36,9 @@
 
   export default {
     props: ['stid', 'uid', 'name'],
+    components: {
+      'rating': () => import('./Rating')
+    },
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
     },
@@ -50,76 +50,45 @@
         review: '',
       }
     },
-//    watch: {
-//      review(val) {
-//        this.nextStudentSession({
-//          sid: this.stid,
-//          uid: this.uid,
-//          name: this.name,
-//          form: {
-//            interaction: parseInt(this.ratingInteraction),
-//            creativity: parseInt(this.ratingCreativity),
-//            cognition: parseInt(this.ratingCognition),
-//            review: this.review,
-//          },
-//          on: "clickRating",
-//        })
-//      }
-//    },
     methods: {
-//      ...mapMutations(['nextStudentSession']),
-//      onClickRating(e) {
-//        const value = e.target.dataset.value;
-//        const ParentClassList = e.target.closest('.clearfix').classList;
-//        const $rating = e.target.closest('.rating');
-//        const isInteraction = ParentClassList.contains('interaction');
-//        const isCognition = ParentClassList.contains('cognition');
-//        const isCreativity = ParentClassList.contains('creativity');
-//        if (isInteraction) {
-//          this.ratingInteraction = value;
-//        }
-//        if (isCognition) {
-//          this.ratingCognition = value;
-//        }
-//        if (isCreativity) {
-//          this.ratingCreativity = value;
-//        }
-//
-//        this.nextStudentSession({
-//          sid: this.stid,
-//          uid: this.uid,
-//          name: this.name,
-//          form: {
-//            interaction: parseInt(this.ratingInteraction),
-//            creativity: parseInt(this.ratingCreativity),
-//            cognition: parseInt(this.ratingCognition),
-//            review: this.review,
-//          },
-//          on: "clickRating",
-//        })
-//      },
+      onChangeCognition(e) {
+        this.ratingCognition = e;
+      },
+      onChangeCreativity(e) {
+        this.ratingCreativity = e;
+      },
+      onChangeInteraction(e) {
+        this.ratingInteraction = e;
+      },
       submit() {
-        const $el = this.$el.closest('li');
-//        $el.classList.add('animated', `slideOutUpHeight`);
-        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
-
-        this.currentMqtt.mqtt
-          .publish(this.currentMqtt.topic, JSON.stringify({
-            sid: this.stid,
-            uid: this.uid,
-            name: this.name,
-            by: this.currentAuth,
-            on: "successRateReview",
-          }));
-        axios.post(url, {
-          interaction: parseInt(this.ratingInteraction),
-          creativity: parseInt(this.ratingCreativity),
-          cognition: parseInt(this.ratingCognition),
-          review: this.review,
+//        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
+        const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
+        const data = {
+          session_tutor: this.stid,
+          student: this.uid,
+          rating_interaction: parseInt(this.ratingInteraction),
+          rating_creativity: parseInt(this.ratingCreativity),
+          rating_cognition: parseInt(this.ratingCognition),
+          feedback: this.review,
           status: true,
-        })
+        };
+
+        axios.post(url, data)
           .then(response => {
             console.log(response.data);
+
+            this.currentMqtt.mqtt
+              .publish(this.currentMqtt.topic, JSON.stringify({
+                sid: this.stid,
+                uid: this.uid,
+                name: this.name,
+                by: this.currentAuth,
+                sts: {
+                  id: response.data.id,
+                  et: response.data._etag,
+                },
+                on: "successRateReview",
+              }));
           })
           .catch(error => {
             this.currentMqtt.mqtt
@@ -134,8 +103,6 @@
           })
       },
       absence() {
-        const $el = this.$el.closest('li');
-//        $el.classList.add('animated', `slideOutUpHeight`);
         const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
         const data = {
           session_tutor: this.stid,
@@ -146,6 +113,7 @@
           feedback: this.review,
           status: false,
         };
+
         axios.post(url, data)
           .then(response => {
             console.log(response.data);
@@ -156,6 +124,10 @@
                 uid: this.uid,
                 name: this.name,
                 by: this.currentAuth,
+                sts: {
+                  id: response.data.id,
+                  et: response.data._etag,
+                },
                 on: "successRateReview",
               }));
           })
@@ -203,29 +175,6 @@
     }
     .stars {
       float: right;
-    }
-    .rating {
-      unicode-bidi: bidi-override;
-      direction: rtl;
-    }
-    i.material-icons {
-      display: inline-block;
-      position: relative;
-      width: 1.1em;
-      color: $mdc-theme-primary;
-      &.is-active {
-
-        &:before {
-          content: 'star';
-        }
-      }
-      &:before {
-        content: 'star_outline';
-      }
-      &:hover:before,
-      &:hover ~ i:before {
-        content: 'star'
-      }
     }
 
   }

@@ -1,8 +1,8 @@
 from flask import current_app as app, jsonify, Blueprint
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from eve.auth import requires_auth
 from datetime import timedelta, datetime
-from tables import SessionsTutors, Sessions, ClassesTs
+from tables import SessionsTutors, SessionsTutorsStudents
 from pytz import timezone
 from pprint import pprint
 
@@ -18,6 +18,14 @@ def students():
     .filter(SessionsTutors.tutor_id == app.auth.get_request_auth_value()) \
     .all()
 
+  def filter_session_students(v, st):
+    sessions_students = app.data.driver.session.query(SessionsTutorsStudents) \
+      .filter(SessionsTutorsStudents.student_id == v.student.id) \
+      .filter(SessionsTutorsStudents._created >= st._created) \
+      .all()
+
+    return not len(sessions_students)
+
   def parse(v):
     w = dict(v).copy()
     w.update({
@@ -29,11 +37,13 @@ def students():
     w['session']['class'].update({
       'branch': dict(v.session.class_.branch),
       'program_module': dict(v.session.class_.program_module),
-      'students': map(lambda vv: dict(vv), v.session.class_.students),
+      'students': map(lambda vv: dict(vv), filter(lambda vv: filter_session_students(vv, v), v.session.class_.students)),
     })
     w['session']['class']['program_module'].update({
       'module': dict(v.session.class_.program_module.module)
     })
+
+    v.session.class_.students = filter(lambda vv: filter_session_students(vv, v), v.session.class_.students)
     for ii, vv in enumerate(v.session.class_.students):
       w['session']['class']['students'][ii].update({
         'student': dict(vv.student)

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 
 Vue.use(Vuex)
 const defaultAuth = {
@@ -13,7 +14,6 @@ export default new Vuex.Store({
     currentMqtt: null,
     currentAuth: defaultAuth,
     currentSearch: null,
-    currentStudentSession: null,
     currentStats: {
       classes: 0,
       hours: 0,
@@ -35,9 +35,6 @@ export default new Vuex.Store({
       state.currentSearch = nextVal
     },
 
-    nextStudentSession(state, nextVal) {
-      state.currentStudentSession = nextVal
-    },
     nextStats(state, nextVal) {
       state.currentStats = Object.assign(state.currentStats, nextVal)
     },
@@ -46,7 +43,20 @@ export default new Vuex.Store({
   actions: {
     updateStats({commit, state}) {
       console.log('state.currentAuth', state.currentAuth.id);
-      commit('nextStats', {})
+      axios.get(`${process.env.VUE_APP_DBAPI}/tutor_stats`)
+        .then(response => {
+          const data = {
+            classes: response.data._items.classes_sum,
+            hours: response.data._items.hours_sum,
+            feedbacks: response.data._items.feedbacks_sum,
+            ratings: response.data._items.ratings_avg,
+            reviews: response.data._items.reviews_avg,
+            attendances: response.data._items.attendances_avg,
+          };
+          commit('nextStats', data)
+        })
+        .catch(error => console.log(error))
+
     }
 
   }

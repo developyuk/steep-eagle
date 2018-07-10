@@ -7,7 +7,14 @@ blueprint = Blueprint('tutor_stats', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
 
 
-@blueprint.route('/tutor/id/stats', methods=['GET'])
-@requires_auth('/tutor/id/stats')
+@blueprint.route('/tutor_stats', methods=['GET'])
+@requires_auth('/tutor_stats')
 def tutor_stats():
-  return jsonify({})
+  return jsonify({'_items': {
+    'classes_sum': 0,
+    'hours_sum': 0,
+    'feedbacks_sum': 0,
+    'ratings_avg': 0,
+    'reviews_avg': 0,
+    'attendances_avg': 0,
+  }})
