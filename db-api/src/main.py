@@ -23,4 +23,6 @@ db.Model = Base
 # app.on_fetched_item += before_returning_item
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', debug=os.environ['DEBUG'])
+  # app.run(host='0.0.0.0', debug=os.environ['DEBUG'])
+  app.run(host='0.0.0.0', debug=os.environ['DEBUG'], ssl_context=(
+  '/etc/letsencrypt/live/mtutor.codingcamp.id/fullchain.pem', '/etc/letsencrypt/live/mtutor.codingcamp.id/privkey.pem'))
