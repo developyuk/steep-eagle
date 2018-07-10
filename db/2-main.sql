@@ -172,24 +172,6 @@ END;$$
 
 LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE VIEW _classes_ts AS
-  SELECT d.*
-  FROM (
-         SELECT
-           c.*,
-           (a.dw :: DATE :: TEXT || ' ' || c.start_at || ':00') :: TIMESTAMP AT TIME ZONE 'asia/jakarta'  start_at_ts,
-           (a.dw :: DATE :: TEXT || ' ' || c.finish_at || ':00') :: TIMESTAMP AT TIME ZONE 'asia/jakarta' finish_at_ts
-         FROM (
-                SELECT ts AT TIME ZONE 'asia/jakarta' dw
-                FROM generate_series(now(), now() + '5 days', '1 day') g(ts)
-              ) a
-           INNER JOIN classes c ON c.day :: TEXT = to_char(dw, 'fmday')
-       ) d
-  WHERE d.finish_at_ts + INTERVAL '2 hours' > now()
-        AND d.finish_at_ts + INTERVAL '2 hours' < now() + INTERVAL '7 days'
-  ORDER BY d.id ASC;
-
-
 CREATE TABLE sessions (
   id       BIGSERIAL PRIMARY KEY,
   class_id INT REFERENCES classes (id),
@@ -220,65 +202,3 @@ CREATE TABLE sessions_tutors_students (
   _updated           TIMESTAMP DEFAULT NOW(),
   _etag    TEXT
 );
-
-CREATE OR REPLACE VIEW _sessions_tutors AS
-  SELECT
-    s.id,
-    s._created,
-    s.class_id,
-    st.tutor_id
-  FROM sessions s
-    LEFT JOIN sessions_tutors st ON s.id = st.session_id;
-
-CREATE OR REPLACE VIEW sessions_tutors_students_status_null AS
-  SELECT
-    sst.*,
-    cs.student_id
-  FROM _sessions_tutors sst
-    INNER JOIN class_students cs ON sst.class_id = cs.class_id
-    INNER JOIN _classes_ts c ON sst.class_id = c.id
-  WHERE sst._created > (now() - '12:00:00' :: INTERVAL) AND cs.student_id NOT IN (
-    SELECT student_id
-    FROM sessions_tutors_students
-    WHERE session_tutor_id = sst.id
-  );
-
-CREATE OR REPLACE VIEW _stats_tutors AS
-  SELECT
-    b.*,
-    _st.id       _st_id,
-    _st._created _st_created_at,
-    _st.tutor_id _st_tutor_id,
-    ss._created,
-    ss.STATUS,
-    ss.feedback,
-    ss.rating_interaction,
-    ss.rating_cognition,
-    ss.rating_creativity
-  FROM (
-         SELECT
-           a.ts :: DATE,
-           c.id,
-           c.tutor_id,
-           (a.ts :: DATE :: TEXT || ' ' || c.start_at || ':00') :: TIMESTAMP AT TIME ZONE 'asia/jakarta'  start_at_ts,
-           (a.ts :: DATE :: TEXT || ' ' || c.finish_at || ':00') :: TIMESTAMP AT TIME ZONE 'asia/jakarta' finish_at_ts,
-           cs.student_id
-         FROM (
-                SELECT ts
-                FROM generate_series((
-                                       SELECT min(_created) :: DATE
-                                       FROM sessions
-                                     ), now() :: DATE, '1 day') g(ts)
-              ) a
-           INNER JOIN classes c ON c.day :: TEXT = to_char(a.ts, 'fmday')
-           INNER JOIN class_students cs ON cs.class_id = c.id
-         ORDER BY start_at_ts DESC
-       ) b
-    LEFT JOIN _sessions_tutors _st ON b.id = _st.class_id
-                                      AND _st._created > b.start_at_ts + INTERVAL '5 minutes'
-                                      AND _st._created < b.finish_at_ts + INTERVAL '2 hours'
-    LEFT JOIN sessions_tutors_students ss ON _st.id = ss.session_tutor_id
-                                             AND b.student_id = ss.student_id
-  WHERE b.ts >= '2018-03-24' :: DATE
-  ORDER BY b.start_at_ts DESC
-    , _st.id DESC
