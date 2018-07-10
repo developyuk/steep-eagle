@@ -1,11 +1,11 @@
-version:          '2'
+version: '2'
 services:
   api-main:
-    build:        ./api-main
+    build: ./api-main
     volumes:
       - ./api-main:/project
       - /etc/letsencrypt:/etc/letsencrypt
-    working_dir:  /project
+    working_dir: /project
     ports:
       - "90:1323"
     environment:
@@ -18,25 +18,28 @@ services:
       - db-api
     command: bash -c "go build main.go && ./main"
   db-api:
-    image: postgrest/postgrest
+    build: ./db-api
+    volumes:
+      - ./db-api/src:/app
 #    remove ports on production
-#    ports:
-#      - "3000:3000"
+    ports:
+      - "3000:3000"
     environment:
-      - PGRST_DB_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - PGRST_DB_SCHEMA=public
-      - PGRST_DB_ANON_ROLE=anon
-      - PGRST_JWT_SECRET=${JWT_KEY}
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - JWT_SECRET=${JWT_KEY}
+      - JWT_ISSUER=skilmu
+      - DEBUG=1
     depends_on:
       - db
+    command: gunicorn -w 4 -b 0.0.0.0:3000 main:app
   db-admin:
-    image:      adminer
+    image: adminer
     ports:
       - "99:8080"
     depends_on:
       - db
   db:
-    build:        ./db
+    build: ./db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
