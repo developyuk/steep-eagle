@@ -30,7 +30,7 @@
                   .card-content
                     .form-group
                       //label Email address
-                      input.form-control.input-no-border(type='text' name='email' placeholder='Enter email')
+                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter email')
                     .form-group
                       //label Password
                       input.form-control.input-no-border(type='password' name='password' placeholder='Password please')
@@ -74,9 +74,12 @@
       onSubmit(e) {
         const formData = new FormData(e.target);
 
-        axios.post(`${process.env.API}/sign`, formData)
+        axios.post(`${process.env.DBAPI}/sign`, formData)
           .then(response => {
-            console.log(response);
+//            console.log(response);
+            localStorage.setItem('token', response.data.token);
+            // console.log(this.$router);
+            this.$router.push('/');
           })
           .then(error => {
             console.log(error);

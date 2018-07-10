@@ -20,7 +20,7 @@ router.beforeEach((to, from, next) => {
   }
   // axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
   axios
-    .get(`${process.env.API}/auth`)
+    .get(`${process.env.DBAPI}/auth`)
     .then(response => {
       // console.log(response.data);
       const currentAuth = response.data;
@@ -28,10 +28,10 @@ router.beforeEach((to, from, next) => {
     })
     .catch(error => {
       // console.log(error.response, to.path);
-      // if (to.matched.some(record => record.meta.requiresAuth)) {
-      //   //   next({path: "/sign", query: {redirect: to.path}});
-      //   next({path: "/sign"});
-      // }
+      if (to.matched.some(record => record.meta.requiresAuth)) {
+        //   next({path: "/sign", query: {redirect: to.path}});
+        next({path: "/sign"});
+      }
       // next({path: "/sign"});
     });
   next();

@@ -2,7 +2,7 @@ from flask import current_app as app, jsonify, Blueprint, request
 from flask_cors import CORS, cross_origin
 from tables import Users
 from pprint import pprint
-from datetime import timedelta,datetime
+from datetime import timedelta, datetime
 from eve.auth import requires_auth
 
 blueprint = Blueprint('auth', __name__)
@@ -15,7 +15,11 @@ def sign():
 
   try:
     username = data.get('username')
+    password = data.get('password')
     user = app.data.driver.session.query(Users).filter(Users.username == username).first()
+    if (user.pass_):
+      if (password != user.pass_):
+        raise Exception('check your auth')
     return jsonify({'token': user.sign()})
   except Exception as e:
     return jsonify({
@@ -51,7 +55,6 @@ def auth():
         "code": 400
       }
     }), 400
-
 
 # @blueprint.after_request
 # def add_header(response):
