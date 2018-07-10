@@ -21,6 +21,7 @@ services:
     build: ./db-api
     volumes:
       - ./db-api/src:/app
+      - /etc/letsencrypt:/etc/letsencrypt
 #    remove ports on production
     ports:
       - "3000:3000"
