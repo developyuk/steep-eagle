@@ -13,7 +13,6 @@ export default new Vuex.Store({
   state: {
     currentMqtt: null,
     currentAuth: defaultAuth,
-    currentSearch: null,
     currentStats: {
       classes: 0,
       hours: 0,
@@ -29,10 +28,6 @@ export default new Vuex.Store({
     },
     nextMqtt(state, nextVal) {
       state.currentMqtt = nextVal
-    },
-
-    nextSearch(state, nextVal) {
-      state.currentSearch = nextVal
     },
 
     nextStats(state, nextVal) {

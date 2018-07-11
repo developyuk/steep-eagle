@@ -91,14 +91,6 @@
               }));
           })
           .catch(error => {
-            this.currentMqtt.mqtt
-              .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.stid,
-                uid: this.uid,
-                name: this.name,
-                by: this.currentAuth,
-                on: "undoRateReview",
-              }));
             console.log(error)
           })
       },
@@ -133,15 +125,6 @@
           })
           .catch(error => {
             console.log(error);
-
-            this.currentMqtt.mqtt
-              .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.stid,
-                uid: this.uid,
-                name: this.name,
-                by: this.currentAuth,
-                on: "undoRateReview",
-              }));
           });
       }
     },

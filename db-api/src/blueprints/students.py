@@ -69,13 +69,13 @@ def students():
   })
 
 
-# @blueprint.after_request
-# def add_header(response):
-#   response.cache_control.max_age = app.config['CACHE_EXPIRES']
-#   response.cache_control.public = True
-#   response.cache_control.must_revalidate = True
-#
-#   now = datetime.now()
-#   then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-#   response.headers['Expires'] = then
-#   return response
+@blueprint.after_request
+def add_header(response):
+  response.cache_control.max_age = app.config['CACHE_EXPIRES']
+  response.cache_control.public = True
+  response.cache_control.must_revalidate = True
+
+  now = datetime.now()
+  then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
+  response.headers['Expires'] = then
+  return response

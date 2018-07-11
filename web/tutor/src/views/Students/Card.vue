@@ -85,15 +85,6 @@
       //              })
       //              .catch(error => {
       //                console.log(error);
-      //
-      //                this.currentMqtt.mqtt
-      //                  .publish(this.currentMqtt.topic, JSON.stringify({
-      //                    sid: this.stid,
-      //                    uid: this.student.id,
-      //                    name: this.student.profile.name,
-      //                    by: this.currentAuth,
-      //                    on: "undoRateReview",
-      //                  }));
       //              });
       //          } else {
       //            this.setPosition();

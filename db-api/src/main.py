@@ -5,6 +5,7 @@ import os
 
 from tables import Base
 # from links import before_returning_items, before_returning_item
+from mqtt import sessions
 from auth import MyAuth
 from blueprints import auth, schedules, students, tutor_stats
 
@@ -21,6 +22,7 @@ db.Model = Base
 
 # app.on_fetched_resource += before_returning_items
 # app.on_fetched_item += before_returning_item
+# app.on_inserted += sessions.sessions_tutor_students
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=os.environ['DEBUG'])

@@ -145,10 +145,13 @@
         });
         return [i, ii]
       },
-      getStudentsSessions() {
+      getStudentsSessions(params = {forceRefresh: false}) {
         const url = `${process.env.VUE_APP_DBAPI}/students`;
-
-        axios.get(url)
+        const headers = {};
+        if (params.forceRefresh) {
+          headers['Cache-Control'] = 'no-cache'
+        }
+        axios.get(url, {headers})
           .then(response => {
             this.sessions = !!response.data._items.length ? response.data._items : [];
           })
@@ -175,7 +178,7 @@
 
           switch (parsedMessage.on) {
             case 'undoRateReview': {
-              this.getStudentsSessions();
+              this.getStudentsSessions({forceRefresh: true});
               let snackbarOpts = {
                 message: `Undo ${name.split(" ")[0].toUpperCase()}`
               };
@@ -184,7 +187,7 @@
             }
             case 'successRateReview': {
               const {by: msgBy} = parsedMessage;
-              this.getStudentsSessions();
+              this.getStudentsSessions({forceRefresh: true});
 
               let snackbarOpts = {
                 message: `Submit ${name.split(" ")[0].toUpperCase()}`,
@@ -202,8 +205,6 @@
                       })
                       .catch(error => {
                         console.log(error);
-                        this.mqtt
-                          .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'successRateReview'})));
                       });
                   }
                 })

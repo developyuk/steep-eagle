@@ -100,13 +100,7 @@
       }
     },
     computed: {
-      ...mapState(['currentAuth', 'currentSearch']),
-    },
-    watch: {
-      currentSearch(v) {
-        this.q = `ilike.*${v}*`;
-        this.getSchedules();
-      }
+      ...mapState(['currentAuth']),
     },
     methods: {
       ...mapMutations(['nextSearch']),
@@ -186,14 +180,13 @@
         }
 
       },
-      getSchedules() {
+      getSchedules(params = {forceRefresh: false}) {
         const url = `${process.env.VUE_APP_DBAPI}/schedules`;
-        const params = {};
-        if (!!this.q) {
-          params['q'] = this.q;
+        const headers = {};
+        if (params.forceRefresh) {
+          headers['Cache-Control'] = 'no-cache'
         }
-
-        axios.get(url, {params})
+        axios.get(url, {headers})
           .then(response => {
             this.classes = response.data._items
           })
@@ -233,7 +226,7 @@
             const {i, ii} = this.findClassById(msgId);
             this.currentClass = this.classes[i]._items[ii];
 
-            this.getSchedules();
+            this.getSchedules({forceRefresh: true});
             let snackbarOpts = {
               message: `Start ${this.currentClass.program_module.module.name.toUpperCase()}`
             };
@@ -268,7 +261,7 @@
             const {i, ii} = this.findClassById(msgId);
             this.currentClass = this.classes[i]._items[ii];
 
-            this.getSchedules();
+            this.getSchedules({forceRefresh: true});
             let snackbarOpts = {
               message: `Undo ${this.classes[i]._items[ii].program_module.module.name.toUpperCase()}`
             };
