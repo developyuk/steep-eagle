@@ -23,6 +23,11 @@ const router = new Router({
       meta: {requiresAuth: true}
     },
     {
+      path: '/search',
+      component: () => import('@/views/Search/Search'),
+      meta: {requiresAuth: true, isAside: true}
+    },
+    {
       path: '/sign',
       component: () => import('@/views/Sign'),
     }

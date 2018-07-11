@@ -6,15 +6,13 @@
       transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
         .cell.auto(:key="$route.fullPath")
           slot
-      .cell.shrink
-        tab-bottom
 </template>
 
 <script>
   export default {
     components: {
       'tab-bottom': () => import('@/components/TabBottom'),
-      'my-header': () => import('@/components/headers/Header'),
+      'my-header': () => import('@/components/headers/Aside'),
     },
     data() {
       return {}

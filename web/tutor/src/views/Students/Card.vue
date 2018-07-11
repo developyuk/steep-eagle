@@ -1,15 +1,14 @@
 <template lang="pug">
-  transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    li#card(:data-index="index" :data-sid="stid" :data-student="student" :data-isActive="isActive")
-      .mdc-list-item
-        .mdc-list-item__graphic
-          my-img(:src="student.profile.photo" myIs="profile")
-        span.mdc-list-item__text
-          placeholder(:value="student.profile.name")
-      hr.mdc-list-divider(v-if="isActive")
+  li#card(:data-index="index" :data-sid="stid" :data-student="student" :data-isActive="isActive")
+    .mdc-list-item
+      .mdc-list-item__graphic
+        my-img(:src="student.profile.photo" myIs="profile")
+      span.mdc-list-item__text
+        placeholder(:value="student.profile.name")
+    hr.mdc-list-divider(v-if="isActive")
 
-      //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-      component(:is="currentComponent" :stid="stid" :uid="student.id" :name="student.profile.name")
+    //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
+    component(:is="currentComponent" :stid="stid" :uid="student.id" :name="student.profile.name")
 </template>
 
 <script>

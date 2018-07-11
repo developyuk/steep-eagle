@@ -1,8 +1,11 @@
 <template lang="pug">
   #header
     header
-      img.logo(src="img/logo.svg")
-      //span.search search?
+      .grid-x.align-middle.align-justify
+        .cell.shrink
+          img.logo(src="img/logo.svg")
+        .cell.shrink
+          span.search(@click="onClickSearch") search?
     my-drawer(@mounted="onMountedDrawer")
       template(slot="header")
         .photo
@@ -68,6 +71,9 @@
         localStorage.removeItem('token');
         window.location.reload();
       },
+      onClickSearch(e){
+        this.$router.push('/search')
+      }
     },
     destroyed() {
     },
@@ -80,7 +86,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../assets/shared";
+  @import "../../assets/shared";
   @import "~sass-bem";
 
   header {
@@ -148,5 +154,10 @@
         border-radius: .5rem;
       }
     }
+  }
+  .search{
+    font-weight: 500;
+    color: #fff;
+    margin-right: 1rem;
   }
 </style>
