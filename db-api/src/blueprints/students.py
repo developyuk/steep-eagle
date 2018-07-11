@@ -26,6 +26,12 @@ def students():
 
     return not len(sessions_students)
 
+  def filter_sessions(v):
+    v.session.class_.students = filter(lambda v2: filter_session_students(v2, v), v.session.class_.students)
+    return len(v.session.class_.students)
+
+  sessions = filter(filter_sessions, sessions)
+
   def parse(v):
     w = dict(v).copy()
     w.update({
@@ -37,13 +43,12 @@ def students():
     w['session']['class'].update({
       'branch': dict(v.session.class_.branch),
       'program_module': dict(v.session.class_.program_module),
-      'students': map(lambda vv: dict(vv), filter(lambda vv: filter_session_students(vv, v), v.session.class_.students)),
+      'students': map(lambda vv: dict(vv), v.session.class_.students),
     })
     w['session']['class']['program_module'].update({
       'module': dict(v.session.class_.program_module.module)
     })
 
-    v.session.class_.students = filter(lambda vv: filter_session_students(vv, v), v.session.class_.students)
     for ii, vv in enumerate(v.session.class_.students):
       w['session']['class']['students'][ii].update({
         'student': dict(vv.student)
@@ -63,6 +68,7 @@ def students():
     }
   })
 
+
 # @blueprint.after_request
 # def add_header(response):
 #   response.cache_control.max_age = app.config['CACHE_EXPIRES']
@@ -70,6 +76,6 @@ def students():
 #   response.cache_control.must_revalidate = True
 #
 #   now = datetime.now()
-#   then = now + timedelta(days=app.config['CACHE_EXPIRES'])
+#   then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
 #   response.headers['Expires'] = then
 #   return response

@@ -1,7 +1,7 @@
 <template lang="pug">
   template-main#students
     empty(v-if="!!sessions && !sessions.length")
-    .mdc-list-group()
+    .mdc-list-group(v-else)
       template(v-for="(v, i) in sessions")
         h3.mdc-list-group__subheader
           placeholder(:value="v.session.class.program_module.module.name").module
@@ -28,11 +28,12 @@
   import _findIndex from 'lodash/findIndex';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
+  import _range from 'lodash/range';
   import TemplateMain from '@/components/views/Main';
 
   const placeholderStudents =
-    [1, 2].map(v => {
-      const students = [1, 2, 3].map(vv => {
+    _range(2).map(v => {
+      const students = _range(3).map(vv => {
         return {
           "class_id": 12,
           "student_id": 84,
@@ -196,7 +197,6 @@
 
                     axios.delete(url, {headers: {'If-Match': sts.et}})
                       .then(response => {
-                        console.log(response.data)
                         this.mqtt
                           .publish('students', JSON.stringify(Object.assign(parsedMessage, {on: 'undoRateReview'})));
                       })

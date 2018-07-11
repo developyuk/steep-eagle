@@ -1,4 +1,3 @@
-.mqt
 <template lang="pug">
   template-main#schedules
     .empty(v-if="!!classes && !classes.length") classes not found
@@ -33,6 +32,7 @@
   import axios from 'axios';
   import moment from 'moment';
   import _findIndex from 'lodash/findIndex';
+  import _range from 'lodash/range';
   import {mapState, mapMutations} from 'vuex';
   import mqtt from "mqtt";
   import {MDCDialog} from '@material/dialog';
@@ -41,8 +41,8 @@
   import MyDialog from '@/components/Dialog';
 
   const placeholderSchedules =
-    [1, 2, 3].map(v => {
-      const items = [1, 2].map(vv => {
+    _range(3).map(v => {
+      const items = _range(2).map(vv => {
         return {
           "id": vv,
           "start_at": "",
