@@ -23,12 +23,12 @@ export default [
     collapsed: false,
     children: [
       {
-        name: 'Modules',
-        path: '/admin/modules'
-      },
-      {
         name: 'Branches',
         path: '/admin/branches'
+      },
+      {
+        name: 'Modules',
+        path: '/admin/modules'
       },
       {
         name: 'Classes',

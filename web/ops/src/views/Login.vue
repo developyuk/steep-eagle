@@ -1,19 +1,4 @@
 <template lang="pug">
-  <!--nav.navbar.navbar-transparent.navbar-absolute-->
-  <!--.container-->
-  <!--.navbar-header-->
-  <!--button.navbar-toggle(type='button' data-toggle='collapse' data-target='#navigation-example-2' @click='toggleNavbar')-->
-  <!--span.sr-only Toggle navigation-->
-  <!--span.icon-bar-->
-  <!--span.icon-bar-->
-  <!--span.icon-bar-->
-  <!--router-link.navbar-brand(to='/admin') Paper Dashboard PRO-->
-  <!--.collapse.navbar-collapse-->
-  <!--ul.nav.navbar-nav.navbar-right-->
-  <!--router-link(to='/register' tag='li')-->
-  <!--a Register-->
-  <!--router-link(to='/admin/overview' tag='li')-->
-  <!--a Dashboard-->
   .wrapper.wrapper-full-page
     .full-page.login-page(data-color='' data-image='https://images.weserv.nl/?il&q=18&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg')
       // you can change the color of the filter page using: data-color="blue | azure | green | orange | red | purple"
@@ -39,24 +24,7 @@
                     <!--.forgot-->
                     <!--router-link(to='/register')-->
                     <!--| Forgot your password?-->
-      footer.footer.footer-transparent
-        <!--.container-->
-        <!--.copyright-->
-        <!--| &copy; Coded with-->
-        <!--i.fa.fa-heart.heart-->
-        <!--|  by-->
-        <!--a(href='https://github.com/cristijora' target='_blank') Cristi Jora-->
-        <!--| .-->
-        <!--|               Designed by-->
-        <!--a(href='https://www.creative-tim.com/?ref=pdf-vuejs' target='_blank') Creative Tim-->
-        <!--| .-->
       .full-page-background(style='background-image: url(https://images.weserv.nl/?il&q=18&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg) ')
-  <!--.collapse.navbar-collapse.off-canvas-sidebar-->
-  <!--ul.nav.nav-mobile-menu-->
-  <!--router-link(to='/register' tag='li')-->
-  <!--a Register-->
-  <!--router-link(to='/admin/overview' tag='li')-->
-  <!--a Dashboard-->
 </template>
 
 <script>
@@ -81,9 +49,7 @@
             // console.log(this.$router);
             this.$router.push('/');
           })
-          .then(error => {
-            console.log(error);
-          })
+          .catch(error => console.log(error,error.response))
       }
     },
     beforeDestroy() {
@@ -103,6 +69,19 @@
     h1 {
       text-align: center;
     }
+  }
+
+  .form-control {
+    &, &:focus {
+      background-color: #C4C4C4;
+      color: #fff;
+    }
+  }
+
+  ::placeholder {
+    color: #fff;
+    font-weight: bold;
+    text-transform: lowercase;
   }
 
   .full-page[data-image]:after, .full-page.has-image:after {

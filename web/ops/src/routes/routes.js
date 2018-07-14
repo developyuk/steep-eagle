@@ -195,6 +195,12 @@ let lockPage = {
   component: Lock
 }
 
+import Branches from '@/views/branches/Branches';
+import BranchForm from '@/views/branches/Form';
+import Modules from '@/views/modules/Modules';
+import ModuleForm from '@/views/modules/Form';
+import Classes from '@/views/classes/Classes';
+
 const routes = [
   {
     path: '/sign',
@@ -211,32 +217,73 @@ const routes = [
     path: '/admin',
     component: DashboardLayout,
     redirect: '/admin/modules',
-    children:[
-
+    children: [
       {
-        path: 'modules',
-        component: PaginatedTables,
+        path: 'branches',
+        component: Branches,
         meta: {
           requiresAuth: true,
         }
       },
       {
-        path: 'branches',
-        component: PaginatedTables,
+        path: 'branches/create',
+        component: BranchForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'branches/:id/edit',
+        component: BranchForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'modules',
+        component: Modules,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'modules/create',
+        component: ModuleForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'modules/:id/edit',
+        component: ModuleForm,
         meta: {
           requiresAuth: true,
         }
       },
       {
         path: 'classes',
-        component: PaginatedTables,
+        component: Classes,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'classes/create',
+        component: ValidationForms,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'classes/:id/edit',
+        component: ValidationForms,
         meta: {
           requiresAuth: true,
         }
       },
       {
         path: 'users',
-        component: PaginatedTables,
+        component: ExtendedTables,
         meta: {
           requiresAuth: true,
         }

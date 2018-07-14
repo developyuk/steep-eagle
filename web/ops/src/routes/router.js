@@ -22,7 +22,6 @@ router.beforeEach((to, from, next) => {
   axios
     .get(`${process.env.DBAPI}/auth`)
     .then(response => {
-      // console.log(response.data);
       const currentAuth = response.data;
       store.commit('nextAuth', currentAuth);
     })
@@ -32,7 +31,6 @@ router.beforeEach((to, from, next) => {
         //   next({path: "/sign", query: {redirect: to.path}});
         next({path: "/sign"});
       }
-      // next({path: "/sign"});
     });
   next();
 });
