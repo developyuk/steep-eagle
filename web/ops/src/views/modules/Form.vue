@@ -16,9 +16,18 @@
           .form-group
             label.col-sm-2.control-label Image
             .col-sm-9
-              input.form-control(type="file" name="image" v-validate="modelValidations.image" v-model="model.image")
+              input.form-control(type="file" name="image" v-validate="modelValidations.image")
               small.text-danger(v-show="image.invalid")
                 | {{ getError('image') }}
+        fieldset
+          .form-group
+            label.col-sm-2.control-label Program
+            .col-sm-9
+              el-select.select-danger(size="large" placeholder="Single Select" v-model="model.program")
+                el-option.select-danger(v-for="option in selects.countries" :value="option.value" :label="option.label" :key="option.label")
+
+              small.text-danger(v-show="program.invalid")
+                | {{ getError('program') }}
       .card-footer.text-center
         button.btn.btn-fill.btn-info.btn-wd(type="submit" @click.prevent="validate") Validate inputs
 
@@ -27,24 +36,63 @@
   import {mapFields} from 'vee-validate'
   import axios from 'axios'
   import mixinNotify from '../mixins/notify'
+  import {Select, Option} from 'element-ui'
 
   export default {
+    components: {
+      [Option.name]: Option,
+      [Select.name]: Select,
+    },
     computed: {
-      ...mapFields(['name', 'image'])
+      ...mapFields(['name', 'image','program'])
     },
     mixins: [mixinNotify],
     data() {
       return {
+        selects: {
+          simple: '',
+          countries: [{value: 'Bahasa Indonesia', label: 'Bahasa Indonesia'},
+            {value: 'Bahasa Melayu', label: 'Bahasa Melayu'},
+            {value: 'Català', label: 'Català'},
+            {value: 'Dansk', label: 'Dansk'},
+            {value: 'Deutsch', label: 'Deutsch'},
+            {value: 'English', label: 'English'},
+            {value: 'Español', label: 'Español'},
+            {value: 'Eλληνικά', label: 'Eλληνικά'},
+            {value: 'Français', label: 'Français'},
+            {value: 'Italiano', label: 'Italiano'},
+            {value: 'Magyar', label: 'Magyar'},
+            {value: 'Nederlands', label: 'Nederlands'},
+            {value: 'Norsk', label: 'Norsk'},
+            {value: 'Polski', label: 'Polski'},
+            {value: 'Português', label: 'Português'},
+            {value: 'Suomi', label: 'Suomi'},
+            {value: 'Svenska', label: 'Svenska'},
+            {value: 'Türkçe', label: 'Türkçe'},
+            {value: 'Íslenska', label: 'Íslenska'},
+            {value: 'Čeština', label: 'Čeština'},
+            {value: 'Русский', label: 'Русский'},
+            {value: 'ภาษาไทย', label: 'ภาษาไทย'},
+            {value: '中文 (简体)', label: '中文 (简体)'},
+            {value: 'W">中文 (繁體)', label: 'W">中文 (繁體)'},
+            {value: '日本語', label: '日本語'},
+            {value: '한국어', label: '한국어'}],
+          multiple: 'ARS'
+        },
         isCreate: true,
         model: {
           name: '',
           image: '',
+          program: '',
         },
         modelValidations: {
           name: {
             required: true
           },
           image: {
+            required: true
+          },
+          program: {
             required: true
           },
         }
@@ -59,6 +107,7 @@
           const data = {
             name: this.model.name,
             image: this.model.image,
+            program: this.model.program,
           };
           if (this.isCreate) {
             axios.post(`${process.env.DBAPI}/branches`, data)
