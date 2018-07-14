@@ -16,14 +16,16 @@ RESOURCE_METHODS = [
 ]
 ITEM_METHODS = [
   'GET',
-  # 'PATCH', 'PUT',
+  'PATCH',
+  # 'PUT',
   'DELETE'
 ]
 X_DOMAINS = "*"
 CACHE_CONTROL = 'max-age=10,must-revalidate'
 CACHE_EXPIRES = 10
 # X_ALLOW_CREDENTIALS = True
-X_HEADERS = ['Authorization', 'Content-Type', 'If-Match']
+# X_HEADERS = '*'
+X_HEADERS = ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match']
 
 DEBUG = os.environ['DEBUG']
 JWT_SECRET = os.environ['JWT_SECRET']
@@ -77,8 +79,6 @@ DOMAIN['classes_ts'].update({u'embedded_fields': [
   'branch',
   'tutor', 'tutor.profile',
   # 'students', 'students.student', 'students.student.profile',
-  'program_module', 'program_module.module', 'program_module.program',
-  'program_module.program.type'
 ]})
 DOMAIN['programs_modules']['schema']['module']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs_modules']['schema']['program']['data_relation'].update({u'embeddable': True})
@@ -87,12 +87,12 @@ DOMAIN['class_students']['schema']['class_']['data_relation'].update({u'embeddab
 DOMAIN['programs']['schema']['type']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs']['schema']['modules']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs'].update({u'embedded_fields': [
-  'type',
-  'modules', 'modules.module'
+  # 'type',
+  # 'modules', 'modules.module'
 ]})
 DOMAIN['modules']['schema']['programs']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['modules'].update({u'embedded_fields': [
-  'programs', 'programs.program', 'programs.program.type'
+  # 'programs', 'programs.program', 'programs.program.type'
 ]})
 DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions'].update({u'embedded_fields': [

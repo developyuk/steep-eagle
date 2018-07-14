@@ -8,6 +8,7 @@ from pprint import pprint
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify
 from pytz import timezone
+from eve.methods.common import embedded_document
 
 Base = declarative_base()
 
@@ -160,6 +161,30 @@ def onDay(day):
 
 
 class ClassesTs(Classes):
+  @hybrid_property
+  def program_type(self):
+    return embedded_document(self.program_module.program.type.id, {'resource': 'program_types'}, None)
+
+  @program_type.expression
+  def program_type(cls):
+    return cls
+
+  @hybrid_property
+  def program(self):
+    return embedded_document(self.program_module.program.id, {'resource': 'programs'}, None)
+
+  @program.expression
+  def program(cls):
+    return cls
+
+  @hybrid_property
+  def module(self):
+    return embedded_document(self.program_module.module.id, {'resource': 'modules'}, None)
+
+  @module.expression
+  def module(cls):
+    return cls
+
   @hybrid_property
   def start_at_ts(self):
     dt = datetime.strptime('%sT%s' % (onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
