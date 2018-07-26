@@ -29,7 +29,11 @@
               small.text-danger(v-show="program.invalid")
                 | {{ getError('program') }}
       .card-footer.text-center
-        button.btn.btn-fill.btn-info.btn-wd(type="submit" @click.prevent="validate") Validate inputs
+        .row
+          .col-sm-4.col-sm-offset-2
+            router-link.btn.btn-outline.btn-wd(to="/admin/modules") Cancel
+          .col-sm-4
+            button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Validate inputs
 
 </template>
 <script>

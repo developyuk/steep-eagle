@@ -33,7 +33,7 @@
       },
       activeColor: {
         type: String,
-        default: 'success',
+        default: 'primary',
         validator: (value) => {
           let acceptedValues = ['primary', 'info', 'success', 'warning', 'danger']
           return acceptedValues.indexOf(value) !== -1
@@ -90,5 +90,8 @@
     .nav-mobile-menu{
       display: none;
     }
+  }
+  .logo{
+    text-align: center;
   }
 </style>

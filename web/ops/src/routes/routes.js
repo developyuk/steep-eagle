@@ -211,7 +211,72 @@ const routes = [
     component: DashboardLayout,
     meta: {
       requiresAuth: true,
-    }
+    },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard Page',
+        component: Overview
+      },
+    ]
+  },
+  {
+    path: '/dashboard',
+    component: DashboardLayout,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard Page',
+        component: Overview
+      },
+    ]
+  },
+  {
+    path: '/activites',
+    component: DashboardLayout,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard Page',
+        component: Overview
+      },
+    ]
+  },
+  {
+    path: '/schedules',
+    component: DashboardLayout,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        component: Classes,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'create',
+        component: ValidationForms,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: ':id/edit',
+        component: ValidationForms,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+    ]
   },
   {
     path: '/admin',
@@ -256,27 +321,6 @@ const routes = [
       {
         path: 'modules/:id/edit',
         component: ModuleForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'classes',
-        component: Classes,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'classes/create',
-        component: ValidationForms,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'classes/:id/edit',
-        component: ValidationForms,
         meta: {
           requiresAuth: true,
         }

@@ -31,10 +31,6 @@ export default [
         path: '/admin/modules'
       },
       {
-        name: 'Classes',
-        path: '/admin/classes'
-      },
-      {
         name: 'Users',
         path: '/admin/users'
       },

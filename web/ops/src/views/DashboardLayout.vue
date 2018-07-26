@@ -15,8 +15,8 @@
 
 </template>
 <script>
-  import TopNavbar from '../components/Dashboard/Layout/TopNavbar.vue'
-//  import ContentFooter from '../components/Dashboard/Layout/ContentFooter.vue'
+  import TopNavbar from './TopNavbar.vue'
+  //  import ContentFooter from '../components/Dashboard/Layout/ContentFooter.vue'
   import DashboardContent from '../components/Dashboard/Layout/Content.vue'
   import UserMenu from 'src/components/UIComponents/SidebarPlugin/UserMenu.vue'
   import MobileMenu from 'src/components/UIComponents/SidebarPlugin/MobileMenu.vue'
@@ -30,7 +30,7 @@
       MobileMenu
     },
     methods: {
-      toggleSidebar () {
+      toggleSidebar() {
         if (this.$sidebar.showSidebar) {
           this.$sidebar.displaySidebar(false)
         }

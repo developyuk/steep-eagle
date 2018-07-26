@@ -5,7 +5,7 @@
     .col-md-12.card
       .card-header
         .buttons.text-right
-          router-link(to="/admin/classes/create").btn.btn-primary.btn-fill
+          router-link(to="/schedules/create").btn.btn-primary.btn-fill
             span.btn-label: i.fa.fa-plus
             span Create
       .card-content.row
@@ -40,7 +40,7 @@
             <!--span.finish {{props.row.finish_at}}-->
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/classes/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/schedules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                   i.ti-close
