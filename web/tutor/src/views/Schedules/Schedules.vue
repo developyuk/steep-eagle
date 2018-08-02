@@ -17,7 +17,7 @@
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onMountedDialog")
         span Insert 1234 to activate&nbsp;
-          placeholder(:value="currentClass.program_module.module.name.toUpperCase()" val-empty="lorem ipsum")
+          placeholder(:value="currentClass.module.name.toUpperCase()" val-empty="lorem ipsum")
           | .
         p
         input(type="text" name="username" v-model.trim="pin")
@@ -46,11 +46,9 @@
         return {
           "id": vv,
           "start_at": "",
-          "program_module": {
-            "module": {
-              "image": "",
-              "name": "",
-            },
+          "module": {
+            "image": "",
+            "name": "",
           },
           "finish_at_ts": "",
           "start_at_ts": "",
@@ -89,9 +87,7 @@
         classes: placeholderSchedules,
         currentClass: {
           id: 0,
-          program_module: {
-            module: {name: ""}
-          },
+          module: {name: ""}
         },
         dialog: null,
         snackbar: null,
@@ -228,7 +224,7 @@
 
             this.getSchedules({forceRefresh: true});
             let snackbarOpts = {
-              message: `Start ${this.currentClass.program_module.module.name.toUpperCase()}`
+              message: `Start ${this.currentClass.module.name.toUpperCase()}`
             };
             const {by: msgBy, s: MsgS, st: MsgSt} = parsedMessage;
             if (msgBy.id === this.currentAuth.id) {
@@ -263,7 +259,7 @@
 
             this.getSchedules({forceRefresh: true});
             let snackbarOpts = {
-              message: `Undo ${this.classes[i]._items[ii].program_module.module.name.toUpperCase()}`
+              message: `Undo ${this.classes[i]._items[ii].module.name.toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
           }

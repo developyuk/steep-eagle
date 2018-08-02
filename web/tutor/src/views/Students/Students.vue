@@ -4,7 +4,7 @@
     .mdc-list-group(v-else)
       template(v-for="(v, i) in sessions")
         h3.mdc-list-group__subheader
-          placeholder(:value="v.session.class.program_module.module.name").module
+          placeholder(:value="v.session.class.module.name").module
           br
           placeholder(:value="v.session.class.branch.name").branch
           | &nbsp;&nbsp;
@@ -63,18 +63,13 @@
 
             "branch_id": 1,
             "start_at": "",
-            "program_module": {
-              "module_id": 10,
-              "module": {
-                "name": "",
-                "image": "https://images.weserv.nl/?il&bg=2084C6&w=96&h=96&t=square&url=dl.dropboxusercontent.com/s/kt4ww4h0s4ptldr/html.png",
-                "id": 10
-              },
-              "id": 11,
-              "program_id": 1
+            "module_id": 10,
+            "module": {
+              "name": "",
+              "image": "https://images.weserv.nl/?il&bg=2084C6&w=96&h=96&t=square&url=dl.dropboxusercontent.com/s/kt4ww4h0s4ptldr/html.png",
+              "id": 10
             },
             students,
-            "program_module_id": 11,
             "tutor_id": 83,
             "finish_at": "",
             "branch": {

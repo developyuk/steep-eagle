@@ -54,38 +54,11 @@ class Branches(CommonColumns):
     address = Column(String)
 
 
-class ProgramTypes(CommonColumns):
-    __tablename__ = 'program_types'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    programs = relationship("Programs", back_populates="type")
-
-
-class ProgramsModules(Base):
-    __tablename__ = 'programs_modules'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    program_id = Column(Integer, ForeignKey('programs.id'))
-    program = relationship("Programs", back_populates="modules")
-    module_id = Column(Integer, ForeignKey('modules.id'))
-    module = relationship("Modules", back_populates="programs")
-    # class_ = relationship("Classes", back_populates="program_module")
-
-
-class Programs(CommonColumns):
-    __tablename__ = 'programs'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    type_id = Column(Integer, ForeignKey('program_types.id'))
-    type = relationship("ProgramTypes", back_populates="programs")
-    modules = relationship("ProgramsModules", back_populates="program")
-
-
 class Modules(CommonColumns):
     __tablename__ = 'modules'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     image = Column(String)
-    programs = relationship("ProgramsModules", back_populates="module")
 
 
 class ClassStudents(Base):
@@ -103,11 +76,12 @@ class Classes(CommonColumns):
     day = Column(String)
     start_at = Column(String)
     finish_at = Column(String)
-    program_module_id = Column(Integer, ForeignKey('programs_modules.id'))
-    program_module = relationship("ProgramsModules")
+    module_id = Column(Integer, ForeignKey('modules.id'))
     branch_id = Column(Integer, ForeignKey('branches.id'))
-    branch = relationship("Branches")
     tutor_id = Column(Integer, ForeignKey('users.id'))
+
+    module = relationship("Modules")
+    branch = relationship("Branches")
     tutor = relationship("Users")
     students = relationship("ClassStudents")
     # sessions = relationship("Sessions", back_populates="class_")
@@ -158,30 +132,6 @@ def onDay(day):
 
 class ClassesTs(Classes):
     @hybrid_property
-    def program_type(self):
-        return embedded_document(self.program_module.program.type.id, {'resource': 'program_types'}, None)
-
-    @program_type.expression
-    def program_type(cls):
-        return cls
-
-    @hybrid_property
-    def program(self):
-        return embedded_document(self.program_module.program.id, {'resource': 'programs'}, None)
-
-    @program.expression
-    def program(cls):
-        return cls
-
-    @hybrid_property
-    def module(self):
-        return embedded_document(self.program_module.module.id, {'resource': 'modules'}, None)
-
-    @module.expression
-    def module(cls):
-        return cls
-
-    @hybrid_property
     def start_at_ts(self):
         dt = datetime.strptime('%sT%s' % (
             onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
@@ -203,7 +153,7 @@ class ClassesTs(Classes):
 
     @hybrid_property
     def q(self):
-        return ', '.join((self.program_module.module.name, self.branch.name, self.day, self.start_at, self.finish_at,
+        return ', '.join((self.module.name, self.branch.name, self.day, self.start_at, self.finish_at,
                           self.tutor.username, self.tutor.name))
 
     @q.expression
@@ -212,30 +162,6 @@ class ClassesTs(Classes):
 
 
 class Exports(ClassStudents):
-    @hybrid_property
-    def program_name(self):
-        return self.class_.program_module.program.type.name
-
-    @program_name.expression
-    def program_name(cls):
-        return Classes.program_module
-
-    @hybrid_property
-    def program(self):
-        return self.class_.program_module.program.name
-
-    @program.expression
-    def program(cls):
-        return Classes.program_module
-
-    @hybrid_property
-    def module(self):
-        return self.class_.program_module.module.name
-
-    @module.expression
-    def module(cls):
-        return Classes.program_module
-
     @hybrid_property
     def branch(self):
         return self.class_.branch.name

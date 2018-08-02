@@ -70,7 +70,7 @@ def schedules():
 
   def exclude_dummies_non_tester(v):
     if 'tester' not in user.username:
-      return 'dummies' not in v.program_module.module.name
+      return 'dummies' not in v.module.name
     else:
       return True
 
@@ -85,15 +85,12 @@ def schedules():
 
     w.update({
       'branch': dict(v.branch),
-      'program_module': dict(v.program_module),
+      'module': dict(v.module),
       'q': v.q,
       'tutor': dict(v.tutor),
       'finish_at_ts': v.finish_at_ts,
       'start_at_ts': v.start_at_ts,
       'last_sessions': last_session(v),
-    })
-    w['program_module'].update({
-      'module': dict(v.program_module.module),
     })
     return w
 

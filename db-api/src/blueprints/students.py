@@ -42,11 +42,8 @@ def students():
     })
     w['session']['class'].update({
       'branch': dict(v.session.class_.branch),
-      'program_module': dict(v.session.class_.program_module),
+      'module': dict(v.session.class_.module),
       'students': map(lambda vv: dict(vv), v.session.class_.students),
-    })
-    w['session']['class']['program_module'].update({
-      'module': dict(v.session.class_.program_module.module)
     })
 
     for ii, vv in enumerate(v.session.class_.students):

@@ -1,9 +1,9 @@
 <template lang="pug">
   li.mdc-list-item
     .mdc-list-item__graphic
-      my-img(:src="item.program_module.module.image" myIs="module")
+      my-img(:src="item.module.image" myIs="module")
     span.mdc-list-item__text
-      placeholder(:value="item.program_module.module.name")
+      placeholder(:value="item.module.name")
       placeholder(:value="item.branch.name").mdc-list-item__secondary-text
       span.mdc-list-item__secondary-text
         placeholder(:value="item.start_at")

@@ -1,6 +1,6 @@
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, Branches, Classes, ClassStudents, Modules, ProgramTypes, Programs, \
-  ProgramsModules, Sessions, SessionsTutors, SessionsTutorsStudents, \
+from tables import Users, Branches, Classes, ClassStudents, Modules, \
+  Sessions, SessionsTutors, SessionsTutorsStudents, \
   Exports, ClassesTs
 import os
 import pprint
@@ -63,9 +63,6 @@ DOMAIN = DomainConfig({
   'classes': ResourceConfig(Classes),
   'class_students': ResourceConfig(ClassStudents),
   'modules': ResourceConfig(Modules),
-  'program_types': ResourceConfig(ProgramTypes),
-  'programs': ResourceConfig(Programs),
-  'programs_modules': ResourceConfig(ProgramsModules),
   'sessions': ResourceConfig(Sessions),
   'sessions_tutors': ResourceConfig(SessionsTutors),
   'sessions_tutors_students': ResourceConfig(SessionsTutorsStudents),
@@ -76,37 +73,25 @@ DOMAIN = DomainConfig({
 DOMAIN['classes']['schema']['branch']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes']['schema']['program_module']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes']['schema']['module']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes'].update({u'embedded_fields': [
   # 'branch',
   # 'tutor', 'tutor',
   # 'students', 'students.student', 'students.student',
-  # 'program_module', 'program_module.module', 'program_module.program',
-  # 'program_module.program.type'
+  # 'module'
 ]})
 DOMAIN['classes_ts']['schema']['branch']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes_ts']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes_ts']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes_ts']['schema']['program_module']['data_relation'].update({u'embeddable': True})
+DOMAIN['classes_ts']['schema']['module']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes_ts'].update({u'embedded_fields': [
   'branch',
-  'tutor', 'tutor',
+  'tutor',
+  'module',
   # 'students', 'students.student', 'students.student',
 ]})
-DOMAIN['programs_modules']['schema']['module']['data_relation'].update({u'embeddable': True})
-DOMAIN['programs_modules']['schema']['program']['data_relation'].update({u'embeddable': True})
 DOMAIN['class_students']['schema']['student']['data_relation'].update({u'embeddable': True})
 DOMAIN['class_students']['schema']['class_']['data_relation'].update({u'embeddable': True})
-DOMAIN['programs']['schema']['type']['data_relation'].update({u'embeddable': True})
-DOMAIN['programs']['schema']['modules']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['programs'].update({u'embedded_fields': [
-  # 'type',
-  # 'modules', 'modules.module'
-]})
-DOMAIN['modules']['schema']['programs']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['modules'].update({u'embedded_fields': [
-  # 'programs', 'programs.program', 'programs.program.type'
-]})
 DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions'].update({u'embedded_fields': [
   'session_tutors', 'session_tutors.tutor', 'session_tutors.tutor',
