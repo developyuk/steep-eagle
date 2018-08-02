@@ -10,7 +10,7 @@
         | &nbsp;-&nbsp;
         placeholder(:value="item.finish_at")
       span.mdc-list-item__secondary-text.tutor(v-if="!item.last_sessions || (!!item.last_sessions && !item.last_sessions.length)") Tutor:&nbsp;
-        placeholder(:value="item.tutor.profile.name")
+        placeholder(:value="item.tutor.name")
       span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_sessions && !!item.last_sessions.length") Class started by&nbsp;
         placeholder(:value="parseLastSessionTutorName(item.last_sessions)")
     button-status(:class_="item" @click-start="onClickStart")

@@ -22,9 +22,6 @@ def last_session(class_):
     w.update({
       'tutor': dict(v.tutor),
     })
-    w['tutor'].update({
-      'profile': dict(v.tutor.profile),
-    })
     return w
 
   def parse(v):
@@ -94,9 +91,6 @@ def schedules():
       'finish_at_ts': v.finish_at_ts,
       'start_at_ts': v.start_at_ts,
       'last_sessions': last_session(v),
-    })
-    w['tutor'].update({
-      'profile': dict(v.tutor.profile),
     })
     w['program_module'].update({
       'module': dict(v.program_module.module),

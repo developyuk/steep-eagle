@@ -1,20 +1,14 @@
--- truncate all table
-SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;'
-FROM information_schema.tables
-WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
 DROP TABLE IF EXISTS branches CASCADE;
-DROP TABLE IF EXISTS users_profile CASCADE;
-DROP TABLE IF EXISTS programs_modules CASCADE;
-DROP TABLE IF EXISTS programs CASCADE;
+DROP TABLE IF EXISTS classes CASCADE;
+DROP TABLE IF EXISTS class_students CASCADE;
 DROP TABLE IF EXISTS modules CASCADE;
+DROP TABLE IF EXISTS programs CASCADE;
+DROP TABLE IF EXISTS programs_modules CASCADE;
 DROP TABLE IF EXISTS program_types CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS sessions_tutors CASCADE;
 DROP TABLE IF EXISTS sessions_tutors_students CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS classes CASCADE;
-DROP TABLE IF EXISTS sessions_tutors CASCADE;
-DROP TABLE IF EXISTS sessions CASCADE;
-DROP TABLE IF EXISTS class_students CASCADE;
-DROP TABLE IF EXISTS sessions_students CASCADE;
 
 
 DROP TYPE IF EXISTS DAYS CASCADE;
@@ -44,7 +38,7 @@ CREATE TABLE programs (
 CREATE TABLE modules (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL UNIQUE,
-  image    TEXT NULL,
+  image    TEXT,
   _created TIMESTAMP DEFAULT NOW(),
   _updated TIMESTAMP DEFAULT NOW(),
   _etag    TEXT
@@ -63,7 +57,7 @@ CREATE TABLE programs_modules (
 CREATE TABLE branches (
   id       BIGSERIAL PRIMARY KEY,
   name     TEXT NOT NULL UNIQUE,
-  address  TEXT NULL,
+  address  TEXT,
   _created TIMESTAMP DEFAULT NOW(),
   _updated TIMESTAMP DEFAULT NOW(),
   _etag    TEXT
@@ -90,26 +84,19 @@ CREATE TYPE ROLES AS ENUM (
 CREATE TABLE users (
   id       BIGSERIAL PRIMARY KEY,
   username TEXT  NOT NULL,
-  email    TEXT  NULL,
-  pass     TEXT  NULL,
-  ROLE     ROLES NOT NULL,
+  email    TEXT,
+  pass     TEXT,
+  role     ROLES NOT NULL,
+  name    TEXT,
+  dob     TEXT,
+  photo   TEXT,
+  user_id INT REFERENCES users (id),
   _created TIMESTAMP DEFAULT NOW(),
   _updated TIMESTAMP DEFAULT NOW(),
   _etag    TEXT,
   UNIQUE (
     username
     , email
-  )
-);
-
-CREATE TABLE users_profile (
-  name    TEXT NULL,
-  dob     TEXT NULL,
-  photo   TEXT NULL,
-  user_id INT REFERENCES users (id),
-  UNIQUE (
-    name
-    , user_id
   )
 );
 
@@ -191,14 +178,19 @@ CREATE TABLE sessions_tutors (
 
 CREATE TABLE sessions_tutors_students (
   id                 BIGSERIAL PRIMARY KEY,
-  status             BOOLEAN  NULL,
-  feedback           TEXT     NULL,
-  rating_interaction SMALLINT NULL,
-  rating_cognition   SMALLINT NULL,
-  rating_creativity  SMALLINT NULL,
+  status             BOOLEAN ,
+  feedback           TEXT    ,
+  rating_interaction SMALLINT,
+  rating_cognition   SMALLINT,
+  rating_creativity  SMALLINT,
   session_tutor_id   INT REFERENCES sessions_tutors (id),
   student_id         INT REFERENCES users (id),
   _created           TIMESTAMP DEFAULT NOW(),
   _updated           TIMESTAMP DEFAULT NOW(),
   _etag    TEXT
 );
+
+SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;'
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;

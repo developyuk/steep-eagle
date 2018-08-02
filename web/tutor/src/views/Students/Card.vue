@@ -2,13 +2,13 @@
   li#card(:data-index="index" :data-sid="stid" :data-student="student" :data-isActive="isActive")
     .mdc-list-item
       .mdc-list-item__graphic
-        my-img(:src="student.profile.photo" myIs="profile")
+        my-img(:src="student.photo" myIs="profile")
       span.mdc-list-item__text
-        placeholder(:value="student.profile.name")
+        placeholder(:value="student.name")
     hr.mdc-list-divider(v-if="isActive")
 
     //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    component(:is="currentComponent" :stid="stid" :uid="student.id" :name="student.profile.name")
+    component(:is="currentComponent" :stid="stid" :uid="student.id" :name="student.name")
 </template>
 
 <script>
@@ -78,7 +78,7 @@
       //                      et: response.data._etag,
       //                    },
       //                    uid: this.student.id,
-      //                    name: this.student.profile.name,
+      //                    name: this.student.name,
       //                    by: this.currentAuth,
       //                    on: "successRateReview",
       //                  }));
@@ -99,7 +99,7 @@
           this.$emit('tap-student', {
             sid: this.stid,
             uid: this.student.id,
-            name: this.student.profile.name,
+            name: this.student.name,
           });
         });
     }

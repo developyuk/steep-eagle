@@ -45,7 +45,7 @@ def auth():
       'username': user.username,
       'email': user.email,
       'role': user.role,
-      'photo': user.profile.photo,
+      'photo': user.photo,
     })
   except Exception as e:
     return jsonify({

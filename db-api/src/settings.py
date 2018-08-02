@@ -1,5 +1,5 @@
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, UsersProfile, Branches, Classes, ClassStudents, Modules, ProgramTypes, Programs, \
+from tables import Users, Branches, Classes, ClassStudents, Modules, ProgramTypes, Programs, \
   ProgramsModules, Sessions, SessionsTutors, SessionsTutorsStudents, \
   Exports, ClassesTs
 import os
@@ -32,6 +32,22 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 PAGINATION_DEFAULT = 8
 JSONIFY_PRETTYPRINT_REGULAR = False
+SWAGGER_INFO = {
+    'title': 'My Supercool API',
+    'version': '1.0',
+    'description': 'an API description',
+    'termsOfService': 'my terms of service',
+    'contact': {
+        'name': 'nicola',
+        'url': 'http://nicolaiarocci.com'
+    },
+    'license': {
+        'name': 'BSD',
+        'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
+    },
+    'schemes': ['http', 'https'],
+}
+ENFORCE_IF_MATCH = True
 
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned
@@ -43,7 +59,6 @@ JSONIFY_PRETTYPRINT_REGULAR = False
 # The default schema is generated using DomainConfig:
 DOMAIN = DomainConfig({
   'users': ResourceConfig(Users),
-  'users_profile': ResourceConfig(UsersProfile),
   'branches': ResourceConfig(Branches),
   'classes': ResourceConfig(Classes),
   'class_students': ResourceConfig(ClassStudents),
@@ -58,16 +73,14 @@ DOMAIN = DomainConfig({
   'classes_ts': ResourceConfig(ClassesTs),
 }).render()
 
-DOMAIN['users']['schema']['profile']['data_relation'].update({u'embeddable': True})
-DOMAIN['users'].update({u'embedded_fields': ['profile']})
 DOMAIN['classes']['schema']['branch']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['program_module']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes'].update({u'embedded_fields': [
   # 'branch',
-  # 'tutor', 'tutor.profile',
-  # 'students', 'students.student', 'students.student.profile',
+  # 'tutor', 'tutor',
+  # 'students', 'students.student', 'students.student',
   # 'program_module', 'program_module.module', 'program_module.program',
   # 'program_module.program.type'
 ]})
@@ -77,8 +90,8 @@ DOMAIN['classes_ts']['schema']['students']['schema']['data_relation'].update({u'
 DOMAIN['classes_ts']['schema']['program_module']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes_ts'].update({u'embedded_fields': [
   'branch',
-  'tutor', 'tutor.profile',
-  # 'students', 'students.student', 'students.student.profile',
+  'tutor', 'tutor',
+  # 'students', 'students.student', 'students.student',
 ]})
 DOMAIN['programs_modules']['schema']['module']['data_relation'].update({u'embeddable': True})
 DOMAIN['programs_modules']['schema']['program']['data_relation'].update({u'embeddable': True})
@@ -96,9 +109,9 @@ DOMAIN['modules'].update({u'embedded_fields': [
 ]})
 DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions'].update({u'embedded_fields': [
-  'session_tutors', 'session_tutors.tutor', 'session_tutors.tutor.profile',
+  'session_tutors', 'session_tutors.tutor', 'session_tutors.tutor',
   # 'session_tutors.session_students', 'session_tutors.session_students.student',
-  # 'session_tutors.session_students.student.profile'
+  # 'session_tutors.session_students.student'
 ]})
 DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update({u'embeddable': True})

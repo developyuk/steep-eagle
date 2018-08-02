@@ -53,9 +53,6 @@ def students():
       w['session']['class']['students'][ii].update({
         'student': dict(vv.student)
       })
-      w['session']['class']['students'][ii]['student'].update({
-        'profile': dict(vv.student.profile)
-      })
     return w
 
   sessions = map(parse, sessions)
