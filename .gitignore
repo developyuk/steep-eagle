@@ -1,8 +1,9 @@
-web/nginx-log
+/.idea/
+/.vscode/
+/migrate/*.csv
+/web/nginx-log
 **/letsencrypt
-.idea
 .env
 client-secret.json
 *.old*
 *-lock.json
-migrate/*.csv
