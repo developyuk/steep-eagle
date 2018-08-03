@@ -84,3 +84,15 @@ services:
       - "80"
     labels:
       - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/docs"
+  file:
+    image: minio/minio
+    volumes:
+      - ./file/data:/data
+      - ./file/config:/root/.minio
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    command: server /data
+    labels:
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/file"
+      - "traefik.port=9000"

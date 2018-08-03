@@ -25,7 +25,7 @@ CACHE_CONTROL = 'max-age=10,must-revalidate'
 CACHE_EXPIRES = 10
 # X_ALLOW_CREDENTIALS = True
 # X_HEADERS = '*'
-X_HEADERS = ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match']
+X_HEADERS = ['Authorization', 'Content-Type', 'If-Match', 'If-None-Match','Cache-Control']
 
 DEBUG = os.environ['DEBUG']
 JWT_SECRET = os.environ['JWT_SECRET']
@@ -48,6 +48,7 @@ SWAGGER_INFO = {
     'schemes': ['http', 'https'],
 }
 ENFORCE_IF_MATCH = True
+UPLOAD_FOLDER = '/tmp/'
 
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned
@@ -70,6 +71,7 @@ DOMAIN = DomainConfig({
   'classes_ts': ResourceConfig(ClassesTs),
 }).render()
 
+DOMAIN['modules'].update({u'allow_unknown': True})
 DOMAIN['classes']['schema']['branch']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})

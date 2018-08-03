@@ -27,9 +27,23 @@ services:
       - JWT_SECRET=${JWT_KEY}
       - JWT_ISSUER=skilmu
       - DEBUG=1
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - HOST=${HOST}
     depends_on:
       - db
     command: gunicorn -b 0.0.0.0:3000 --reload main:app
+  file:
+    image: minio/minio
+    volumes:
+      - ./file/data:/data
+      - ./file/config:/root/.minio
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"
+    command: server /data
   db-admin:
     image: adminer
     ports:

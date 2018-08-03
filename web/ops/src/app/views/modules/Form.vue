@@ -16,115 +16,130 @@
           .form-group
             label.col-sm-2.control-label Image
             .col-sm-9
-              input.form-control(type="file" name="image" v-validate="modelValidations.image")
-              small.text-danger(v-show="image.invalid")
-                | {{ getError('image') }}
+              input.form-control(type="file" name="fimage" v-validate="modelValidations.fimage" @change="onChangeImage")
+              small.text-danger(v-show="fimage.invalid")
+                | {{ getError('fimage') }}
 
       .card-footer.text-center
         .row
           .col-sm-4.col-sm-offset-2
-            router-link.btn.btn-outline.btn-wd(to="/admin/modules") Cancel
+            router-link.btn.btn-outline.btn-wd(to="/admin/modules") back
           .col-sm-4
             button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Validate inputs
 
 </template>
 <script>
-  import {mapFields} from 'vee-validate'
-  import axios from 'axios'
-  import mixinNotify from 'src/app/mixins/notify'
+import { mapFields } from "vee-validate";
+import axios from "axios";
+import mixinNotify from "src/app/mixins/notify";
 
-  export default {
-    computed: {
-      ...mapFields(['name', 'image'])
-    },
-    mixins: [mixinNotify],
-    data() {
-      return {
-        isCreate: true,
-        model: {
-          name: '',
-          image: '',
-        },
-        modelValidations: {
-          name: {
-            required: true
-          },
-          image: {
-            required: true
-          },
-        }
-      }
-    },
-    methods: {
-      getError(fieldName) {
-        return this.errors.first(fieldName)
+export default {
+  computed: {
+    ...mapFields(["name", "fimage"])
+  },
+  mixins: [mixinNotify],
+  data() {
+    return {
+      isCreate: true,
+      model: {
+        name: "",
+        fimage: null
       },
-      validate() {
-        this.$validator.validateAll().then(isValid => {
-          const data = {
-            name: this.model.name,
-            image: this.model.image,
-          };
-          if (this.isCreate) {
-            axios.post(`${process.env.DBAPI}/branches`, data)
-              .then(response => {
-                this.model._etag = response.data._etag;
-                this.notifyVue({
-                  component: {
-                    template: `<span>Success created</span>`
-                  },
-                  type: 'success'
-                })
-              })
-              .catch(error => {
-                console.log(error, error.response)
-                this.notifyVue({
-                  component: {
-                    template: `<span>Fail created</span>`
-                  },
-                  type: 'danger'
-                })
-              })
-          } else {
-            const config = {
-              headers: {'If-Match': this.model._etag}
-            };
-            axios.patch(`${process.env.DBAPI}/branches/${this.model.id}`, data, config)
-              .then(response => {
-                this.model._etag = response.data._etag;
-
-                this.notifyVue({
-                  component: {
-                    template: `<span>Success updated</span>`
-                  },
-                  type: 'success'
-                })
-              })
-              .catch(error => {
-                console.log(error, error.response)
-                this.notifyVue({
-                  component: {
-                    template: `<span>Fail updated</span>`
-                  },
-                  type: 'danger'
-                })
-              })
-          }
-        })
+      modelValidations: {
+        name: {
+          required: true
+        },
+        fimage: {}
       }
+    };
+  },
+  methods: {
+    onChangeImage(e) {
+      this.model.fimage = e.target.files[0];
     },
-    mounted() {
-      const id = this.$route.params.id;
-      if (id) {
-        this.isCreate = false;
-        axios.get(`${process.env.DBAPI}/modules/${id}`, {headers: {'If-None-Match': this.model._etag}})
-          .then(response => {
-            this.model = response.data;
-          })
-          .catch(error => console.log(error, error.response))
-      }
+    getError(fieldName) {
+      return this.errors.first(fieldName);
+    },
+    validate() {
+      this.$validator.validateAll().then(isValid => {
+        const data = new FormData();
+        data.append("name", this.model.name);
+        if (this.model.fimage) {
+          data.append("fimage", this.model.fimage);
+        }
+        const config = {
+          headers: {
+            "If-Match": this.model._etag,
+            "Content-Type": "multipart/form-data"
+          }
+        };
+
+        if (this.isCreate) {
+          axios
+            .post(`${process.env.DBAPI}/modules`, data, config)
+            .then(response => {
+              this.model._etag = response.data._etag;
+              this.notifyVue({
+                component: {
+                  template: `<span>Success created</span>`
+                },
+                type: "success"
+              });
+            })
+            .catch(error => {
+              console.log(error, error.response);
+              this.notifyVue({
+                component: {
+                  template: `<span>Fail created</span>`
+                },
+                type: "danger"
+              });
+            });
+        } else {
+          axios
+            .patch(
+              `${process.env.DBAPI}/modules/${this.model.id}`,
+              data,
+              config
+            )
+            .then(response => {
+              this.model._etag = response.data._etag;
+
+              this.notifyVue({
+                component: {
+                  template: `<span>Success updated</span>`
+                },
+                type: "success"
+              });
+            })
+            .catch(error => {
+              console.log(error, error.response);
+              this.notifyVue({
+                component: {
+                  template: `<span>Fail updated</span>`
+                },
+                type: "danger"
+              });
+            });
+        }
+      });
+    }
+  },
+  mounted() {
+    const id = this.$route.params.id;
+    if (id) {
+      this.isCreate = false;
+      axios
+        .get(`${process.env.DBAPI}/modules/${id}`, {
+          headers: { "If-None-Match": this.model._etag }
+        })
+        .then(response => {
+          this.model = response.data;
+        })
+        .catch(error => console.log(error, error.response));
     }
   }
+};
 </script>
 <style>
 </style>

@@ -25,7 +25,7 @@
           drop-down(tag='li' title='5' icon='ti-bell')
             template(slot="title")
               a.dropdown-toggle.btn-rotate(data-toggle='dropdown' href='javascript:void(0)')
-                i(:class='icon')
+                i(class='icon')
                 p.notification
                   my-img(:src="currentAuth.photo")
                   b.caret
