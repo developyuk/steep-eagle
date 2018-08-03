@@ -33,18 +33,18 @@ JWT_ISSUER = os.environ['JWT_ISSUER']
 PAGINATION_DEFAULT = 8
 JSONIFY_PRETTYPRINT_REGULAR = False
 SWAGGER_INFO = {
-    'title': 'My Supercool API',
+    'title': 'M Codingcamp API',
     'version': '1.0',
-    'description': 'an API description',
-    'termsOfService': 'my terms of service',
+    'description': 'For https://mtutor.codingcamp.id and https://mops.codingcamp.id',
+    # 'termsOfService': 'my terms of service',
     'contact': {
-        'name': 'nicola',
-        'url': 'http://nicolaiarocci.com'
+        'name': 'developyuk',
+        'url': 'https://www.developyuk.com/'
     },
-    'license': {
-        'name': 'BSD',
-        'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
-    },
+    # 'license': {
+    #     'name': 'BSD',
+    #     'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
+    # },
     'schemes': ['http', 'https'],
 }
 ENFORCE_IF_MATCH = True

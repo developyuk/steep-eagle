@@ -75,3 +75,13 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     restart: unless-stopped
     command: --api --docker
+  api-docs:
+    image: swaggerapi/swagger-ui
+    environment:
+      - API_URL=https://${HOST}/api/api-docs
+      - BASE_URL=/api
+      - PORT=80
+    expose:
+      - "80"
+    labels:
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/docs"

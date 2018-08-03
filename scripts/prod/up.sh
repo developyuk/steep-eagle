@@ -22,5 +22,5 @@ sh ./scripts/prod/down.sh
 # sleep 13
 
 docker-compose -f docker-compose-prod.yml build
-docker-compose -f docker-compose-prod.yml up -d --scale db-api=2 --remove-orphans
+docker-compose -f docker-compose-prod.yml up -d --scale db-api=5 --remove-orphans
 docker-compose -f docker-compose-prod.yml logs --follow --tail 50
