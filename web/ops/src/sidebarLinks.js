@@ -35,13 +35,7 @@ export default [
         path: '/admin/users'
       },
     ]
-  },
-  {
-    name: 'Settings',
-    icon: 'ti-panel',
-    // collapsed: false,
-    path: '/settings'
-  },
+  }
 ]
 
 // export default [

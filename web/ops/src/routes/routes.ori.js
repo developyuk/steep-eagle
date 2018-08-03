@@ -1,4 +1,4 @@
-// import DashboardLayout from '../views/DashboardLayout.vue'
+import DashboardLayout from '../components/Dashboard/Layout/DashboardLayout.vue'
 // GeneralViews
 import NotFound from '../components/GeneralViews/NotFoundPage.vue'
 // Dashboard pages
@@ -8,8 +8,7 @@ import Stats from 'src/components/Dashboard/Views/Dashboard/Stats.vue'
 // Pages
 import User from 'src/components/Dashboard/Views/Pages/UserProfile.vue'
 import TimeLine from 'src/components/Dashboard/Views/Pages/TimeLinePage.vue'
-// import Login from 'src/components/Dashboard/Views/Pages/Login.vue'
-
+import Login from 'src/components/Dashboard/Views/Pages/Login.vue'
 import Register from 'src/components/Dashboard/Views/Pages/Register.vue'
 import Lock from 'src/components/Dashboard/Views/Pages/Lock.vue'
 
@@ -31,7 +30,7 @@ import Wizard from 'src/components/Dashboard/Views/Forms/Wizard.vue'
 // TableList pages
 import RegularTables from 'src/components/Dashboard/Views/Tables/RegularTables.vue'
 import ExtendedTables from 'src/components/Dashboard/Views/Tables/ExtendedTables.vue'
-// import PaginatedTables from 'src/components/Dashboard/Views/Tables/PaginatedTables.vue'
+import PaginatedTables from 'src/components/Dashboard/Views/Tables/PaginatedTables.vue'
 // Maps pages
 import GoogleMaps from 'src/components/Dashboard/Views/Maps/GoogleMaps.vue'
 import FullScreenMap from 'src/components/Dashboard/Views/Maps/FullScreenMap.vue'
@@ -193,193 +192,50 @@ let lockPage = {
   name: 'Lock',
   component: Lock
 }
-import DashboardLayout from 'src/app/DashboardLayout.vue'
-import Login from 'src/app/views/Login.vue'
-import PaginatedTables from 'src/app/components/PaginatedTables.vue'
-import Branches from '@/app/views/branches/Branches';
-import BranchForm from '@/app/views/branches/Form';
-import Modules from '@/app/views/modules/Modules';
-import ModuleForm from '@/app/views/modules/Form';
-import Classes from '@/app/views/classes/Classes';
 
 const routes = [
   {
-    path: '/sign',
-    component: Login,
-  },
-  {
     path: '/',
     component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
-    },
+    redirect: '/admin/overview',
     children: [
       {
-        path: '',
-        name: 'Dashboard Page',
-        component: Overview
+        path: 'calendar',
+        name: 'Calendar',
+        component: Calendar
       },
+      {
+        path: 'charts',
+        name: 'Charts',
+        component: Charts
+      }
     ]
   },
-  {
-    path: '/dashboard',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
-    },
-    children: [
-      {
-        path: '',
-        name: 'Dashboard Page',
-        component: Overview
-      },
-    ]
-  },
-  {
-    path: '/activites',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
-    },
-    children: [
-      {
-        path: '',
-        name: 'Dashboard Page',
-        component: Overview
-      },
-    ]
-  },
-  {
-    path: '/schedules',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
-    },
-    children: [
-      {
-        path: '',
-        component: Classes,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'create',
-        component: ValidationForms,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: ':id/edit',
-        component: ValidationForms,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-    ]
-  },
+  componentsMenu,
+  formsMenu,
+  tablesMenu,
+  mapsMenu,
+  pagesMenu,
+  loginPage,
+  registerPage,
+  lockPage,
   {
     path: '/admin',
     component: DashboardLayout,
-    redirect: '/admin/modules',
+    redirect: '/admin/overview',
     children: [
       {
-        path: 'branches',
-        component: Branches,
-        meta: {
-          requiresAuth: true,
-        }
+        path: 'overview',
+        name: 'Overview',
+        component: Overview
       },
       {
-        path: 'branches/create',
-        component: BranchForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'branches/:id/edit',
-        component: BranchForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules',
-        component: Modules,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules/create',
-        component: ModuleForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules/:id/edit',
-        component: ModuleForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'users',
-        component: ExtendedTables,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-    ],
-    meta: {
-      requiresAuth: true,
-    }
+        path: 'stats',
+        name: 'Stats',
+        component: Stats
+      }
+    ]
   },
-  // {
-  //   path: '/',
-  //   component: DashboardLayout,
-  //   redirect: '/admin/overview',
-  //   children: [
-  //     {
-  //       path: 'calendar',
-  //       name: 'Calendar',
-  //       component: Calendar
-  //     },
-  //     {
-  //       path: 'charts',
-  //       name: 'Charts',
-  //       component: Charts
-  //     }
-  //   ]
-  // },
-  // componentsMenu,
-  // formsMenu,
-  // tablesMenu,
-  // mapsMenu,
-  // pagesMenu,
-  // loginPage,
-  // registerPage,
-  // lockPage,
-  // {
-  //   path: '/admin',
-  //   component: DashboardLayout,
-  //   redirect: '/admin/overview',
-  //   children: [
-  //     {
-  //       path: 'overview',
-  //       name: 'Overview',
-  //       component: Overview
-  //     },
-  //     {
-  //       path: 'stats',
-  //       name: 'Stats',
-  //       component: Stats
-  //     }
-  //   ]
-  // },
   {path: '*', component: NotFound}
 ]
 

@@ -59,7 +59,7 @@
 </script>
 
 <style scoped lang="scss">
-  @import "../assets/scss/shared";
+  @import "src/assets/scss/shared";
 
   .card {
     background-color: #F2F2F2;

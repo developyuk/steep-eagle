@@ -80,7 +80,7 @@
   import Vue from 'vue'
   import {Table, TableColumn, Select, Option} from 'element-ui'
   import PPagination from 'src/components/UIComponents/Pagination.vue'
-  import users from '../components/Dashboard/Views/Tables/users'
+  import users from 'src/components/Dashboard/Views/Tables/users'
 
   Vue.use(Table)
   Vue.use(TableColumn)

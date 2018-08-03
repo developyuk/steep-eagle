@@ -83,7 +83,7 @@
 
 </script>
 <style lang="scss">
-  @import "../../assets/scss/_shared.scss";
+  @import "src/assets/scss/_shared.scss";
 
   @media (min-width: 992px) {
     .navbar-search-form-mobile,

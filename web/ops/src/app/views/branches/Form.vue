@@ -15,14 +15,14 @@
       .card-footer.text-center
         .row
           .col-sm-4.col-sm-offset-2
-            router-link.btn.btn-outline.btn-wd(to="/admin/branches") Cancel
+            router-link.btn.btn-outline.btn-wd(to="/admin/branches") Back
           .col-sm-4
             button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Validate inputs
 </template>
 <script>
   import {mapFields} from 'vee-validate'
   import axios from 'axios'
-  import mixinNotify from '../mixins/notify'
+  import mixinNotify from 'src/app/mixins/notify'
 
   export default {
     computed: {

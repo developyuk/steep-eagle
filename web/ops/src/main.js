@@ -9,7 +9,7 @@ import App from './App.vue'
 // Plugins
 import GlobalComponents from './gloablComponents'
 import GlobalDirectives from './globalDirectives'
-import SideBar from './views/SidebarPlugin'
+import SideBar from './app/components/SidebarPlugin'
 
 // router setup
 import router from './routes/router'

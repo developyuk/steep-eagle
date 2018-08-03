@@ -15,7 +15,7 @@
 
 </template>
 <script>
-  import TopNavbar from './TopNavbar.vue'
+  import TopNavbar from './components/TopNavbar.vue'
   //  import ContentFooter from '../components/Dashboard/Layout/ContentFooter.vue'
   import DashboardContent from '../components/Dashboard/Layout/Content.vue'
   import UserMenu from 'src/components/UIComponents/SidebarPlugin/UserMenu.vue'
