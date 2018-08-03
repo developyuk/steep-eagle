@@ -21,7 +21,6 @@ services:
     build: ./db-api
     volumes:
       - ./db-api/src:/app
-      - /etc/letsencrypt:/etc/letsencrypt
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_KEY}
