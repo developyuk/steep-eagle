@@ -1,29 +1,27 @@
 version: '2'
 services:
-  api-main:
-    build: ./api-main
-    volumes:
-      - ./api-main:/project
-      - /etc/letsencrypt:/etc/letsencrypt
-    working_dir: /project
-    ports:
-      - "90:1323"
-    environment:
-      - JWT_KEY=${JWT_KEY}
-      - HOST=${HOST}
-      - HOST_DB_API=${HOST_DB_API}
-      - HOST_MQTT=${HOST_MQTT}
-      - BIN_APP_PORT=1323
-    depends_on:
-      - db-api
-    command: bash -c "go build main.go && ./main"
+  # api-main:
+  #   build: ./api-main
+  #   volumes:
+  #     - ./api-main:/project
+  #     - /etc/letsencrypt:/etc/letsencrypt
+  #   working_dir: /project
+  #   ports:
+  #     - "90:1323"
+  #   environment:
+  #     - JWT_KEY=${JWT_KEY}
+  #     - HOST=${HOST}
+  #     - HOST_DB_API=${HOST_DB_API}
+  #     - HOST_MQTT=${HOST_MQTT}
+  #     - BIN_APP_PORT=1323
+  #   depends_on:
+  #     - db-api
+  #   command: bash -c "go build main.go && ./main"
   db-api:
     build: ./db-api
     volumes:
       - ./db-api/src:/app
       - /etc/letsencrypt:/etc/letsencrypt
-    ports:
-      - "3000:3000"
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_KEY}
@@ -31,37 +29,47 @@ services:
       - DEBUG=0
     depends_on:
       - db
-    command: gunicorn -w 4 -b 0.0.0.0:3000 --certfile=/etc/letsencrypt/live/mtutor.codingcamp.id/fullchain.pem --keyfile=/etc/letsencrypt/live/mtutor.codingcamp.id/privkey.pem main:app
+    restart: unless-stopped
+    command: gunicorn -w 2 -b 0.0.0.0:80 main:app
+    labels:
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.com,mops.codingcamp.com;PathPrefixStrip:/api"
   db-admin:
     image: adminer
-    ports:
-      - "99:8080"
     depends_on:
       - db
+    labels:
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.com,mops.codingcamp.com;PathPrefixStrip:/dbadmin"
+      - "traefik.port=8080"
   db:
     build: ./db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-  nginx:
+    restart: unless-stopped
+  tutor:
     image: nginx
     volumes:
-      - ./web/tutor/dist:/usr/share/nginx/html/mtutor:ro
-      - ./web/ops/dist:/usr/share/nginx/html/mops:ro
-      - /etc/letsencrypt:/etc/letsencrypt
-      - ./web/ssl.conf:/etc/nginx/ssl.conf
-      - ./web/security.conf:/etc/nginx/security.conf
-      - ./web/basic.conf:/etc/nginx/basic.conf
-      - ./web/nginx.conf:/etc/nginx/nginx.conf
-      - ./web/tmpl.nginx-mtutor.conf:/etc/nginx/conf.d/default.conf.tmpl
-      - ./web/tmpl.nginx-mops.conf:/etc/nginx/conf.d/default-mops.conf.tmpl
-      - ./web/nginx-log:/var/log/nginx
-    environment:
-      - NGINX_HOST_0=mtutor.codingcamp.id
-      - NGINX_HOST_1=mops.codingcamp.id
-    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/default.conf.tmpl > /etc/nginx/conf.d/default.conf && envsubst < /etc/nginx/conf.d/default-mops.conf.tmpl > /etc/nginx/conf.d/default-mops.conf && nginx -g 'daemon off;'"
-#    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/default.conf.tmpl > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+      - ./web/tutor/dist:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    labels:
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.com"
+  ops:
+    image: nginx
+    volumes:
+      - ./web/ops/dist:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    labels:
+      - "traefik.frontend.rule=Host:mops.codingcamp.com"
+  proxy:
+    image: traefik
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - $PWD/traefik.toml:/etc/traefik/traefik.toml
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    command: --api --docker

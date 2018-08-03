@@ -1,0 +1,208 @@
+################################################################
+# Global configuration
+################################################################
+
+# Enable debug mode
+#
+# Optional
+# Default: false
+#
+# debug = true
+
+# Log level
+#
+# Optional
+# Default: "ERROR"
+#
+# logLevel = "DEBUG"
+
+# Entrypoints to be used by frontends that do not specify any entrypoint.
+# Each frontend can specify its own entrypoints.
+#
+# Optional
+# Default: ["http"]
+#
+# defaultEntryPoints = ["http", "https"]
+ defaultEntryPoints = ["https", "http"]
+
+################################################################
+# Entrypoints configuration
+################################################################
+
+# Entrypoints definition
+#
+# Optional
+# Default:
+[entryPoints]
+    [entryPoints.http]
+    address = ":80"
+    compress = true
+      [entryPoints.http.redirect]
+      regex = "^http://(.*)\.(codingcamp.id)/(.*)"
+      replacement = "https://$1.$2/$3"
+      permanent = true
+    [entryPoints.https]
+    address = ":443"
+    compress = true
+      [entryPoints.https.tls]
+      minVersion = "VersionTLS11"
+      cipherSuites = [
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_RSA_WITH_AES_256_GCM_SHA384",
+        "TLS_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_RSA_WITH_AES_256_CBC_SHA"
+#        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+#        "TLS_RSA_WITH_AES_256_GCM_SHA384"
+#
+#        "TLS_RSA_WITH_RC4_128_SHA",
+#        "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+#        "TLS_RSA_WITH_AES_128_CBC_SHA",
+#        "TLS_RSA_WITH_AES_256_CBC_SHA",
+#        "TLS_RSA_WITH_AES_128_CBC_SHA256",
+#        "TLS_RSA_WITH_AES_128_GCM_SHA256",
+#        "TLS_RSA_WITH_AES_256_GCM_SHA384",
+#        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+#        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+#        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+#        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+#        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+#        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+#        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+#        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+#        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+#        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+#        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+#        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+#        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+#        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+#        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305"
+      ]
+        [[entryPoints.https.tls.certificates]]
+        certFile = "/etc/letsencrypt/live/mtutor.codingcamp.id/fullchain.pem"
+        keyFile = "/etc/letsencrypt/live/mtutor.codingcamp.id/privkey.pem"
+      ]
+        [[entryPoints.https.tls.certificates]]
+        certFile = "/etc/letsencrypt/live/mops.codingcamp.id/fullchain.pem"
+        keyFile = "/etc/letsencrypt/live/mops.codingcamp.id/privkey.pem"
+
+################################################################
+# Traefik logs configuration
+################################################################
+
+# Traefik logs
+# Enabled by default and log to stdout
+#
+# Optional
+#
+# [traefikLog]
+
+# Sets the filepath for the traefik log. If not specified, stdout will be used.
+# Intermediate directories are created if necessary.
+#
+# Optional
+# Default: os.Stdout
+#
+# filePath = "log/traefik.log"
+
+# Format is either "json" or "common".
+#
+# Optional
+# Default: "common"
+#
+# format = "common"
+
+################################################################
+# Access logs configuration
+################################################################
+
+# Enable access logs
+# By default it will write to stdout and produce logs in the textual
+# Common Log Format (CLF), extended with additional fields.
+#
+# Optional
+#
+# [accessLog]
+
+# Sets the file path for the access log. If not specified, stdout will be used.
+# Intermediate directories are created if necessary.
+#
+# Optional
+# Default: os.Stdout
+#
+# filePath = "/path/to/log/log.txt"
+
+# Format is either "json" or "common".
+#
+# Optional
+# Default: "common"
+#
+# format = "common"
+
+################################################################
+# API and dashboard configuration
+################################################################
+
+# Enable API and dashboard
+[api]
+
+  # Name of the related entry point
+  #
+  # Optional
+  # Default: "traefik"
+  #
+  # entryPoint = "traefik"
+
+  # Enabled Dashboard
+  #
+  # Optional
+  # Default: true
+  #
+  # dashboard = false
+
+################################################################
+# Ping configuration
+################################################################
+
+# Enable ping
+[ping]
+
+  # Name of the related entry point
+  #
+  # Optional
+  # Default: "traefik"
+  #
+  # entryPoint = "traefik"
+
+################################################################
+# Docker configuration backend
+################################################################
+
+# Enable Docker configuration backend
+[docker]
+
+# Docker server endpoint. Can be a tcp or a unix socket endpoint.
+#
+# Required
+# Default: "unix:///var/run/docker.sock"
+#
+# endpoint = "tcp://10.10.10.10:2375"
+
+# Default domain used.
+# Can be overridden by setting the "traefik.domain" label on a container.
+#
+# Optional
+# Default: ""
+#
+# domain = "codingcamp.id"
+
+# Expose containers by default in traefik
+#
+# Optional
+# Default: true
+#
+# exposedByDefault = true

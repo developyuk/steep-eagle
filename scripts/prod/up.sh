@@ -22,5 +22,5 @@ echo "waiting mqtt server ready to connect"
 sleep 13
 
 sudo docker-compose -f docker-compose-prod.yml build
-sudo docker-compose -f docker-compose-prod.yml up -d
+sudo docker-compose -f docker-compose-prod.yml up -d --scale db-api=2
 sudo docker-compose -f docker-compose-prod.yml logs --follow --tail 50
