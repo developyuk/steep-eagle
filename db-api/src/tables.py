@@ -8,7 +8,7 @@ from pprint import pprint
 from datetime import datetime, timedelta
 from flask import current_app as app, jsonify
 from pytz import timezone
-from eve.methods.common import embedded_document
+# from eve.methods.common import embedded_document
 
 Base = declarative_base()
 
