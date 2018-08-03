@@ -30,15 +30,17 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    command: gunicorn -w 2 -b 0.0.0.0:80 main:app
+    expose:
+      - "80"
+    command: gunicorn -b 0.0.0.0:80 main:app
     labels:
-      - "traefik.frontend.rule=Host:mtutor.codingcamp.com,mops.codingcamp.com;PathPrefixStrip:/api"
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/api"
   db-admin:
     image: adminer
     depends_on:
       - db
     labels:
-      - "traefik.frontend.rule=Host:mtutor.codingcamp.com,mops.codingcamp.com;PathPrefixStrip:/dbadmin"
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/dbadmin"
       - "traefik.port=8080"
   db:
     build: ./db
@@ -53,14 +55,14 @@ services:
       - ./web/tutor/dist:/usr/share/nginx/html:ro
     restart: unless-stopped
     labels:
-      - "traefik.frontend.rule=Host:mtutor.codingcamp.com"
+      - "traefik.frontend.rule=Host:mtutor.codingcamp.id"
   ops:
     image: nginx
     volumes:
       - ./web/ops/dist:/usr/share/nginx/html:ro
     restart: unless-stopped
     labels:
-      - "traefik.frontend.rule=Host:mops.codingcamp.com"
+      - "traefik.frontend.rule=Host:mops.codingcamp.id"
   proxy:
     image: traefik
     ports:

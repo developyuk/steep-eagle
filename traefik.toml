@@ -38,9 +38,7 @@
     address = ":80"
     compress = true
       [entryPoints.http.redirect]
-      regex = "^http://(.*)\.(codingcamp.id)/(.*)"
-      replacement = "https://$1.$2/$3"
-      permanent = true
+      entryPoint = "https"
     [entryPoints.https]
     address = ":443"
     compress = true
@@ -85,7 +83,6 @@
         [[entryPoints.https.tls.certificates]]
         certFile = "/etc/letsencrypt/live/mtutor.codingcamp.id/fullchain.pem"
         keyFile = "/etc/letsencrypt/live/mtutor.codingcamp.id/privkey.pem"
-      ]
         [[entryPoints.https.tls.certificates]]
         certFile = "/etc/letsencrypt/live/mops.codingcamp.id/fullchain.pem"
         keyFile = "/etc/letsencrypt/live/mops.codingcamp.id/privkey.pem"
