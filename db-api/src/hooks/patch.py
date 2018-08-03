@@ -6,7 +6,7 @@ from werkzeug import secure_filename
 from minio import Minio
 from minio.error import ResponseError
 
-minioClient = Minio('%s:9000' % os.environ['HOST'],
+minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
                     access_key=os.environ['MINIO_ACCESS_KEY'],
                     secret_key=os.environ['MINIO_SECRET_KEY'],
                     secure=False)

@@ -26,6 +26,10 @@ services:
       - JWT_SECRET=${JWT_KEY}
       - JWT_ISSUER=skilmu
       - DEBUG=0
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - HOST=${HOST}
+      - HOST_IP=${HOST_IP}
     depends_on:
       - db
     restart: unless-stopped
@@ -89,10 +93,9 @@ services:
     volumes:
       - ./file/data:/data
       - ./file/config:/root/.minio
+    ports:
+      - "9000:9000"
     environment:
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
     command: server /data
-    labels:
-      - "traefik.frontend.rule=Host:mtutor.codingcamp.id,mops.codingcamp.id;PathPrefixStrip:/file"
-      - "traefik.port=9000"
