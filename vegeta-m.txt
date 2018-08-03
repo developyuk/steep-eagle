@@ -1,0 +1,11 @@
+GET https://mtutor.codingcamp.id/api/auth
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODN9.GHU-zA5M6cGsyPnEm6LkhsO0ATJV1XXNJy6Kmy9Gies
+
+GET https://mtutor.codingcamp.id/api/schedules
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODN9.GHU-zA5M6cGsyPnEm6LkhsO0ATJV1XXNJy6Kmy9Gies
+
+GET https://mtutor.codingcamp.id/api/classes_ts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODN9.GHU-zA5M6cGsyPnEm6LkhsO0ATJV1XXNJy6Kmy9Gies
+
+GET https://mtutor.codingcamp.id/api/students
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODN9.GHU-zA5M6cGsyPnEm6LkhsO0ATJV1XXNJy6Kmy9Gies
