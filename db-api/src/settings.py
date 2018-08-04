@@ -49,6 +49,7 @@ SWAGGER_INFO = {
 }
 ENFORCE_IF_MATCH = True
 UPLOAD_FOLDER = '/tmp/'
+PAGINATION_LIMIT = 9999
 
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned

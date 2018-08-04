@@ -98,28 +98,28 @@ export default {
       );
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
+        axios
+          .delete(`${process.env.DBAPI}/branches/${row.id}`, {
+            headers: { "if-match": row._etag }
+          })
+          .then(response => {
+            this.notifyVue({
+              component: {
+                template: `<span>Success deleted</span>`
+              },
+              type: "success"
+            });
+            this.getData();
+          })
+          .catch(error => {
+            this.notifyVue({
+              component: {
+                template: `<span>Fail deleted</span>`
+              },
+              type: "danger"
+            });
+          });
       }
-      axios
-        .delete(`${process.env.DBAPI}/branches/${row.id}`, {
-          headers: { "if-match": row._etag }
-        })
-        .then(response => {
-          this.notifyVue({
-            component: {
-              template: `<span>Success deleted</span>`
-            },
-            type: "success"
-          });
-          this.getData();
-        })
-        .catch(error => {
-          this.notifyVue({
-            component: {
-              template: `<span>Fail deleted</span>`
-            },
-            type: "danger"
-          });
-        });
     },
     getData() {
       const config = {

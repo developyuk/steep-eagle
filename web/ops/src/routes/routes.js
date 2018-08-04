@@ -201,6 +201,11 @@ import BranchForm from '@/app/views/branches/Form';
 import Modules from '@/app/views/modules/Modules';
 import ModuleForm from '@/app/views/modules/Form';
 import Classes from '@/app/views/classes/Classes';
+import ClassForm from '@/app/views/classes/Form';
+import Tutors from '@/app/views/users/Tutors';
+import TutorForm from '@/app/views/users/TutorForm';
+import Students from '@/app/views/users/Students';
+import StudentForm from '@/app/views/users/StudentForm';
 
 const routes = [
   {
@@ -265,17 +270,21 @@ const routes = [
       },
       {
         path: 'create',
-        component: ValidationForms,
+        component: ClassForm,
         meta: {
           requiresAuth: true,
         }
       },
       {
         path: ':id/edit',
-        component: ValidationForms,
+        component: ClassForm,
         meta: {
           requiresAuth: true,
         }
+      },
+      {
+        path: 'calendar',
+        component: Calendar
       },
     ]
   },
@@ -327,8 +336,43 @@ const routes = [
         }
       },
       {
-        path: 'users',
-        component: ExtendedTables,
+        path: 'tutors',
+        component: Tutors,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'tutors/create',
+        component: TutorForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'tutors/:id/edit',
+        component: TutorForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'students',
+        component: Students,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'students/create',
+        component: StudentForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'students/:id/edit',
+        component: StudentForm,
         meta: {
           requiresAuth: true,
         }
@@ -380,7 +424,7 @@ const routes = [
   //     }
   //   ]
   // },
-  {path: '*', component: NotFound}
+  { path: '*', component: NotFound }
 ]
 
 /**

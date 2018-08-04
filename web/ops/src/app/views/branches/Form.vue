@@ -17,7 +17,7 @@
           .col-sm-4.col-sm-offset-2
             router-link.btn.btn-outline.btn-wd(to="/admin/branches") Back
           .col-sm-4
-            button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Validate inputs
+            button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Submit
 </template>
 <script>
   import {mapFields} from 'vee-validate'

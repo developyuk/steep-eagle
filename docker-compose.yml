@@ -30,6 +30,7 @@ services:
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - HOST=${HOST}
+      - HOST_IP=${HOST_IP}
     depends_on:
       - db
     command: gunicorn -b 0.0.0.0:3000 --reload main:app

@@ -1,11 +1,11 @@
 <template lang="pug">
   .row
     .col-md-12
-      h4.title Modules
+      h4.title Tutors
     .col-md-12.card
       .card-header
         .buttons.text-right
-          router-link(to="/admin/modules/create").btn.btn-primary.btn-fill
+          router-link(to="/admin/tutors/create").btn.btn-primary.btn-fill
             span.btn-label: i.fa.fa-plus
             span Create
       .card-content.row
@@ -18,15 +18,10 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
-              template(slot-scope='props')
-                .img-container
-                  img(:src='props.row.image' :alt='props.row.name')
-            el-table-column(:key="tableColumns[1].label" :min-width="tableColumns[1].minWidth" :prop="tableColumns[1].prop" :label="tableColumns[1].label"  :className="tableColumns[1].className" :sortable="tableColumns[1].sortable" :labelClassName="tableColumns[1].labelClassName")
-
+            el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/modules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/admin/tutors/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                   i.ti-close
@@ -41,12 +36,14 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PPagination from "src/components/UIComponents/Pagination.vue";
 import axios from "axios";
 import _range from "lodash/range";
+import mixinNotify from "src/app/mixins/notify";
 
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
 export default {
+  mixins: [mixinNotify],
   components: {
     PPagination
   },
@@ -79,21 +76,35 @@ export default {
       },
       searchQuery: "",
       propsToSearch: ["name"],
-
       tableColumns: [
-        {
-          prop: "image",
-          label: "Image",
-          minWidth: 60
-        },
         {
           prop: "name",
           label: "Name",
           minWidth: 200,
-          className: "text-uppercase",
-          labelClassName: "text-capitalize",
+          className: "text-capitalize",
           sortable: true
-        }
+        },
+        {
+          prop: "username",
+          label: "Username",
+          minWidth: 200,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "email",
+          label: "Email",
+          minWidth: 200,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "photo",
+          label: "Photo",
+          minWidth: 200,
+          className: "text-capitalize",
+          sortable: true
+        },
       ],
       tableData: []
     };
@@ -108,9 +119,8 @@ export default {
       );
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
-
         axios
-          .delete(`${process.env.DBAPI}/modules/${row.id}`, {
+          .delete(`${process.env.DBAPI}/users/${row.id}`, {
             headers: { "if-match": row._etag }
           })
           .then(response => {
@@ -135,9 +145,10 @@ export default {
     getData() {
       const config = {
         params: {
-          sort:'-_updated',
           max_results: this.pagination.perPage,
-          page: this.pagination.currentPage
+          page: this.pagination.currentPage,
+          sort: '-_updated',
+          where: {role:'tutor'}
         },
         headers: {
           "cache-control": "no-cache"
@@ -152,7 +163,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.DBAPI}/modules`, config)
+        .get(`${process.env.DBAPI}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.pagination.total = response.data._meta.total;
@@ -166,13 +177,5 @@ export default {
   }
 };
 </script>
-<style scoped lang="scss">
-.img-container {
-  $size: 5rem;
-  width: $size;
-  height: $size;
-  img {
-    border-radius: 1rem;
-  }
-}
+<style>
 </style>

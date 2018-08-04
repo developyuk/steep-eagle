@@ -3,7 +3,7 @@
     form.form-horizontal
       .card-header
         h4.card-title
-          | Modules Form
+          | Tutor Form
       .card-content
         fieldset
           .form-group
@@ -13,19 +13,23 @@
               small.text-danger(v-show="name.invalid")
                 | {{ getError('name') }}
           .form-group
-            label.col-sm-2.control-label Image
+            label.col-sm-2.control-label Username
             .col-sm-9
-              input.form-control(type="file" name="fimage" v-validate="modelValidations.fimage" @change="onChangeImage")
-              small.text-danger(v-show="fimage.invalid")
-                | {{ getError('fimage') }}
-
+              input.form-control(type="text" name="username" v-validate="modelValidations.username" v-model="model.username")
+              small.text-danger(v-show="username.invalid")
+                | {{ getError('username') }}
+          .form-group
+            label.col-sm-2.control-label Email
+            .col-sm-9
+              input.form-control(type="email" name="email" v-validate="modelValidations.email" v-model="model.email")
+              small.text-danger(v-show="email.invalid")
+                | {{ getError('email') }}
       .card-footer.text-center
         .row
           .col-sm-4.col-sm-offset-2
-            router-link.btn.btn-outline.btn-wd(to="/admin/modules") Back
+            router-link.btn.btn-outline.btn-wd(to="/admin/tutors") Back
           .col-sm-4
             button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Submit
-
 </template>
 <script>
 import { mapFields } from "vee-validate";
@@ -34,7 +38,7 @@ import mixinNotify from "src/app/mixins/notify";
 
 export default {
   computed: {
-    ...mapFields(["name", "fimage"])
+    ...mapFields(["name", "username", "email"])
   },
   mixins: [mixinNotify],
   data() {
@@ -42,41 +46,37 @@ export default {
       isCreate: true,
       model: {
         name: "",
-        fimage: null
+        username: "",
+        email: ""
       },
       modelValidations: {
         name: {
           required: true
         },
-        fimage: {
-          image: true
+        username: {
+          required: true
+        },
+        email: {
+          email:true
         }
       }
     };
   },
   methods: {
-    onChangeImage(e) {
-      this.model.fimage = e.target.files[0];
-    },
     getError(fieldName) {
       return this.errors.first(fieldName);
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
-        const data = new FormData();
-        data.append("name", this.model.name);
-        if (this.model.fimage) {
-          data.append("fimage", this.model.fimage);
-        }
-        const config = {
-          headers: {
-            "If-Match": this.model._etag
-          }
+        const data = {
+          name: this.model.name,
+          username: this.model.username,
+          email: this.model.email,
+          role: "tutor",
         };
-
         if (this.isCreate) {
           axios
-            .post(`${process.env.DBAPI}/modules`, data, config)
+            .post(`${process.env.DBAPI}/users`, data)
             .then(response => {
               this.model._etag = response.data._etag;
               this.notifyVue({
@@ -96,12 +96,11 @@ export default {
               });
             });
         } else {
+          const config = {
+            headers: { "If-Match": this.model._etag }
+          };
           axios
-            .patch(
-              `${process.env.DBAPI}/modules/${this.model.id}`,
-              data,
-              config
-            )
+            .patch(`${process.env.DBAPI}/users/${this.model.id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -130,7 +129,7 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.DBAPI}/modules/${id}`, {
+        .get(`${process.env.DBAPI}/users/${id}`, {
           headers: { "If-None-Match": this.model._etag }
         })
         .then(response => {

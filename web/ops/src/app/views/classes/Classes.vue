@@ -4,10 +4,18 @@
       h4.title Classes
     .col-md-12.card
       .card-header
-        .buttons.text-right
-          router-link(to="/schedules/create").btn.btn-primary.btn-fill
-            span.btn-label: i.fa.fa-plus
-            span Create
+        .buttons
+          .row
+            .col-sm-6
+              .btn-group
+                router-link(to="/schedules").btn.btn-primary.btn-icon.btn-fill
+                  i.fa.fa-list-ul
+                router-link(to="/schedules/calendar").btn.btn-primary.btn-icon
+                  i.fa.fa-calendar
+            .col-sm-6.text-right
+              router-link(to="/schedules/create").btn.btn-primary.btn-fill
+                span.btn-label: i.fa.fa-plus
+                span Create
       .card-content.row
         .col-sm-6
           el-select.select-default(v-model="pagination.perPage" placeholder="Per page")
@@ -50,153 +58,181 @@
           p-pagination.pull-right(v-model="pagination.currentPage" :per-page="pagination.perPage" :total="pagination.total")
 </template>
 <script>
-  import Vue from 'vue'
-  import {Table, TableColumn, Select, Option} from 'element-ui'
-  import PPagination from 'src/components/UIComponents/Pagination.vue'
-  import axios from 'axios'
-  import _range from 'lodash/range'
+import Vue from "vue";
+import { Table, TableColumn, Select, Option } from "element-ui";
+import PPagination from "src/components/UIComponents/Pagination.vue";
+import axios from "axios";
+import _range from "lodash/range";
+import mixinNotify from "src/app/mixins/notify";
 
-  Vue.use(Table)
-  Vue.use(TableColumn)
-  Vue.use(Select)
-  Vue.use(Option)
-  export default {
-    components: {
-      PPagination
+Vue.use(Table);
+Vue.use(TableColumn);
+Vue.use(Select);
+Vue.use(Option);
+export default {
+  mixins: [mixinNotify],
+  components: {
+    PPagination
+  },
+  computed: {
+    queriedData() {
+      return this.tableData;
     },
-    computed: {
-      queriedData() {
-        return this.tableData
-      },
-      to() {
-        let highBound = this.from + this.pagination.perPage
-        if (this.total < highBound) {
-          highBound = this.total
-        }
-        return highBound
-      },
-      from() {
-        this.getData();
-        return this.pagination.perPage * (this.pagination.currentPage - 1)
-      },
-      total() {
-        return this.pagination.total
+    to() {
+      let highBound = this.from + this.pagination.perPage;
+      if (this.total < highBound) {
+        highBound = this.total;
       }
+      return highBound;
     },
-    data() {
-      return {
-        pagination: {
-          perPage: 5,
-          currentPage: 1,
-          perPageOptions: [5, 10, 25, 50],
-          total: 0
-        },
-        searchQuery: '',
-        propsToSearch: ['start_at','finish_at'],
-        tableColumns: [
-//          {
-//            prop: 'module.image',
-//            label: 'Image',
-//            minWidth: 150
-//          },
-          {
-            prop: 'module.name',
-            label: 'Module',
-            minWidth: 150,
-            labelClassName: 'text-capitalize',
-            className: 'text-uppercase',
-            sortable: true
-          },
-          {
-            prop: 'branch.name',
-            label: 'Branch',
-            minWidth: 150,
-            className: 'text-capitalize',
-            sortable: true
-          },
-          {
-            prop: 'day',
-            label: 'Day',
-            minWidth: 100,
-            className: 'text-capitalize',
-            sortable: true
-          },
-          {
-            prop: 'start_at',
-            label: 'Start',
-            minWidth: 100,
-            sortable: true
-          },
-          {
-            prop: 'finish_at',
-            label: 'Finish',
-            minWidth: 100,
-            sortable: true
-          },
-        ],
-        tableData: []
-      }
-    },
-    methods: {
-      handleEdit(index, row) {
-        alert(`Your want to edit ${row.module.name}`)
-      },
-      handleDelete(index, row) {
-        let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id)
-        if (indexToDelete >= 0) {
-          this.tableData.splice(indexToDelete, 1)
-        }
-      },
-      getData() {
-        const config = {
-          params: {
-            max_results: this.pagination.perPage,
-            page: this.pagination.currentPage,
-          }
-        };
-        if (!!this.searchQuery) {
-          const qList = this.propsToSearch.map(v => {
-            const q = {};
-            q[v] = `ilike(\"%${this.searchQuery}%\")`
-            return q
-          });
-          config.params['where'] = {or_: qList}
-        }
-        axios.get(`${process.env.DBAPI}/classes_ts`, config)
-          .then(response => {
-            this.tableData = response.data._items;
-            this.pagination.total = response.data._meta.total
-            this.pagination.currentPage = response.data._meta.page
-          })
-          .catch(error => console.log(error, error.response))
-      }
-    },
-    mounted() {
+    from() {
       this.getData();
+      return this.pagination.perPage * (this.pagination.currentPage - 1);
+    },
+    total() {
+      return this.pagination.total;
     }
+  },
+  data() {
+    return {
+      pagination: {
+        perPage: 5,
+        currentPage: 1,
+        perPageOptions: [5, 10, 25, 50],
+        total: 0
+      },
+      searchQuery: "",
+      propsToSearch: ["start_at", "finish_at"],
+      tableColumns: [
+        //          {
+        //            prop: 'module.image',
+        //            label: 'Image',
+        //            minWidth: 150
+        //          },
+        {
+          prop: "module.name",
+          label: "Module",
+          minWidth: 150,
+          labelClassName: "text-capitalize",
+          className: "text-uppercase",
+          sortable: true
+        },
+        {
+          prop: "branch.name",
+          label: "Branch",
+          minWidth: 150,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "day",
+          label: "Day",
+          minWidth: 100,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "start_at",
+          label: "Start",
+          minWidth: 100,
+          sortable: true
+        },
+        {
+          prop: "finish_at",
+          label: "Finish",
+          minWidth: 100,
+          sortable: true
+        }
+      ],
+      tableData: []
+    };
+  },
+  methods: {
+    handleEdit(index, row) {
+      alert(`Your want to edit ${row.module.name}`);
+    },
+    handleDelete(index, row) {
+      let indexToDelete = this.tableData.findIndex(
+        tableRow => tableRow.id === row.id
+      );
+      if (indexToDelete >= 0) {
+        this.tableData.splice(indexToDelete, 1);
+
+        axios
+          .delete(`${process.env.DBAPI}/classes/${row.id}`, {
+            headers: { "if-match": row._etag }
+          })
+          .then(response => {
+            this.notifyVue({
+              component: {
+                template: `<span>Success deleted</span>`
+              },
+              type: "success"
+            });
+            this.getData();
+          })
+          .catch(error => {
+            this.notifyVue({
+              component: {
+                template: `<span>Fail deleted</span>`
+              },
+              type: "danger"
+            });
+          });
+      }
+    },
+    getData() {
+      const config = {
+        params: {
+          sort: '-_updated',
+          max_results: this.pagination.perPage,
+          page: this.pagination.currentPage
+        }
+      };
+      if (!!this.searchQuery) {
+        const qList = this.propsToSearch.map(v => {
+          const q = {};
+          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          return q;
+        });
+        config.params["where"] = { or_: qList };
+      }
+      axios
+        .get(`${process.env.DBAPI}/classes_ts`, config)
+        .then(response => {
+          this.tableData = response.data._items;
+          this.pagination.total = response.data._meta.total;
+          this.pagination.currentPage = response.data._meta.page;
+        })
+        .catch(error => console.log(error, error.response));
+    }
+  },
+  mounted() {
+    this.getData();
   }
+};
 </script>
 <style scoped lang="scss">
-
-  .img-container {
-    $size: 5rem;
-    width: $size;
-    height: $size;
-    img {
-      border-radius: 1rem;
-    }
+.img-container {
+  $size: 5rem;
+  width: $size;
+  height: $size;
+  img {
+    border-radius: 1rem;
   }
+}
 
-  .module {
-    font-size: 2rem;
-    text-transform: uppercase;
-  }
+.module {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
 
-  .branch, .time {
-    text-transform: capitalize;
-  }
+.branch,
+.time {
+  text-transform: capitalize;
+}
 
-  .time {
-    min-width: 16rem;
-  }
+.time {
+  min-width: 16rem;
+}
 </style>

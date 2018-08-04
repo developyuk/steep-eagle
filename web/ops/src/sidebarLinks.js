@@ -31,8 +31,12 @@ export default [
         path: '/admin/modules'
       },
       {
-        name: 'Users',
-        path: '/admin/users'
+        name: 'Tutors',
+        path: '/admin/tutors'
+      },
+      {
+        name: 'Students',
+        path: '/admin/students'
       },
     ]
   }
