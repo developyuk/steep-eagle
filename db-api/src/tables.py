@@ -135,7 +135,7 @@ class ClassesTs(Classes):
     def start_at_ts(self):
         dt = datetime.strptime('%sT%s' % (
             onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
-        return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
+        return timezone('Asia/Jakarta').localize(dt)
 
     @start_at_ts.expression
     def start_at_ts(cls):
@@ -145,7 +145,7 @@ class ClassesTs(Classes):
     def finish_at_ts(self):
         dt = datetime.strptime('%sT%s' % (
             onDay(self.day).date(), self.finish_at), '%Y-%m-%dT%H:%M')
-        return timezone('Asia/Jakarta').localize(dt).astimezone(timezone('UTC'))
+        return timezone('Asia/Jakarta').localize(dt)
 
     @finish_at_ts.expression
     def finish_at_ts(cls):

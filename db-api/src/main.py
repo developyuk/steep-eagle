@@ -10,7 +10,7 @@ from tables import Base
 from hooks import modules, classes
 # from mqtt import sessions
 from auth import MyAuth
-from blueprints import auth, schedules, students, tutor_stats
+from blueprints import auth, schedules, students, tutor_stats, calendar
 
 app = Eve(auth=MyAuth, validator=ValidatorSQL, data=SQL,
           settings=os.path.abspath('settings.py'))
@@ -19,6 +19,7 @@ app.register_blueprint(auth.blueprint)
 app.register_blueprint(schedules.blueprint)
 app.register_blueprint(students.blueprint)
 app.register_blueprint(tutor_stats.blueprint)
+app.register_blueprint(calendar.blueprint)
 
 # bind SQLAlchemy
 db = app.data.driver
