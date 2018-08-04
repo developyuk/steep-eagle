@@ -13,16 +13,16 @@ minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
 
 
 def module_image(image):
-    url = ''
     try:
         filename = secure_filename(image.filename)
         location = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         image.save(location)
-        minioClient.fput_object('modules-img', filename, location, image.content_type)
-        return minioClient.presigned_put_object('modules-img', filename)
+        minioClient.fput_object('modules-img', filename,
+                                location, image.content_type)
+        url = minioClient.presigned_put_object('modules-img', filename)
+        return url.split('?')[0]
     except Exception as e:
         return jsonify({"_status": "ERR", "_error": {'message': str(e), "code": 400}}), 400
-    return url.split('?')[0]
 
 
 def before_patch_item(resource_name, updates, original):
