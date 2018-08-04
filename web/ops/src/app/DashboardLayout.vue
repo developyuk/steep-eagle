@@ -19,7 +19,7 @@
   //  import ContentFooter from '../components/Dashboard/Layout/ContentFooter.vue'
   import DashboardContent from '../components/Dashboard/Layout/Content.vue'
   import UserMenu from 'src/components/UIComponents/SidebarPlugin/UserMenu.vue'
-  import MobileMenu from 'src/components/UIComponents/SidebarPlugin/MobileMenu.vue'
+  import MobileMenu from 'src/app/components/SidebarPlugin/MobileMenu.vue'
 
   export default {
     components: {

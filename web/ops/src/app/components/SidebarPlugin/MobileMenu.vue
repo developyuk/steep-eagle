@@ -1,38 +1,45 @@
-<template>
-  <ul class="nav nav-mobile-menu">
-    <li>
-      <a href="javascript:void(0)" class="dropdown-toggle btn-magnify" data-toggle="dropdown">
-        <i class="ti-panel"></i>
-        <p>Stats</p>
-      </a>
-    </li>
-    <drop-down tag="li" title="5 Notificaitons" icon="ti-bell">
-      <a slot="title" href="javascript:void(0)" class="dropdown-toggle btn-rotate" data-toggle="dropdown">
-        <i class="ti-bell"></i>
-        <span class="notification">5</span>
-        <p class="hidden-md hidden-lg">
-          Notifications
-          <b class="caret"></b>
-        </p>
-      </a>
-      <li><a href="javascript:void(0)">Notification 1</a></li>
-      <li><a href="javascript:void(0)">Notification 2</a></li>
-      <li><a href="javascript:void(0)">Notification 3</a></li>
-      <li><a href="javascript:void(0)">Notification 4</a></li>
-      <li><a href="javascript:void(0)">Another notification</a></li>
-    </drop-down>
-    <li>
-      <a href="javascript:void(0)" class="btn-rotate">
-        <i class="ti-settings"></i>
-        <p class="hidden-md hidden-lg">
-          Settings
-        </p>
-      </a>
-    </li>
-  </ul>
+<template lang="pug">
+  ul.nav.nav-mobile-menu
+    li
+      a(@click.prevent="onClickSignOut")
+        i.ti-face-sad
+        span Sign Out
+  //   li
+  //     a.dropdown-toggle.btn-magnify(href='javascript:void(0)', data-toggle='dropdown')
+  //       i.ti-panel
+  //       p Stats
+  //   drop-down(tag='li', title='5 Notificaitons', icon='ti-bell')
+  //     a.dropdown-toggle.btn-rotate(slot='title', href='javascript:void(0)', data-toggle='dropdown')
+  //       i.ti-bell
+  //       span.notification 5
+  //       p.hidden-md.hidden-lg
+  //         | Notifications
+  //         b.caret
+  //     li
+  //       a(href='javascript:void(0)') Notification 1
+  //     li
+  //       a(href='javascript:void(0)') Notification 2
+  //     li
+  //       a(href='javascript:void(0)') Notification 3
+  //     li
+  //       a(href='javascript:void(0)') Notification 4
+  //     li
+  //       a(href='javascript:void(0)') Another notification
+  //   li
+  //     a.btn-rotate(href='javascript:void(0)')
+  //       i.ti-settings
+  //       p.hidden-md.hidden-lg
+  //         | Settings
 </template>
 <script>
-  export default {}
+export default {
+  methods: {
+    onClickSignOut(e) {
+      localStorage.removeItem("token");
+      window.location.reload();
+    }
+  }
+};
 </script>
 <style>
 </style>

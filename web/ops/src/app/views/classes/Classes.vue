@@ -216,9 +216,12 @@ export default {
     getData() {
       const config = {
         params: {
-          sort: '-_updated',
+          sort: "-_updated",
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage
+        },
+        headers: {
+          "cache-control": "no-cache"
         }
       };
       if (!!this.searchQuery) {

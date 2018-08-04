@@ -38,7 +38,7 @@ import FullScreenMap from 'src/components/Dashboard/Views/Maps/FullScreenMap.vue
 import VectorMaps from 'src/components/Dashboard/Views/Maps/VectorMapsPage.vue'
 
 // Calendar
-import Calendar from 'src/components/Dashboard/Views/Calendar/CalendarRoute.vue'
+// import Calendar from 'src/components/Dashboard/Views/Calendar/CalendarRoute.vue'
 // Charts
 import Charts from 'src/components/Dashboard/Views/Charts.vue'
 
@@ -206,6 +206,7 @@ import Tutors from '@/app/views/users/Tutors';
 import TutorForm from '@/app/views/users/TutorForm';
 import Students from '@/app/views/users/Students';
 import StudentForm from '@/app/views/users/StudentForm';
+import Calendar from '@/app/views/calendar/CalendarRoute.vue'
 
 const routes = [
   {
