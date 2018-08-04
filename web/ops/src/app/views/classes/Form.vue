@@ -16,13 +16,13 @@
           .form-group
             label.col-sm-2.control-label Start at
             .col-sm-9
-              el-time-select(v-model='model.start_at', :picker-options="{ start: '00:00', step: '00:15', end: '23:59' }", placeholder='Select time', v-validate="modelValidations.start_at")
+              el-time-select(v-model='model.start_at', :picker-options="{ start: '07:00', step: '00:15', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.start_at")
               small.text-danger(v-show="start_at.invalid")
                 | {{ getError('start_at') }}
           .form-group
             label.col-sm-2.control-label Finish at
             .col-sm-9
-              el-time-select(v-model='model.finish_at', :picker-options="{ start: '00:00', step: '00:15', end: '23:59' }", placeholder='Select time', v-validate="modelValidations.finish_at")
+              el-time-select(v-model='model.finish_at', :picker-options="{ start: '07:00', step: '00:15', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.finish_at")
               small.text-danger(v-show="finish_at.invalid")
                 | {{ getError('finish_at') }}
           .form-group
@@ -133,13 +133,15 @@ export default {
           finish_at: this.model.finish_at,
           module: this.model.module,
           branch: this.model.branch,
-          students: this.model.students
+          students_: this.model.students
         };
         if (this.isCreate) {
           axios
             .post(`${process.env.DBAPI}/classes`, data)
             .then(response => {
               this.model._etag = response.data._etag;
+
+              this.$router.push("/schedules");
               this.notifyVue({
                 component: {
                   template: `<span>Success created</span>`
@@ -169,6 +171,7 @@ export default {
             .then(response => {
               this.model._etag = response.data._etag;
 
+              this.$router.push("/schedules");
               this.notifyVue({
                 component: {
                   template: `<span>Success updated</span>`

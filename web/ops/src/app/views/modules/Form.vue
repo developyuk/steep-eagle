@@ -79,6 +79,8 @@ export default {
             .post(`${process.env.DBAPI}/modules`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
+
+              this.$router.push("/admin/modules");
               this.notifyVue({
                 component: {
                   template: `<span>Success created</span>`
@@ -105,6 +107,8 @@ export default {
             .then(response => {
               this.model._etag = response.data._etag;
 
+
+              this.$router.push("/admin/modules");
               this.notifyVue({
                 component: {
                   template: `<span>Success updated</span>`

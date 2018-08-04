@@ -1,25 +1,25 @@
 export default [
   {
     name: 'Dashboard',
-    icon: 'ti-panel',
+    icon: 'ti-bar-chart',
     // collapsed: false,
     path: '/dashboard'
   },
   {
     name: 'Schedules',
-    icon: 'ti-panel',
+    icon: 'ti-time',
     // collapsed: false,
     path: '/schedules'
   },
   {
     name: 'Activities',
-    icon: 'ti-panel',
+    icon: 'ti-pulse',
     // collapsed: false,
     path: '/activites'
   },
   {
     name: 'Administration',
-    icon: 'ti-panel',
+    icon: 'ti-clipboard',
     collapsed: false,
     children: [
       {

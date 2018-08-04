@@ -64,6 +64,7 @@ import PPagination from "src/components/UIComponents/Pagination.vue";
 import axios from "axios";
 import _range from "lodash/range";
 import mixinNotify from "src/app/mixins/notify";
+import swal from "sweetalert2";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -156,29 +157,60 @@ export default {
         tableRow => tableRow.id === row.id
       );
       if (indexToDelete >= 0) {
-        this.tableData.splice(indexToDelete, 1);
-
-        axios
-          .delete(`${process.env.DBAPI}/classes/${row.id}`, {
-            headers: { "if-match": row._etag }
-          })
-          .then(response => {
-            this.notifyVue({
-              component: {
-                template: `<span>Success deleted</span>`
-              },
-              type: "success"
+        swal({
+          // title: "Input something",
+          title: "Are you sure?",
+          html: `You won't be able to revert this!.
+          Submit <strong>${row.module.name}</strong> below`,
+          type: "warning",
+          input: "text",
+          showCancelButton: true,
+          showLoaderOnConfirm: true,
+          confirmButtonClass: "btn btn-success btn-fill",
+          cancelButtonClass: "btn btn-danger btn-fill",
+          buttonsStyling: false,
+          preConfirm: text => {
+            if (text === row.module.name) {
+              return axios
+                .delete(`${process.env.DBAPI}/classes/${row.id}`, {
+                  headers: { "if-match": row._etag }
+                })
+                .then(response => {
+                  // this.tableData.splice(indexToDelete, 1);
+                  this.getData();
+                  return {
+                    title: "Deleted!",
+                    type: "success",
+                    text: `<strong>${text}</strong> has been deleted.`
+                  };
+                })
+                .catch(error => {
+                  swal.showValidationError(`Request failed: ${error}`);
+                });
+            } else {
+              return new Promise((resolve, reject) => {
+                resolve({
+                  title: "Error",
+                  type: "error",
+                  text: `Please type <strong>${row.module.name}</strong>`
+                });
+              });
+            }
+          },
+          allowOutsideClick: () => !swal.isLoading()
+        })
+          .then(result => {
+            console.log(result);
+            swal({
+              title: result.title,
+              html: result.text,
+              type: result.type,
+              timer: 1000,
+              confirmButtonClass: "btn btn-success btn-fill",
+              buttonsStyling: false
             });
-            this.getData();
           })
-          .catch(error => {
-            this.notifyVue({
-              component: {
-                template: `<span>Fail deleted</span>`
-              },
-              type: "danger"
-            });
-          });
+          .catch(swal.noop);
       }
     },
     getData() {

@@ -57,7 +57,7 @@ export default {
           required: true
         },
         email: {
-          email:true
+          email: true
         }
       }
     };
@@ -72,13 +72,15 @@ export default {
           name: this.model.name,
           username: this.model.username,
           email: this.model.email,
-          role: "tutor",
+          role: "tutor"
         };
         if (this.isCreate) {
           axios
             .post(`${process.env.DBAPI}/users`, data)
             .then(response => {
               this.model._etag = response.data._etag;
+
+              this.$router.push("/admin/tutors");
               this.notifyVue({
                 component: {
                   template: `<span>Success created</span>`
@@ -104,6 +106,7 @@ export default {
             .then(response => {
               this.model._etag = response.data._etag;
 
+              this.$router.push("/admin/tutors");
               this.notifyVue({
                 component: {
                   template: `<span>Success updated</span>`

@@ -250,7 +250,7 @@ const routes = [
       {
         path: '',
         name: 'Dashboard Page',
-        component: Overview
+        component: TimeLine
       },
     ]
   },
