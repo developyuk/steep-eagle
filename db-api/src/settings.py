@@ -73,6 +73,7 @@ DOMAIN = DomainConfig({
 }).render()
 
 DOMAIN['modules'].update({u'allow_unknown': True})
+DOMAIN['classes'].update({u'allow_unknown': True})
 DOMAIN['classes']['schema']['branch']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': True})
 DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})

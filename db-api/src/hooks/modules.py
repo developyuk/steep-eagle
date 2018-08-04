@@ -25,17 +25,16 @@ def module_image(image):
         return jsonify({"_status": "ERR", "_error": {'message': str(e), "code": 400}}), 400
 
 
-def before_patch_item(resource_name, updates, original):
+def before_patch_item(updates, original):
     image = updates.get('fimage')
-    if resource_name == 'modules' and image:
+    if image:
         url = module_image(image)
         updates.update({'image': url})
 
 
-def before_post_item(resource_name, items):
-    pprint(resource_name)
+def before_post_item(items):
     for i, item in enumerate(items):
         image = item.get('fimage')
-        if resource_name == 'modules' and image:
+        if image:
             url = module_image(image)
             items[i].update({'image': url})
