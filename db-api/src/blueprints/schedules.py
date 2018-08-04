@@ -86,7 +86,6 @@ def schedules():
     w.update({
       'branch': dict(v.branch),
       'module': dict(v.module),
-      'q': v.q,
       'tutor': dict(v.tutor),
       'finish_at_ts': v.finish_at_ts,
       'start_at_ts': v.start_at_ts,
