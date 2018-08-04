@@ -40,6 +40,13 @@
               small.text-danger(v-show="branch.invalid")
                 | {{ getError('branch') }}
           .form-group
+            label.col-sm-2.control-label Tutor
+            .col-sm-9
+              el-select.select-primary(size='large', placeholder='Select Tutor', v-model='model.tutor', v-validate="modelValidations.tutor")
+                el-option.select-primary(v-for='option in selects.tutors', :value='option.value', :label='option.label', :key='option.label')
+              small.text-danger(v-show="tutor.invalid")
+                | {{ getError('tutor') }}
+          .form-group
             label.col-sm-2.control-label Students
             .col-sm-9
               el-select.select-primary.select-students(multiple, size='large', placeholder='Select Students', v-model='model.students', v-validate="modelValidations.students")
@@ -72,6 +79,7 @@ export default {
       "finish_at",
       "module",
       "branch",
+      "tutor",
       "students"
     ])
   },
@@ -81,6 +89,7 @@ export default {
       selects: {
         modules: [],
         branches: [],
+        tutors: [],
         students: [],
         days: [
           { value: "monday", label: "Monday" },
@@ -99,6 +108,7 @@ export default {
         finish_at: "",
         module: "",
         branch: "",
+        tutor: "",
         students: []
       },
       modelValidations: {
@@ -117,6 +127,9 @@ export default {
         branch: {
           required: true
         },
+        tutor: {
+          required: true
+        },
         students: {}
       }
     };
@@ -133,6 +146,7 @@ export default {
           finish_at: this.model.finish_at,
           module: this.model.module,
           branch: this.model.branch,
+          tutor: this.model.tutor,
           students_: this.model.students
         };
         if (this.isCreate) {
@@ -206,6 +220,16 @@ export default {
       .get(`${process.env.DBAPI}/branches`)
       .then(response => {
         this.selects.branches = response.data._items.map(v => {
+          return { value: v.id, label: v.name.toUpperCase() };
+        });
+      })
+      .catch(error => console.log(error, error.response));
+    axios
+      .get(`${process.env.DBAPI}/users`,{
+        params: { where: { role: "tutor" }, sort: "name", max_results: 9999 }
+      })
+      .then(response => {
+        this.selects.tutors = response.data._items.map(v => {
           return { value: v.id, label: v.name.toUpperCase() };
         });
       })

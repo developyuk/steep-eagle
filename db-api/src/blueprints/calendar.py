@@ -36,7 +36,7 @@ def schedules():
     def parse(v):
         w = {
             'id': v.id,
-            'title': '%s - %s' % (v.module.name, v.branch.name),
+            'title': '%s at %s by %s' % (v.module.name, v.branch.name, v.tutor.name),
             'allDay': False,
             'start': v.start_at_ts.replace(tzinfo=None),
             'finish': v.finish_at_ts.replace(tzinfo=None)

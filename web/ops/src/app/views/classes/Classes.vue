@@ -126,6 +126,13 @@ export default {
           sortable: true
         },
         {
+          prop: "tutor.name",
+          label: "Tutor",
+          minWidth: 150,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
           prop: "day",
           label: "Day",
           minWidth: 100,
