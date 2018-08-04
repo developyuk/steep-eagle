@@ -103,7 +103,7 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["start_at", "finish_at"],
+      propsToSearch: ["q"],
       tableColumns: [
         //          {
         //            prop: 'module.image',

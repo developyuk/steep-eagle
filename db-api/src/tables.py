@@ -1,13 +1,17 @@
-from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func
+from pprint import pprint
+from datetime import datetime, timedelta
+
+import jwt
+from flask import current_app as app, jsonify
+from pytz import timezone
+
+from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
+# Enum, cast
 # from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property, relationship
+# from sqlalchemy.dialects.postgresql import ENUM, TEXT
 from sqlservice import declarative_base
-import jwt
-from pprint import pprint
-from datetime import datetime, timedelta
-from flask import current_app as app, jsonify
-from pytz import timezone
 # from eve.methods.common import embedded_document
 
 Base = declarative_base()
@@ -86,6 +90,13 @@ class Classes(CommonColumns):
     students = relationship("ClassStudents")
     # sessions = relationship("Sessions", back_populates="class_")
 
+    q = column_property(
+        select([Modules.name+" " + Branches.name+" "+day+" "+start_at+" "+finish_at+" "+Users.username+" "+Users.name]).
+        where(Branches.id == branch_id).
+        where(Modules.id == module_id).
+        where(Users.id == tutor_id)
+    )
+
 
 class Sessions(CommonColumns):
     __tablename__ = 'sessions'
@@ -131,6 +142,7 @@ def onDay(day):
 
 
 class ClassesTs(Classes):
+
     @hybrid_property
     def start_at_ts(self):
         dt = datetime.strptime('%sT%s' % (
@@ -149,15 +161,6 @@ class ClassesTs(Classes):
 
     @finish_at_ts.expression
     def finish_at_ts(cls):
-        return cls
-
-    @hybrid_property
-    def q(self):
-        return ', '.join((self.module.name, self.branch.name, self.day, self.start_at, self.finish_at,
-                          self.tutor.username, self.tutor.name))
-
-    @q.expression
-    def q(cls):
         return cls
 
 
