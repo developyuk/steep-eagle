@@ -1,29 +1,31 @@
 {
-    "name": "M by codingcamp.id",
-    "short_name": "M",
-    "icons": [
-        {
-            "src": "/static/img/icons/android-chrome-36x36.png?v=00Q3O3wRj9",
-            "sizes": "36x36",
-            "type": "image/png"
-        },
-        {
-            "src": "/static/img/icons/android-chrome-48x48.png?v=00Q3O3wRj9",
-            "sizes": "48x48",
-            "type": "image/png"
-        },
-        {
-            "src": "/static/img/icons/android-chrome-72x72.png?v=00Q3O3wRj9",
-            "sizes": "72x72",
-            "type": "image/png"
-        },
-        {
-            "src": "/static/img/icons/android-chrome-96x96.png?v=00Q3O3wRj9",
-            "sizes": "96x96",
-            "type": "image/png"
-        }
-    ],
-    "theme_color": "#ed235c",
-    "background_color": "#ffffff",
-    "display": "standalone"
+  "name": "M by codingcamp.id",
+  "short_name": "M Tutor",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/img/icons/android-chrome-36x36.png?v=00Q3O3wRj9",
+      "sizes": "36x36",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/android-chrome-48x48.png?v=00Q3O3wRj9",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/android-chrome-72x72.png?v=00Q3O3wRj9",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/android-chrome-96x96.png?v=00Q3O3wRj9",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ed235c",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
 }

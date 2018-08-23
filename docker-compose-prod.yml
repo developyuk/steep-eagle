@@ -55,6 +55,7 @@ services:
   tutor:
     image: nginx
     volumes:
+      - $PWD/nginx-default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./web/tutor/dist:/usr/share/nginx/html:ro
     restart: unless-stopped
     labels:
