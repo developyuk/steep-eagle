@@ -46,19 +46,19 @@
   }
 
   .mdc-tab {
-    line-height: 1rem;
+    line-height: .75rem;
     padding: .25rem;
   }
 
   .mdc-tab__icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
     width: auto;
     height: auto;
     margin: 0;
   }
 
   .mdc-tab__icon-text {
-    font-size: .675rem;
+    font-size: .5rem;
     margin: 0;
     padding: 0;
   }

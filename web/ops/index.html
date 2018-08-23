@@ -25,6 +25,13 @@
   <!-- Bootstrap core CSS     -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
+</head>
+<body>
+<div class="wrapper" id="app">
+
+</div>
+<!-- built files will be auto injected -->
+<noscript id="deferred-styles">
   <!--  Fonts and icons     -->
   <link type="text/css" href="https://fonts.googleapis.com/css?family=Muli:400,300" rel="stylesheet">
   <link type="text/css" href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
@@ -32,12 +39,19 @@
   <link type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="static/fonts/gothamrnd/gothamrnd.css" rel="stylesheet">
   <link href="static/css/themify-icons.css" rel="stylesheet">
-</head>
-<body>
-<div class="wrapper" id="app">
-
-</div>
-<!-- built files will be auto injected -->
-
+</noscript>
+<script>
+  var loadDeferredStyles = function() {
+    var addStylesNode = document.getElementById("deferred-styles");
+    var replacement = document.createElement("div");
+    replacement.innerHTML = addStylesNode.textContent;
+    document.body.appendChild(replacement)
+    addStylesNode.parentElement.removeChild(addStylesNode);
+  };
+  var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+      window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); });
+  else window.addEventListener('load', loadDeferredStyles);
+</script>
 </body>
 </html>

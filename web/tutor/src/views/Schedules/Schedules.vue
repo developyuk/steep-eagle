@@ -311,7 +311,7 @@
         line-height: 1rem;
       }
       .date {
-        font-size: 1.5rem;
+        font-size: 1rem;
       }
       .day {
         font-size: .5625rem;
@@ -320,7 +320,7 @@
     }
     .text {
       float: right;
-      font-size: .75rem;
+      font-size: .625rem;
       text-transform: capitalize;
       color: map-get($palettes, green-darken1);
     }
