@@ -2,10 +2,11 @@
 <browserconfig>
     <msapplication>
         <tile>
-            <square70x70logo src="/img/icons/mstile-70x70.png?v=00Q3O3wRj9"/>
-            <square150x150logo src="/img/icons/mstile-150x150.png?v=00Q3O3wRj9"/>
-            <wide310x150logo src="/img/icons/mstile-310x150.png?v=00Q3O3wRj9"/>
-            <TileColor>#ed235c</TileColor>
+            <square70x70logo src="https://mtutor.codingcamp.id/img/icons/mstile-70x70.png?v=69P4JWp295"/>
+            <square150x150logo src="https://mtutor.codingcamp.id/img/icons/mstile-150x150.png?v=69P4JWp295"/>
+            <square310x310logo src="https://mtutor.codingcamp.id/img/icons/mstile-310x310.png?v=69P4JWp295"/>
+            <wide310x150logo src="https://mtutor.codingcamp.id/img/icons/mstile-310x150.png?v=69P4JWp295"/>
+            <TileColor>#b91d47</TileColor>
         </tile>
     </msapplication>
 </browserconfig>
