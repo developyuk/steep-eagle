@@ -63,6 +63,9 @@ export default {
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          return false;
+        }
         const data = new FormData();
         data.append("name", this.model.name);
         if (this.model.fimage) {

@@ -140,6 +140,9 @@ export default {
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          return false;
+        }
         const data = {
           day: this.model.day,
           start_at: this.model.start_at,

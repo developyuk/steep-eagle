@@ -48,6 +48,9 @@ export default {
     },
     validate() {
       this.$validator.validateAll().then(isValid => {
+        if (!isValid) {
+          return false;
+        }
         const data = {
           name: this.model.name
         };
