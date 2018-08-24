@@ -24,7 +24,6 @@
             .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
               i.material-icons.mdc-tab__icon(aria-hidden="true") stars
               .text {{currentStats.feedbacks}} feedbacks
-      li.mdc-list-divider(role="separator")
       li.mdc-list-item
         .stats.stats--texts
           .mdc-card.ratings
@@ -149,6 +148,7 @@ img.logo {
   @include m(icons) {
     font-size: 0.675rem;
     padding: 0;
+    width: 100%;
     .material-icons {
       font-size: 2.5rem;
       width: 2.5rem;
@@ -176,12 +176,19 @@ img.logo {
 .sign-out {
   position: absolute;
   bottom: 0;
-  height: 2.5rem;
+  height: 4rem;
   width: 100%;
-
+  .mdc-list-item {
+    height: 100%;
+    padding: 0 1rem;
+  }
   a {
     color: #fff;
     text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding-top: 2.5rem;
   }
   .mdc-list-item__graphic {
     vertical-align: middle;

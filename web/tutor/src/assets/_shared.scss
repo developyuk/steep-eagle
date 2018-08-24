@@ -60,3 +60,6 @@ h1.logo {
 .mdc-drawer--temporary .mdc-drawer__drawer {
   max-width: 90%;
 }
+.mdc-drawer--temporary .mdc-drawer__header::before{
+  padding-top: 10rem !important;
+}
