@@ -38,6 +38,10 @@ export default [
         name: 'Students',
         path: '/admin/students'
       },
+      {
+        name: 'Admin',
+        path: '/admin/operations'
+      },
     ]
   }
 ]

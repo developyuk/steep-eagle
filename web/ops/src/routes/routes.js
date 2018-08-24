@@ -206,6 +206,8 @@ import Tutors from '@/app/views/users/Tutors';
 import TutorForm from '@/app/views/users/TutorForm';
 import Students from '@/app/views/users/Students';
 import StudentForm from '@/app/views/users/StudentForm';
+import Operations from '@/app/views/users/Operations';
+import OperationForm from '@/app/views/users/OperationForm';
 import Calendar from '@/app/views/calendar/CalendarRoute.vue'
 
 const routes = [
@@ -374,6 +376,27 @@ const routes = [
       {
         path: 'students/:id/edit',
         component: StudentForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'operations',
+        component: Operations,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'operations/create',
+        component: OperationForm,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: 'operations/:id/edit',
+        component: OperationForm,
         meta: {
           requiresAuth: true,
         }
