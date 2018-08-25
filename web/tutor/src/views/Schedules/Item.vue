@@ -33,7 +33,7 @@ export default {
         .map(
           v =>
             !!v["session_tutors"].length
-              ? v["session_tutors"].map(w => w["tutor"]["profile"]["name"])
+              ? v["session_tutors"].map(w => w["tutor"]["name"])
               : ""
         )
         .join(", ");

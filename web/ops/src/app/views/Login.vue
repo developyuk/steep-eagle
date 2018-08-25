@@ -1,6 +1,6 @@
 <template lang="pug">
   .wrapper.wrapper-full-page
-    .full-page.login-page(data-color='' data-image='https://images.weserv.nl/?il&q=18&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg')
+    .full-page.login-page(data-color='' data-image='https://images.weserv.nl/?il&w=1024&h=768&t=square&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg')
       // you can change the color of the filter page using: data-color="blue | azure | green | orange | red | purple"
       .content
         .container
@@ -14,77 +14,83 @@
 
                   .card-content
                     .form-group
-                      //label Email address
+                      label Username
                       input.form-control.input-no-border(type='text' name='username' placeholder='Enter email')
                     .form-group
-                      //label Password
+                      label Password
                       input.form-control.input-no-border(type='password' name='password' placeholder='Password please')
                   .card-footer.text-center
                     button.btn.btn-fill.btn-wd(type='submit') Let&apos;s go
                     <!--.forgot-->
                     <!--router-link(to='/register')-->
                     <!--| Forgot your password?-->
-      .full-page-background(style='background-image: url(https://images.weserv.nl/?il&q=18&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg) ')
+      //- .full-page-background(style='background-image: url(https://images.weserv.nl/?il&w=1024&h=768&t=square&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg) ')
 </template>
 
 <script>
-  import axios from 'axios';
+import axios from "axios";
 
-  export default {
-    methods: {
-      toggleNavbar() {
-        document.body.classList.toggle('nav-open')
-      },
-      closeMenu() {
-        document.body.classList.remove('nav-open')
-        document.body.classList.remove('off-canvas-sidebar')
-      },
-      onSubmit(e) {
-        const formData = new FormData(e.target);
-
-        axios.post(`${process.env.DBAPI}/sign`, formData)
-          .then(response => {
-//            console.log(response);
-            localStorage.setItem('token', response.data.token);
-            // console.log(this.$router);
-            this.$router.push('/');
-          })
-          .catch(error => console.log(error,error.response))
-      }
+export default {
+  methods: {
+    toggleNavbar() {
+      document.body.classList.toggle("nav-open");
     },
-    beforeDestroy() {
-      this.closeMenu()
+    closeMenu() {
+      document.body.classList.remove("nav-open");
+      document.body.classList.remove("off-canvas-sidebar");
+    },
+    onSubmit(e) {
+      const formData = new FormData(e.target);
+
+      axios
+        .post(`${process.env.DBAPI}/sign`, formData)
+        .then(response => {
+          //            console.log(response);
+          localStorage.setItem("token", response.data.token);
+          // console.log(this.$router);
+          this.$router.push("/");
+        })
+        .catch(error => console.log(error, error.response));
     }
+  },
+  beforeDestroy() {
+    this.closeMenu();
   }
+};
 </script>
 
 <style scoped lang="scss">
-  @import "src/assets/scss/shared";
+@import "src/assets/scss/shared";
 
-  .card {
-    background-color: #F2F2F2;
-  }
+.card {
+  // background-color: #f2f2f2;
+}
 
-  .card-header {
-    h1 {
-      text-align: center;
-    }
+.card-header {
+  h1 {
+    text-align: center;
   }
+}
 
-  .form-control {
-    &, &:focus {
-      background-color: #C4C4C4;
-      color: #fff;
-    }
+.form-control {
+  &,
+  &:focus {
+    // background-color: #c4c4c4;
+    // color: #fff;
   }
+}
 
-  ::placeholder {
-    color: #fff;
-    font-weight: bold;
-    text-transform: lowercase;
-  }
-
-  .full-page[data-image]:after, .full-page.has-image:after {
-    opacity: 0;
-  }
+::placeholder {
+  // color: #fff;
+  // font-weight: bold;
+  // text-transform: lowercase;
+}
+.full-page {
+  background-color: #ee215b;
+  height: 100vh;
+}
+.full-page[data-image]:after,
+.full-page.has-image:after {
+  opacity: 0;
+}
 </style>
