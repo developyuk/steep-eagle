@@ -7,11 +7,10 @@ from pytz import timezone
 
 from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
 # Enum, cast
-# from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property, relationship
 # from sqlalchemy.dialects.postgresql import ENUM, TEXT
-from sqlservice import declarative_base
 # from eve.methods.common import embedded_document
 
 Base = declarative_base()
@@ -88,7 +87,7 @@ class Classes(CommonColumns):
     branch = relationship("Branches")
     tutor = relationship("Users")
     students = relationship("ClassStudents")
-    # sessions = relationship("Sessions", back_populates="class_")
+    sessions = relationship("Sessions", back_populates="class_")
 
     q = column_property(
         select([Modules.name+" " + Branches.name+" "+day+" "+start_at+" "+finish_at+" "+Users.username+" "+Users.name]).
@@ -102,7 +101,8 @@ class Sessions(CommonColumns):
     __tablename__ = 'sessions'
     id = Column(Integer, primary_key=True, autoincrement=True)
     class_id = Column(Integer, ForeignKey('classes.id'))
-    class_ = relationship("ClassesTs")
+
+    class_ = relationship("ClassesTs", back_populates="sessions")
     session_tutors = relationship("SessionsTutors", back_populates="session")
 
 
@@ -110,9 +110,10 @@ class SessionsTutors(CommonColumns):
     __tablename__ = 'sessions_tutors'
     id = Column(Integer, primary_key=True, autoincrement=True)
     session_id = Column(Integer, ForeignKey('sessions.id'))
-    session = relationship("Sessions", back_populates="session_tutors")
     tutor_id = Column(Integer, ForeignKey('users.id'))
     tutor = relationship("Users")
+
+    session = relationship("Sessions", back_populates="session_tutors")
     session_students = relationship(
         "SessionsTutorsStudents", back_populates="session_tutor")
 

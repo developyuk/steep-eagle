@@ -72,37 +72,53 @@ DOMAIN = DomainConfig({
   'classes_ts': ResourceConfig(ClassesTs),
 }).render()
 
-DOMAIN['modules'].update({u'allow_unknown': True})
-DOMAIN['classes'].update({u'allow_unknown': True})
-DOMAIN['classes']['schema']['branch']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes']['schema']['tutor']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes']['schema']['module']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes'].update({u'embedded_fields': [
+DOMAIN['modules']['schema']['image'].update({'coerce': 'upload'})
+DOMAIN['classes'].update({'allow_unknown': True})
+DOMAIN['classes']['schema']['branch']['data_relation'].update({'embeddable': True})
+DOMAIN['classes']['schema']['tutor']['data_relation'].update({'embeddable': True})
+DOMAIN['classes']['schema']['students']['schema']['data_relation'].update({'embeddable': True})
+DOMAIN['classes']['schema']['module']['data_relation'].update({'embeddable': True})
+DOMAIN['classes'].update({'embedded_fields': [
   # 'branch',
   # 'tutor', 'tutor',
   # 'students', 'students.student', 'students.student',
   # 'module'
 ]})
-DOMAIN['classes_ts']['schema']['branch']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes_ts']['schema']['tutor']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes_ts']['schema']['students']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes_ts']['schema']['module']['data_relation'].update({u'embeddable': True})
-DOMAIN['classes_ts'].update({u'embedded_fields': [
+DOMAIN['classes_ts']['schema']['branch']['data_relation'].update({'embeddable': True})
+DOMAIN['classes_ts']['schema']['tutor']['data_relation'].update({'embeddable': True})
+DOMAIN['classes_ts']['schema']['students']['schema']['data_relation'].update({'embeddable': True})
+DOMAIN['classes_ts']['schema']['module']['data_relation'].update({'embeddable': True})
+DOMAIN['classes_ts'].update({'embedded_fields': [
   'branch',
   'tutor',
   'module',
-  # 'students', 'students.student', 'students.student',
+  'students',
+  # 'students.student', 'students.student',
 ]})
-DOMAIN['class_students']['schema']['student']['data_relation'].update({u'embeddable': True})
-DOMAIN['class_students']['schema']['class_']['data_relation'].update({u'embeddable': True})
-DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['sessions'].update({u'embedded_fields': [
+DOMAIN['class_students']['schema']['student']['data_relation'].update({'embeddable': True})
+DOMAIN['class_students']['schema']['class_']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions']['schema']['class_']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions'].update({'embedded_fields': [
   'session_tutors', 'session_tutors.tutor', 'session_tutors.tutor',
+  'class_',
+  'class_.students',
   # 'session_tutors.session_students', 'session_tutors.session_students.student',
   # 'session_tutors.session_students.student'
 ]})
-DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update({u'embeddable': True})
-DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update({u'embeddable': True})
-DOMAIN['sessions_tutors_students']['schema']['student']['data_relation'].update({u'embeddable': True})
-# pprint.pprint(DOMAIN)
+DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions_tutors']['schema']['session']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions_tutors'].update({'embedded_fields': [
+  'session',
+  'session.class_',
+  'session.class_.students',
+  'session.class_.module',
+  'session.class_.branch',
+]})
+DOMAIN['sessions_tutors_students']['schema']['student']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions_tutors_students']['schema']['session_tutor']['data_relation'].update({'embeddable': True})
+DOMAIN['sessions_tutors_students'].update({'embedded_fields': [
+  'session_tutor',
+]})
+# pprint.pprint(DOMAIN['modules'])
