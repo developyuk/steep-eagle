@@ -30,6 +30,7 @@ services:
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - HOST=${HOST}
       - HOST_IP=${HOST_IP}
+      - HOST_STORAGE=${HOST_STORAGE}
     depends_on:
       - db
     restart: unless-stopped
