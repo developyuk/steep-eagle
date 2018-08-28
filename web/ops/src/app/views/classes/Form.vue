@@ -162,7 +162,7 @@ export default {
           module: this.model.module,
           branch: this.model.branch,
           tutor: this.model.tutor,
-          students_: this.model.students
+          students: this.model.students
         };
         if (this.isCreate) {
           axios
