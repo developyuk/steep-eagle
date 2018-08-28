@@ -1,5 +1,6 @@
 import os
 from pprint import pprint
+from copy import deepcopy
 
 from flask import current_app as app, jsonify
 from werkzeug import secure_filename
@@ -23,13 +24,27 @@ def fclass_students(id, students_):
 
 def before_patch_item(updates, original):
     students_ = updates.get('students_')
-    if students_:
-        fclass_students(original.get('id'), students_)
+
+    fclass_students(original.get('id'), students_)
+
+
+post_items = []
+
+
+def before_post_item(items):
+    global post_items
+    post_items = deepcopy(items)
+    for i, item in enumerate(items):
+        del item['students_']
 
 
 def after_post_item(items):
+    global post_items
     for i, item in enumerate(items):
-        students_ = item.get('students_')
+        # item['students'] = item.get('students_')
+        # del item['students_']
+        students_ = post_items[i].get('students_')
         if students_:
             fclass_students(item.get('id'), students_)
-        #     items[i].update({'students': students})
+            # items[i].update({'students': students})
+    post_items = []

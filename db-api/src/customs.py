@@ -78,20 +78,3 @@ class MyValidator(ValidatorSQL):
         """
         if not isinstance(value, FileStorage):
             self._error(field, "file was expected, got '%s' instead." % value)
-
-    # def _normalize_coerce_upload(self, value):
-    #     # db_images = app.data.driver.db['images']
-    #     name = app.media.put(value, filename=value.filename,
-    #                          content_type=value.mimetype, resource='modules')
-
-    #     # date_utc = datetime.utcnow().replace(microsecond=0)
-    #     # documents = [{
-    #     #     'owner': ObjectId(app.auth.get_request_auth_value()),
-    #     #     'image': name,
-    #     #     app.config['LAST_UPDATED']: date_utc,
-    #     #     app.config['DATE_CREATED']: date_utc,
-    #     # }]
-    #     # resolve_document_etag(documents, 'images')
-    #     # image_id = db_images.insert_one(documents[0]).inserted_id
-
-    #     return name

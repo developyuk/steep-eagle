@@ -26,6 +26,7 @@ Base.metadata.bind = db.engine
 db.Model = Base
 
 app.on_update_classes += classes.before_patch_item
+app.on_insert_classes += classes.before_post_item
 app.on_inserted_classes += classes.after_post_item
 app.on_fetched_resource += image_empty.on_fetched_resource
 app.on_fetched_item += image_empty.on_fetched_item
