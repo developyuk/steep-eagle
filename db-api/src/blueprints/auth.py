@@ -11,50 +11,51 @@ CORS(blueprint, max_age=timedelta(days=10))
 
 @blueprint.route('/sign', methods=['POST'])
 def sign():
-  data = request.values or request.get_json()
+    data = request.values or request.get_json()
 
-  try:
-    username = data.get('username')
-    password = data.get('password')
-    user = app.data.driver.session.query(Users).filter(Users.username == username).first()
-    if (user.pass_):
-      if (password != user.pass_):
-        raise Exception('check your auth')
-    return jsonify({'token': user.sign()})
-  except Exception as e:
-    return jsonify({
-      "_status": "ERR",
-      "_error": {
-        'message': str(e),
-        "code": 400
-      }
-    }), 400
+    try:
+        username = data.get('username')
+        password = data.get('password')
+        user = app.data.driver.session.query(Users).filter(
+            Users.username == username).first()
+        if (user.pass_):
+            if (password != user.pass_):
+                raise Exception('check your auth')
+        return jsonify({'token': user.sign()})
+    except Exception as e:
+        return jsonify({
+            "_status": "ERR",
+            "_error": {
+                'message': str(e),
+                "code": 400
+            }
+        }), 400
 
 
 @blueprint.route('/auth', methods=['GET'])
 @requires_auth('/auth')
 def auth():
-  data = request.headers
-  try:
-    token = data.get('Authorization')
-    token = token.split(' ')[1]
-    user = Users.auth(token)
-    user = app.data.driver.session.query(Users).get(user['id'])
-    return jsonify({
-      'id': user.id,
-      'username': user.username,
-      'email': user.email,
-      'role': user.role,
-      'photo': user.photo,
-    })
-  except Exception as e:
-    return jsonify({
-      "_status": "ERR",
-      "_error": {
-        'message': str(e),
-        "code": 400
-      }
-    }), 400
+    data = request.headers
+    try:
+        token = data.get('Authorization')
+        token = token.split(' ')[1]
+        user = Users.auth(token)
+        user = app.data.driver.session.query(Users).get(user['id'])
+        return jsonify({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role,
+            'photo': '%s/%s/%s' % (app.config['MEDIA_BASE_URL'], app.config['MEDIA_ENDPOINT'], user.photo) or 'https://via.placeholder.com/48?text=image',
+        })
+    except Exception as e:
+        return jsonify({
+            "_status": "ERR",
+            "_error": {
+                'message': str(e),
+                "code": 400
+            }
+        }), 400
 
 # @blueprint.after_request
 # def add_header(response):

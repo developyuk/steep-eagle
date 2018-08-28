@@ -24,6 +24,12 @@
               input.form-control(type="email" name="email" v-validate="modelValidations.email" v-model="model.email")
               small.text-danger(v-show="email.invalid")
                 | {{ getError('email') }}
+          .form-group
+            label.col-sm-2.control-label Photo
+            .col-sm-9
+              input.form-control(type="file" name="photo" v-validate="modelValidations.photo" @change="onChangePhoto")
+              small.text-danger(v-show="photo.invalid")
+                | {{ getError('photo') }}
       .card-footer.text-center
         .row
           .col-sm-4.col-sm-offset-2
@@ -38,7 +44,7 @@ import mixinNotify from "src/app/mixins/notify";
 
 export default {
   computed: {
-    ...mapFields(["name", "username", "email"])
+    ...mapFields(["name", "username", "email","photo"])
   },
   mixins: [mixinNotify],
   data() {
@@ -47,7 +53,8 @@ export default {
       model: {
         name: "",
         username: "",
-        email: ""
+        email: "",
+        photo: "",
       },
       modelValidations: {
         name: {
@@ -58,11 +65,17 @@ export default {
         },
         email: {
           email:true
-        }
+        },
+        photo: {
+          image:true
+        },
       }
     };
   },
   methods: {
+    onChangePhoto(e) {
+      this.model.photo = e.target.files[0];
+    },
     getError(fieldName) {
       return this.errors.first(fieldName);
     },
@@ -71,12 +84,14 @@ export default {
         if (!isValid) {
           return false;
         }
-        const data = {
-          name: this.model.name,
-          username: this.model.username,
-          email: this.model.email,
-          role: "operation",
-        };
+        const data = new FormData();
+        data.append("name", this.model.name);
+        data.append("username", this.model.username);
+        data.append("email", this.model.email);
+        data.append("role", "operation");
+        if (this.model.photo) {
+          data.append("photo", this.model.photo);
+        }
         if (this.isCreate) {
           axios
             .post(`${process.env.DBAPI}/users`, data)

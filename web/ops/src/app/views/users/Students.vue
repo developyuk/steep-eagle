@@ -18,7 +18,11 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
+            el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
+              template(slot-scope='props')
+                .img-container
+                  img(:src='props.row.photo' :alt='props.row.name')
+            el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/admin/students/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
@@ -79,6 +83,13 @@ export default {
       propsToSearch: ["name"],
       tableColumns: [
         {
+          prop: "photo",
+          label: "Photo",
+          minWidth: 200,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
           prop: "name",
           label: "Name",
           minWidth: 200,
@@ -92,20 +103,13 @@ export default {
           className: "text-capitalize",
           sortable: true
         },
-        {
-          prop: "email",
-          label: "Email",
-          minWidth: 200,
-          className: "text-capitalize",
-          sortable: true
-        },
-        {
-          prop: "photo",
-          label: "Photo",
-          minWidth: 200,
-          className: "text-capitalize",
-          sortable: true
-        }
+        // {
+        //   prop: "email",
+        //   label: "Email",
+        //   minWidth: 200,
+        //   className: "text-capitalize",
+        //   sortable: true
+        // },
       ],
       tableData: []
     };

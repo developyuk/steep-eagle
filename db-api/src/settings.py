@@ -71,7 +71,7 @@ DOMAIN = DomainConfig({
 }).render()
 
 DOMAIN['modules']['schema']['image'].update({'type': 'media'})
-# DOMAIN['modules']['schema']['image'].update({'coerce': 'upload','nullable': False})
+DOMAIN['users']['schema']['photo'].update({'type': 'media'})
 
 DOMAIN['classes'].update({'allow_unknown': True})
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
@@ -111,4 +111,4 @@ DOMAIN['sessions_students']['schema']['student']['data_relation'].update(
     {'embeddable': True})
 # DOMAIN['sessions_students']['schema']['session_tutor']['data_relation'].update( {'embeddable': True})
 
-pprint.pprint(DOMAIN['modules'])
+# pprint.pprint(DOMAIN['modules'])

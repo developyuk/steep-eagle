@@ -41,7 +41,7 @@ class MyAuth(TokenAuth):
 
 class MyMediaStorage(MediaStorage):
     def put(self, content, filename=None, content_type=None, resource=None):
-        if resource in ('modules'):
+        if resource in ('modules', 'users'):
             # pprint(content)
             # pprint(filename)
             # pprint(content_type)
@@ -58,7 +58,7 @@ class MyMediaStorage(MediaStorage):
         return ''
 
     def get(self, id_or_filename, resource=None):
-        if resource in ('modules'):
+        if resource in ('modules', 'users'):
             # pprint(id_or_filename)
             # pprint(resource)
             return id_or_filename

@@ -11,7 +11,7 @@
                 router-link(to="/schedules").btn.btn-primary.btn-icon.btn-fill
                   i.fa.fa-list-ul
                 router-link(to="/schedules/calendar").btn.btn-primary.btn-icon
-                  i.fa.fa-calendar
+                  i.fa.fa-th-large
             .col-sm-6.text-right
               router-link(to="/schedules/create").btn.btn-primary.btn-fill
                 span.btn-label: i.fa.fa-plus
@@ -31,21 +31,6 @@
                 .img-container
                   img(:src='props.row.module.image' :alt='props.row.module.name')
             el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
-            <!--el-table-column(min-width='120' label="Classes")-->
-            <!--template(slot-scope='props')-->
-            <!--.row-->
-            <!--.col-sm-3-->
-            <!--.img-container-->
-            <!--img(:src='props.row.module.image' alt='Image')-->
-            <!--.col-sm-9-->
-            <!--.module {{props.row.module.name}}-->
-            <!--.branch {{props.row.branch.name}}-->
-            <!--.time-->
-            <!--span.day {{props.row.day}}-->
-            <!--span ,&nbsp;-->
-            <!--span.start {{props.row.start_at}}-->
-            <!--span &nbsp;-&nbsp;-->
-            <!--span.finish {{props.row.finish_at}}-->
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/schedules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit

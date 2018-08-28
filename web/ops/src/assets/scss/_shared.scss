@@ -8,3 +8,21 @@ h1.logo {
   font-style: italic;
   font-size: 5rem;
 }
+
+
+.img-container {
+  $size: 5rem;
+  width: $size;
+  height: $size;
+  img {
+    border-radius: 1rem;
+  }
+}
+.select-image{
+  img{
+    text-align: center;
+    $size:3rem;
+    width: $size;
+    // height: $size;
+  }
+}

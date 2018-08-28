@@ -9,7 +9,7 @@
           .form-group
             label.col-sm-2.control-label Day
             .col-sm-9
-              el-select.select-primary(size='large', placeholder='Select Day', v-model='model.day', v-validate="modelValidations.day")
+              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Day', v-model='model.day', v-validate="modelValidations.day")
                 el-option.select-primary(v-for='option in selects.days', :value='option.value', :label='option.label', :key='option.label')
               small.text-danger(v-show="day.invalid")
                 | {{ getError('day') }}
@@ -28,29 +28,41 @@
           .form-group
             label.col-sm-2.control-label Module
             .col-sm-9
-              el-select.select-primary(size='large', placeholder='Select Module', v-model='model.module', v-validate="modelValidations.module")
+              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Module', v-model='model.module', v-validate="modelValidations.module")
                 el-option.select-primary(v-for='option in selects.modules', :value='option.value', :label='option.label', :key='option.label')
+                  .row.select-image
+                    .col-sm-2
+                      img(:src='option.image')
+                    .col-sm-10 {{option.label}}
               small.text-danger(v-show="module.invalid")
                 | {{ getError('module') }}
           .form-group
             label.col-sm-2.control-label Branch
             .col-sm-9
-              el-select.select-primary(size='large', placeholder='Select Branch', v-model='model.branch', v-validate="modelValidations.branch")
+              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Branch', v-model='model.branch', v-validate="modelValidations.branch")
                 el-option.select-primary(v-for='option in selects.branches', :value='option.value', :label='option.label', :key='option.label')
               small.text-danger(v-show="branch.invalid")
                 | {{ getError('branch') }}
           .form-group
             label.col-sm-2.control-label Tutor
             .col-sm-9
-              el-select.select-primary(size='large', placeholder='Select Tutor', v-model='model.tutor', v-validate="modelValidations.tutor")
+              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Tutor', v-model='model.tutor', v-validate="modelValidations.tutor")
                 el-option.select-primary(v-for='option in selects.tutors', :value='option.value', :label='option.label', :key='option.label')
+                  .row.select-image
+                    .col-sm-2
+                      img(:src='option.image')
+                    .col-sm-10 {{option.label}}
               small.text-danger(v-show="tutor.invalid")
                 | {{ getError('tutor') }}
           .form-group
             label.col-sm-2.control-label Students
             .col-sm-9
-              el-select.select-primary.select-students(multiple, size='large', placeholder='Select Students', v-model='model.students', v-validate="modelValidations.students")
+              el-select.select-primary.select-students(multiple, filterable, default-first-option, size='large', placeholder='Select Students', v-model='model.students', v-validate="modelValidations.students")
                 el-option.select-primary(v-for='option in selects.students', :value='option.value', :label='option.label', :key='option.label')
+                  .row.select-image
+                    .col-sm-2
+                      img(:src='option.image')
+                    .col-sm-10 {{option.label}}
               small.text-danger(v-show="students.invalid")
                 | {{ getError('students') }}
       .card-footer.text-center
@@ -216,7 +228,11 @@ export default {
       .get(`${process.env.DBAPI}/modules`, { params })
       .then(response => {
         this.selects.modules = response.data._items.map(v => {
-          return { value: v.id, label: v.name.toUpperCase() };
+          return {
+            value: v.id,
+            label: v.name.toUpperCase(),
+            image: v.image
+          };
         });
       })
       .catch(error => console.log(error, error.response));
@@ -234,7 +250,11 @@ export default {
       })
       .then(response => {
         this.selects.tutors = response.data._items.map(v => {
-          return { value: v.id, label: v.name.toUpperCase() };
+          return {
+            value: v.id,
+            label: v.name.toUpperCase(),
+            image: v.photo
+          };
         });
       })
       .catch(error => console.log(error, error.response));
@@ -244,7 +264,11 @@ export default {
       })
       .then(response => {
         this.selects.students = response.data._items.map(v => {
-          return { value: v.id, label: v.name.toUpperCase() };
+          return {
+            value: v.id,
+            label: v.name.toUpperCase(),
+            image: v.photo
+          };
         });
       })
       .catch(error => console.log(error, error.response));

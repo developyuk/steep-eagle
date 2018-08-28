@@ -19,6 +19,7 @@
                     .form-group
                       label Password
                       input.form-control.input-no-border(type='password' name='password' placeholder='Password please')
+                    .err(v-if="errMsg") {{errMsg}}
                   .card-footer.text-center
                     button.btn.btn-fill.btn-wd(type='submit') Let&apos;s go
                     <!--.forgot-->
@@ -31,6 +32,11 @@
 import axios from "axios";
 
 export default {
+  data() {
+    return {
+      errMsg: null
+    };
+  },
   methods: {
     toggleNavbar() {
       document.body.classList.toggle("nav-open");
@@ -50,7 +56,10 @@ export default {
           // console.log(this.$router);
           this.$router.push("/");
         })
-        .catch(error => console.log(error, error.response));
+        .catch(error => {
+          console.log(error, error.response);
+          this.errMsg = error.response.data._error.message;
+        });
     }
   },
   beforeDestroy() {
@@ -92,5 +101,11 @@ export default {
 .full-page[data-image]:after,
 .full-page.has-image:after {
   opacity: 0;
+}
+.err{
+  background-color: pink;
+  color: red;
+  padding: 1rem;
+  text-transform: capitalize
 }
 </style>

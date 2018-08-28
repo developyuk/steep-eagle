@@ -209,6 +209,10 @@ import StudentForm from '@/app/views/users/StudentForm';
 import Operations from '@/app/views/users/Operations';
 import OperationForm from '@/app/views/users/OperationForm';
 import Calendar from '@/app/views/calendar/CalendarRoute.vue'
+import ActivitiesTutors from '@/app/views/activities/Tutors';
+import ActivitiesTutorsTimeline from '@/app/views/activities/TutorsTimeLine';
+import ActivitiesStudents from '@/app/views/activities/Tutors';
+import ActivitiesStudentsTimeline from '@/app/views/activities/TutorsTimeLine';
 
 const routes = [
   {
@@ -244,7 +248,7 @@ const routes = [
     ]
   },
   {
-    path: '/activites',
+    path: '/activities',
     component: DashboardLayout,
     meta: {
       requiresAuth: true,
@@ -252,8 +256,23 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'Dashboard Page',
         component: TimeLine
+      },
+      {
+        path: 'tutors',
+        component: ActivitiesTutors
+      },
+      {
+        path: 'tutors/timeline',
+        component: ActivitiesTutorsTimeline
+      },
+      {
+        path: 'students',
+        component: ActivitiesStudents
+      },
+      {
+        path: 'students/timeline',
+        component: ActivitiesStudentsTimeline
       },
     ]
   },

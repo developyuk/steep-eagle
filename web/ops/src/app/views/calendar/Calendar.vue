@@ -1,8 +1,26 @@
 <template lang="pug">
-  .container-fluid
-    .card.card-calendar
-      .card-content
-        #fullCalendar
+  .row
+    .col-md-12
+      h4.title Calendar
+    .col-md-12.card
+      .card-header
+        .buttons
+          .row
+            .col-sm-6
+              .btn-group
+                router-link(to="/schedules").btn.btn-primary.btn-icon
+                  i.fa.fa-list-ul
+                router-link(to="/schedules/calendar").btn.btn-primary.btn-icon.btn-fill
+                  i.fa.fa-th-large
+            .col-sm-6.text-right
+              router-link(to="/schedules/create").btn.btn-primary.btn-fill
+                span.btn-label: i.fa.fa-plus
+                span Create
+      .card-content.row
+        .container-fluid
+          .card.card-calendar
+            .card-content
+              #fullCalendar
 </template>
 <script>
 import swal from "sweetalert2";

@@ -5,7 +5,7 @@ from eve_sqlalchemy import SQL
 from eve_swagger import swagger
 
 from tables import Base
-from hooks import classes
+from hooks import classes, image_empty
 # from mqtt import sessions
 from customs import MyAuth, MyMediaStorage, MyValidator
 from blueprints import auth, schedules, students, tutor_stats, calendar, swagger as my_swagger
@@ -27,6 +27,8 @@ db.Model = Base
 
 app.on_update_classes += classes.before_patch_item
 app.on_inserted_classes += classes.after_post_item
+app.on_fetched_resource += image_empty.on_fetched_resource
+app.on_fetched_item += image_empty.on_fetched_item
 # app.on_inserted += sessions.sessions_tutor_students
 
 if __name__ == '__main__':

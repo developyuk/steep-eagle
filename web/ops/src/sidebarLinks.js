@@ -15,7 +15,17 @@ export default [
     name: 'Activities',
     icon: 'ti-pulse',
     // collapsed: false,
-    path: '/activites'
+    // path: '/activites'
+    children: [
+      {
+        name: 'Tutors',
+        path: '/activities/tutors'
+      },
+      {
+        name: 'Students',
+        path: '/activities/students'
+      },
+    ]
   },
   {
     name: 'Administration',

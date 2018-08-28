@@ -1,13 +1,17 @@
 <template lang="pug">
   .row
     .col-md-12
-      h4.title Modules
+      h4.title Tutors Activities
     .col-md-12.card
       .card-header
-        .buttons.text-right
-          router-link(to="/admin/modules/create").btn.btn-primary.btn-fill
-            span.btn-label: i.fa.fa-plus
-            span Create
+        .buttons
+          .row
+            .col-sm-6
+              .btn-group
+                router-link(to="/activities/tutors").btn.btn-primary.btn-icon.btn-fill
+                  i.fa.fa-list-ul
+                router-link(to="/activities/tutors/timeline").btn.btn-primary.btn-icon
+                  i.fa.fa-th-large
       .card-content.row
         .col-sm-6
           el-select.select-default(v-model="pagination.perPage" placeholder="Per page")
@@ -18,18 +22,11 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
+            el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
                 .img-container
-                  img(:src='props.row.image' :alt='props.row.name')
-            el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
-
-            el-table-column(:min-width="120" fixed="right" label="Actions")
-              template(slot-scope="props")
-                router-link(:to="`/admin/modules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
-                  i.ti-pencil-alt
-                a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
-                  i.ti-close
+                  img(:src='props.row.module.image' :alt='props.row.module.name')
+            el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
         .col-sm-6.pagination-info
           p.category Showing {{from + 1}} to {{to}} of {{total}} entries
         .col-sm-6
@@ -41,6 +38,7 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PPagination from "src/components/UIComponents/Pagination.vue";
 import axios from "axios";
 import _range from "lodash/range";
+import mixinNotify from "src/app/mixins/notify";
 import swal from "sweetalert2";
 
 Vue.use(Table);
@@ -48,6 +46,7 @@ Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
 export default {
+  mixins: [mixinNotify],
   components: {
     PPagination
   },
@@ -79,20 +78,52 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["name"],
-
+      propsToSearch: ["q"],
       tableColumns: [
+        //          {
+        //            prop: 'module.image',
+        //            label: 'Image',
+        //            minWidth: 150
+        //          },
         {
-          prop: "image",
-          label: "Image",
-          minWidth: 60
+          prop: "module.name",
+          label: "Module",
+          minWidth: 150,
+          labelClassName: "text-capitalize",
+          className: "text-uppercase",
+          sortable: true
         },
         {
-          prop: "name",
-          label: "Name",
-          minWidth: 200,
-          className: "text-uppercase",
-          labelClassName: "text-capitalize",
+          prop: "branch.name",
+          label: "Branch",
+          minWidth: 150,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "tutor.name",
+          label: "Tutor",
+          minWidth: 150,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "day",
+          label: "Day",
+          minWidth: 100,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "start_at",
+          label: "Start",
+          minWidth: 100,
+          sortable: true
+        },
+        {
+          prop: "finish_at",
+          label: "Finish",
+          minWidth: 100,
           sortable: true
         }
       ],
@@ -101,7 +132,7 @@ export default {
   },
   methods: {
     handleEdit(index, row) {
-      alert(`Your want to edit ${row.name}`);
+      alert(`Your want to edit ${row.module.name}`);
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex(
@@ -112,7 +143,7 @@ export default {
           // title: "Input something",
           title: "Are you sure?",
           html: `You won't be able to revert this!.
-          Submit <strong>${row.name}</strong> below`,
+          Submit <strong>${row.module.name}</strong> below`,
           type: "warning",
           input: "text",
           showCancelButton: true,
@@ -121,9 +152,9 @@ export default {
           cancelButtonClass: "btn btn-danger btn-fill",
           buttonsStyling: false,
           preConfirm: text => {
-            if (text === row.name) {
+            if (text === row.module.name) {
               return axios
-                .delete(`${process.env.DBAPI}/modules/${row.id}`, {
+                .delete(`${process.env.DBAPI}/classes/${row.id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {
@@ -143,7 +174,7 @@ export default {
                 resolve({
                   title: "Error",
                   type: "error",
-                  text: `Please type <strong>${row.name}</strong>`
+                  text: `Please type <strong>${row.module.name}</strong>`
                 });
               });
             }
@@ -169,7 +200,12 @@ export default {
         params: {
           sort: "-_updated",
           max_results: this.pagination.perPage,
-          page: this.pagination.currentPage
+          page: this.pagination.currentPage,
+          embedded: {
+            'branch':true,
+            'module':true,
+            'tutor':true,
+          }
         },
         headers: {
           "cache-control": "no-cache"
@@ -184,11 +220,11 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.DBAPI}/modules`, config)
+        .get(`${process.env.DBAPI}/classes_ts`, config)
         .then(response => {
-          this.tableData = response.data._items;
-          this.pagination.total = response.data._meta.total;
-          this.pagination.currentPage = response.data._meta.page;
+          // this.tableData = response.data._items;
+          // this.pagination.total = response.data._meta.total;
+          // this.pagination.currentPage = response.data._meta.page;
         })
         .catch(error => console.log(error, error.response));
     }
@@ -199,4 +235,26 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+.img-container {
+  $size: 5rem;
+  width: $size;
+  height: $size;
+  img {
+    border-radius: 1rem;
+  }
+}
+
+.module {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+.branch,
+.time {
+  text-transform: capitalize;
+}
+
+.time {
+  min-width: 16rem;
+}
 </style>
