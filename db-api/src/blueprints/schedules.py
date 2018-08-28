@@ -1,4 +1,4 @@
-from pytz import timezone
+from pytz import timezone,utc
 from pprint import pprint
 from datetime import timedelta, datetime
 import json
@@ -21,10 +21,13 @@ def last_session(class_):
         'session_tutors',
         'session_tutors.tutor',
     ]})
+
+    utc_this = class_['start_at_ts'].astimezone(timezone('UTC'))
     r = {
-        '_created': '>=\'%s\'' % class_['start_at_ts'].strftime('%Y-%m-%d'),
+        '_created': '>=\'%s\'' % utc_this.strftime('%Y-%m-%d'),
         'class_id': class_['id']
     }
+    pprint(r)
 
     sessions, *_ = get('sessions', r)
     sessions = sessions['_items']
@@ -74,10 +77,10 @@ def schedules():
         else:
             return True
 
-    classes = filter(lambda v: v['finish_at_ts'] > (datetime.now(
-        timezone('Asia/Jakarta')) - timedelta(hours=2)), classes)
-    classes = filter(lambda v: v['finish_at_ts'].date() < (datetime.now(
-        timezone('Asia/Jakarta')) + timedelta(days=5)).date(), classes)
+    utc_now = utc.localize(datetime.utcnow())
+    wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
+    classes = filter(lambda v: v['finish_at_ts'] > (wib_now - timedelta(hours=2)), classes)
+    classes = filter(lambda v: v['finish_at_ts'].date() < (wib_now + timedelta(days=5)).date(), classes)
     classes = filter(exclude_dummies_non_tester, classes)
 
     classes = list(classes)
