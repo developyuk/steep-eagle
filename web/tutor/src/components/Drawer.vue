@@ -6,8 +6,7 @@
           slot(name="header")
       .mdc-drawer__content
         .mdc-card.mdc-elevation--z4
-          ul.mdc-list
-            slot
+          slot
 </template>
 
 <script>
@@ -48,10 +47,14 @@ export default {
       margin-bottom: 1rem;
     }
   }
+
   .mdc-drawer__content {
+    // position: absolute;
+    // bottom: 0;
+    // width: 100%;
     //color: map-get($palettes, red);
     // color: #fff;
-    // height: 100%;
+    height: 100%;
     > .mdc-card {
       height: 100%;
       background-color: transparent;
@@ -60,8 +63,7 @@ export default {
       //   0px -2px 2px 0px rgba(0, 0, 0, 0.14),
       //   0px -1px 0 0px rgba(0, 0, 0, 0.12);
       box-shadow: 0px -2px 4px -1px rgba(0, 0, 0, 0),
-        0px -4px 5px 0px rgba(0, 0, 0, 0.1),
-        0px -1px 0 0px rgba(0, 0, 0, 0.1);
+        0px -4px 5px 0px rgba(0, 0, 0, 0.1), 0px -1px 0 0px rgba(0, 0, 0, 0.1);
     }
   }
 }

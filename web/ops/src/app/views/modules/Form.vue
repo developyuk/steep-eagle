@@ -15,9 +15,9 @@
           .form-group
             label.col-sm-2.control-label Image
             .col-sm-9
-              input.form-control(type="file" name="fimage" v-validate="modelValidations.fimage" @change="onChangeImage")
-              small.text-danger(v-show="fimage.invalid")
-                | {{ getError('fimage') }}
+              input.form-control(type="file" name="image" v-validate="modelValidations.image" @change="onChangeImage")
+              small.text-danger(v-show="image.invalid")
+                | {{ getError('image') }}
 
       .card-footer.text-center
         .row
@@ -34,7 +34,7 @@ import mixinNotify from "src/app/mixins/notify";
 
 export default {
   computed: {
-    ...mapFields(["name", "fimage"])
+    ...mapFields(["name", "image"])
   },
   mixins: [mixinNotify],
   data() {
@@ -42,13 +42,13 @@ export default {
       isCreate: true,
       model: {
         name: "",
-        fimage: null
+        image: null
       },
       modelValidations: {
         name: {
           required: true
         },
-        fimage: {
+        image: {
           image: true
         }
       }
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     onChangeImage(e) {
-      this.model.fimage = e.target.files[0];
+      this.model.image = e.target.files[0];
     },
     getError(fieldName) {
       return this.errors.first(fieldName);
@@ -68,8 +68,8 @@ export default {
         }
         const data = new FormData();
         data.append("name", this.model.name);
-        if (this.model.fimage) {
-          data.append("fimage", this.model.fimage);
+        if (this.model.image) {
+          data.append("image", this.model.image);
         }
         const config = {
           headers: {

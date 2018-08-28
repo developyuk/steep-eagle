@@ -64,7 +64,7 @@ class Modules(CommonColumns):
     image = Column(String)
 
 
-class ClassStudents(Base):
+class ClassStudents(CommonColumns):
     __tablename__ = 'class_students'
     id = Column(Integer, primary_key=True, autoincrement=True)
     class_id = Column(Integer, ForeignKey('classes.id'))
@@ -105,6 +105,7 @@ class Sessions(CommonColumns):
 
     class_ = relationship("ClassesTs", back_populates="sessions")
     session_tutors = relationship("SessionsTutors", back_populates="session")
+    session_students = relationship("SessionsStudents", back_populates="session")
 
 
 class SessionsTutors(CommonColumns):
@@ -115,23 +116,26 @@ class SessionsTutors(CommonColumns):
     tutor = relationship("Users")
 
     session = relationship("Sessions", back_populates="session_tutors")
-    session_students = relationship(
-        "SessionsTutorsStudents", back_populates="session_tutor")
+    # session_students = relationship("SessionsTutorsStudents", back_populates="session_tutor")
 
 
-class SessionsTutorsStudents(CommonColumns):
-    __tablename__ = 'sessions_tutors_students'
+class SessionsStudents(CommonColumns):
+    __tablename__ = 'sessions_students'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    session_id = Column(Integer, ForeignKey('sessions.id'))
+    tutor_id = Column(Integer, ForeignKey('users.id'))
+    student_id = Column(Integer, ForeignKey('users.id'))
     status = Column(Boolean)
     feedback = Column(String)
     rating_interaction = Column(Integer)
     rating_cognition = Column(Integer)
     rating_creativity = Column(Integer)
-    session_tutor_id = Column(Integer, ForeignKey('sessions_tutors.id'))
-    session_tutor = relationship(
-        "SessionsTutors", back_populates="session_students")
-    student_id = Column(Integer, ForeignKey('users.id'))
-    student = relationship("Users")
+    # session_tutor_id = Column(Integer, ForeignKey('sessions_tutors.id'))
+    # session_tutor = relationship( "SessionsTutors", back_populates="session_students")
+
+    session = relationship("Sessions", back_populates="session_students")
+    student = relationship("Users",foreign_keys=[student_id])
+    tutor = relationship("Users",foreign_keys=[tutor_id])
 
 
 dow = dict(
@@ -147,8 +151,7 @@ class ClassesTs(Classes):
 
     @hybrid_property
     def start_at_ts(self):
-        dt = datetime.strptime('%sT%s' % (
-            onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
+        dt = datetime.strptime('%sT%s' % (onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
         return timezone('Asia/Jakarta').localize(dt)
 
     @start_at_ts.expression

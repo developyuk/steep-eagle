@@ -1,13 +1,16 @@
 from pprint import pprint
 import os
-from eve.io.media import MediaStorage
+from uuid import uuid4
 
+from eve.io.media import MediaStorage
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
 from tables import Users
 from minio import Minio
 from minio.error import ResponseError
 from eve_sqlalchemy.validation import ValidatorSQL
+from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 
 minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
                     access_key=os.environ['MINIO_ACCESS_KEY'],
@@ -42,12 +45,14 @@ class MyMediaStorage(MediaStorage):
             # pprint(content)
             # pprint(filename)
             # pprint(content_type)
-
-            name = secure_filename(content.filename)
+            ext = filename.rsplit('.', 1)[1].lower()
+            name = uuid4().hex+'.'+ext
+            # name = secure_filename(content.filename)
             location = os.path.join(app.config['UPLOAD_FOLDER'], name)
             content.save(location)
-            minioClient.fput_object('modules-img', name, location, content_type)
-            url = minioClient.presigned_get_object('modules-img', name)
+            minioClient.fput_object(
+                'module-images', name, location, content_type)
+            url = minioClient.presigned_get_object('module-images', name)
             return name
             # return url.split('?')[0].split('/')[-1]
         return ''
@@ -63,29 +68,30 @@ class MyMediaStorage(MediaStorage):
 
 
 class MyValidator(ValidatorSQL):
-    # def _validate_isodd(self, isodd, field, value):
-    #     if isodd and not bool(value & 1):
-    #         self._error(field, "Value must be an odd number")
-    # def _validate_type_ghost(self, value):
-    # """ Enables validation for `objectid` schema attribute.
+    def _validate_type_media(self, field, value):
+        """ Enables validation for `media` data type.
 
-    # :param value: field value.
-    # """
-    # if isinstance(value, ObjectId):
-    #     return True
-    def _normalize_coerce_upload(self, value):
-        db_images = app.data.driver.db['images']
-        name = app.media.put(value, filename=value.filename,
-                             content_type=value.mimetype, resource='images')
+        :param field: field name.
+        :param value: field value.
 
-        # date_utc = datetime.utcnow().replace(microsecond=0)
-        # documents = [{
-        #     'owner': ObjectId(app.auth.get_request_auth_value()),
-        #     'image': name,
-        #     app.config['LAST_UPDATED']: date_utc,
-        #     app.config['DATE_CREATED']: date_utc,
-        # }]
-        # resolve_document_etag(documents, 'images')
-        # image_id = db_images.insert_one(documents[0]).inserted_id
+        .. versionadded:: 0.3
+        """
+        if not isinstance(value, FileStorage):
+            self._error(field, "file was expected, got '%s' instead." % value)
 
-        return name
+    # def _normalize_coerce_upload(self, value):
+    #     # db_images = app.data.driver.db['images']
+    #     name = app.media.put(value, filename=value.filename,
+    #                          content_type=value.mimetype, resource='modules')
+
+    #     # date_utc = datetime.utcnow().replace(microsecond=0)
+    #     # documents = [{
+    #     #     'owner': ObjectId(app.auth.get_request_auth_value()),
+    #     #     'image': name,
+    #     #     app.config['LAST_UPDATED']: date_utc,
+    #     #     app.config['DATE_CREATED']: date_utc,
+    #     # }]
+    #     # resolve_document_etag(documents, 'images')
+    #     # image_id = db_images.insert_one(documents[0]).inserted_id
+
+    #     return name

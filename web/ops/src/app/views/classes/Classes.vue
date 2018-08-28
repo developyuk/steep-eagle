@@ -225,7 +225,12 @@ export default {
         params: {
           sort: "-_updated",
           max_results: this.pagination.perPage,
-          page: this.pagination.currentPage
+          page: this.pagination.currentPage,
+          embedded: {
+            'branch':true,
+            'module':true,
+            'tutor':true,
+          }
         },
         headers: {
           "cache-control": "no-cache"

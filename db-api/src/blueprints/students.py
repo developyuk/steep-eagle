@@ -3,7 +3,7 @@ from pprint import pprint
 from datetime import timedelta, datetime
 from copy import deepcopy
 
-from tables import SessionsTutors, SessionsTutorsStudents
+from tables import SessionsTutors, SessionsStudents
 
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
@@ -35,15 +35,15 @@ def students():
     sessions = sessions['_items']
 
     def filter_session_students(v, st):
+        # pprint(st)
         r = {
             '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d %H:%M:%S'),
             'student_id': v['student']['id'],
-            'session_tutor_id': st['id']
+            'session_id': st['session']['id'],
+            'tutor_id': app.auth.get_request_auth_value()
         }
-        sessions_students, *_ = get('sessions_tutors_students', r)
+        sessions_students, *_ = get('sessions_students', r)
         sessions_students = sessions_students['_items']
-        pprint(sessions_students)
-        pprint(sessions_students)
 
         return len(sessions_students) == 0
 

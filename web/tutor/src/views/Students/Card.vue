@@ -8,7 +8,7 @@
     hr.mdc-list-divider(v-if="isActive")
 
     //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    component(:is="currentComponent" :stid="stid" :uid="student.id" :name="student.name")
+    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student.id" :name="student.name")
 </template>
 
 <script>
@@ -24,7 +24,7 @@
       'my-img': () => import('@/components/Img'),
       'placeholder': () => import('@/components/Placeholder'),
     },
-    props: ['stid', 'student', 'isActive', 'index'],
+    props: ['stid', 'student', 'isActive', 'index','sid','tid'],
     computed: {
       ...mapState(['currentAuth', 'currentMqtt']),
     },
@@ -56,7 +56,7 @@
       //          if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
       //
       //
-      //            let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
+      //            let url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
       //            let params = {
       //              session_tutor: this.stid,
       //              student: this.student.id,

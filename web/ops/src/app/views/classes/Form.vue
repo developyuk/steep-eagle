@@ -211,8 +211,9 @@ export default {
   },
   mounted() {
     const id = this.$route.params.id;
+    const params = { max_results: 999 };
     axios
-      .get(`${process.env.DBAPI}/modules`)
+      .get(`${process.env.DBAPI}/modules`, { params })
       .then(response => {
         this.selects.modules = response.data._items.map(v => {
           return { value: v.id, label: v.name.toUpperCase() };
@@ -220,7 +221,7 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.DBAPI}/branches`)
+      .get(`${process.env.DBAPI}/branches`, { params })
       .then(response => {
         this.selects.branches = response.data._items.map(v => {
           return { value: v.id, label: v.name.toUpperCase() };
@@ -228,7 +229,7 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.DBAPI}/users`,{
+      .get(`${process.env.DBAPI}/users`, {
         params: { where: { role: "tutor" }, sort: "name", max_results: 9999 }
       })
       .then(response => {

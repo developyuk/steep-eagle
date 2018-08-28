@@ -12,30 +12,33 @@
           my-img(:src="currentAuth.photo" myIs="tutor")
         .name.mdc-typography--headline6 {{currentAuth.name || currentAuth.username}}
         .email {{currentAuth.email}}
-      li.mdc-list-item
-        .stats.stats--icons.mdc-layout-grid
-          .mdc-layout-grid__inner
-            .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-              i.material-icons.mdc-tab__icon(aria-hidden="true") class
-              .text {{currentStats.classes}} classes
-            .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-              i.material-icons.mdc-tab__icon(aria-hidden="true") watch_later
-              .text {{currentStats.hours}} hours
-            .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-              i.material-icons.mdc-tab__icon(aria-hidden="true") stars
-              .text {{currentStats.feedbacks}} feedbacks
-      li.mdc-list-item
-        .stats.stats--texts
-          .mdc-card.ratings
-            .title ratings given
-            .text {{currentStats.ratings}}%
-          .mdc-card.reviews
-            .title reviews given
-            .text {{currentStats.reviews}}%
-          .mdc-card.attendances
-            .title teaching attendances
-            .text {{currentStats.attendances}}%
-      .sign-out
+
+      ul.mdc-list.stats-list
+        li.mdc-list-item
+          .stats.stats--icons.mdc-layout-grid
+            .mdc-layout-grid__inner
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") class
+                .text {{currentStats.classes}} classes
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") watch_later
+                .text {{currentStats.hours}} hours
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") stars
+                .text {{currentStats.feedbacks}} feedbacks
+        li.mdc-list-item
+          .stats.stats--texts
+            .mdc-card.ratings
+              .title ratings given
+              .text {{currentStats.ratings}}%
+            .mdc-card.reviews
+              .title reviews given
+              .text {{currentStats.reviews}}%
+            .mdc-card.attendances
+              .title teaching attendances
+              .text {{currentStats.attendances}}%
+
+      ul.mdc-list.sign-out
         li.mdc-list-divider(role="separator")
         li.mdc-list-item
           a(href='#' @click.prevent="signOut($event)")
@@ -173,10 +176,14 @@ img.logo {
   color: #fff;
   margin-right: 1rem;
 }
+.stats-list{
+  height: calc(100% - 3rem);
+  // display: block
+  min-height:20rem;
+  // height:100%;
+}
 .sign-out {
-  position: absolute;
-  bottom: 0;
-  height: 4rem;
+  height: 3rem;
   width: 100%;
   .mdc-list-item {
     height: 100%;
@@ -188,7 +195,7 @@ img.logo {
     display: block;
     width: 100%;
     height: 100%;
-    padding-top: 2.5rem;
+    padding-top: 1.5rem;
   }
   .mdc-list-item__graphic {
     vertical-align: middle;

@@ -31,6 +31,7 @@ services:
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - HOST=${HOST}
       - HOST_IP=${HOST_IP}
+      - HOST_STORAGE=${HOST_STORAGE}
     depends_on:
       - db
     command: gunicorn -b 0.0.0.0:3000 --reload main:app

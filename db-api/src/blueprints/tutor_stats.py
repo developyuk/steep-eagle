@@ -1,31 +1,94 @@
+from datetime import timedelta, datetime, date
+from pprint import pprint
+from copy import deepcopy
+
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS, cross_origin
 from eve.auth import requires_auth
-from datetime import timedelta, datetime
+from eve.methods import get
 
 blueprint = Blueprint('tutor_stats', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
+
+dow = dict(
+    zip('monday tuesday wednesday thursday friday saturday sunday'.split(), range(7)))
 
 
 @blueprint.route('/tutor_stats', methods=['GET'])
 @requires_auth('/tutor_stats')
 def tutor_stats():
-  return jsonify({'_items': {
-    'classes_sum': 0,
-    'hours_sum': 0,
-    'feedbacks_sum': 0,
-    'ratings_avg': 0,
-    'reviews_avg': 0,
-    'attendances_avg': 0,
-  }})
+    app_config_ori = deepcopy(app.config)
+
+    date_from = date(2018, 3, 10)
+    date_to = date.today()
+    total_days = (date_to - date_from).days + 1  # inclusive 5 days
+    date_range = map(lambda v: (
+        date_from + timedelta(days=v)), range(total_days))
+
+    app.config['DOMAIN']['classes'].update({'embedded_fields': [
+        'students',
+        # 'students.student'
+    ]})
+    classes, *_ = get('classes',
+                      {'tutor_id': app.auth.get_request_auth_value()})
+    classes = classes['_items']
+
+    sessions_tutors, *_ = get('sessions_tutors',
+                              {'tutor_id': app.auth.get_request_auth_value()})
+    sessions_tutors = sessions_tutors['_items']
+
+    sessions_students_feedback, *_ = get('sessions_students', {
+        'tutor_id': app.auth.get_request_auth_value(),
+        'feedback': "!=\"\""
+    })
+    sessions_students_feedback = sessions_students_feedback['_items']
+
+    sessions_students_rating, *_ = get('sessions_students', {
+        'tutor_id': app.auth.get_request_auth_value(),
+        "rating_interaction": "!=0",
+        "rating_cognition": "!=0",
+        "rating_creativity": "!=0"
+    })
+    sessions_students_rating = sessions_students_rating['_items']
+
+    classes_sum = 0
+    hours_sum = 0
+    sessions_students_sum = 0
+    for v in date_range:
+        for v2 in classes:
+            # pprint(v.weekday())
+            # pprint(dow[v2['day']])
+            if v.weekday() == dow[v2['day']]:
+                classes_sum = classes_sum+1
+                finish_time = datetime.strptime(v2['finish_at'], '%H:%M')
+                start_time = datetime.strptime(v2['start_at'], '%H:%M')
+                hours_interval = (finish_time - start_time).total_seconds() / 3600
+                hours_sum = hours_sum + hours_interval
+
+                sessions_students_sum = sessions_students_sum + \
+                    len(v2['students'])
+    ratings_avg = (len(sessions_students_rating) / sessions_students_sum) * 100
+    reviews_avg = (len(sessions_students_feedback) /
+                   sessions_students_sum) * 100
+    attendances_avg = (len(sessions_tutors) / classes_sum) * 100
+    app.config = app_config_ori
+    return jsonify({'_items': {
+        'classes_sum': classes_sum,
+        'hours_sum': round(hours_sum, 0),
+        'feedbacks_sum': len(sessions_students_feedback),
+        'ratings_avg': round(ratings_avg, 2),
+        'reviews_avg': round(reviews_avg, 2),
+        'attendances_avg': round(attendances_avg, 2),
+    }})
+
 
 @blueprint.after_request
 def add_header(response):
-  response.cache_control.max_age = app.config['CACHE_EXPIRES']
-  response.cache_control.public = True
-  response.cache_control.must_revalidate = True
+    response.cache_control.max_age = app.config['CACHE_EXPIRES']
+    response.cache_control.public = True
+    response.cache_control.must_revalidate = True
 
-  now = datetime.now()
-  then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-  response.headers['Expires'] = then
-  return response
+    now = datetime.now()
+    then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
+    response.headers['Expires'] = then
+    return response

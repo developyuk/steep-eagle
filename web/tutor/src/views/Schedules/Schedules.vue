@@ -228,7 +228,8 @@ export default {
 
           this.getSchedules({ forceRefresh: true });
           let snackbarOpts = {
-            message: `Start ${this.currentClass.module.name.toUpperCase()}`
+            message: `You started a class`
+            // message: `Start ${this.currentClass.module.name.toUpperCase()}`
           };
           const { by: msgBy, s: MsgS, st: MsgSt } = parsedMessage;
           if (msgBy.id === this.currentAuth.id) {

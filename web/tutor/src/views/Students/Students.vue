@@ -14,7 +14,7 @@
             placeholder(:value="v.session.class_.finish_at" val-empty="00:00")
         ul.mdc-list
           template(v-for="(vv,ii) in v.session.class_.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :sid="v.session.id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
 
     snackbar(@mounted="onMountedSnackbar")
@@ -185,13 +185,14 @@
               this.getStudentsSessions({forceRefresh: true});
 
               let snackbarOpts = {
-                message: `Submit ${name.split(" ")[0].toUpperCase()}`,
+                message: `You submitted a progress`,
+                // message: `Submit ${name.split(" ")[0].toUpperCase()}`,
               };
               if (msgBy.id === this.currentAuth.id) {
                 snackbarOpts = Object.assign(snackbarOpts, {
                   actionText: 'Undo',
                   actionHandler: () => {
-                    const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students/${sts.id}`;
+                    const url = `${process.env.VUE_APP_DBAPI}/sessions_students/${sts.id}`;
 
                     axios.delete(url, {headers: {'If-Match': sts.et}})
                       .then(response => {

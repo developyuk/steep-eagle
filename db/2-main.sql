@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS classes CASCADE;
 DROP TABLE IF EXISTS class_students CASCADE;
 DROP TABLE IF EXISTS modules CASCADE;
 DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS sessions_students CASCADE;
 DROP TABLE IF EXISTS sessions_tutors CASCADE;
-DROP TABLE IF EXISTS sessions_tutors_students CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 
@@ -57,7 +57,6 @@ CREATE TABLE users (
   name    TEXT,
   dob     TEXT,
   photo   TEXT,
-  user_id INT REFERENCES users (id),
   _created TIMESTAMP DEFAULT NOW(),
   _updated TIMESTAMP DEFAULT NOW(),
   _etag    TEXT,
@@ -69,12 +68,12 @@ CREATE TABLE users (
 
 CREATE TABLE classes (
   id                BIGSERIAL PRIMARY KEY,
-  day               DAYS    NOT NULL,
-  start_at          CHAR(5) NOT NULL,
-  finish_at         CHAR(5) NOT NULL,
   module_id INT REFERENCES modules (id),
   branch_id         INT REFERENCES branches (id),
   tutor_id          INT REFERENCES users (id),
+  day               DAYS    NOT NULL,
+  start_at          CHAR(5) NOT NULL,
+  finish_at         CHAR(5) NOT NULL,
   _created          TIMESTAMP DEFAULT NOW(),
   _updated          TIMESTAMP DEFAULT NOW(),
   _etag    TEXT,
@@ -91,6 +90,9 @@ CREATE TABLE class_students (
   id         BIGSERIAL PRIMARY KEY,
   class_id   INT REFERENCES classes (id),
   student_id INT REFERENCES users (id),
+  _created          TIMESTAMP DEFAULT NOW(),
+  _updated          TIMESTAMP DEFAULT NOW(),
+  _etag    TEXT,
   UNIQUE (
     class_id,
     student_id
@@ -114,15 +116,16 @@ CREATE TABLE sessions_tutors (
   _etag    TEXT
 );
 
-CREATE TABLE sessions_tutors_students (
+CREATE TABLE sessions_students (
   id                 BIGSERIAL PRIMARY KEY,
+  session_id INT REFERENCES sessions (id),
+  tutor_id           INT REFERENCES users (id),
+  student_id         INT REFERENCES users (id),
   status             BOOLEAN ,
   feedback           TEXT    ,
   rating_interaction SMALLINT,
   rating_cognition   SMALLINT,
   rating_creativity  SMALLINT,
-  session_tutor_id   INT REFERENCES sessions_tutors (id),
-  student_id         INT REFERENCES users (id),
   _created           TIMESTAMP DEFAULT NOW(),
   _updated           TIMESTAMP DEFAULT NOW(),
   _etag    TEXT

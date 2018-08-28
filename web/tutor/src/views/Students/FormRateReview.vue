@@ -27,171 +27,189 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import {getCorrectEventName} from '@material/animation';
-  import {mapState} from 'vuex';
-  //  import {mapState, mapMutations} from 'vuex';
-  import {MDCRipple} from '@material/ripple';
-  import {MDCTextField} from '@material/textfield';
+import axios from "axios";
+import { getCorrectEventName } from "@material/animation";
+import { mapState } from "vuex";
+//  import {mapState, mapMutations} from 'vuex';
+import { MDCRipple } from "@material/ripple";
+import { MDCTextField } from "@material/textfield";
 
-  export default {
-    props: ['stid', 'uid', 'name'],
-    components: {
-      'rating': () => import('./Rating')
+export default {
+  props: ["stid", "uid", "name", "sid", "tid"],
+  components: {
+    rating: () => import("./Rating")
+  },
+  computed: {
+    ...mapState(["currentAuth", "currentMqtt"])
+  },
+  data() {
+    return {
+      ratingInteraction: 0,
+      ratingCreativity: 0,
+      ratingCognition: 0,
+      review: ""
+    };
+  },
+  methods: {
+    onChangeCognition(e) {
+      this.ratingCognition = e;
     },
-    computed: {
-      ...mapState(['currentAuth', 'currentMqtt']),
+    onChangeCreativity(e) {
+      this.ratingCreativity = e;
     },
-    data() {
-      return {
-        ratingInteraction: 0,
-        ratingCreativity: 0,
-        ratingCognition: 0,
-        review: '',
-      }
+    onChangeInteraction(e) {
+      this.ratingInteraction = e;
     },
-    methods: {
-      onChangeCognition(e) {
-        this.ratingCognition = e;
-      },
-      onChangeCreativity(e) {
-        this.ratingCreativity = e;
-      },
-      onChangeInteraction(e) {
-        this.ratingInteraction = e;
-      },
-      submit() {
-//        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
-        const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
-        const data = {
-          session_tutor: this.stid,
-          student: this.uid,
-          rating_interaction: parseInt(this.ratingInteraction),
-          rating_creativity: parseInt(this.ratingCreativity),
-          rating_cognition: parseInt(this.ratingCognition),
-          feedback: this.review,
-          status: true,
-        };
+    submit() {
+      //        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
+      const url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
+      const data = {
+        // session_tutor: this.stid,
+        session_id: this.sid,
+        tutor_id: this.tid,
+        student: this.uid,
+        rating_interaction: parseInt(this.ratingInteraction),
+        rating_creativity: parseInt(this.ratingCreativity),
+        rating_cognition: parseInt(this.ratingCognition),
+        feedback: this.review,
+        status: true
+      };
 
-        axios.post(url, data)
-          .then(response => {
-            console.log(response.data);
+      axios
+        .post(url, data)
+        .then(response => {
+          console.log(response.data);
 
-            this.currentMqtt.mqtt
-              .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.stid,
-                uid: this.uid,
-                name: this.name,
-                by: this.currentAuth,
-                sts: {
-                  id: response.data.id,
-                  et: response.data._etag,
-                },
-                on: "successRateReview",
-              }));
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      },
-      absence() {
-        const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors_students`;
-        const data = {
-          session_tutor: this.stid,
-          student: this.uid,
-          rating_interaction: parseInt(this.ratingInteraction),
-          rating_creativity: parseInt(this.ratingCreativity),
-          rating_cognition: parseInt(this.ratingCognition),
-          feedback: this.review,
-          status: false,
-        };
-
-        axios.post(url, data)
-          .then(response => {
-            console.log(response.data);
-
-            this.currentMqtt.mqtt
-              .publish(this.currentMqtt.topic, JSON.stringify({
-                sid: this.stid,
-                uid: this.uid,
-                name: this.name,
-                by: this.currentAuth,
-                sts: {
-                  id: response.data.id,
-                  et: response.data._etag,
-                },
-                on: "successRateReview",
-              }));
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      }
+          this.currentMqtt.mqtt.publish(
+            this.currentMqtt.topic,
+            JSON.stringify({
+              sid: this.sid,
+              tid: this.tid,
+              // sid: this.stid,
+              uid: this.uid,
+              name: this.name,
+              by: this.currentAuth,
+              sts: {
+                id: response.data.id,
+                et: response.data._etag
+              },
+              on: "successRateReview"
+            })
+          );
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
-    mounted() {
-      new MDCTextField(this.$el.querySelector('.mdc-text-field'));
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+    absence() {
+      const url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
+      const data = {
+        // session_tutor: this.stid,
+        session: this.sid,
+        tutor: this.tid,
+        student: this.uid,
+        rating_interaction: parseInt(this.ratingInteraction),
+        rating_creativity: parseInt(this.ratingCreativity),
+        rating_cognition: parseInt(this.ratingCognition),
+        feedback: this.review,
+        status: false
+      };
+      console.log(data);
+
+      axios
+        .post(url, data)
+        .then(response => {
+          console.log(response.data);
+
+          this.currentMqtt.mqtt.publish(
+            this.currentMqtt.topic,
+            JSON.stringify({
+              sid: this.sid,
+              tid: this.tid,
+              // sid: this.stid,
+              uid: this.uid,
+              name: this.name,
+              by: this.currentAuth,
+              sts: {
+                id: response.data.id,
+                et: response.data._etag
+              },
+              on: "successRateReview"
+            })
+          );
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
+  },
+  mounted() {
+    new MDCTextField(this.$el.querySelector(".mdc-text-field"));
+    new MDCRipple(this.$el.querySelector(".mdc-button"));
   }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../../assets/shared";
+@import "../../assets/shared";
 
-  #form-rate-review {
-    padding: 0 2rem;
-    background-color: #fff;
-    /*min-width: 90%;*/
-    max-width: 100%;
+#form-rate-review {
+  padding: 0 2rem;
+  background-color: #fff;
+  /*min-width: 90%;*/
+  max-width: 100%;
+}
+
+.rate {
+  .cognition,
+  .creativity,
+  .interaction {
+    text-transform: capitalize;
+    .title {
+      font-weight: 500;
+    }
   }
+  .title .title {
+    float: left;
+  }
+  .stars {
+    float: right;
+  }
+}
 
-  .rate {
-    .cognition, .creativity, .interaction {
+.rate,
+.review {
+  > .title {
+    color: #bdbdbd;
+    font-size: 0.75rem;
+    margin: 0;
+    padding: 1rem 0;
+    .name {
       text-transform: capitalize;
-      .title {
-        font-weight: 500;
-      }
-    }
-    .title .title {
-      float: left;
-    }
-    .stars {
-      float: right;
-    }
-
-  }
-
-  .rate, .review {
-    > .title {
-      color: #BDBDBD;
-      font-size: .75rem;
-      margin: 0;
-      padding: 1rem 0;
-      .name {
-        text-transform: capitalize;
-      }
     }
   }
+}
 
-  .submit, .absence {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 1rem;
-    display: inline-block;
-  }
+.submit,
+.absence {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
 
-  .submit button {
-    width: 100%;
-    background-color: map-get($palettes, green);
-    margin: 1rem 0;
-  }
+.submit button {
+  width: 100%;
+  background-color: map-get($palettes, green);
+  margin: 1rem 0;
+}
 
-  .absence a {
-    color: map-get($palettes, orange);
-  }
+.absence a {
+  color: map-get($palettes, orange);
+}
 
-  .mdc-text-field--textarea .mdc-text-field__input {
-    padding-top: 16px;
-  }
+.mdc-text-field--textarea .mdc-text-field__input {
+  padding-top: 16px;
+}
 </style>

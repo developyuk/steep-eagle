@@ -2,7 +2,7 @@ import os
 import pprint
 
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, Branches, Classes, ClassStudents, Modules, Sessions, SessionsTutors, SessionsTutorsStudents, ClassesTs
+from tables import Users, Branches, Classes, ClassStudents, Modules, Sessions, SessionsTutors, SessionsStudents, ClassesTs
 
 # from eve_auth_jwt import JWTAuth
 SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
@@ -44,6 +44,11 @@ SWAGGER_INFO = {
 ENFORCE_IF_MATCH = True
 UPLOAD_FOLDER = '/tmp/'
 PAGINATION_LIMIT = 9999
+RETURN_MEDIA_AS_BASE64_STRING = False
+RETURN_MEDIA_AS_URL = True
+MEDIA_BASE_URL = 'http://%s:9000' % os.environ['HOST_STORAGE']
+MEDIA_ENDPOINT = 'module-images'
+UPLOAD_FOLDER = '/tmp/'
 
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned
@@ -61,11 +66,13 @@ DOMAIN = DomainConfig({
     'modules': ResourceConfig(Modules),
     'sessions': ResourceConfig(Sessions),
     'sessions_tutors': ResourceConfig(SessionsTutors),
-    'sessions_tutors_students': ResourceConfig(SessionsTutorsStudents),
+    'sessions_students': ResourceConfig(SessionsStudents),
     'classes_ts': ResourceConfig(ClassesTs),
 }).render()
 
-DOMAIN['modules']['schema']['image'].update({'coerce': 'upload'})
+DOMAIN['modules']['schema']['image'].update({'type': 'media'})
+# DOMAIN['modules']['schema']['image'].update({'coerce': 'upload','nullable': False})
+
 DOMAIN['classes'].update({'allow_unknown': True})
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
     {'embeddable': True})
@@ -96,14 +103,12 @@ DOMAIN['sessions']['schema']['class_']['data_relation'].update(
 
 DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update(
     {'embeddable': True})
-DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update(
-    {'embeddable': True})
+# DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update( {'embeddable': True})
 DOMAIN['sessions_tutors']['schema']['session']['data_relation'].update(
     {'embeddable': True})
 
-DOMAIN['sessions_tutors_students']['schema']['student']['data_relation'].update(
+DOMAIN['sessions_students']['schema']['student']['data_relation'].update(
     {'embeddable': True})
-DOMAIN['sessions_tutors_students']['schema']['session_tutor']['data_relation'].update(
-    {'embeddable': True})
+# DOMAIN['sessions_students']['schema']['session_tutor']['data_relation'].update( {'embeddable': True})
 
-# pprint.pprint(DOMAIN['modules'])
+pprint.pprint(DOMAIN['modules'])

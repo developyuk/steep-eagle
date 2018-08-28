@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 
 def sessions_tutor_students(resource_name, items):
 
-  if resource_name == 'sessions_tutors_students':
+  if resource_name == 'sessions_students':
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(client, userdata, flags, rc):
       print("Connected with result code " + str(rc))
