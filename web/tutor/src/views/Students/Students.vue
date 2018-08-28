@@ -4,16 +4,16 @@
     .mdc-list-group(v-else)
       template(v-for="(v, i) in sessions")
         h3.mdc-list-group__subheader
-          placeholder(:value="v.session.class.module.name").module
+          placeholder(:value="v.session.class_.module.name").module
           br
-          placeholder(:value="v.session.class.branch.name").branch
+          placeholder(:value="v.session.class_.branch.name").branch
           | &nbsp;&nbsp;
           .day-time
-            placeholder(:value="v.session.class.start_at" val-empty="00:00")
+            placeholder(:value="v.session.class_.start_at" val-empty="00:00")
             | &nbsp;-&nbsp;
-            placeholder(:value="v.session.class.finish_at" val-empty="00:00")
+            placeholder(:value="v.session.class_.finish_at" val-empty="00:00")
         ul.mdc-list
-          template(v-for="(vv,ii) in v.session.class.students")
+          template(v-for="(vv,ii) in v.session.class_.students")
             card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
 
@@ -59,7 +59,7 @@
         "session": {
 
           "class_id": 12,
-          "class": {
+          "class_": {
 
             "branch_id": 1,
             "start_at": "",
@@ -118,14 +118,14 @@
         const {sid, uid} = e;
         const [i, ii] = this.getSessionIndex(sid, uid);
 
-        const item = _cloneDeep(this.sessions[i].session.class.students[ii]);
+        const item = _cloneDeep(this.sessions[i].session.class_.students[ii]);
         this.sessions.forEach((v, i, a) => {
-          v.session.class.students.forEach((v2, i2, a2) => {
+          v.session.class_.students.forEach((v2, i2, a2) => {
             this.$set(a2[i2], 'isActive', false)
           });
         });
 
-        this.$set(this.sessions[i].session.class.students[ii], 'isActive', !item['isActive']);
+        this.$set(this.sessions[i].session.class_.students[ii], 'isActive', !item['isActive']);
       },
       getSessionIndex(sid, uid) {
         let i, ii;
@@ -133,7 +133,7 @@
         uid = parseInt(uid);
 
         i = _findIndex(this.sessions, v => {
-          ii = _findIndex(v.session.class.students, vv => {
+          ii = _findIndex(v.session.class_.students, vv => {
             return vv.student.id === uid && v.id === sid
           });
           return ii > -1;

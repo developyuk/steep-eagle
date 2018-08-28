@@ -68,8 +68,9 @@ class ClassStudents(Base):
     __tablename__ = 'class_students'
     id = Column(Integer, primary_key=True, autoincrement=True)
     class_id = Column(Integer, ForeignKey('classes.id'))
-    class_ = relationship("ClassesTs")
     student_id = Column(Integer, ForeignKey('users.id'))
+
+    class_ = relationship("ClassesTs")
     student = relationship("Users")
 
 
@@ -163,69 +164,3 @@ class ClassesTs(Classes):
     @finish_at_ts.expression
     def finish_at_ts(cls):
         return cls
-
-
-class Exports(ClassStudents):
-    @hybrid_property
-    def branch(self):
-        return self.class_.branch.name
-
-    @branch.expression
-    def branch(cls):
-        return Classes.branch
-
-    @hybrid_property
-    def day(self):
-        return self.class_.day
-
-    @day.expression
-    def day(cls):
-        return Classes.day
-
-    @hybrid_property
-    def start_at(self):
-        return self.class_.start_at
-
-    @start_at.expression
-    def start_at(cls):
-        return Classes.start_at
-
-    @hybrid_property
-    def finish_at(self):
-        return self.class_.finish_at
-
-    @finish_at.expression
-    def finish_at(cls):
-        return Classes.finish_at
-
-    @hybrid_property
-    def student_name(self):
-        return self.student.name
-
-    @student_name.expression
-    def student_name(cls):
-        return Users
-
-    @hybrid_property
-    def tutor_email(self):
-        return self.class_.tutor.email
-
-    @tutor_email.expression
-    def tutor_email(cls):
-        return Classes.tutor
-
-    @hybrid_property
-    def tutor_username(self):
-        return self.class_.tutor.username
-
-    @tutor_username.expression
-    def tutor_username(cls):
-        return Classes.tutor
-
-    @hybrid_property
-    def tutor_name(self):
-        return self.class_.tutor.name
-
-    @tutor_name.expression
-    def tutor_name(cls):
-        return Classes.tutor

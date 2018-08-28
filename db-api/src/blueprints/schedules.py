@@ -2,6 +2,7 @@ from pytz import timezone
 from pprint import pprint
 from datetime import timedelta, datetime
 import json
+from copy import deepcopy
 
 from tables import Users, ClassesTs, Sessions
 
@@ -16,15 +17,18 @@ CORS(blueprint, max_age=timedelta(days=10))
 
 
 def last_session(class_):
+    app.config['DOMAIN']['sessions'].update({'embedded_fields': [
+        'session_tutors',
+        'session_tutors.tutor',
+    ]})
     r = {
         '_created': '>=\'%s\'' % class_['start_at_ts'].strftime('%Y-%m-%d'),
         'class_id': class_['id']
     }
-    # pprint(r)
+
     sessions, *_ = get('sessions', r)
     sessions = sessions['_items']
     # pprint(sessions)
-    # sessions = app.data.driver.session.query(Sessions).filter(Sessions._created >= class_['start_at_ts']).filter(Sessions.class_id == class_['id']).all()
 
     return sessions
 
@@ -52,14 +56,17 @@ def groupClass(classes):
 @blueprint.route('/schedules', methods=['GET'])
 @requires_auth('/schedules')
 def schedules():
+    app_config_ori = deepcopy(app.config)
+    app.config['PAGINATION_DEFAULT'] = 999
+    app.config['DOMAIN']['classes_ts'].update({'embedded_fields': [
+        'branch',
+        'tutor',
+        'module',
+    ]})
     classes, *_ = get('classes_ts')
-    # document = app.data.driver.session.query(ClassesTs).all()
-    # classes = list(classes)
-    # pprint(classes)
     classes = classes['_items']
 
     user, *_ = getitem('users', {'id': app.auth.get_request_auth_value()})
-    # user = app.data.driver.session.query(Users).get(app.auth.get_request_auth_value())
 
     def exclude_dummies_non_tester(v):
         if 'tester' not in user['username']:
@@ -76,16 +83,25 @@ def schedules():
     classes = list(classes)
     classes.sort(key=lambda v: v['start_at_ts'])
 
+    item_counter = 0
+
     def parse(v):
+        nonlocal item_counter
+        item_counter = item_counter + 1
         v.update({'last_sessions': last_session(v)})
         return v
 
     classes = [parse(v) for v in classes]
     classes = groupClass(classes)
     # classes = []
+
+    app.config = app_config_ori
     return jsonify({
         '_items': classes,
-        'meta': {'total': len(classes)}
+        'meta': {
+            'total': len(classes),
+            'total_item': item_counter
+        }
     })
 
 

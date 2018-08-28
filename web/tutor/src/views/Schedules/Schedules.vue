@@ -180,13 +180,13 @@ export default {
     },
     getSchedules(params = { forceRefresh: false }) {
       const url = `${process.env.VUE_APP_DBAPI}/schedules`;
-      const params2 = { max_results: 999 };
+
       const headers = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";
       }
       axios
-        .get(url, { params:params2, headers })
+        .get(url, { headers })
         .then(response => {
           this.classes = response.data._items;
         })
