@@ -27,6 +27,11 @@ def tutor_stats():
 
     app.config['DOMAIN']['classes'].update({'embedded_fields': [
         'students',
+    ]})
+
+    app.config['DOMAIN']['sessions_tutors'].update({'embedded_fields': [
+        'session',
+        'session.class_',
         # 'students.student'
     ]})
     classes, *_ = get('classes',
@@ -52,28 +57,41 @@ def tutor_stats():
     sessions_students_rating = sessions_students_rating['_items']
 
     classes_sum = 0
-    hours_sum = 0
     sessions_students_sum = 0
     for v in date_range:
         for v2 in classes:
             # pprint(v.weekday())
-            # pprint(dow[v2['day']])
+            pprint(v2['students'])
             if v.weekday() == dow[v2['day']]:
                 classes_sum = classes_sum+1
-                finish_time = datetime.strptime(v2['finish_at'], '%H:%M')
-                start_time = datetime.strptime(v2['start_at'], '%H:%M')
-                hours_interval = (finish_time - start_time).total_seconds() / 3600
-                hours_sum = hours_sum + hours_interval
 
                 sessions_students_sum = sessions_students_sum + \
                     len(v2['students'])
-    ratings_avg = (len(sessions_students_rating) / sessions_students_sum) * 100
-    reviews_avg = (len(sessions_students_feedback) /
-                   sessions_students_sum) * 100
-    attendances_avg = (len(sessions_tutors) / classes_sum) * 100
+
+    hours_sum = 0
+    for v in sessions_tutors:
+        finish_time = datetime.strptime(
+            v['session']['class_']['finish_at'], '%H:%M')
+        start_time = datetime.strptime(
+            v['session']['class_']['start_at'], '%H:%M')
+        hours_interval = (finish_time - start_time).total_seconds() / 3600
+        hours_sum = hours_sum + hours_interval
+
+    ratings_avg = 0
+    if sessions_students_sum:
+      ratings_avg = (len(sessions_students_rating) / sessions_students_sum) * 100
+
+    reviews_avg = 0
+    if sessions_students_sum:
+      reviews_avg = (len(sessions_students_feedback) / sessions_students_sum) * 100
+
+    attendances_avg = 0
+    if classes_sum:
+      attendances_avg = (len(sessions_tutors) / classes_sum) * 100
+
     app.config = app_config_ori
     return jsonify({'_items': {
-        'classes_sum': classes_sum,
+        'classes_sum': len(sessions_tutors),
         'hours_sum': round(hours_sum, 0),
         'feedbacks_sum': len(sessions_students_feedback),
         'ratings_avg': round(ratings_avg, 2),

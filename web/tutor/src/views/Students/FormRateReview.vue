@@ -65,8 +65,8 @@ export default {
       const url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
       const data = {
         // session_tutor: this.stid,
-        session_id: this.sid,
-        tutor_id: this.tid,
+        session: this.sid,
+        tutor: this.tid,
         student: this.uid,
         rating_interaction: parseInt(this.ratingInteraction),
         rating_creativity: parseInt(this.ratingCreativity),
