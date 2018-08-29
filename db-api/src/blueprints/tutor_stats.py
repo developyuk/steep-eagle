@@ -61,7 +61,7 @@ def tutor_stats():
     for v in date_range:
         for v2 in classes:
             # pprint(v.weekday())
-            pprint(v2['students'])
+            # pprint(v2['students'])
             if v.weekday() == dow[v2['day']]:
                 classes_sum = classes_sum+1
 
