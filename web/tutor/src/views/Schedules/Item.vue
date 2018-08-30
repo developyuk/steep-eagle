@@ -1,7 +1,7 @@
 <template lang="pug">
   li.mdc-list-item
     .mdc-list-item__graphic
-      my-img(:src="item.module.image" myIs="module")
+      my-img(:src="item.module.image")
     span.mdc-list-item__text
       strong: placeholder(:value="item.module.name")
       placeholder(:value="item.branch.name").mdc-list-item__secondary-text

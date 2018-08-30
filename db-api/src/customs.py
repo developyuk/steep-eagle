@@ -5,12 +5,13 @@ from uuid import uuid4
 from eve.io.media import MediaStorage
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
-from tables import Users
+# from tables import Users
 from minio import Minio
 from minio.error import ResponseError
 from eve_sqlalchemy.validation import ValidatorSQL
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+import jwt
 
 minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
                     access_key=os.environ['MINIO_ACCESS_KEY'],
@@ -18,18 +19,26 @@ minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
                     secure=False)
 
 
+def auth(token):
+    try:
+        data = jwt.decode(token, app.config['JWT_SECRET'])
+    except Exception as e:
+        raise Exception(str(e))
+
+    return data
+
+
 class MyAuth(TokenAuth):
 
     def authenticate(self):
         resp = Response(None, 401)
-        abort(401, description='Please provide proper credentials',
-              response=resp)
+        abort(401, description='Please provide proper credentials', response=resp)
 
     def check_auth(self, token, allowed_roles, resource, method):
         # pprint(allowed_roles)
         # pprint(resource)
         # pprint(method)
-        user = Users.auth(token)
+        user = auth(token)
 
         if len(user):
             self.set_request_auth_value(user['id'])
@@ -51,8 +60,9 @@ class MyMediaStorage(MediaStorage):
             location = os.path.join(app.config['UPLOAD_FOLDER'], name)
             content.save(location)
             minioClient.fput_object(
-                'module-images', name, location, content_type)
-            url = minioClient.presigned_get_object('module-images', name)
+                app.config['MEDIA_ENDPOINT'], name, location, content_type)
+            url = minioClient.presigned_get_object(
+                app.config['MEDIA_ENDPOINT'], name)
             return name
             # return url.split('?')[0].split('/')[-1]
         return ''

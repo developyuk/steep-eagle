@@ -34,20 +34,6 @@ class Users(CommonColumns):
     photo = Column(String)
     pass_ = Column('pass', String)
 
-    @staticmethod
-    def auth(token):
-        try:
-            data = jwt.decode(token, app.config['JWT_SECRET'])
-        except Exception as e:
-            return jsonify({'message': str(e)}), 400
-
-        return data
-
-    def sign(self):
-        data = {
-            'id': self.id,
-        }
-        return jwt.encode(data, app.config['JWT_SECRET'])
 
 
 class Branches(CommonColumns):

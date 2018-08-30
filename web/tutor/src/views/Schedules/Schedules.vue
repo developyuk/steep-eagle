@@ -98,7 +98,6 @@ export default {
     ...mapState(["currentAuth"])
   },
   methods: {
-    ...mapMutations(["nextSearch"]),
     onMountedSnackbar(e) {
       this.snackbar = e;
     },
@@ -282,7 +281,6 @@ export default {
     //      console.log('beforeDestroy');
 
     this.mqtt.m.end();
-    this.nextSearch(null);
   }
 };
 </script>

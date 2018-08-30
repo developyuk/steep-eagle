@@ -17,7 +17,6 @@
 
   export default {
     components: {
-      'my-img': () => import('@/components/Img'),
     },
     computed: {
       ...mapState(['currentAuth', 'currentStats']),

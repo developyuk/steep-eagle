@@ -5,13 +5,14 @@ from eve_sqlalchemy import SQL
 from eve_swagger import swagger
 
 from tables import Base
-from hooks import classes, image_empty
+from hooks import class_students, image_default
 # from mqtt import sessions
 from customs import MyAuth, MyMediaStorage, MyValidator
 from blueprints import auth, schedules, students, tutor_stats, calendar, swagger as my_swagger
 
-app = Eve(auth=MyAuth, media=MyMediaStorage, validator=MyValidator, data=SQL,
-          settings=os.path.abspath('settings.py'))
+app = Eve(auth=MyAuth, media=MyMediaStorage, validator=MyValidator,
+          data=SQL, settings=os.path.abspath('settings.py'))
+
 app.register_blueprint(swagger)
 app.register_blueprint(my_swagger.blueprint)
 app.register_blueprint(auth.blueprint)
@@ -25,11 +26,11 @@ db = app.data.driver
 Base.metadata.bind = db.engine
 db.Model = Base
 
-app.on_update_classes += classes.before_patch_item
-app.on_insert_classes += classes.before_post_item
-app.on_inserted_classes += classes.after_post_item
-app.on_fetched_resource += image_empty.on_fetched_resource
-app.on_fetched_item += image_empty.on_fetched_item
+app.on_update_classes += class_students.before_patch_item
+app.on_insert_classes += class_students.before_post_item
+app.on_inserted_classes += class_students.after_post_item
+app.on_fetched_resource += image_default.on_fetched_resource
+app.on_fetched_item += image_default.on_fetched_item
 # app.on_inserted += sessions.sessions_tutor_students
 
 if __name__ == '__main__':

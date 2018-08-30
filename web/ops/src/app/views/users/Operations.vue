@@ -85,7 +85,7 @@ export default {
         {
           prop: "photo",
           label: "Photo",
-          minWidth: 200,
+          minWidth: 128,
           className: "text-capitalize",
           sortable: true
         },

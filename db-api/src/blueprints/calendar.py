@@ -36,10 +36,8 @@ def schedules():
 
     classes, *_ = get('classes')
     classes = classes['_items']
-    # classes = app.data.driver.session.query(ClassesTs).all()
 
     user, *_ = getitem('users', {'id': app.auth.get_request_auth_value()})
-    # user = app.data.driver.session.query(Users).get( app.auth.get_request_auth_value())
 
     def exclude_dummies_non_tester(v):
         if 'tester' not in user['username']:

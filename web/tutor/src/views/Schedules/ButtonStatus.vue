@@ -1,12 +1,12 @@
 <template lang="pug">
   #buttonStatus
     button(v-if="status === 'start'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
-    button(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Ongoing
-    button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activated
+    button.start-other(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
+    //- button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activated
     button(v-if="status === 'disabled'" disabled @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
     button(v-if="status === 'late'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activate
-    span.ongoing(v-if="status ==='ongoing'") Ongoing
-    span.late-ongoing(v-if="status ==='late-ongoing'") Activated
+    //- span.ongoing(v-if="status ==='ongoing'") Ongoing
+    //- span.late-ongoing(v-if="status ==='late-ongoing'") Activated
 </template>
 
 <script>
@@ -49,18 +49,19 @@ export default {
           if (mls.isBefore(mfts)) {
             status = "start-ongoing";
           }
-          if (mls.isAfter(mfts)) {
-            status = "start-late-ongoing";
-          }
+          // if (mls.isAfter(mfts)) {
+          //   status = "start-late-ongoing";
+          // }
           return status;
-        } else {
-          if (mls.isBefore(mfts)) {
-            status = "ongoing";
-          }
-          if (mls.isAfter(mfts)) {
-            status = "late-ongoing";
-          }
         }
+        // else {
+        //   if (mls.isBefore(mfts)) {
+        //     status = "ongoing";
+        //   }
+        //   if (mls.isAfter(mfts)) {
+        //     status = "late-ongoing";
+        //   }
+        // }
       } else {
         if (msts.diff(mnow, "minutes") < 5 && mfts.diff(mnow, "minutes") > 0) {
           status = "start";
@@ -92,8 +93,9 @@ export default {
 @import "../../assets/shared";
 
 .mdc-button,
-span.ongoing,
-span.late-ongoing {
+// span.ongoing,
+// span.late-ongoing
+ {
   position: absolute;
   right: 1rem;
   font-size: 1rem * (1/1.75);
@@ -109,8 +111,10 @@ span.late-ongoing {
   }
 }
 
-span.ongoing,
-span.late-ongoing {
+// span.ongoing,
+// span.late-ongoing,
+.start-other
+{
   text-transform: uppercase;
   background-color: map-get($palettes, blue);
   color: #fff;

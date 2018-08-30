@@ -57,7 +57,7 @@ export default {
     sign() {
       const url = `${process.env.VUE_APP_DBAPI}/sign`;
       const data = {
-        username: this.username.toLowerCase().slice(0, -3)
+        username: this.username
       };
       this.errMsg = "";
 

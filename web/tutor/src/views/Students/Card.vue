@@ -2,7 +2,7 @@
   li#card(:data-index="index" :data-sid="stid" :data-student="student" :data-isActive="isActive")
     .mdc-list-item
       .mdc-list-item__graphic
-        my-img(:src="student.photo" myIs="profile")
+        my-img(:src="student.photo")
       span.mdc-list-item__text
         placeholder(:value="student.name")
     hr.mdc-list-divider(v-if="isActive")
@@ -12,46 +12,46 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import _debounce from 'lodash/debounce';
-  import {getCorrectEventName} from '@material/animation';
-  import {mapState} from 'vuex';
-  import Hammer from 'hammerjs';
+import axios from "axios";
+import _debounce from "lodash/debounce";
+import { getCorrectEventName } from "@material/animation";
+import { mapState } from "vuex";
+import Hammer from "hammerjs";
 
-  export default {
-    components: {
-      'form-rate-review': () => import('./FormRateReview'),
-      'my-img': () => import('@/components/Img'),
-      'placeholder': () => import('@/components/Placeholder'),
-    },
-    props: ['stid', 'student', 'isActive', 'index','sid','tid'],
-    computed: {
-      ...mapState(['currentAuth', 'currentMqtt']),
-    },
-    watch: {
-      isActive(v) {
-        this.currentComponent = v ? 'form-rate-review' : ''
-      }
-    },
-    data() {
-      return {
-        currentComponent: '',
-        direction: null,
-        hammertime: null
-      }
-    },
-    methods: {
-      setPosition(v = 0) {
-        this.$el.style.marginLeft = `${v}px`;
-      }
-    },
-    mounted() {
-      const $el = this.$el.querySelector('.mdc-list-item');
+export default {
+  components: {
+    "form-rate-review": () => import("./FormRateReview"),
+    "my-img": () => import("@/components/Img"),
+    placeholder: () => import("@/components/Placeholder")
+  },
+  props: ["stid", "student", "isActive", "index", "sid", "tid"],
+  computed: {
+    ...mapState(["currentAuth", "currentMqtt"])
+  },
+  watch: {
+    isActive(v) {
+      this.currentComponent = v ? "form-rate-review" : "";
+    }
+  },
+  data() {
+    return {
+      currentComponent: "",
+      direction: null,
+      hammertime: null
+    };
+  },
+  methods: {
+    setPosition(v = 0) {
+      this.$el.style.marginLeft = `${v}px`;
+    }
+  },
+  mounted() {
+    const $el = this.$el.querySelector(".mdc-list-item");
 
-      this.hammertime = new Hammer($el, {});
-      this.hammertime.get('pan').set({direction: Hammer.DIRECTION_HORIZONTAL});
+    this.hammertime = new Hammer($el, {});
+    this.hammertime.get("pan").set({ direction: Hammer.DIRECTION_HORIZONTAL });
 
-      this.hammertime
+    this.hammertime
       //        .on('panend', e => {
       //          if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
       //
@@ -95,44 +95,45 @@
       //          console.log(e);
       //          this.setPosition(e.deltaX);
       //        })
-        .on('tap', e => {
-          this.$emit('tap-student', {
-            sid: this.stid,
-            uid: this.student.id,
-            name: this.student.name,
-          });
+      .on("tap", e => {
+        this.$emit("tap-student", {
+          sid: this.stid,
+          uid: this.student.id,
+          name: this.student.name
         });
-    }
+      });
   }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  @import "../../assets/shared";
-  /*@import "@material/animation/functions";*/
+@import "../../assets/shared";
+/*@import "@material/animation/functions";*/
 
-  #card {
-    max-width: 100%;
-    min-width: 100%;
+#card {
+  // max-width: 100%;
+  // min-width: 100%;
+}
+
+.mdc-list-item {
+  background-color: #fff;
+  // min-width: 100%;
+  // box-sizing: border-box;
+  // height: 4rem;
+}
+$size: 40px;
+.mdc-list-item__text {
+  text-transform: capitalize;
+  line-height: $size;
+}
+
+.mdc-list-item__graphic {
+  &,
+  img {
+    width: $size;
+    height: $size;
+    border-radius: 50%;
   }
-
-  .mdc-list-item {
-    background-color: #fff;
-    min-width: 100%;
-
-    box-sizing: border-box;
-    height: 4rem;
-  }
-
-  .mdc-list-item__text {
-    text-transform: capitalize;
-  }
-
-  .mdc-list-item__graphic {
-    &, img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-  }
+}
 </style>

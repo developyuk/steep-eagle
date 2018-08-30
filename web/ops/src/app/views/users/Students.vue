@@ -85,7 +85,7 @@ export default {
         {
           prop: "photo",
           label: "Photo",
-          minWidth: 200,
+          minWidth: 64,
           className: "text-capitalize",
           sortable: true
         },
@@ -96,13 +96,13 @@ export default {
           className: "text-capitalize",
           sortable: true
         },
-        {
-          prop: "username",
-          label: "Username",
-          minWidth: 200,
-          className: "text-capitalize",
-          sortable: true
-        },
+        // {
+        //   prop: "username",
+        //   label: "Username",
+        //   minWidth: 200,
+        //   className: "text-capitalize",
+        //   sortable: true
+        // },
         // {
         //   prop: "email",
         //   label: "Email",

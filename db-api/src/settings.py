@@ -1,5 +1,4 @@
 import os
-import pprint
 
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
 from tables import Users, Branches, Classes, ClassStudents, Modules, Sessions, SessionsTutors, SessionsStudents, ClassesTs
@@ -39,11 +38,11 @@ SWAGGER_INFO = {
         'name': 'developyuk',
         'url': 'https://www.developyuk.com/'
     },
-    'schemes': ['http', 'https'],
+    'schemes': ['https'],
 }
 ENFORCE_IF_MATCH = True
-UPLOAD_FOLDER = '/tmp/'
 PAGINATION_LIMIT = 9999
+
 RETURN_MEDIA_AS_BASE64_STRING = False
 RETURN_MEDIA_AS_URL = True
 MEDIA_BASE_URL = 'http://%s:9000' % os.environ['HOST_STORAGE']

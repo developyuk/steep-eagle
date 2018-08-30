@@ -10,22 +10,35 @@ const router = new Router({
     {
       path: '/',
       component: () => import('@/views/Schedules/Schedules'),
-      meta: {requiresAuth: true}
+      meta: { requiresAuth: true }
     },
     {
       path: '/students',
       component: () => import('@/views/Students/Students'),
-      meta: {requiresAuth: true}
+      meta: { requiresAuth: true }
     },
     {
       path: '/progress',
       component: () => import('@/views/Progress/Progress'),
-      meta: {requiresAuth: true}
+      children: [
+        // {
+        //   path: "",
+        // },
+        {
+          path: "",
+          component: () => import('@/views/Progress/Progress'),
+        },
+        {
+          path: "students",
+          component: () => import('@/views/Progress/Progress'),
+        },
+      ],
+      meta: { requiresAuth: true }
     },
     {
       path: '/search',
       component: () => import('@/views/Search/Search'),
-      meta: {requiresAuth: true, isAside: true}
+      meta: { requiresAuth: true, isAside: true }
     },
     {
       path: '/sign',
@@ -52,7 +65,7 @@ router.beforeEach((to, from, next) => {
       // console.log(error.response, to.path);
       if (to.matched.some(record => record.meta.requiresAuth)) {
         //   next({path: "/sign", query: {redirect: to.path}});
-        next({path: "/sign"});
+        next({ path: "/sign" });
       }
       // next({path: "/sign"});
     });

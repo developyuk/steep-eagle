@@ -1,2 +1,5 @@
 *.pyc
-/venv/
+/bin/
+/include/
+/lib/
+pip-*

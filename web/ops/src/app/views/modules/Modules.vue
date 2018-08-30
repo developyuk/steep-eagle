@@ -85,7 +85,7 @@ export default {
         {
           prop: "image",
           label: "Image",
-          minWidth: 60
+          minWidth: 64
         },
         {
           prop: "name",

@@ -1,13 +1,9 @@
-from pytz import timezone,utc
-from pprint import pprint
+from pytz import timezone, utc
 from datetime import timedelta, datetime
-import json
 from copy import deepcopy
 
-from tables import Users, ClassesTs, Sessions
-
 from flask import current_app as app, jsonify, Blueprint
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import humanize
 from eve.auth import requires_auth
 from eve.methods import get, getitem
@@ -27,33 +23,53 @@ def last_session(class_):
         '_created': '>=\'%s\'' % utc_this.strftime('%Y-%m-%d'),
         'class_id': class_['id']
     }
-    pprint(r)
+    # pprint(r)
 
     sessions, *_ = get('sessions', r)
     sessions = sessions['_items']
+    # sessions = sessions['_items'][0] if len(sessions['_items']) > 0 else []
     # pprint(sessions)
 
     return sessions
 
 
+utc_now = utc.localize(datetime.utcnow())
+wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
+
+
 def groupClass(classes):
     classes_group_list = []
     for class_ in classes:
-        date = class_['start_at_ts'].date().isoformat()
+        utc_this = class_['start_at_ts'].astimezone(timezone('UTC'))
+        date = utc_this.date().isoformat()
         ii = [i for i, j in enumerate(classes_group_list) if j['date'] == date]
         if not ii:
             classes_group_list.append({
                 'date': date,
                 'dateDay': class_['start_at_ts'].day,
                 'day': class_['day'],
-                'text': 'in %s' % humanize.naturaldelta(
-                    timedelta(days=(class_['start_at_ts'] - datetime.now(timezone('UTC'))).days)),
+                'text': 'in %s' % humanize.naturaldelta(timedelta(days=(utc_this.date() - utc_now.date()).days)),
                 '_items': [class_],
             })
         else:
             classes_group_list[ii[0]]['_items'].append(class_)
 
     return classes_group_list
+
+
+def exclude_current_user_session(v):
+    if len(v['last_sessions']):
+        for v2 in v['last_sessions'][0]['session_tutors']:
+            if v2['tutor']['id'] == app.auth.get_request_auth_value():
+                return False
+    return True
+
+
+def exclude_other_user_session(v):
+    if len(v['last_sessions']):
+        if (v['finish_at_ts'] < wib_now):
+            return False
+    return True
 
 
 @blueprint.route('/schedules', methods=['GET'])
@@ -72,15 +88,14 @@ def schedules():
     user, *_ = getitem('users', {'id': app.auth.get_request_auth_value()})
 
     def exclude_dummies_non_tester(v):
-        if 'tester' not in user['username']:
-            return 'dummies' not in v['module']['name']
+        if 'tester' in user['username']:
+            return 'dummies' in v['module']['name']
         else:
-            return True
+            return 'dummies' not in v['module']['name']
 
-    utc_now = utc.localize(datetime.utcnow())
-    wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
-    classes = filter(lambda v: v['finish_at_ts'] > (wib_now - timedelta(hours=2)), classes)
-    classes = filter(lambda v: v['finish_at_ts'].date() < (wib_now + timedelta(days=5)).date(), classes)
+    classes = filter(lambda v: (
+        v['finish_at_ts'] + timedelta(hours=2)) > wib_now, classes)
+    classes = filter(lambda v: v['finish_at_ts'].date() < ( wib_now + timedelta(days=5)).date(), classes)
     classes = filter(exclude_dummies_non_tester, classes)
 
     classes = list(classes)
@@ -94,7 +109,10 @@ def schedules():
         v.update({'last_sessions': last_session(v)})
         return v
 
-    classes = [parse(v) for v in classes]
+    classes = map(parse, classes)
+    classes = filter(exclude_current_user_session, classes)
+    classes = filter(exclude_other_user_session, classes)
+    # classes = [parse(v) for v in classes]
     classes = groupClass(classes)
     # classes = []
 
