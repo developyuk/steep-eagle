@@ -38,13 +38,18 @@ export default {
 @import "../assets/shared";
 .tab-bottom {
   .mdc-tab__icon {
-    padding: .125rem 0;
+    padding: 0.125rem 0;
+    $size: 2rem;
+    font-size: $size;
+    width: $size;
   }
   .mdc-tab__text-label {
     font-size: 0.5rem;
+    text-align: center;
+    padding-bottom: 0.25rem;
   }
-  .mdc-tab--stacked{
-    height: 2.5rem;
+  .mdc-tab--stacked {
+    height: 3rem;
   }
 }
 </style>

@@ -23,20 +23,7 @@ WHERE S.relkind = 'S'
 ORDER BY S.relname;
 
 
--- select count(id)
--- from (
--- SELECT DISTINCT ON (id,ts) *
--- FROM "_stats_tutors"
--- where tutor_id=1) a;
---
--- select sum(duration)
--- from (
--- select finish_at_ts-start_at_ts duration,*
--- FROM (
--- SELECT DISTINCT ON (id,ts) *
--- FROM "_stats_tutors"
--- where tutor_id=1) a) b;
---
--- select sum(id)
--- FROM "_stats_tutors"
--- where tutor_id=1 and feedback is not null and btrim(feedback,'') != ''
+SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;'
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;

@@ -1,12 +1,8 @@
-DROP TABLE IF EXISTS branches CASCADE;
-DROP TABLE IF EXISTS classes CASCADE;
-DROP TABLE IF EXISTS class_students CASCADE;
-DROP TABLE IF EXISTS modules CASCADE;
-DROP TABLE IF EXISTS sessions CASCADE;
-DROP TABLE IF EXISTS sessions_students CASCADE;
-DROP TABLE IF EXISTS sessions_tutors CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
 
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
 
 DROP TYPE IF EXISTS DAYS CASCADE;
 DROP TYPE IF EXISTS ROLES CASCADE;
@@ -130,8 +126,3 @@ CREATE TABLE sessions_students (
   _updated           TIMESTAMP DEFAULT NOW(),
   _etag    TEXT
 );
-
-SELECT 'DROP TABLE IF EXISTS ' || table_name || ' CASCADE;'
-FROM information_schema.tables
-WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-ORDER BY table_name;

@@ -76,15 +76,17 @@ def tutor_stats():
 
     ratings_avg = 0
     if sessions_students_sum:
-      ratings_avg = (len(sessions_students_rating) / sessions_students_sum) * 100
+        ratings_avg = (len(sessions_students_rating) /
+                       sessions_students_sum) * 100
 
     reviews_avg = 0
     if sessions_students_sum:
-      reviews_avg = (len(sessions_students_feedback) / sessions_students_sum) * 100
+        reviews_avg = (len(sessions_students_feedback) /
+                       sessions_students_sum) * 100
 
     attendances_avg = 0
     if classes_sum:
-      attendances_avg = (len(sessions_tutors) / classes_sum) * 100
+        attendances_avg = (len(sessions_tutors) / classes_sum) * 100
 
     app.config = app_config_ori
     return jsonify({'_items': {

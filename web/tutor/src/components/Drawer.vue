@@ -46,7 +46,7 @@ export default {
   .mdc-drawer__content {
     // height: 100%;
     > .mdc-card {
-      height: calc(100% - 8rem);
+      height: calc(100% - 9rem);
       background-color: transparent;
       margin-top: 5px;
       box-shadow: 0px -2px 4px -1px rgba(0, 0, 0, 0), 0px -4px 5px 0px rgba(0, 0, 0, 0.1), 0px -1px 0 0px rgba(0, 0, 0, 0.1);

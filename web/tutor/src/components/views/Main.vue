@@ -35,7 +35,7 @@
 
         ul.mdc-list.sign-out
           li.mdc-list-divider(role="separator")
-          li.mdc-list-item
+          li.mdc-list-item(tabindex="-1")
             a(href='#' @click.prevent="signOut($event)")
                 i.material-icons.mdc-list-item__graphic(aria-hidden='true') power_settings_new
                 | Just sign me out !
@@ -55,6 +55,7 @@
 <script>
 import MyDrawer from "@/components/Drawer";
 import { mapState, mapMutations, mapActions } from "vuex";
+import { MDCList } from "@material/list";
 
 export default {
   components: {
@@ -81,7 +82,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$route.fullPath);
+    // console.log(this.$route.fullPath);
   }
 };
 </script>
@@ -101,11 +102,13 @@ export default {
   .mdc-layout-grid__cell {
     text-align: center;
   }
-
+  .photo {
+  }
   img {
     width: 4rem;
     height: 4rem;
     border-radius: 50%;
+    margin-top: 1rem;
   }
   .mdc-list-item,
   .mdc-list-divider {
@@ -160,6 +163,9 @@ export default {
   // height:100%;
 }
 .sign-out {
+  *:focus {
+    outline: 0;
+  }
   height: auto;
   // height: 3rem;
   width: 100%;

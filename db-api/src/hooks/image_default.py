@@ -1,6 +1,8 @@
 import random
 
 # https://www.shareicon.net/pack/doraemon
+
+
 def image_empty(response, attr='image'):
     if not response[attr]:
         response[attr] = 'https://via.placeholder.com/48?text=image'
@@ -32,6 +34,7 @@ def on_fetched_resource(resource_name, response):
     if resource_name == 'sessions_tutors':
         for v in response['_items']:
             if type(v['session']['class_']['students'][0]) is dict:
+                # if type(v['session']) is not int and type(v['session']['class_']['students'][0]) is dict:
                 for v2 in v['session']['class_']['students']:
                     image_empty(v2['student'], 'photo')
 
