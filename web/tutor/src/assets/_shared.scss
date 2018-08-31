@@ -26,6 +26,10 @@ $palettes: map-merge($palettes, $colors);
 $mdc-theme-primary: map-get($palettes, red);
 $generate-keyframes: false;
 
+html {
+  touch-action: manipulation;
+}
+
 h1.logo {
   font-family: 'GothamRoundedMedium';
   font-style: italic;

@@ -64,7 +64,7 @@ body {
   /*background-color: #fff;*/
   max-width: 30rem;
   padding: 0;
-  height: 100vh;
+  // height: 100vh;
   margin: 0 auto;
 }
 

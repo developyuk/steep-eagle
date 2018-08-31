@@ -42,14 +42,13 @@
     .mdc-drawer-scrim
 
     .grid-y.grid-frame
-      .cell.shrink
-        my-header(:drawer="drawer")
+      //- .cell.shrink
+      my-header(:drawer="drawer")
       //- transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
-
       .cell.auto(:key="$route.fullPath")
         slot
-      .cell.shrink
-        tab-bottom
+      //- .cell.shrink
+      tab-bottom
 </template>
 
 <script>
@@ -91,6 +90,10 @@ export default {
 <style scoped lang="scss">
 @import "~sass-bem";
 @import "../../assets/shared";
+.grid-frame {
+  padding-top: 56px;
+  padding-bottom: 3rem;
+}
 .cell.auto {
   overflow: auto;
 }

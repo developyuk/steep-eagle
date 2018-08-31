@@ -37,6 +37,10 @@ export default {
 <style lang="scss">
 @import "../assets/shared";
 .tab-bottom {
+  position: fixed;
+  bottom: 0;
+  background-color: #fff;
+  max-width: 30rem;
   .mdc-tab__icon {
     padding: 0.125rem 0;
     $size: 2rem;

@@ -15,12 +15,11 @@ import _throttle from "lodash/throttle";
 import { mapState, mapMutations, mapActions } from "vuex";
 
 export default {
-  props: ['drawer'],
-  components: {
-  },
+  props: ["drawer"],
+  components: {},
   data() {
     return {
-      q: "",
+      q: ""
     };
   },
   methods: {
@@ -43,7 +42,13 @@ export default {
 <style scoped lang="scss">
 @import "../../assets/shared";
 @import "~sass-bem";
-
+#header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+     max-width: 30rem;
+}
 header {
   position: relative;
   background-color: $mdc-theme-primary;
