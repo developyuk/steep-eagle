@@ -1,9 +1,8 @@
 from datetime import timedelta, datetime, date
-from pprint import pprint
 from copy import deepcopy
 
 from flask import current_app as app, jsonify, Blueprint
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods import get
 
@@ -60,8 +59,6 @@ def tutor_stats():
     sessions_students_sum = 0
     for v in date_range:
         for v2 in classes:
-            # pprint(v.weekday())
-            # pprint(v2['students'])
             if v.weekday() == dow[v2['day']]:
                 classes_sum = classes_sum+1
 

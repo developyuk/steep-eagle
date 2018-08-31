@@ -5,7 +5,7 @@ from eve_sqlalchemy import SQL
 from eve_swagger import swagger
 
 from tables import Base
-from hooks import class_students, image_default
+from hooks import class_students, image_default, mqtt
 # from mqtt import sessions
 from customs import MyAuth, MyMediaStorage, MyValidator
 from blueprints import auth, schedules, students, tutor_stats, calendar, swagger as my_swagger
@@ -31,7 +31,8 @@ app.on_insert_classes += class_students.before_post_item
 app.on_inserted_classes += class_students.after_post_item
 app.on_fetched_resource += image_default.on_fetched_resource
 app.on_fetched_item += image_default.on_fetched_item
-# app.on_inserted += sessions.sessions_tutor_students
+app.on_inserted += mqtt.on_inserted
+app.on_deleted_item += mqtt.on_deleted_item
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=os.environ['DEBUG'])

@@ -21,6 +21,7 @@ services:
     build: ./db-api
     volumes:
       - ./db-api/src:/app
+      - /etc/letsencrypt:/etc/letsencrypt
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_KEY}
@@ -31,6 +32,7 @@ services:
       - HOST=${HOST}
       - HOST_IP=${HOST_IP}
       - HOST_STORAGE=${HOST_STORAGE}
+      - HOST_MQTT=${HOST_MQTT}
     depends_on:
       - db
     restart: unless-stopped

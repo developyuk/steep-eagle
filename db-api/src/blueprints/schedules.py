@@ -23,12 +23,10 @@ def last_session(class_):
         '_created': '>=\'%s\'' % utc_this.strftime('%Y-%m-%d'),
         'class_id': class_['id']
     }
-    # pprint(r)
 
     sessions, *_ = get('sessions', r)
     sessions = sessions['_items']
     # sessions = sessions['_items'][0] if len(sessions['_items']) > 0 else []
-    # pprint(sessions)
 
     return sessions
 

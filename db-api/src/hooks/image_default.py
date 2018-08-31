@@ -1,6 +1,6 @@
 import random
 
-
+# https://www.shareicon.net/pack/doraemon
 def image_empty(response, attr='image'):
     if not response[attr]:
         response[attr] = 'https://via.placeholder.com/48?text=image'

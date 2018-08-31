@@ -109,5 +109,3 @@ DOMAIN['sessions_tutors']['schema']['session']['data_relation'].update(
 DOMAIN['sessions_students']['schema']['student']['data_relation'].update(
     {'embeddable': True})
 # DOMAIN['sessions_students']['schema']['session_tutor']['data_relation'].update( {'embeddable': True})
-
-# pprint.pprint(DOMAIN['classes'])

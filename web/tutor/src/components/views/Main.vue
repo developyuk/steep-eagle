@@ -74,6 +74,10 @@ export default {
   methods: {
     onMountedDrawer(e) {
       this.drawer = e;
+    },
+    signOut(e) {
+      localStorage.removeItem("token");
+      window.location.reload();
     }
   },
   mounted() {
@@ -161,8 +165,8 @@ export default {
   width: 100%;
   .mdc-list-item {
     height: 100%;
-    padding: .25rem .75rem;
-    margin:0;
+    padding: 0.25rem 0.75rem;
+    margin: 0;
   }
   a {
     color: #fff;

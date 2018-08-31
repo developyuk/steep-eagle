@@ -142,6 +142,7 @@ export default {
         })
         .then(response => {
           this.model = response.data;
+          this.model.image = null
         })
         .catch(error => console.log(error, error.response));
     }

@@ -25,10 +25,6 @@ export default {
   },
   methods: {
     ...mapActions(["updateStats"]),
-    signOut(e) {
-      localStorage.removeItem("token");
-      window.location.reload();
-    },
     onClickSearch(e) {
       this.$router.push("/search");
     }

@@ -1,12 +1,8 @@
 from datetime import timedelta, datetime, date
-from pytz import timezone
-from pprint import pprint
 from copy import deepcopy
 
 from flask import current_app as app, jsonify, Blueprint
-from flask_cors import CORS, cross_origin
-from tables import Users, ClassesTs, Sessions
-import humanize
+from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods import get, getitem
 

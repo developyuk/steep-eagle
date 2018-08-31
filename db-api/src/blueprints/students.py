@@ -1,14 +1,10 @@
-from pytz import timezone
-from pprint import pprint
 from datetime import timedelta, datetime
 from copy import deepcopy
-
-from tables import SessionsTutors, SessionsStudents
 
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
-from eve.methods import get, getitem
+from eve.methods import get
 
 blueprint = Blueprint('students', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -35,7 +31,6 @@ def students():
     sessions = sessions['_items']
 
     def filter_session_students(v, st):
-        # pprint(st)
         r = {
             '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d %H:%M:%S'),
             'student_id': v['student']['id'],
@@ -55,7 +50,8 @@ def students():
 
     sessions = map(filter_sessions, sessions)
     sessions = list(sessions)
-    sessions = filter(lambda v: len( v['session']['class_']['students']) > 0, sessions)
+    sessions = filter(lambda v: len(
+        v['session']['class_']['students']) > 0, sessions)
     sessions = list(sessions)
 
     # sessions = []

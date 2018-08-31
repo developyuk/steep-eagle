@@ -77,26 +77,7 @@ export default {
 
       axios
         .post(url, data)
-        .then(response => {
-          console.log(response.data);
-
-          this.currentMqtt.mqtt.publish(
-            this.currentMqtt.topic,
-            JSON.stringify({
-              sid: this.sid,
-              tid: this.tid,
-              // sid: this.stid,
-              uid: this.uid,
-              name: this.name,
-              by: this.currentAuth,
-              sts: {
-                id: response.data.id,
-                et: response.data._etag
-              },
-              on: "successRateReview"
-            })
-          );
-        })
+        // .then(response => { })
         .catch(error => {
           console.log(error);
         });
@@ -118,26 +99,7 @@ export default {
 
       axios
         .post(url, data)
-        .then(response => {
-          console.log(response.data);
-
-          this.currentMqtt.mqtt.publish(
-            this.currentMqtt.topic,
-            JSON.stringify({
-              sid: this.sid,
-              tid: this.tid,
-              // sid: this.stid,
-              uid: this.uid,
-              name: this.name,
-              by: this.currentAuth,
-              sts: {
-                id: response.data.id,
-                et: response.data._etag
-              },
-              on: "successRateReview"
-            })
-          );
-        })
+        // .then(response => { })
         .catch(error => {
           console.log(error);
         });

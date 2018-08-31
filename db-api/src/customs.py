@@ -1,16 +1,17 @@
-from pprint import pprint
+
 import os
 from uuid import uuid4
+import json
+import datetime
 
 from eve.io.media import MediaStorage
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
-# from tables import Users
 from minio import Minio
-from minio.error import ResponseError
+
 from eve_sqlalchemy.validation import ValidatorSQL
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 import jwt
 
 minioClient = Minio('%s:9000' % os.environ['HOST_IP'],
@@ -43,7 +44,6 @@ class MyAuth(TokenAuth):
         if len(user):
             self.set_request_auth_value(user['id'])
         # pprint(app.auth.get_request_auth_value())
-        # current_app.auth.get_request_auth_value()
 
         return len(user)
 
@@ -51,9 +51,6 @@ class MyAuth(TokenAuth):
 class MyMediaStorage(MediaStorage):
     def put(self, content, filename=None, content_type=None, resource=None):
         if resource in ('modules', 'users'):
-            # pprint(content)
-            # pprint(filename)
-            # pprint(content_type)
             ext = filename.rsplit('.', 1)[1].lower()
             name = uuid4().hex+'.'+ext
             # name = secure_filename(content.filename)
@@ -64,13 +61,10 @@ class MyMediaStorage(MediaStorage):
             url = minioClient.presigned_get_object(
                 app.config['MEDIA_ENDPOINT'], name)
             return name
-            # return url.split('?')[0].split('/')[-1]
         return ''
 
     def get(self, id_or_filename, resource=None):
         if resource in ('modules', 'users'):
-            # pprint(id_or_filename)
-            # pprint(resource)
             return id_or_filename
 
     def delete(self, id_or_filename, resource=None):
@@ -88,3 +82,11 @@ class MyValidator(ValidatorSQL):
         """
         if not isinstance(value, FileStorage):
             self._error(field, "file was expected, got '%s' instead." % value)
+
+
+class JSONEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        return super(JSONEncoder, self).default(obj)

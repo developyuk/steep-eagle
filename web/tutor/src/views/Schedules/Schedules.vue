@@ -127,23 +127,6 @@ export default {
             .post(url, params)
             .then(response => {
               this.pin = null;
-
-              this.mqtt.m.publish(
-                this.mqtt.topic,
-                JSON.stringify({
-                  on: "startYes",
-                  by: this.currentAuth,
-                  id: this.currentClass.id,
-                  s: {
-                    id: session.id,
-                    et: session._etag
-                  },
-                  st: {
-                    id: response.data.id,
-                    et: response.data._etag
-                  }
-                })
-              );
             })
             .catch(error => console.log(error));
         };
@@ -222,17 +205,15 @@ export default {
         const { id: msgId, on: msgOn } = parsedMessage;
 
         if (msgOn === "startYes") {
-          const { i, ii } = this.findClassById(msgId);
-          this.currentClass = this.classes[i]._items[ii];
+          const { class: msgClass } = parsedMessage;
 
           this.getSchedules({ forceRefresh: true });
           let snackbarOpts = {
             message: `You started a class`
-            // message: `Start ${this.currentClass.module.name.toUpperCase()}`
+            // message: `Start ${msgClass.module.name.toUpperCase()}`
           };
           const { by: msgBy, s: MsgS, st: MsgSt } = parsedMessage;
           if (msgBy.id === this.currentAuth.id) {
-            //              console.log(MsgSid);
             snackbarOpts = Object.assign(snackbarOpts, {
               actionText: "Undo",
               actionHandler: () => {
@@ -246,15 +227,7 @@ export default {
                     url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgS.id}`;
                     axios
                       .delete(url, { headers: { "If-Match": MsgS.et } })
-                      .then(response => {
-                        this.mqtt.m.publish(
-                          this.mqtt.topic,
-                          JSON.stringify({
-                            on: "undo",
-                            id: this.currentClass.id
-                          })
-                        );
-                      })
+                      // .then(response => { })
                       .catch(error => console.log(error));
                   })
                   .catch(error => console.log(error));
@@ -264,16 +237,13 @@ export default {
           this.snackbar.show(snackbarOpts);
         }
         if (msgOn === "undo") {
-          const { i, ii } = this.findClassById(msgId);
-          this.currentClass = this.classes[i]._items[ii];
+          const { class: msgClass } = parsedMessage;
 
-          this.getSchedules({ forceRefresh: true });
           let snackbarOpts = {
-            message: `Undo ${this.classes[i]._items[
-              ii
-            ].module.name.toUpperCase()}`
+            message: `Undo ${msgClass.module.name.toUpperCase()}`
           };
           this.snackbar.show(snackbarOpts);
+          setTimeout(_ => this.getSchedules({ forceRefresh: true }),100);
         }
       });
   },

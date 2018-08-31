@@ -1,17 +1,13 @@
-from pprint import pprint
+
 from datetime import datetime, timedelta
 
-import jwt
-from flask import current_app as app, jsonify
+# from flask import current_app as app, jsonify
 from pytz import timezone
 
-from sqlalchemy import Table, Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
-# Enum, cast
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property, relationship
-# from sqlalchemy.dialects.postgresql import ENUM, TEXT
-# from eve.methods.common import embedded_document
 
 Base = declarative_base()
 

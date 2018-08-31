@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint, request, abort
 from datetime import timedelta
@@ -21,8 +19,6 @@ def sign():
         username = data.get('username')
         username = username.lower()
         username = username[:-3]
-
-        pprint(username)
 
         req = parse_request(resource)
         # req.show_deleted = True
