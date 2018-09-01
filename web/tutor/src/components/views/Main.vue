@@ -141,6 +141,7 @@ export default {
     padding: 0;
     width: 100%;
     .material-icons {
+      opacity: 1;
       $size: 2rem;
       font-size: $size;
       width: $size;
