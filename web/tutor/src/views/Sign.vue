@@ -56,8 +56,10 @@ export default {
   methods: {
     sign() {
       const url = `${process.env.VUE_APP_DBAPI}/sign`;
+      const username = this.username.substring(0, this.username.length - 3);
       const data = {
-        username: this.username
+        username: username,
+        role: JSON.stringify(["tutor"])
       };
       this.errMsg = "";
 

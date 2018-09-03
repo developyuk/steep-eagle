@@ -1,7 +1,7 @@
 import os
 
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, Branches, Classes, ClassStudents, Modules, Sessions, SessionsTutors, SessionsStudents, ClassesTs
+from tables import Users, Branches, Classes, ClassStudents, Modules, Attendances, AttendancesTutors, AttendancesStudents, ClassesTs, Notifications
 
 # from eve_auth_jwt import JWTAuth
 SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
@@ -63,16 +63,21 @@ DOMAIN = DomainConfig({
     'classes': ResourceConfig(Classes),
     'class_students': ResourceConfig(ClassStudents),
     'modules': ResourceConfig(Modules),
-    'sessions': ResourceConfig(Sessions),
-    'sessions_tutors': ResourceConfig(SessionsTutors),
-    'sessions_students': ResourceConfig(SessionsStudents),
+    'attendances': ResourceConfig(Attendances),
+    'attendances_tutors': ResourceConfig(AttendancesTutors),
+    'attendances_students': ResourceConfig(AttendancesStudents),
     'classes_ts': ResourceConfig(ClassesTs),
+    'notifications': ResourceConfig(Notifications),
 }).render()
 
 DOMAIN['modules']['schema']['image'].update({'type': 'media'})
 DOMAIN['users']['schema']['photo'].update({'type': 'media'})
 
 DOMAIN['classes'].update({'allow_unknown': True})
+DOMAIN['attendances_tutors'].update({'allow_unknown': True})
+
+DOMAIN['users'].update({'soft_delete': True})
+
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
     {'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update(
@@ -95,17 +100,17 @@ DOMAIN['class_students']['schema']['student']['data_relation'].update(
     {'embeddable': True})
 DOMAIN['class_students']['schema']['class_']['data_relation'].update(
     {'embeddable': True})
-DOMAIN['sessions']['schema']['session_tutors']['schema']['data_relation'].update(
+DOMAIN['attendances']['schema']['attendance_tutors']['schema']['data_relation'].update(
     {'embeddable': True})
-DOMAIN['sessions']['schema']['class_']['data_relation'].update(
-    {'embeddable': True})
-
-DOMAIN['sessions_tutors']['schema']['tutor']['data_relation'].update(
-    {'embeddable': True})
-# DOMAIN['sessions_tutors']['schema']['session_students']['schema']['data_relation'].update( {'embeddable': True})
-DOMAIN['sessions_tutors']['schema']['session']['data_relation'].update(
+DOMAIN['attendances']['schema']['class_']['data_relation'].update(
     {'embeddable': True})
 
-DOMAIN['sessions_students']['schema']['student']['data_relation'].update(
+DOMAIN['attendances_tutors']['schema']['tutor']['data_relation'].update(
     {'embeddable': True})
-# DOMAIN['sessions_students']['schema']['session_tutor']['data_relation'].update( {'embeddable': True})
+# DOMAIN['attendances_tutors']['schema']['attendance_students']['schema']['data_relation'].update( {'embeddable': True})
+DOMAIN['attendances_tutors']['schema']['attendance']['data_relation'].update(
+    {'embeddable': True})
+
+DOMAIN['attendances_students']['schema']['student']['data_relation'].update(
+    {'embeddable': True})
+# DOMAIN['attendances_students']['schema']['attendance_tutor']['data_relation'].update( {'embeddable': True})

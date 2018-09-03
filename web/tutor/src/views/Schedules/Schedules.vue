@@ -1,6 +1,6 @@
 <template lang="pug">
   template-main#schedules
-    .empty(v-if="!!classes && !classes.length") classes not found
+    empty(v-if="!!classes && !classes.length")
     .mdc-list-group
       template(v-for="(v,i) in classes")
         h3.mdc-list-group__subheader
@@ -76,6 +76,7 @@ export default {
   components: {
     TemplateMain,
     MyDialog,
+    empty: () => import("./Empty"),
     item: () => import("./Item"),
     placeholder: () => import("@/components/Placeholder"),
     snackbar: () => import("@/components/Snackbar")
@@ -111,50 +112,19 @@ export default {
     },
     checkPin(e) {
       if (this.pin === "1234") {
-        let url = `${process.env.VUE_APP_DBAPI}/sessions`;
-        let params = {
-          where: {
-            _created: `>="${moment.utc().format("YYYY-MM-DD")}"`,
-            class_: this.currentClass.id
-          }
-        };
-
-        const postSessionTutor = session => {
-          const url = `${process.env.VUE_APP_DBAPI}/sessions_tutors`;
-          const params = { session: session.id, tutor: this.currentAuth.id };
-
-          axios
-            .post(url, params)
-            .then(response => {
-              this.pin = null;
-            })
-            .catch(error => console.log(error));
+        const url = `${process.env.VUE_APP_DBAPI}/attendances_tutors`;
+        const params = {
+          class_: this.currentClass.id,
+          tutor: this.currentAuth.id
         };
 
         axios
-          .get(url, { params })
+          .post(url, params)
           .then(response => {
-            if (!!response.data._items.length) {
-              const session = {
-                id: response.data._items[0].id,
-                _etag: response.data._items[0]._etag
-              };
-              postSessionTutor(session);
-            } else {
-              let params = { class_: this.currentClass.id };
-              axios
-                .post(url, params)
-                .then(response => {
-                  const session = {
-                    id: response.data.id,
-                    _etag: response.data._etag
-                  };
-                  postSessionTutor(session);
-                })
-                .catch(error => console.log(error));
-            }
+            this.pin = null;
           })
           .catch(error => console.log(error));
+
         this.dialog.close();
       } else {
         this.errMsg = "invalid. Check pin again!";
@@ -202,34 +172,30 @@ export default {
       .on("message", (topic, message) => {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
-        const { id: msgId, on: msgOn } = parsedMessage;
+        const { on: msgOn, by: msgBy } = parsedMessage;
+        const isCurrentUser = msgBy.id === this.currentAuth.id;
+        const by = isCurrentUser ? "You" : msgBy.username;
 
         if (msgOn === "startYes") {
-          const { class: msgClass } = parsedMessage;
+          const { class: msgClass, item: MsgItem } = parsedMessage;
 
-          this.getSchedules({ forceRefresh: true });
+          setTimeout(_ => this.getSchedules({ forceRefresh: true }), 100);
           let snackbarOpts = {
-            message: `You started a class`
+            message: `${by} started a class`
             // message: `Start ${msgClass.module.name.toUpperCase()}`
           };
-          const { by: msgBy, s: MsgS, st: MsgSt } = parsedMessage;
-          if (msgBy.id === this.currentAuth.id) {
+
+          if (isCurrentUser) {
             snackbarOpts = Object.assign(snackbarOpts, {
               actionText: "Undo",
               actionHandler: () => {
-                let url = `${process.env.VUE_APP_DBAPI}/sessions_tutors/${
-                  MsgSt.id
+                let url = `${process.env.VUE_APP_DBAPI}/attendances_tutors/${
+                  MsgItem.id
                 }`;
 
                 axios
-                  .delete(url, { headers: { "If-Match": MsgSt.et } })
-                  .then(response => {
-                    url = `${process.env.VUE_APP_DBAPI}/sessions/${MsgS.id}`;
-                    axios
-                      .delete(url, { headers: { "If-Match": MsgS.et } })
-                      // .then(response => { })
-                      .catch(error => console.log(error));
-                  })
+                  .delete(url, { headers: { "If-Match": MsgItem._etag } })
+                  // .then(response => { })
                   .catch(error => console.log(error));
               }
             });
@@ -240,10 +206,11 @@ export default {
           const { class: msgClass } = parsedMessage;
 
           let snackbarOpts = {
-            message: `Undo ${msgClass.module.name.toUpperCase()}`
+            message: `${by} undo a class`
+            // message: `Undo ${msgClass.module.name.toUpperCase()}`
           };
           this.snackbar.show(snackbarOpts);
-          setTimeout(_ => this.getSchedules({ forceRefresh: true }),100);
+          setTimeout(_ => this.getSchedules({ forceRefresh: true }), 100);
         }
       });
   },

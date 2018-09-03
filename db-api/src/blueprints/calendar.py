@@ -5,12 +5,10 @@ from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods import get, getitem
+from . import dow
 
 blueprint = Blueprint('calendar', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
-
-dow = dict(
-    zip('monday tuesday wednesday thursday friday saturday sunday'.split(), range(7)))
 
 
 @blueprint.route('/calendar', methods=['GET'])

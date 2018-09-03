@@ -1,20 +1,20 @@
 <template lang="pug">
   template-main#students
-    empty(v-if="!!sessions && !sessions.length")
+    empty(v-if="!!attendances && !attendances.length")
     .mdc-list-group(v-else)
-      template(v-for="(v, i) in sessions")
+      template(v-for="(v, i) in attendances")
         h3.mdc-list-group__subheader
-          placeholder(:value="v.session.class_.module.name").module
+          placeholder(:value="v.attendance.class_.module.name").module
           br
-          placeholder(:value="v.session.class_.branch.name").branch
+          placeholder(:value="v.attendance.class_.branch.name").branch
           | &nbsp;&nbsp;
           .day-time
-            placeholder(:value="v.session.class_.start_at" val-empty="00:00")
+            placeholder(:value="v.attendance.class_.start_at" val-empty="00:00")
             | &nbsp;-&nbsp;
-            placeholder(:value="v.session.class_.finish_at" val-empty="00:00")
+            placeholder(:value="v.attendance.class_.finish_at" val-empty="00:00")
         ul.mdc-list
-          template(v-for="(vv,ii) in v.session.class_.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :sid="v.session.id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
+          template(v-for="(vv,ii) in v.attendance.class_.students")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :sid="v.attendance.id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
 
     snackbar(@mounted="onMountedSnackbar")
@@ -54,7 +54,7 @@ const placeholderStudents = _range(2).map(v => {
     };
   });
   return {
-    session: {
+    attendance: {
       class_id: 12,
       class_: {
         branch_id: 1,
@@ -81,7 +81,7 @@ const placeholderStudents = _range(2).map(v => {
     },
     tutor_id: 83,
 
-    session_id: 29,
+    attendance_id: 29,
     id: 29
   };
 });
@@ -99,7 +99,7 @@ export default {
   },
   data() {
     return {
-      sessions: placeholderStudents,
+      attendances: placeholderStudents,
 
       snackbar: null,
       mqtt: null
@@ -112,35 +112,38 @@ export default {
     },
     onTapStudent(e) {
       const { sid, uid } = e;
-      const [i, ii] = this.getSessionIndex(sid, uid);
+      const [i, ii] = this.getAttendanceIndex(sid, uid);
 
-      const item = _cloneDeep(this.sessions[i].session.class_.students[ii]);
-      this.sessions.forEach((v, i, a) => {
-        v.session.class_.students.forEach((v2, i2, a2) => {
+      const item = _cloneDeep(
+        this.attendances[i].attendance.class_.students[ii]
+      );
+      this.attendances.forEach((v, i, a) => {
+        v.attendance.class_.students.forEach((v2, i2, a2) => {
           this.$set(a2[i2], "isActive", false);
         });
       });
-
-      this.$set(
-        this.sessions[i].session.class_.students[ii],
-        "isActive",
-        !item["isActive"]
-      );
+      setTimeout(_ => {
+        this.$set(
+          this.attendances[i].attendance.class_.students[ii],
+          "isActive",
+          !item["isActive"]
+        );
+      }, 50);
     },
-    getSessionIndex(sid, uid) {
+    getAttendanceIndex(sid, uid) {
       let i, ii;
       sid = parseInt(sid);
       uid = parseInt(uid);
 
-      i = _findIndex(this.sessions, v => {
-        ii = _findIndex(v.session.class_.students, vv => {
+      i = _findIndex(this.attendances, v => {
+        ii = _findIndex(v.attendance.class_.students, vv => {
           return vv.student.id === uid && v.id === sid;
         });
         return ii > -1;
       });
       return [i, ii];
     },
-    getStudentsSessions(params = { forceRefresh: false }) {
+    getStudentsAttendances(params = { forceRefresh: false }) {
       const url = `${process.env.VUE_APP_DBAPI}/students`;
       const headers = {};
       if (params.forceRefresh) {
@@ -149,7 +152,7 @@ export default {
       axios
         .get(url, { headers })
         .then(response => {
-          this.sessions = !!response.data._items.length
+          this.attendances = !!response.data._items.length
             ? response.data._items
             : [];
         })
@@ -157,7 +160,7 @@ export default {
     }
   },
   mounted() {
-    this.getStudentsSessions();
+    this.getStudentsAttendances();
 
     this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
 
@@ -170,37 +173,41 @@ export default {
       .on("message", (topic, message) => {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
+        const { on: msgOn, by: msgBy } = parsedMessage;
+        const isCurrentUser = msgBy.id === this.currentAuth.id;
+        const by = isCurrentUser ? "You" : msgBy.username;
 
-        const { sid, uid, name, sts } = parsedMessage;
-        //          const [i, ii] = this.getSessionIndex(sid, uid);
+        const { item:msgItem } = parsedMessage;
+        //          const [i, ii] = this.getAttendanceIndex(sid, uid);
 
-        switch (parsedMessage.on) {
+        switch (msgOn) {
           case "undoRateReview": {
-            this.getStudentsSessions({ forceRefresh: true });
+            setTimeout(_ => this.getStudentsAttendances({ forceRefresh: true }), 100);
             let snackbarOpts = {
-              message: `Undo ${name.split(" ")[0].toUpperCase()}`
+              message: `${by} undo a progress`
+              // message: `Undo ${name.split(" ")[0].toUpperCase()}`
             };
             this.snackbar.show(snackbarOpts);
             break;
           }
           case "successRateReview": {
             const { by: msgBy } = parsedMessage;
-            this.getStudentsSessions({ forceRefresh: true });
+            setTimeout(_ => this.getStudentsAttendances({ forceRefresh: true }), 100);
 
             let snackbarOpts = {
-              message: `You submitted a progress`
+              message: `${by} submitted a progress`
               // message: `Submit ${name.split(" ")[0].toUpperCase()}`,
             };
-            if (msgBy.id === this.currentAuth.id) {
+            if (isCurrentUser) {
               snackbarOpts = Object.assign(snackbarOpts, {
                 actionText: "Undo",
                 actionHandler: () => {
-                  const url = `${process.env.VUE_APP_DBAPI}/sessions_students/${
-                    sts.id
-                  }`;
+                  const url = `${
+                    process.env.VUE_APP_DBAPI
+                  }/attendances_students/${msgItem.id}`;
 
                   axios
-                    .delete(url, { headers: { "If-Match": sts.et } })
+                    .delete(url, { headers: { "If-Match": msgItem._etag } })
                     // .then(response => { })
                     .catch(error => {
                       console.log(error);

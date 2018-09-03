@@ -21,9 +21,6 @@ const router = new Router({
       path: '/progress',
       component: () => import('@/views/Progress/Progress'),
       children: [
-        // {
-        //   path: "",
-        // },
         {
           path: "",
           component: () => import('@/views/Progress/Progress'),
@@ -38,6 +35,16 @@ const router = new Router({
     {
       path: '/search',
       component: () => import('@/views/Search/Search'),
+      children: [
+        {
+          path: "",
+          component: () => import('@/views/Search/Search'),
+        },
+        {
+          path: "students",
+          component: () => import('@/views/Search/Search'),
+        },
+      ],
       meta: { requiresAuth: true, isAside: true }
     },
     {

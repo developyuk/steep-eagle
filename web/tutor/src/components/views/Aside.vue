@@ -3,9 +3,9 @@
     .grid-y.grid-frame
       .cell.shrink
         my-header
-      transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
-        .cell.auto(:key="$route.fullPath")
-          slot
+      //- transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
+      .cell.auto(:key="$route.fullPath")
+        slot
 </template>
 
 <script>

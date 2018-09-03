@@ -61,18 +61,18 @@ export default {
       this.ratingInteraction = e;
     },
     submit() {
-      //        const url = `${process.env.VUE_APP_DBAPI}/sessions/${this.stid}/students/${this.uid}`;
-      const url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
+      //        const url = `${process.env.VUE_APP_DBAPI}/attendances/${this.stid}/students/${this.uid}`;
+      const url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
       const data = {
-        // session_tutor: this.stid,
-        session: this.sid,
+        // attendance_tutor: this.stid,
+        attendance: this.sid,
         tutor: this.tid,
         student: this.uid,
         rating_interaction: parseInt(this.ratingInteraction),
         rating_creativity: parseInt(this.ratingCreativity),
         rating_cognition: parseInt(this.ratingCognition),
         feedback: this.review,
-        status: true
+        is_presence: true
       };
 
       axios
@@ -83,17 +83,17 @@ export default {
         });
     },
     absence() {
-      const url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
+      const url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
       const data = {
-        // session_tutor: this.stid,
-        session: this.sid,
+        // attendance_tutor: this.stid,
+        attendance: this.sid,
         tutor: this.tid,
         student: this.uid,
         rating_interaction: parseInt(this.ratingInteraction),
         rating_creativity: parseInt(this.ratingCreativity),
         rating_cognition: parseInt(this.ratingCognition),
         feedback: this.review,
-        status: false
+        is_presence: false
       };
       console.log(data);
 

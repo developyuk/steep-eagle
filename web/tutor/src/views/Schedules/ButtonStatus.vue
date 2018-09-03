@@ -27,7 +27,7 @@ export default {
       const mfts = moment(class_.finish_at_ts);
       const mnow = moment();
       let status = "disabled";
-      const ls = class_.last_sessions;
+      const ls = class_.last_attendances;
 
       if (
         !!ls &&
@@ -40,10 +40,10 @@ export default {
 
         if (
           !!this.currentAuth &&
-          !!lsItems[0].session_tutors[0].tutor &&
-          !!lsItems[0].session_tutors[0].tutor.id &&
+          !!lsItems[0].attendance_tutors[0].tutor &&
+          !!lsItems[0].attendance_tutors[0].tutor.id &&
           !lsItems.filter(v => {
-            return v.session_tutors[0].tutor.id === this.currentAuth.id;
+            return v.attendance_tutors[0].tutor.id === this.currentAuth.id;
           }).length >= 1
         ) {
           if (mls.isBefore(mfts)) {

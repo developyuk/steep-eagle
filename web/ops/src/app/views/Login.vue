@@ -15,10 +15,10 @@
                   .card-content
                     .form-group
                       label Username
-                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter email')
+                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter email' v-model='username')
                     .form-group
                       label Password
-                      input.form-control.input-no-border(type='password' name='password' placeholder='Password please')
+                      input.form-control.input-no-border(type='password' name='password' placeholder='Password please'  v-model='password')
                     .err(v-if="errMsg") {{errMsg}}
                   .card-footer.text-center
                     button.btn.btn-fill.btn-wd(type='submit') Let&apos;s go
@@ -34,7 +34,9 @@ import axios from "axios";
 export default {
   data() {
     return {
-      errMsg: null
+      errMsg: null,
+      username: null,
+      password: null
     };
   },
   methods: {
@@ -47,9 +49,13 @@ export default {
     },
     onSubmit(e) {
       const formData = new FormData(e.target);
-
+      const data = {
+        username: this.username,
+        password: this.password,
+        role: JSON.stringify(["operation"])
+      };
       axios
-        .post(`${process.env.DBAPI}/sign`, formData)
+        .post(`${process.env.DBAPI}/sign`, data)
         .then(response => {
           //            console.log(response);
           localStorage.setItem("token", response.data.token);
@@ -102,10 +108,10 @@ export default {
 .full-page.has-image:after {
   opacity: 0;
 }
-.err{
+.err {
   background-color: pink;
   color: red;
   padding: 1rem;
-  text-transform: capitalize
+  text-transform: capitalize;
 }
 </style>

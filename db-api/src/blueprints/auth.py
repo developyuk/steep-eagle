@@ -5,6 +5,7 @@ from eve.auth import requires_auth
 from eve.methods import getitem
 from eve.utils import parse_request
 import jwt
+import json
 
 blueprint = Blueprint('auth', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -16,15 +17,23 @@ def sign():
     data = request.values or request.get_json()
 
     try:
-        username = data.get('username')
-        username = username.lower()
-        username = username[:-3]
+        expected_username = data.get('username')
+        expected_username = expected_username.lower()
+        expected_role = data.get('role')
+        expected_role = json.loads(expected_role)
 
         req = parse_request(resource)
         # req.show_deleted = True
-        r = {'username': username}
+        r = {
+            'username': expected_username,
+            'role': expected_role[0]
+        }
         user = app.data.find_one(resource, req, **r)
-        if (user['pass_']):
+
+        if not user:
+            raise Exception('user not found')
+
+        if user['pass_']:
             password = data.get('password')
             if (password != user['pass_']):
                 raise Exception('password required or wrong password')
@@ -33,6 +42,7 @@ def sign():
             'token': jwt.encode({'id': user['id']}, app.config['JWT_SECRET'])
         })
     except Exception as e:
+        # raise
         abort(400, description=str(e))
 
 

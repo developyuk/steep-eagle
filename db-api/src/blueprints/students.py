@@ -5,6 +5,7 @@ from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods import get
+from . import utc_now
 
 blueprint = Blueprint('students', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -15,51 +16,50 @@ CORS(blueprint, max_age=timedelta(days=10))
 def students():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 999
-    app.config['DOMAIN']['sessions_tutors'].update({'embedded_fields': [
-        'session',
-        'session.class_',
-        'session.class_.students',
-        'session.class_.students.student',
-        'session.class_.module',
-        'session.class_.branch',
+    app.config['DOMAIN']['attendances_tutors'].update({'embedded_fields': [
+        'attendance',
+        'attendance.class_',
+        'attendance.class_.students',
+        'attendance.class_.students.student',
+        'attendance.class_.module',
+        'attendance.class_.branch',
     ]})
     r = {
-        '_created': '>=\'%s\'' % (datetime.now() - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S'),
+        '_created': '>=\'%s\'' % (utc_now - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S'),
         'tutor_id': app.auth.get_request_auth_value()
     }
-    sessions, *_ = get('sessions_tutors', r)
-    sessions = sessions['_items']
+    attendances, *_ = get('attendances_tutors', r)
+    attendances = attendances['_items']
 
-    def filter_session_students(v, st):
+    def filter_attendance_students(v, st):
         r = {
-            '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d %H:%M:%S'),
+            '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d'),
             'student_id': v['student']['id'],
-            'session_id': st['session']['id'],
-            'tutor_id': app.auth.get_request_auth_value()
+            'attendance_id': st['attendance']['id'],
         }
-        sessions_students, *_ = get('sessions_students', r)
-        sessions_students = sessions_students['_items']
+        attendances_students, *_ = get('attendances_students', r)
+        attendances_students = attendances_students['_items']
 
-        return len(sessions_students) == 0
+        return len(attendances_students) == 0
 
-    def filter_sessions(v):
-        vlist = filter(lambda v2: filter_session_students(
-            v2, v), v['session']['class_']['students'])
-        v['session']['class_']['students'] = list(vlist)
+    def filter_attendances(v):
+        vlist = filter(lambda v2: filter_attendance_students(
+            v2, v), v['attendance']['class_']['students'])
+        v['attendance']['class_']['students'] = list(vlist)
         return v
 
-    sessions = map(filter_sessions, sessions)
-    sessions = list(sessions)
-    sessions = filter(lambda v: len(
-        v['session']['class_']['students']) > 0, sessions)
-    sessions = list(sessions)
+    attendances = map(filter_attendances, attendances)
+    attendances = list(attendances)
+    attendances = filter(lambda v: len(
+        v['attendance']['class_']['students']) > 0, attendances)
+    attendances = list(attendances)
 
-    # sessions = []
+    # attendances = []
     app.config = app_config_ori
     return jsonify({
-        '_items': sessions,
+        '_items': attendances,
         '_meta': {
-            'total': len(sessions)
+            'total': len(attendances)
         }
     })
 

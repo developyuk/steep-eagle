@@ -1,4 +1,4 @@
-from pytz import timezone, utc
+from pytz import timezone
 from datetime import timedelta, datetime
 from copy import deepcopy
 
@@ -7,15 +7,16 @@ from flask_cors import CORS
 import humanize
 from eve.auth import requires_auth
 from eve.methods import get, getitem
+from . import wib_now, utc_now
 
 blueprint = Blueprint('schedules', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
 
 
-def last_session(class_):
-    app.config['DOMAIN']['sessions'].update({'embedded_fields': [
-        'session_tutors',
-        'session_tutors.tutor',
+def last_attendance(class_):
+    app.config['DOMAIN']['attendances'].update({'embedded_fields': [
+        'attendance_tutors',
+        'attendance_tutors.tutor',
     ]})
 
     utc_this = class_['start_at_ts'].astimezone(timezone('UTC'))
@@ -24,15 +25,11 @@ def last_session(class_):
         'class_id': class_['id']
     }
 
-    sessions, *_ = get('sessions', r)
-    sessions = sessions['_items']
-    # sessions = sessions['_items'][0] if len(sessions['_items']) > 0 else []
+    attendances, *_ = get('attendances', r)
+    attendances = attendances['_items']
+    # attendances = attendances['_items'][0] if len(attendances['_items']) > 0 else []
 
-    return sessions
-
-
-utc_now = utc.localize(datetime.utcnow())
-wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
+    return attendances
 
 
 def groupClass(classes):
@@ -55,16 +52,16 @@ def groupClass(classes):
     return classes_group_list
 
 
-def exclude_current_user_session(v):
-    if len(v['last_sessions']):
-        for v2 in v['last_sessions'][0]['session_tutors']:
+def exclude_current_user_attendance(v):
+    if len(v['last_attendances']):
+        for v2 in v['last_attendances'][0]['attendance_tutors']:
             if v2['tutor']['id'] == app.auth.get_request_auth_value():
                 return False
     return True
 
 
-def exclude_other_user_session(v):
-    if len(v['last_sessions']):
+def exclude_other_user_attendance(v):
+    if len(v['last_attendances']):
         if (v['finish_at_ts'] < wib_now):
             return False
     return True
@@ -93,7 +90,8 @@ def schedules():
 
     classes = filter(lambda v: (
         v['finish_at_ts'] + timedelta(hours=2)) > wib_now, classes)
-    classes = filter(lambda v: v['finish_at_ts'].date() < ( wib_now + timedelta(days=5)).date(), classes)
+    classes = filter(lambda v: v['finish_at_ts'].date() < (
+        wib_now + timedelta(days=5)).date(), classes)
     classes = filter(exclude_dummies_non_tester, classes)
 
     classes = list(classes)
@@ -104,12 +102,12 @@ def schedules():
     def parse(v):
         nonlocal item_counter
         item_counter = item_counter + 1
-        v.update({'last_sessions': last_session(v)})
+        v.update({'last_attendances': last_attendance(v)})
         return v
 
     classes = map(parse, classes)
-    classes = filter(exclude_current_user_session, classes)
-    classes = filter(exclude_other_user_session, classes)
+    classes = filter(exclude_current_user_attendance, classes)
+    classes = filter(exclude_other_user_attendance, classes)
     # classes = [parse(v) for v in classes]
     classes = groupClass(classes)
     # classes = []

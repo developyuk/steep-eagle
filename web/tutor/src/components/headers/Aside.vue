@@ -55,6 +55,7 @@
   .input{
     margin:0 1rem;
     input{
+      color:#fff;
       background-color: transparent;
       border: none;
       width: 100%;

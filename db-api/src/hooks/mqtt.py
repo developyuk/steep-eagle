@@ -33,39 +33,38 @@ def publish(topic, payload):
 def on_deleted_item(resource_name, item):
     app_config_ori = deepcopy(app.config)
 
-    if resource_name == 'sessions_students':
+    if resource_name == 'attendances_students':
 
         r = {'id': item['student']}
         student, *_ = getitem('users', r)
+
+        r = {'id': app.auth.get_request_auth_value()}
+        user, *_ = getitem('users', r)
+
         m = json.dumps({
-            'sid': item['session'],
-            'tid': item['tutor'],
-            'uid': student['id'],
-            'name': student['name'],
-            'by': {'id': app.auth.get_request_auth_value()},
-            'sts': {
-                'id': item['id'],
-                'et': item['_etag']
-            },
+            'by': user,
             'on': "undoRateReview"
-        })
+        }, cls=JSONEncoder)
 
         publish("students", m)
 
-    if resource_name == 'sessions_tutors':
+    if resource_name == 'attendances_tutors':
         app.config['DOMAIN']['classes'].update({'embedded_fields': [
             'module',
         ]})
 
-        r = {'id': item['session']}
-        session, *_ = getitem('sessions', r)
+        r = {'id': item['attendance']}
+        attendance, *_ = getitem('attendances', r)
 
-        r = {'id': session['class_']}
+        r = {'id': attendance['class_']}
         klass, *_ = getitem('classes', r)
+
+        r = {'id': app.auth.get_request_auth_value()}
+        user, *_ = getitem('users', r)
 
         m = json.dumps({
             'on': "undo",
-            'id': session['class_'],
+            'by': user,
             'class': klass
         }, cls=JSONEncoder)
         publish("schedules", m)
@@ -74,41 +73,36 @@ def on_deleted_item(resource_name, item):
 
 
 def on_inserted(resource_name, items):
-    if resource_name == 'sessions_students':
+    if resource_name == 'attendances_students':
         for i, item in enumerate(items):
             r = {'id': item['student']}
             student, *_ = getitem('users', r)
+
+            r = {'id': app.auth.get_request_auth_value()}
+            user, *_ = getitem('users', r)
+
             m = json.dumps({
-                'sid': item['session'],
-                'tid': item['tutor'],
-                'uid': student['id'],
-                'name': student['name'],
-                'by': {'id': app.auth.get_request_auth_value()},
-                'sts': {
-                    'id': item['id'],
-                    'et': item['_etag']
-                },
+                'by': user,
+                'item': item,
                 'on': "successRateReview"
-            })
+            }, cls=JSONEncoder)
             publish("students", m)
 
-    if resource_name == 'sessions_tutors':
-        resource = 'sessions'
+    if resource_name == 'attendances_tutors':
         for i, item in enumerate(items):
-            r = {'id': item['session']}
-            session, *_ = getitem('sessions', r)
+            r = {'id': item['attendance']}
+            attendance, *_ = getitem('attendances', r)
+
+            r = {'id': app.auth.get_request_auth_value()}
+            user, *_ = getitem('users', r)
+
+            r = {'id': attendance['class_']}
+            klass, *_ = getitem('classes', r)
 
             m = json.dumps({
                 'on': "startYes",
-                'by': {'id': app.auth.get_request_auth_value()},
-                'id': session['class_'],
-                's': {
-                    'id': session['id'],
-                    'et': session['_etag']
-                },
-                'st': {
-                    'id': item['id'],
-                    'et': item['_etag']
-                }
-            })
+                'by': user,
+                'class': klass,
+                'item': item,
+            }, cls=JSONEncoder)
             publish("schedules", m)

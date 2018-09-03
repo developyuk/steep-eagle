@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 # from flask import current_app as app, jsonify
 from pytz import timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, Text, func, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property, relationship
+from blueprints import dow
 
 Base = declarative_base()
 
@@ -30,6 +31,7 @@ class Users(CommonColumns):
     photo = Column(String)
     pass_ = Column('pass', String)
 
+    _deleted = Column(Boolean, default=False)
 
 
 class Branches(CommonColumns):
@@ -70,7 +72,7 @@ class Classes(CommonColumns):
     branch = relationship("Branches")
     tutor = relationship("Users")
     students = relationship("ClassStudents")
-    sessions = relationship("Sessions", back_populates="class_")
+    attendances = relationship("Attendances", back_populates="class_")
 
     q = column_property(
         select([Modules.name+" " + Branches.name+" "+day+" "+start_at+" "+finish_at+" "+Users.username+" "+Users.name]).
@@ -80,48 +82,50 @@ class Classes(CommonColumns):
     )
 
 
-class Sessions(CommonColumns):
-    __tablename__ = 'sessions'
+class Attendances(CommonColumns):
+    __tablename__ = 'attendances'
     id = Column(Integer, primary_key=True, autoincrement=True)
     class_id = Column(Integer, ForeignKey('classes.id'))
+    module_id = Column(Integer, ForeignKey('modules.id'))
 
-    class_ = relationship("ClassesTs", back_populates="sessions")
-    session_tutors = relationship("SessionsTutors", back_populates="session")
-    session_students = relationship("SessionsStudents", back_populates="session")
+    class_ = relationship("ClassesTs", back_populates="attendances")
+    module = relationship("Modules")
+    attendance_tutors = relationship(
+        "AttendancesTutors", back_populates="attendance")
+    attendance_students = relationship(
+        "AttendancesStudents", back_populates="attendance")
 
 
-class SessionsTutors(CommonColumns):
-    __tablename__ = 'sessions_tutors'
+class AttendancesTutors(CommonColumns):
+    __tablename__ = 'attendances_tutors'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    session_id = Column(Integer, ForeignKey('sessions.id'))
+    attendance_id = Column(Integer, ForeignKey('attendances.id'))
     tutor_id = Column(Integer, ForeignKey('users.id'))
     tutor = relationship("Users")
 
-    session = relationship("Sessions", back_populates="session_tutors")
-    # session_students = relationship("SessionsTutorsStudents", back_populates="session_tutor")
+    attendance = relationship(
+        "Attendances", back_populates="attendance_tutors")
+    # attendance_students = relationship("AttendancesTutorsStudents", back_populates="attendance_tutor")
 
 
-class SessionsStudents(CommonColumns):
-    __tablename__ = 'sessions_students'
+class AttendancesStudents(CommonColumns):
+    __tablename__ = 'attendances_students'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    session_id = Column(Integer, ForeignKey('sessions.id'))
+    attendance_id = Column(Integer, ForeignKey('attendances.id'))
     tutor_id = Column(Integer, ForeignKey('users.id'))
     student_id = Column(Integer, ForeignKey('users.id'))
-    status = Column(Boolean)
+    is_presence = Column(Boolean)
     feedback = Column(String)
     rating_interaction = Column(Integer)
     rating_cognition = Column(Integer)
     rating_creativity = Column(Integer)
-    # session_tutor_id = Column(Integer, ForeignKey('sessions_tutors.id'))
-    # session_tutor = relationship( "SessionsTutors", back_populates="session_students")
+    # attendance_tutor_id = Column(Integer, ForeignKey('attendances_tutors.id'))
+    # attendance_tutor = relationship( "AttendancesTutors", back_populates="attendance_students")
 
-    session = relationship("Sessions", back_populates="session_students")
-    student = relationship("Users",foreign_keys=[student_id])
-    tutor = relationship("Users",foreign_keys=[tutor_id])
-
-
-dow = dict(
-    zip('monday tuesday wednesday thursday friday saturday sunday'.split(), range(7)))
+    attendance = relationship(
+        "Attendances", back_populates="attendance_students")
+    student = relationship("Users", foreign_keys=[student_id])
+    tutor = relationship("Users", foreign_keys=[tutor_id])
 
 
 def onDay(day):
@@ -133,7 +137,8 @@ class ClassesTs(Classes):
 
     @hybrid_property
     def start_at_ts(self):
-        dt = datetime.strptime('%sT%s' % (onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
+        dt = datetime.strptime('%sT%s' % (
+            onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
         return timezone('Asia/Jakarta').localize(dt)
 
     @start_at_ts.expression
@@ -149,3 +154,11 @@ class ClassesTs(Classes):
     @finish_at_ts.expression
     def finish_at_ts(cls):
         return cls
+
+
+class Notifications(CommonColumns):
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(String)
+    is_read = Column(Boolean)
+    data = Column(String)

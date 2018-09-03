@@ -41,9 +41,9 @@ export default {
     };
   },
   methods: {
-    setPosition(v = 0) {
-      this.$el.style.marginLeft = `${v}px`;
-    }
+    // setPosition(v = 0) {
+    //   this.$el.style.marginLeft = `${v}px`;
+    // }
   },
   mounted() {
     const $el = this.$el.querySelector(".mdc-list-item");
@@ -56,16 +56,16 @@ export default {
       //          if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
       //
       //
-      //            let url = `${process.env.VUE_APP_DBAPI}/sessions_students`;
+      //            let url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
       //            let params = {
-      //              session_tutor: this.stid,
+      //              attendance_tutor: this.stid,
       //              student: this.student.id,
       //
       //              rating_interaction: 0,
       //              rating_creativity: 0,
       //              rating_cognition: 0,
       //              feedback: "",
-      //              status: false,
+      //              is_presence: false,
       //            };
       //            axios.post(url, params)
       //              .then(response => {
