@@ -76,7 +76,7 @@ DOMAIN['users']['schema']['photo'].update({'type': 'media'})
 DOMAIN['classes'].update({'allow_unknown': True})
 DOMAIN['attendances_tutors'].update({'allow_unknown': True})
 
-DOMAIN['users'].update({'soft_delete': True})
+# DOMAIN['users'].update({'soft_delete': True})
 
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
     {'embeddable': True})

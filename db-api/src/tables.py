@@ -10,6 +10,14 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property, relationship
 from blueprints import dow
 
+# from sqlalchemy.dialects.postgresql import \
+#     ARRAY, BIGINT, BIT, BOOLEAN, BYTEA, CHAR, CIDR, DATE, \
+#     DOUBLE_PRECISION, ENUM, FLOAT, HSTORE, INET, INTEGER, \
+#     INTERVAL, JSON, JSONB, MACADDR, MONEY, NUMERIC, OID, REAL, SMALLINT, TEXT, \
+#     TIME, TIMESTAMP, UUID, VARCHAR, INT4RANGE, INT8RANGE, NUMRANGE, \
+#     DATERANGE, TSRANGE, TSTZRANGE, TSVECTOR
+
+
 Base = declarative_base()
 
 
@@ -20,18 +28,26 @@ class CommonColumns(Base):
     _etag = Column(String(40))
 
 
-class Users(CommonColumns):
+class CCSoftDelete(CommonColumns):
+    __abstract__ = True
+    is_deleted = Column(Boolean, default=False)
+
+
+class Users(CCSoftDelete):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String)
     email = Column(String)
     role = Column(String)
+    pass_ = Column('pass', String)
+
     name = Column(String)
     dob = Column(String)
     photo = Column(String)
-    pass_ = Column('pass', String)
-
-    _deleted = Column(Boolean, default=False)
+    address = Column(String)
+    school = Column(String)
+    grade = Column(String)
+    contact_no = Column(String)
 
 
 class Branches(CommonColumns):

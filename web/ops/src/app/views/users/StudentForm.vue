@@ -1,167 +1,135 @@
 <template lang="pug">
-  .card
-    form.form-horizontal
-      .card-header
-        h4.card-title
-          | Student Form
-      .card-content
-        fieldset
-          .form-group
-            label.col-sm-2.control-label Name
-            .col-sm-9
-              input.form-control(type="text" name="name" v-validate="modelValidations.name" v-model="model.name")
-              small.text-danger(v-show="name.invalid")
-                | {{ getError('name') }}
-          //- .form-group
-          //-   label.col-sm-2.control-label Username
-          //-   .col-sm-9
-          //-     input.form-control(type="text" name="username" v-validate="modelValidations.username" v-model="model.username")
-          //-     small.text-danger(v-show="username.invalid")
-          //-       | {{ getError('username') }}
-          //- .form-group
-          //-   label.col-sm-2.control-label Email
-          //-   .col-sm-9
-          //-     input.form-control(type="email" name="email" v-validate="modelValidations.email" v-model="model.email")
-          //-     small.text-danger(v-show="email.invalid")
-          //-       | {{ getError('email') }}
-          .form-group
-            label.col-sm-2.control-label Photo
-            .col-sm-9
-              input.form-control(type="file" name="photo" v-validate="modelValidations.photo" @change="onChangePhoto")
-              small.text-danger(v-show="photo.invalid")
-                | {{ getError('photo') }}
-      .card-footer.text-center
-        .row
-          .col-sm-4.col-sm-offset-2
-            router-link.btn.btn-outline.btn-wd(to="/admin/students") Back
-          .col-sm-4
-            button.btn.btn-fill.btn-wd(type="submit" @click.prevent="validate") Submit
+  #wizardCard.card.card-wizard
+    form-wizard(shape="tab" @on-complete="wizardComplete" error-color="#EB5E28" color="#EE215B" title="Student Form" subtitle="")
+      tab-content(title="Student details" :before-change="validateFirstStep" icon="ti-user")
+        first-step(ref="firstStep")
+      tab-content(title="Guardian details" :before-change="validateSecondStep" icon="ti-settings")
+        second-step(ref="secondStep")
+      button.btn.btn-default.btn-outline.btn-wd.btn-back(slot="prev") Back
+      button.btn.btn-default.btn-outline.btn-info.btn-wd.btn-next(slot="next") Next
+      button.btn.btn-default.btn-info.btn-fill.btn-wd(slot="finish") Finish
 </template>
 <script>
-import { mapFields } from "vee-validate";
 import axios from "axios";
 import mixinNotify from "src/app/mixins/notify";
+import { FormWizard, TabContent } from "vue-form-wizard";
+import "vue-form-wizard/dist/vue-form-wizard.min.css";
+import FirstStep from "./StudentForm0";
+import SecondStep from "./StudentForm1";
 
 export default {
-  computed: {
-    ...mapFields(["name",
-    // "username", "email",
-    "photo"
-    ])
+  components: {
+    FormWizard,
+    TabContent,
+    FirstStep,
+    SecondStep
   },
+  computed: {},
   mixins: [mixinNotify],
   data() {
     return {
       isCreate: true,
-      model: {
-        name: "",
-        photo: "",
-        // username: "",
-        // email: ""
-      },
-      modelValidations: {
-        name: {
-          required: true
-        },
-        photo: {
-          image: true
-        },
-        // username: {
-        //   required: true
-        // },
-        // email: {
-        //   email:true
-        // }
-      }
+      model: {}
     };
   },
   methods: {
-    onChangePhoto(e) {
-      this.model.photo = e.target.files[0];
+    validateFirstStep() {
+      return this.$refs.firstStep.validate();
     },
-    getError(fieldName) {
-      return this.errors.first(fieldName);
+    validateSecondStep() {
+      return this.$refs.secondStep.validate();
     },
-    validate() {
-      this.$validator.validateAll().then(isValid => {
-        if (!isValid) {
-          return false;
-        }
+    wizardComplete() {
+      this.model = {
+        ...this.$refs.firstStep.model
+      };
+      this.model.guardian = this.$refs.secondStep.model;
 
-        const data = new FormData();
-        data.append("name", this.model.name);
-        // data.append("username", this.model.username);
-        // data.append("email", this.model.email);
-        data.append("role", "student");
-        if (this.model.photo) {
-          data.append("photo", this.model.photo);
-        }
-        if (this.isCreate) {
-          axios
-            .post(`${process.env.DBAPI}/users`, data)
-            .then(response => {
-              this.model._etag = response.data._etag;
+      const data = new FormData();
+      data.append("name", this.model.name);
+      data.append("role", "student");
+      if (this.model.address) {
+        data.append("address", this.model.address);
+      }
+      if (this.model.school) {
+        data.append("school", this.model.school);
+      }
+      if (this.model.grade) {
+        data.append("grade", this.model.grade);
+      }
+      if (this.model.photo) {
+        data.append("photo", this.model.photo);
+      }
+      if (this.model.dob) {
+        data.append("dob", this.model.dob);
+      }
+      if (this.isCreate) {
+        axios
+          .post(`${process.env.DBAPI}/users`, data)
+          .then(response => {
+            this.model._etag = response.data._etag;
 
-              this.$router.push("/admin/students");
-              this.notifyVue({
-                component: {
-                  template: `<span>Success created</span>`
-                },
-                type: "success"
-              });
-            })
-            .catch(error => {
-              console.log(error, error.response);
-              this.notifyVue({
-                component: {
-                  template: `<span>Fail created</span>`
-                },
-                type: "danger"
-              });
+            this.$router.push("/admin/students");
+            this.notifyVue({
+              component: {
+                template: `<span>Success created</span>`
+              },
+              type: "success"
             });
-        } else {
-          const config = {
-            headers: { "If-Match": this.model._etag }
-          };
-          axios
-            .patch(`${process.env.DBAPI}/users/${this.model.id}`, data, config)
-            .then(response => {
-              this.model._etag = response.data._etag;
-
-              this.$router.push("/admin/students");
-              this.notifyVue({
-                component: {
-                  template: `<span>Success updated</span>`
-                },
-                type: "success"
-              });
-            })
-            .catch(error => {
-              console.log(error, error.response);
-              this.notifyVue({
-                component: {
-                  template: `<span>Fail updated</span>`
-                },
-                type: "danger"
-              });
+          })
+          .catch(error => {
+            console.log(error, error.response);
+            this.notifyVue({
+              component: {
+                template: `<span>Fail created</span>`
+              },
+              type: "danger"
             });
-        }
-      });
+          });
+      } else {
+        const config = {
+          headers: { "If-Match": this.model._etag }
+        };
+        axios
+          .patch(`${process.env.DBAPI}/users/${this.model.id}`, data, config)
+          .then(response => {
+            this.model._etag = response.data._etag;
+
+            this.$router.push("/admin/students");
+            this.notifyVue({
+              component: {
+                template: `<span>Success updated</span>`
+              },
+              type: "success"
+            });
+          })
+          .catch(error => {
+            console.log(error, error.response);
+            this.notifyVue({
+              component: {
+                template: `<span>Fail updated</span>`
+              },
+              type: "danger"
+            });
+          });
+      }
     }
   },
   mounted() {
     const id = this.$route.params.id;
+
     if (id) {
       this.isCreate = false;
       axios
         .get(`${process.env.DBAPI}/users/${id}`, {
-          headers: { "If-None-Match": this.model._etag }
+          headers: { "If-None-Match": this.$refs.firstStep.model._etag }
         })
         .then(response => {
-          this.model = response.data;
-          this.model.photo = null
+          this.$refs.firstStep.model = response.data;
+          this.$refs.firstStep.model.photo = null;
         })
         .catch(error => console.log(error, error.response));
+      // this.$refs.secondStep.model
     }
   }
 };

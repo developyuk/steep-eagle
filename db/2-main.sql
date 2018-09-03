@@ -46,7 +46,7 @@ CREATE TABLE users (
   photo TEXT,
   _created TIMESTAMP DEFAULT Now(),
   _updated TIMESTAMP DEFAULT Now(),
-  _deleted BOOLEAN DEFAULT FALSE,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   _etag varchar(40),
   UNIQUE (username, email, contact_no, name)
 );
