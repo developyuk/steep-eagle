@@ -24,9 +24,9 @@ db = app.data.driver
 Base.metadata.bind = db.engine
 db.Model = Base
 
-app.on_update_classes += hooks.class_students.before_patch_item
-app.on_insert_classes += hooks.class_students.before_post_item
-app.on_inserted_classes += hooks.class_students.after_post_item
+app.on_update_classes += hooks.class_students.on_update
+app.on_insert_classes += hooks.class_students.on_insert
+app.on_inserted_classes += hooks.class_students.on_inserted
 
 app.on_fetched_resource += hooks.image_default.on_fetched_resource
 app.on_fetched_item += hooks.image_default.on_fetched_item

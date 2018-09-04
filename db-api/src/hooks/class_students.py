@@ -15,12 +15,9 @@ def fclass_students(id, students_):
         class_id=id, student_id=v), students_)
     session.add_all(class_students)
     session.commit()
-    class_students = map(lambda v: v.id, class_students)
-
-    return class_students
 
 
-def before_patch_item(updates, original):
+def on_update(updates, original):
     students_ = updates.get('students_')
 
     fclass_students(original.get('id'), students_)
@@ -29,20 +26,17 @@ def before_patch_item(updates, original):
 post_items = []
 
 
-def before_post_item(items):
+def on_insert(items):
     global post_items
     post_items = deepcopy(items)
     for i, item in enumerate(items):
         del item['students_']
 
 
-def after_post_item(items):
+def on_inserted(items):
     global post_items
     for i, item in enumerate(items):
-        # item['students'] = item.get('students_')
-        # del item['students_']
         students_ = post_items[i].get('students_')
         if students_:
             fclass_students(item.get('id'), students_)
-            # items[i].update({'students': students})
     post_items = []

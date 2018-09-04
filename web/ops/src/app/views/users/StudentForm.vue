@@ -43,7 +43,10 @@ export default {
       this.model = {
         ...this.$refs.firstStep.model
       };
-      this.model.guardian = this.$refs.secondStep.model;
+      this.model.guardians = [this.$refs.secondStep.model];
+      this.model.guardians = this.model.guardians.filter(v => {
+        return v.contact_no || v.email;
+      });
 
       const data = new FormData();
       data.append("name", this.model.name);
@@ -62,6 +65,9 @@ export default {
       }
       if (this.model.dob) {
         data.append("dob", this.model.dob);
+      }
+      if (this.model.guardians.length > 0) {
+        // data.append("guardians", JSON.stringify(this.model.guardians));
       }
       if (this.isCreate) {
         axios

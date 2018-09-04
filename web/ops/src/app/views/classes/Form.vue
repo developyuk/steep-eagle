@@ -260,7 +260,11 @@ export default {
       .catch(error => console.log(error, error.response));
     axios
       .get(`${process.env.DBAPI}/users`, {
-        params: { where: { role: "student" }, sort: "name", max_results: 9999 }
+        params: {
+          where: { role: "student", is_deleted: false },
+          sort: "name",
+          max_results: 9999
+        }
       })
       .then(response => {
         this.selects.students = response.data._items.map(v => {

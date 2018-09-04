@@ -33,6 +33,17 @@ class CCSoftDelete(CommonColumns):
     is_deleted = Column(Boolean, default=False)
 
 
+class StudentGuardians(CommonColumns):
+    __tablename__ = 'student_guardians'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    student_id = Column(Integer, ForeignKey('users.id'))
+    guardian_id = Column(Integer, ForeignKey('users.id'))
+
+    # student = relationship("Users", foreign_keys=[student_id],back_populates="studentguardians")
+    # student = relationship("Users")
+    # guardian = relationship("Users")
+
+
 class Users(CCSoftDelete):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)

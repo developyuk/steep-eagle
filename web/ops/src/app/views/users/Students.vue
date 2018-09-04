@@ -95,7 +95,7 @@ export default {
           minWidth: 200,
           className: "text-capitalize",
           sortable: true
-        },
+        }
         // {
         //   prop: "username",
         //   label: "Username",
@@ -137,13 +137,15 @@ export default {
           buttonsStyling: false,
           preConfirm: text => {
             if (text === row.name) {
+              const data = {
+                is_deleted: true
+              };
+              const config = {
+                headers: { "if-match": row._etag }
+              };
               return axios
-                .delete(`${process.env.DBAPI}/users/${row.id}`, {
-                  headers: { "if-match": row._etag }
-                })
+                .patch(`${process.env.DBAPI}/users/${row.id}`, data, config)
                 .then(response => {
-                  // this.tableData.splice(indexToDelete, 1);
-                  this.getData();
                   return {
                     title: "Deleted!",
                     type: "success",

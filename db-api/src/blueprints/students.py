@@ -4,11 +4,47 @@ from copy import deepcopy
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
-from eve.methods import get
+from eve.methods import get, getitem
 from . import utc_now
+from werkzeug.exceptions import NotFound
 
 blueprint = Blueprint('students', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
+
+
+def filter_attendance_students(v, st):
+    r = {
+        '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d'),
+        'student_id': v['student']['id'],
+        'attendance_id': st['attendance']['id'],
+    }
+    attendances_students, *_ = get('attendances_students', r)
+    attendances_students = attendances_students['_items']
+
+    return len(attendances_students) == 0
+
+
+def filter_students_is_deleted(v):
+    r = {
+        'id': v['student']['id'],
+        'role': 'student',
+        'is_deleted': False,
+    }
+    try:
+        student, *_ = getitem('users', r)
+        return True
+    except NotFound as e:
+        return False
+
+
+def map_attendances(v):
+    vlist = filter(lambda v2: filter_attendance_students(
+        v2, v), v['attendance']['class_']['students'])
+    vlist = filter(filter_students_is_deleted,
+                   v['attendance']['class_']['students'])
+    vlist = list(vlist)
+    v['attendance']['class_']['students'] = vlist
+    return v
 
 
 @blueprint.route('/students', methods=['GET'])
@@ -16,6 +52,9 @@ CORS(blueprint, max_age=timedelta(days=10))
 def students():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 999
+    # app.config['DOMAIN']['attendances_students'].update({'embedded_fields': [
+    #     'student'
+    # ]})
     app.config['DOMAIN']['attendances_tutors'].update({'embedded_fields': [
         'attendance',
         'attendance.class_',
@@ -31,24 +70,7 @@ def students():
     attendances, *_ = get('attendances_tutors', r)
     attendances = attendances['_items']
 
-    def filter_attendance_students(v, st):
-        r = {
-            '_created': '>=\'%s\'' % st['_created'].strftime('%Y-%m-%d'),
-            'student_id': v['student']['id'],
-            'attendance_id': st['attendance']['id'],
-        }
-        attendances_students, *_ = get('attendances_students', r)
-        attendances_students = attendances_students['_items']
-
-        return len(attendances_students) == 0
-
-    def filter_attendances(v):
-        vlist = filter(lambda v2: filter_attendance_students(
-            v2, v), v['attendance']['class_']['students'])
-        v['attendance']['class_']['students'] = list(vlist)
-        return v
-
-    attendances = map(filter_attendances, attendances)
+    attendances = map(map_attendances, attendances)
     attendances = list(attendances)
     attendances = filter(lambda v: len(
         v['attendance']['class_']['students']) > 0, attendances)

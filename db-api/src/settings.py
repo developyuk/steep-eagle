@@ -1,7 +1,8 @@
 import os
+from pprint import pprint
 
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, Branches, Classes, ClassStudents, Modules, Attendances, AttendancesTutors, AttendancesStudents, ClassesTs, Notifications
+from tables import Users, Branches, Classes, ClassStudents, Modules, Attendances, AttendancesTutors, AttendancesStudents, ClassesTs, Notifications, StudentGuardians
 
 # from eve_auth_jwt import JWTAuth
 SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
@@ -68,6 +69,7 @@ DOMAIN = DomainConfig({
     'attendances_students': ResourceConfig(AttendancesStudents),
     'classes_ts': ResourceConfig(ClassesTs),
     'notifications': ResourceConfig(Notifications),
+    'student_guardians': ResourceConfig(StudentGuardians),
 }).render()
 
 DOMAIN['modules']['schema']['image'].update({'type': 'media'})
@@ -78,6 +80,13 @@ DOMAIN['attendances_tutors'].update({'allow_unknown': True})
 
 # DOMAIN['users'].update({'soft_delete': True})
 
+# DOMAIN['users']['schema']['studentguardians']['data_relation'].update(
+#     {'embeddable': True})
+# DOMAIN['student_guardians']['schema']['student']['data_relation'].update(
+#     {'embeddable': True})
+# DOMAIN['student_guardians']['schema']['guardian']['data_relation'].update(
+#     {'embeddable': True})
+pprint(DOMAIN['users'])
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
     {'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update(
