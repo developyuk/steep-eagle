@@ -1,21 +1,5 @@
 version: '2'
 services:
-  # api-main:
-  #   build: ./api-main
-  #   volumes:
-  #      - ./api-main:/project
-  #   working_dir: /project
-  #   ports:
-  #     - "91:1323"
-  #   environment:
-  #     - JWT_KEY=${JWT_KEY}
-  #     - HOST=${HOST}
-  #     - HOST_DB_API=${HOST_DB_API}
-  #     - HOST_MQTT=${HOST_MQTT}
-  #     - BIN_APP_PORT=1323
-  #   depends_on:
-  #     - db-api
-  #   command: fresh
   db-api:
     build: ./db-api
     volumes:
