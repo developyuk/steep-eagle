@@ -1,9 +1,9 @@
 version: '2'
 services:
-  db-api:
-    build: ./db-api
+  api:
+    build: ./api
     volumes:
-      - ./db-api/src:/app
+      - ./api/src:/app
     ports:
       - "3000:3000"
     environment:
