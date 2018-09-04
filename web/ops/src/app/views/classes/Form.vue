@@ -192,11 +192,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(
-              `${process.env.API}/classes/${this.model.id}`,
-              data,
-              config
-            )
+            .patch(`${process.env.API}/classes/${this.model.id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -246,7 +242,11 @@ export default {
       .catch(error => console.log(error, error.response));
     axios
       .get(`${process.env.API}/users`, {
-        params: { where: { role: "tutor" }, sort: "name", max_results: 9999 }
+        params: {
+          where: { role: "tutor", is_deleted: false },
+          sort: "name",
+          max_results: 9999
+        }
       })
       .then(response => {
         this.selects.tutors = response.data._items.map(v => {
