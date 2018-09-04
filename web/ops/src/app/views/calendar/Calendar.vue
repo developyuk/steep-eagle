@@ -162,7 +162,7 @@ export default {
   mounted() {
     window.$ = window.jQuery = $;
     axios
-      .get(`${process.env.DBAPI}/calendar`)
+      .get(`${process.env.API}/calendar`)
       .then(response => {
         this.events = response.data._items;
         this.initCalendar($);

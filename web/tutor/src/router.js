@@ -62,7 +62,7 @@ router.beforeEach((to, from, next) => {
   }
   // axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
   axios
-    .get(`${process.env.VUE_APP_DBAPI}/auth`)
+    .get(`${process.env.VUE_APP_API}/auth`)
     .then(response => {
       // console.log(response.data);
       const currentAuth = response.data;

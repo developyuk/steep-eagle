@@ -97,7 +97,7 @@ export default {
         is_deleted: e
       };
       axios
-        .patch(`${process.env.DBAPI}/users/${this.model.id}`, data, config)
+        .patch(`${process.env.API}/users/${this.model.id}`, data, config)
         .then(response => {
           this.model._etag = response.data._etag;
 
@@ -141,7 +141,7 @@ export default {
         }
         if (this.isCreate) {
           axios
-            .post(`${process.env.DBAPI}/users`, data)
+            .post(`${process.env.API}/users`, data)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -167,7 +167,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(`${process.env.DBAPI}/users/${this.model.id}`, data, config)
+            .patch(`${process.env.API}/users/${this.model.id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -197,7 +197,7 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.DBAPI}/users/${id}`, {
+        .get(`${process.env.API}/users/${id}`, {
           headers: { "If-None-Match": this.model._etag }
         })
         .then(response => {

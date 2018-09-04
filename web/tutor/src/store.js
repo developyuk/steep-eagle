@@ -38,7 +38,7 @@ export default new Vuex.Store({
   actions: {
     updateStats({commit, state}) {
       console.log('state.currentAuth', state.currentAuth.id);
-      axios.get(`${process.env.VUE_APP_DBAPI}/tutor_stats`)
+      axios.get(`${process.env.VUE_APP_API}/tutor_stats`)
         .then(response => {
           const data = {
             classes: response.data._items.classes_sum,

@@ -112,7 +112,7 @@ export default {
     },
     checkPin(e) {
       if (this.pin === "1234") {
-        const url = `${process.env.VUE_APP_DBAPI}/attendances_tutors`;
+        const url = `${process.env.VUE_APP_API}/attendances_tutors`;
         const params = {
           class_: this.currentClass.id,
           tutor: this.currentAuth.id
@@ -131,7 +131,7 @@ export default {
       }
     },
     getSchedules(params = { forceRefresh: false }) {
-      const url = `${process.env.VUE_APP_DBAPI}/schedules`;
+      const url = `${process.env.VUE_APP_API}/schedules`;
 
       const headers = {};
       if (params.forceRefresh) {
@@ -189,7 +189,7 @@ export default {
             snackbarOpts = Object.assign(snackbarOpts, {
               actionText: "Undo",
               actionHandler: () => {
-                let url = `${process.env.VUE_APP_DBAPI}/attendances_tutors/${
+                let url = `${process.env.VUE_APP_API}/attendances_tutors/${
                   MsgItem.id
                 }`;
 

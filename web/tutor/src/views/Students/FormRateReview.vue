@@ -61,8 +61,8 @@ export default {
       this.ratingInteraction = e;
     },
     submit() {
-      //        const url = `${process.env.VUE_APP_DBAPI}/attendances/${this.stid}/students/${this.uid}`;
-      const url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
+      //        const url = `${process.env.VUE_APP_API}/attendances/${this.stid}/students/${this.uid}`;
+      const url = `${process.env.VUE_APP_API}/attendances_students`;
       const data = {
         // attendance_tutor: this.stid,
         attendance: this.sid,
@@ -83,7 +83,7 @@ export default {
         });
     },
     absence() {
-      const url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
+      const url = `${process.env.VUE_APP_API}/attendances_students`;
       const data = {
         // attendance_tutor: this.stid,
         attendance: this.sid,

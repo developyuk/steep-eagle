@@ -144,7 +144,7 @@ export default {
       return [i, ii];
     },
     getStudentsAttendances(params = { forceRefresh: false }) {
-      const url = `${process.env.VUE_APP_DBAPI}/students`;
+      const url = `${process.env.VUE_APP_API}/students`;
       const headers = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";
@@ -203,7 +203,7 @@ export default {
                 actionText: "Undo",
                 actionHandler: () => {
                   const url = `${
-                    process.env.VUE_APP_DBAPI
+                    process.env.VUE_APP_API
                   }/attendances_students/${msgItem.id}`;
 
                   axios

@@ -56,7 +56,7 @@ export default {
       //          if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
       //
       //
-      //            let url = `${process.env.VUE_APP_DBAPI}/attendances_students`;
+      //            let url = `${process.env.VUE_APP_API}/attendances_students`;
       //            let params = {
       //              attendance_tutor: this.stid,
       //              student: this.student.id,

@@ -138,7 +138,7 @@ export default {
           preConfirm: text => {
             if (text === row.name) {
               return axios
-                .delete(`${process.env.DBAPI}/users/${row.id}`, {
+                .delete(`${process.env.API}/users/${row.id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {
@@ -200,7 +200,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.DBAPI}/users`, config)
+        .get(`${process.env.API}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.pagination.total = response.data._meta.total;

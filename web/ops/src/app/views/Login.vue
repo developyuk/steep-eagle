@@ -55,7 +55,7 @@ export default {
         role: JSON.stringify(["operation"])
       };
       axios
-        .post(`${process.env.DBAPI}/sign`, data)
+        .post(`${process.env.API}/sign`, data)
         .then(response => {
           //            console.log(response);
           localStorage.setItem("token", response.data.token);

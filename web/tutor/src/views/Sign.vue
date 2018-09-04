@@ -55,7 +55,7 @@ export default {
   },
   methods: {
     sign() {
-      const url = `${process.env.VUE_APP_DBAPI}/sign`;
+      const url = `${process.env.VUE_APP_API}/sign`;
       const username = this.username.substring(0, this.username.length - 3);
       const data = {
         username: username,

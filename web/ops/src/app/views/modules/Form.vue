@@ -79,7 +79,7 @@ export default {
 
         if (this.isCreate) {
           axios
-            .post(`${process.env.DBAPI}/modules`, data, config)
+            .post(`${process.env.API}/modules`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -103,7 +103,7 @@ export default {
         } else {
           axios
             .patch(
-              `${process.env.DBAPI}/modules/${this.model.id}`,
+              `${process.env.API}/modules/${this.model.id}`,
               data,
               config
             )
@@ -137,7 +137,7 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.DBAPI}/modules/${id}`, {
+        .get(`${process.env.API}/modules/${id}`, {
           headers: { "If-None-Match": this.model._etag }
         })
         .then(response => {

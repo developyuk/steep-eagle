@@ -144,7 +144,7 @@ export default {
                 headers: { "if-match": row._etag }
               };
               return axios
-                .patch(`${process.env.DBAPI}/users/${row.id}`, data, config)
+                .patch(`${process.env.API}/users/${row.id}`, data, config)
                 .then(response => {
                   return {
                     title: "Deleted!",
@@ -202,7 +202,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.DBAPI}/users`, config)
+        .get(`${process.env.API}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.pagination.total = response.data._meta.total;

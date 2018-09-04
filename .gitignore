@@ -5,6 +5,5 @@
 /web/nginx-log
 **/letsencrypt
 .env
-client-secret.json
 *.old*
 *-lock.json

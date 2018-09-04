@@ -154,7 +154,7 @@ export default {
           preConfirm: text => {
             if (text === row.module.name) {
               return axios
-                .delete(`${process.env.DBAPI}/classes/${row.id}`, {
+                .delete(`${process.env.API}/classes/${row.id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {
@@ -220,7 +220,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.DBAPI}/classes_ts`, config)
+        .get(`${process.env.API}/classes_ts`, config)
         .then(response => {
           // this.tableData = response.data._items;
           // this.pagination.total = response.data._meta.total;

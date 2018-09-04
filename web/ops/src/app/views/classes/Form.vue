@@ -166,7 +166,7 @@ export default {
         };
         if (this.isCreate) {
           axios
-            .post(`${process.env.DBAPI}/classes`, data)
+            .post(`${process.env.API}/classes`, data)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -193,7 +193,7 @@ export default {
           };
           axios
             .patch(
-              `${process.env.DBAPI}/classes/${this.model.id}`,
+              `${process.env.API}/classes/${this.model.id}`,
               data,
               config
             )
@@ -225,7 +225,7 @@ export default {
     const id = this.$route.params.id;
     const params = { max_results: 999 };
     axios
-      .get(`${process.env.DBAPI}/modules`, { params })
+      .get(`${process.env.API}/modules`, { params })
       .then(response => {
         this.selects.modules = response.data._items.map(v => {
           return {
@@ -237,7 +237,7 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.DBAPI}/branches`, { params })
+      .get(`${process.env.API}/branches`, { params })
       .then(response => {
         this.selects.branches = response.data._items.map(v => {
           return { value: v.id, label: v.name.toUpperCase() };
@@ -245,7 +245,7 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.DBAPI}/users`, {
+      .get(`${process.env.API}/users`, {
         params: { where: { role: "tutor" }, sort: "name", max_results: 9999 }
       })
       .then(response => {
@@ -259,7 +259,7 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.DBAPI}/users`, {
+      .get(`${process.env.API}/users`, {
         params: {
           where: { role: "student", is_deleted: false },
           sort: "name",
@@ -280,7 +280,7 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.DBAPI}/classes/${id}`, {
+        .get(`${process.env.API}/classes/${id}`, {
           params: { embedded: { students: 1, "students.student": 1 } },
           headers: { "If-None-Match": this.model._etag }
         })

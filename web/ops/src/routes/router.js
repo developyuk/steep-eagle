@@ -21,7 +21,7 @@ router.beforeEach((to, from, next) => {
   }
   // axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
   axios
-    .get(`${process.env.DBAPI}/auth`)
+    .get(`${process.env.API}/auth`)
     .then(response => {
       const currentAuth = response.data;
       store.commit('nextAuth', currentAuth);

@@ -1,29 +1,29 @@
-language: node_js
-node_js:
-  - "9"
+# language: node_js
+# node_js:
+#   - "9"
 
-cache:
-  directories:
-  - "$HOME/gcloud/"
+# cache:
+#   directories:
+#   - "$HOME/gcloud/"
 
-env:
-  - PATH=$PATH:$HOME/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
+# env:
+#   - PATH=$PATH:$HOME/google-cloud-sdk/bin CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
-before_install:
-  - openssl aes-256-cbc -K $encrypted_2648e90351f1_key -iv $encrypted_2648e90351f1_iv -in client-secret.json.enc -out client-secret.json -d
+# before_install:
+#   - openssl aes-256-cbc -K $encrypted_2648e90351f1_key -iv $encrypted_2648e90351f1_iv -in client-secret.json.enc -out client-secret.json -d
 
-install:
-  - cd ./web-main
-  - npm install
+# install:
+#   - cd ./web-main
+#   - npm install
 
-script:
-  - npm run build
-  - cd ../
+# script:
+#   - npm run build
+#   - cd ../
 
-deploy:
-  provider: gae
-  skip_cleanup: true
-  keyfile: client-secret.json.enc
-  project: dyuk-154708
-  on:
-    branch: master
+# deploy:
+#   provider: gae
+#   skip_cleanup: true
+#   keyfile: client-secret.json.enc
+#   project: dyuk-154708
+#   on:
+#     branch: master
