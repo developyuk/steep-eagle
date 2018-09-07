@@ -67,7 +67,7 @@ export default {
         data.append("dob", this.model.dob);
       }
       if (this.model.guardians.length > 0) {
-        // data.append("guardians", JSON.stringify(this.model.guardians));
+        data.append("guardians", JSON.stringify(this.model.guardians));
       }
       if (this.isCreate) {
         axios
@@ -132,6 +132,8 @@ export default {
         })
         .then(response => {
           this.$refs.firstStep.model = response.data;
+          this.$refs.firstStep.model.is_active = !this.$refs.firstStep.model
+            .is_deleted;
           this.$refs.firstStep.model.photo = null;
         })
         .catch(error => console.log(error, error.response));

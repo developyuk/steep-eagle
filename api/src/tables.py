@@ -39,7 +39,8 @@ class StudentGuardians(CommonColumns):
     student_id = Column(Integer, ForeignKey('users.id'))
     guardian_id = Column(Integer, ForeignKey('users.id'))
 
-    # student = relationship("Users", foreign_keys=[student_id],back_populates="studentguardians")
+    student = relationship("Users", foreign_keys=[student_id])
+    guardian = relationship("Users", foreign_keys=[guardian_id])
     # student = relationship("Users")
     # guardian = relationship("Users")
 
@@ -59,6 +60,9 @@ class Users(CCSoftDelete):
     school = Column(String)
     grade = Column(String)
     contact_no = Column(String)
+
+    student_guardians = relationship("StudentGuardians", foreign_keys=[
+                            id], primaryjoin=(StudentGuardians.student_id == id),uselist=True)
 
 
 class Branches(CommonColumns):

@@ -29,16 +29,22 @@
               input.form-control(type="email" name="email" v-validate="modelValidations.email" v-model="model.email")
               small.text-danger(v-show="email.invalid")
                 | {{ getError('email') }}
+          .form-group.row
+            label.col-sm-2.control-label Contact no.
+            .col-sm-9
+              input.form-control(type="text" name="contact_no" v-validate="modelValidations.contact_no" v-model="model.contact_no")
+              small.text-danger(v-show="contact_no.invalid")
+                | {{ getError('contact_no') }}
           .form-group
             label.col-sm-2.control-label Photo
             .col-sm-9
               input.form-control(type="file" name="photo" v-validate="modelValidations.photo" @change="onChangePhoto")
               small.text-danger(v-show="photo.invalid")
                 | {{ getError('photo') }}
-          .form-group
-            label.col-sm-2.control-label Is leaving ?
+          .form-group(v-if="!isCreate")
+            label.col-sm-2.control-label Active
             .col-sm-9
-              p-switch(v-model="model.is_deleted" @input="onChangeLeaving")
+              p-switch(v-model="model.is_active" @input="onChangeLeaving")
                 i.fa.fa-check(slot="on")
                 i.fa.fa-times(slot="off")
 
@@ -60,7 +66,7 @@ export default {
     PSwitch
   },
   computed: {
-    ...mapFields(["name", "username", "email", "photo"])
+    ...mapFields(["name", "username", "email", "photo", "contact_no"])
   },
   mixins: [mixinNotify],
   data() {
@@ -70,7 +76,8 @@ export default {
         name: "",
         username: "",
         email: "",
-        photo: ""
+        photo: "",
+        contact_no: ""
       },
       modelValidations: {
         name: {
@@ -79,6 +86,7 @@ export default {
         username: {
           required: true
         },
+        contact_no: {},
         email: {
           email: true
         },
@@ -94,7 +102,7 @@ export default {
         headers: { "If-Match": this.model._etag }
       };
       const data = {
-        is_deleted: e
+        is_deleted: !e
       };
       axios
         .patch(`${process.env.API}/users/${this.model.id}`, data, config)
@@ -135,6 +143,7 @@ export default {
         data.append("name", this.model.name);
         data.append("username", this.model.username);
         data.append("email", this.model.email);
+        data.append("contact_no", this.model.contact_no);
         data.append("role", "tutor");
         if (this.model.photo) {
           data.append("photo", this.model.photo);
@@ -202,6 +211,7 @@ export default {
         })
         .then(response => {
           this.model = response.data;
+          this.model.is_active = !this.model.is_deleted;
           this.model.photo = null;
         })
         .catch(error => console.log(error, error.response));

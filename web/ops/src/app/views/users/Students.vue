@@ -19,16 +19,20 @@
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
             el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
+            el-table-column(:key="tableColumns[1].label" :min-width="tableColumns[1].minWidth" :prop="tableColumns[1].prop" :label="tableColumns[1].label" :className="tableColumns[1].className" :sortable="tableColumns[1].sortable")
               template(slot-scope='props')
                 .img-container
                   img(:src='props.row.photo' :alt='props.row.name')
-            el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
+            el-table-column(v-for="column in tableColumns.slice(2)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/admin/students/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
-                a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
-                  i.ti-close
+                //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
+                //-   i.ti-close
+                p-switch(v-model="props.row.is_active" @input="onChangeLeaving($event,props.$index, props.row)" )
+                  i.fa.fa-check(slot="on")
+                  i.fa.fa-times(slot="off")
         .col-sm-6.pagination-info
           p.category Showing {{from + 1}} to {{to}} of {{total}} entries
         .col-sm-6
@@ -42,6 +46,7 @@ import axios from "axios";
 import _range from "lodash/range";
 import mixinNotify from "src/app/mixins/notify";
 import swal from "sweetalert2";
+import PSwitch from "src/components/UIComponents/Switch.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -50,7 +55,8 @@ Vue.use(Option);
 export default {
   mixins: [mixinNotify],
   components: {
-    PPagination
+    PPagination,
+    PSwitch
   },
   computed: {
     queriedData() {
@@ -83,6 +89,11 @@ export default {
       propsToSearch: ["name"],
       tableColumns: [
         {
+          prop: "id",
+          label: "Id",
+          minWidth: 64
+        },
+        {
           prop: "photo",
           label: "Photo",
           minWidth: 64,
@@ -92,6 +103,13 @@ export default {
         {
           prop: "name",
           label: "Name",
+          minWidth: 200,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "guardians_name",
+          label: "Guardians",
           minWidth: 200,
           className: "text-capitalize",
           sortable: true
@@ -115,79 +133,146 @@ export default {
     };
   },
   methods: {
+    onChangeLeaving(e, index, row) {
+      const config = {
+        headers: { "If-Match": row._etag }
+      };
+      const data = {
+        is_deleted: !e
+      };
+
+      swal({
+        // title: "Input something",
+        title: "Are you sure?",
+        html: `Submit <strong>${row.name.split(" ")[0]}</strong> below`,
+        type: "warning",
+        input: "text",
+        showCancelButton: true,
+        showLoaderOnConfirm: true,
+        confirmButtonClass: "btn btn-success btn-fill",
+        cancelButtonClass: "btn btn-danger btn-fill",
+        buttonsStyling: false,
+        preConfirm: text => {
+          if (text.split(" ")[0] === row.name.split(" ")[0]) {
+            return axios
+              .patch(`${process.env.API}/users/${row.id}`, data, config)
+              .then(response => {
+                row._etag = response.data._etag;
+                this.getData();
+                return {
+                  title: data.is_deleted ? "Inactivation" : "Activation",
+                  type: "success",
+                  text: `<strong>${text}</strong> is ${
+                    data.is_deleted ? "inactive" : "active"
+                  }.`
+                };
+              })
+              .catch(error => {
+                console.log(error, error.response);
+                swal.showValidationError(`Request failed: ${error}`);
+              });
+          } else {
+            return new Promise((resolve, reject) => {
+              resolve({
+                title: "Error",
+                type: "error",
+                text: `Please type <strong>${row.name.split(" ")[0]}</strong>`
+              });
+            });
+          }
+        },
+        allowOutsideClick: () => !swal.isLoading()
+      })
+        .then(result => {
+          console.log(result);
+          swal({
+            title: result.title,
+            html: result.text,
+            type: result.type,
+            timer: 1000,
+            confirmButtonClass: "btn btn-success btn-fill",
+            buttonsStyling: false
+          });
+        })
+        .catch(swal.noop);
+    },
     handleEdit(index, row) {
       alert(`Your want to edit ${row.name}`);
     },
-    handleDelete(index, row) {
-      let indexToDelete = this.tableData.findIndex(
-        tableRow => tableRow.id === row.id
-      );
-      if (indexToDelete >= 0) {
-        swal({
-          // title: "Input something",
-          title: "Are you sure?",
-          html: `You won't be able to revert this!.
-          Submit <strong>${row.name}</strong> below`,
-          type: "warning",
-          input: "text",
-          showCancelButton: true,
-          showLoaderOnConfirm: true,
-          confirmButtonClass: "btn btn-success btn-fill",
-          cancelButtonClass: "btn btn-danger btn-fill",
-          buttonsStyling: false,
-          preConfirm: text => {
-            if (text === row.name) {
-              const data = {
-                is_deleted: true
-              };
-              const config = {
-                headers: { "if-match": row._etag }
-              };
-              return axios
-                .patch(`${process.env.API}/users/${row.id}`, data, config)
-                .then(response => {
-                  return {
-                    title: "Deleted!",
-                    type: "success",
-                    text: `<strong>${text}</strong> has been deleted.`
-                  };
-                })
-                .catch(error => {
-                  swal.showValidationError(`Request failed: ${error}`);
-                });
-            } else {
-              return new Promise((resolve, reject) => {
-                resolve({
-                  title: "Error",
-                  type: "error",
-                  text: `Please type <strong>${row.name}</strong>`
-                });
-              });
-            }
-          },
-          allowOutsideClick: () => !swal.isLoading()
-        })
-          .then(result => {
-            console.log(result);
-            swal({
-              title: result.title,
-              html: result.text,
-              type: result.type,
-              timer: 1000,
-              confirmButtonClass: "btn btn-success btn-fill",
-              buttonsStyling: false
-            });
-          })
-          .catch(swal.noop);
-      }
-    },
+    // handleDelete(index, row) {
+    //   let indexToDelete = this.tableData.findIndex(
+    //     tableRow => tableRow.id === row.id
+    //   );
+    //   if (indexToDelete >= 0) {
+    //     swal({
+    //       // title: "Input something",
+    //       title: "Are you sure?",
+    //       html: `You won't be able to revert this!.
+    //       Submit <strong>${row.name}</strong> below`,
+    //       type: "warning",
+    //       input: "text",
+    //       showCancelButton: true,
+    //       showLoaderOnConfirm: true,
+    //       confirmButtonClass: "btn btn-success btn-fill",
+    //       cancelButtonClass: "btn btn-danger btn-fill",
+    //       buttonsStyling: false,
+    //       preConfirm: text => {
+    //         if (text === row.name) {
+    //           const data = {
+    //             is_deleted: true
+    //           };
+    //           const config = {
+    //             headers: { "if-match": row._etag }
+    //           };
+    //           return axios
+    //             .patch(`${process.env.API}/users/${row.id}`, data, config)
+    //             .then(response => {
+    //               return {
+    //                 title: "Deleted!",
+    //                 type: "success",
+    //                 text: `<strong>${text}</strong> has been deleted.`
+    //               };
+    //             })
+    //             .catch(error => {
+    //               swal.showValidationError(`Request failed: ${error}`);
+    //             });
+    //         } else {
+    //           return new Promise((resolve, reject) => {
+    //             resolve({
+    //               title: "Error",
+    //               type: "error",
+    //               text: `Please type <strong>${row.name}</strong>`
+    //             });
+    //           });
+    //         }
+    //       },
+    //       allowOutsideClick: () => !swal.isLoading()
+    //     })
+    //       .then(result => {
+    //         console.log(result);
+    //         swal({
+    //           title: result.title,
+    //           html: result.text,
+    //           type: result.type,
+    //           timer: 1000,
+    //           confirmButtonClass: "btn btn-success btn-fill",
+    //           buttonsStyling: false
+    //         });
+    //       })
+    //       .catch(swal.noop);
+    //   }
+    // },
     getData() {
       const config = {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           sort: "-_updated",
-          where: { role: "student" }
+          where: { role: "student" },
+          embedded: {
+            student_guardians: true,
+            "student_guardians.guardian": true
+          }
         },
         headers: {
           "cache-control": "no-cache"
@@ -205,6 +290,15 @@ export default {
         .get(`${process.env.API}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
+          this.tableData = this.tableData.map(v => {
+            v.is_active = !v.is_deleted;
+            v.guardians_name = v.student_guardians
+              .map(v2 => {
+                return v2.guardian.name || v2.guardian.username;
+              })
+              .join(", ");
+            return v;
+          });
           this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
         })

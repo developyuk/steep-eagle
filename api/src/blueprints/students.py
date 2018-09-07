@@ -86,6 +86,34 @@ def students():
     })
 
 
+def dormant_students(v):
+    try:
+        student, *_ = getitem('class_students', **{'student_id': v['id']})
+        return False
+    except NotFound as e:
+        return True
+
+
+@blueprint.route('/students/dormant', methods=['GET'])
+@requires_auth('/students/dormant')
+def students_dormant():
+    # app_config_ori = deepcopy(app.config)
+    # app.config['PAGINATION_DEFAULT'] = 9999
+    students, *_ = get('users', **{'role': 'student', 'is_deleted': False})
+    students = students['_items']
+
+    students = filter(dormant_students, students)
+    students = list(students)
+
+    # app.config = app_config_ori
+    return jsonify({
+        '_items': students,
+        '_meta': {
+            'total': len(students)
+        }
+    })
+
+
 @blueprint.after_request
 def add_header(response):
     response.cache_control.max_age = app.config['CACHE_EXPIRES']

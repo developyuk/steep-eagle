@@ -26,11 +26,12 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
+            el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'Id'")
             el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
                 .img-container
                   img(:src='props.row.module.image' :alt='props.row.module.name')
-            el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
+            el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/schedules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
@@ -90,11 +91,11 @@ export default {
       searchQuery: "",
       propsToSearch: ["q"],
       tableColumns: [
-        //          {
-        //            prop: 'module.image',
-        //            label: 'Image',
-        //            minWidth: 150
-        //          },
+        {
+          prop: "id",
+          label: "Id",
+          minWidth: 50
+        },
         {
           prop: "module.name",
           label: "Module",
@@ -134,6 +135,12 @@ export default {
           prop: "finish_at",
           label: "Finish",
           minWidth: 100,
+          sortable: true
+        },
+        {
+          prop: "students_sum",
+          label: "Total Students",
+          minWidth: 128+16,
           sortable: true
         }
       ],
@@ -212,9 +219,9 @@ export default {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           embedded: {
-            'branch':true,
-            'module':true,
-            'tutor':true,
+            branch: true,
+            module: true,
+            tutor: true
           }
         },
         headers: {
@@ -233,6 +240,10 @@ export default {
         .get(`${process.env.API}/classes_ts`, config)
         .then(response => {
           this.tableData = response.data._items;
+          this.tableData = this.tableData.map(v => {
+            v.students_sum = v.students.length;
+            return v;
+          });
           this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
         })

@@ -35,9 +35,9 @@
               small.text-danger(v-show="photo.invalid")
                 | {{ getError('photo') }}
           .form-group
-            label.col-sm-2.control-label Is leaving ?
+            label.col-sm-2.control-label Active
             .col-sm-9
-              p-switch(v-model="model.is_deleted" @input="onChangeLeaving")
+              p-switch(v-model="model.is_active" @input="onChangeLeaving")
                 i.fa.fa-check(slot="on")
                 i.fa.fa-times(slot="off")
       .card-footer.text-center
@@ -92,7 +92,7 @@ export default {
         headers: { "If-Match": this.model._etag }
       };
       const data = {
-        is_deleted: e
+        is_deleted: !e
       };
       axios
         .patch(`${process.env.API}/users/${this.model.id}`, data, config)
@@ -200,6 +200,7 @@ export default {
         })
         .then(response => {
           this.model = response.data;
+          this.model.is_active = !this.model.is_deleted;
           this.model.photo = null;
         })
         .catch(error => console.log(error, error.response));

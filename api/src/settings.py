@@ -77,16 +77,15 @@ DOMAIN['users']['schema']['photo'].update({'type': 'media'})
 
 DOMAIN['classes'].update({'allow_unknown': True})
 DOMAIN['attendances_tutors'].update({'allow_unknown': True})
+DOMAIN['users'].update({'allow_unknown': True})
 
 # DOMAIN['users'].update({'soft_delete': True})
 
-# DOMAIN['users']['schema']['studentguardians']['data_relation'].update(
-#     {'embeddable': True})
-# DOMAIN['student_guardians']['schema']['student']['data_relation'].update(
-#     {'embeddable': True})
-# DOMAIN['student_guardians']['schema']['guardian']['data_relation'].update(
-#     {'embeddable': True})
-pprint(DOMAIN['users'])
+DOMAIN['users']['schema']['student_guardians']['schema']['data_relation'].update(
+    {'embeddable': True})
+DOMAIN['student_guardians']['schema']['guardian']['data_relation'].update(
+    {'embeddable': True})
+# pprint(DOMAIN['users'])
 DOMAIN['classes']['schema']['branch']['data_relation'].update(
     {'embeddable': True})
 DOMAIN['classes']['schema']['tutor']['data_relation'].update(

@@ -17,9 +17,16 @@ def sign():
     data = request.values or request.get_json()
 
     try:
+        if not data:
+            raise Exception('username required')
         expected_username = data.get('username')
+        if not expected_username:
+            raise Exception('username required')
         expected_username = expected_username.lower()
         expected_role = data.get('role')
+
+        if not expected_role:
+            raise Exception('role required')
         expected_role = json.loads(expected_role)
 
         req = parse_request(resource)

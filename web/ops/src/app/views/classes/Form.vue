@@ -57,6 +57,9 @@
           .form-group
             label.col-sm-2.control-label Students
             .col-sm-9
+              p-radio(label="false" v-model="is_all_students") available students
+              p-radio(label="true" v-model="is_all_students") all students
+              br
               el-select.select-primary.select-students(multiple, filterable, default-first-option, size='large', placeholder='Select Students', v-model='model.students', v-validate="modelValidations.students")
                 el-option.select-primary(v-for='option in selects.students', :value='option.value', :label='option.label', :key='option.label')
                   .row.select-image
@@ -123,6 +126,7 @@ export default {
         tutor: "",
         students: []
       },
+      is_all_students: false,
       modelValidations: {
         day: {
           required: true
@@ -145,6 +149,38 @@ export default {
         students: {}
       }
     };
+  },
+  watch: {
+    is_all_students(v, ov) {
+      // console.log(v, eval(v));
+      let url, params;
+      if (eval(v)) {
+        url = `${process.env.API}/users`;
+        params = {
+          where: { role: "student", is_deleted: false },
+          sort: "name",
+          max_results: 9999
+        };
+      } else {
+        url = `${process.env.API}/students/dormant`;
+        params = {
+          sort: "name",
+          max_results: 9999
+        };
+      }
+      axios
+        .get(url, { params })
+        .then(response => {
+          this.selects.students = response.data._items.map(v => {
+            return {
+              value: v.id,
+              label: v.name.toUpperCase(),
+              image: v.photo
+            };
+          });
+        })
+        .catch(error => console.log(error, error.response));
+    }
   },
   methods: {
     getError(fieldName) {
@@ -259,9 +295,8 @@ export default {
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.API}/users`, {
+      .get(`${process.env.API}/students/dormant`, {
         params: {
-          where: { role: "student", is_deleted: false },
           sort: "name",
           max_results: 9999
         }
@@ -279,6 +314,7 @@ export default {
 
     if (id) {
       this.isCreate = false;
+
       axios
         .get(`${process.env.API}/classes/${id}`, {
           params: { embedded: { students: 1, "students.student": 1 } },
