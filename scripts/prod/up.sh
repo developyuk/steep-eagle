@@ -23,4 +23,4 @@ sh ./scripts/prod/down.sh
 
 docker-compose -f docker-compose-prod.yml build
 docker-compose -f docker-compose-prod.yml up -d --scale api=5 --remove-orphans
-docker-compose -f docker-compose-prod.yml logs --follow --tail 50
+# docker-compose -f docker-compose-prod.yml logs --follow --tail 50

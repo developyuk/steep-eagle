@@ -33,7 +33,8 @@ def on_fetched_resource(resource_name, response):
 
     if resource_name == 'attendances_tutors':
         for v in response['_items']:
-            if type(v['attendance']['class_']['students'][0]) is dict:
+            # print(v['attendance']['class_'])
+            if type(v['attendance']) is dict and type(v['attendance']['class_']['students'][0]) is dict:
                 # if type(v['attendance']) is not int and type(v['attendance']['class_']['students'][0]) is dict:
                 for v2 in v['attendance']['class_']['students']:
                     image_empty(v2['student'], 'photo')

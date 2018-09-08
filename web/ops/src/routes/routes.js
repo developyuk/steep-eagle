@@ -3,199 +3,199 @@
 import NotFound from '../components/GeneralViews/NotFoundPage.vue'
 // Dashboard pages
 import Overview from 'src/components/Dashboard/Views/Dashboard/Overview.vue'
-import Stats from 'src/components/Dashboard/Views/Dashboard/Stats.vue'
+// import Stats from 'src/components/Dashboard/Views/Dashboard/Stats.vue'
 
 // Pages
-import User from 'src/components/Dashboard/Views/Pages/UserProfile.vue'
-import TimeLine from 'src/components/Dashboard/Views/Pages/TimeLinePage.vue'
+// import User from 'src/components/Dashboard/Views/Pages/UserProfile.vue'
+// import TimeLine from 'src/components/Dashboard/Views/Pages/TimeLinePage.vue'
 // import Login from 'src/components/Dashboard/Views/Pages/Login.vue'
 
-import Register from 'src/components/Dashboard/Views/Pages/Register.vue'
-import Lock from 'src/components/Dashboard/Views/Pages/Lock.vue'
+// import Register from 'src/components/Dashboard/Views/Pages/Register.vue'
+// import Lock from 'src/components/Dashboard/Views/Pages/Lock.vue'
 
-// Components pages
-import Buttons from 'src/components/Dashboard/Views/Components/Buttons.vue'
-import GridSystem from 'src/components/Dashboard/Views/Components/GridSystem.vue'
-import Panels from 'src/components/Dashboard/Views/Components/Panels.vue'
-import SweetAlert from 'src/components/Dashboard/Views/Components/SweetAlert.vue'
-import Notifications from 'src/components/Dashboard/Views/Components/Notifications.vue'
-import Icons from 'src/components/Dashboard/Views/Components/Icons.vue'
-import Typography from 'src/components/Dashboard/Views/Components/Typography.vue'
+// // Components pages
+// import Buttons from 'src/components/Dashboard/Views/Components/Buttons.vue'
+// import GridSystem from 'src/components/Dashboard/Views/Components/GridSystem.vue'
+// import Panels from 'src/components/Dashboard/Views/Components/Panels.vue'
+// import SweetAlert from 'src/components/Dashboard/Views/Components/SweetAlert.vue'
+// import Notifications from 'src/components/Dashboard/Views/Components/Notifications.vue'
+// import Icons from 'src/components/Dashboard/Views/Components/Icons.vue'
+// import Typography from 'src/components/Dashboard/Views/Components/Typography.vue'
 
-// Forms pages
-import RegularForms from 'src/components/Dashboard/Views/Forms/RegularForms.vue'
-import ExtendedForms from 'src/components/Dashboard/Views/Forms/ExtendedForms.vue'
-import ValidationForms from 'src/components/Dashboard/Views/Forms/ValidationForms.vue'
-import Wizard from 'src/components/Dashboard/Views/Forms/Wizard.vue'
+// // Forms pages
+// import RegularForms from 'src/components/Dashboard/Views/Forms/RegularForms.vue'
+// import ExtendedForms from 'src/components/Dashboard/Views/Forms/ExtendedForms.vue'
+// import ValidationForms from 'src/components/Dashboard/Views/Forms/ValidationForms.vue'
+// import Wizard from 'src/components/Dashboard/Views/Forms/Wizard.vue'
 
-// TableList pages
-import RegularTables from 'src/components/Dashboard/Views/Tables/RegularTables.vue'
-import ExtendedTables from 'src/components/Dashboard/Views/Tables/ExtendedTables.vue'
+// // TableList pages
+// import RegularTables from 'src/components/Dashboard/Views/Tables/RegularTables.vue'
+// import ExtendedTables from 'src/components/Dashboard/Views/Tables/ExtendedTables.vue'
 // import PaginatedTables from 'src/components/Dashboard/Views/Tables/PaginatedTables.vue'
-// Maps pages
-import GoogleMaps from 'src/components/Dashboard/Views/Maps/GoogleMaps.vue'
-import FullScreenMap from 'src/components/Dashboard/Views/Maps/FullScreenMap.vue'
-import VectorMaps from 'src/components/Dashboard/Views/Maps/VectorMapsPage.vue'
+// // Maps pages
+// import GoogleMaps from 'src/components/Dashboard/Views/Maps/GoogleMaps.vue'
+// import FullScreenMap from 'src/components/Dashboard/Views/Maps/FullScreenMap.vue'
+// import VectorMaps from 'src/components/Dashboard/Views/Maps/VectorMapsPage.vue'
 
-// Calendar
+// // Calendar
 // import Calendar from 'src/components/Dashboard/Views/Calendar/CalendarRoute.vue'
-// Charts
-import Charts from 'src/components/Dashboard/Views/Charts.vue'
+// // Charts
+// import Charts from 'src/components/Dashboard/Views/Charts.vue'
 
-let componentsMenu = {
-  path: '/components',
-  component: DashboardLayout,
-  redirect: '/components/buttons',
-  children: [
-    {
-      path: 'buttons',
-      name: 'Buttons',
-      component: Buttons
-    },
-    {
-      path: 'grid-system',
-      name: 'Grid System',
-      component: GridSystem
-    },
-    {
-      path: 'panels',
-      name: 'Panels',
-      component: Panels
-    },
-    {
-      path: 'sweet-alert',
-      name: 'Sweet Alert',
-      component: SweetAlert
-    },
-    {
-      path: 'notifications',
-      name: 'Notifications',
-      component: Notifications
-    },
-    {
-      path: 'icons',
-      name: 'Icons',
-      component: Icons
-    },
-    {
-      path: 'typography',
-      name: 'Typography',
-      component: Typography
-    }
+// let componentsMenu = {
+//   path: '/components',
+//   component: DashboardLayout,
+//   redirect: '/components/buttons',
+//   children: [
+//     {
+//       path: 'buttons',
+//       name: 'Buttons',
+//       component: Buttons
+//     },
+//     {
+//       path: 'grid-system',
+//       name: 'Grid System',
+//       component: GridSystem
+//     },
+//     {
+//       path: 'panels',
+//       name: 'Panels',
+//       component: Panels
+//     },
+//     {
+//       path: 'sweet-alert',
+//       name: 'Sweet Alert',
+//       component: SweetAlert
+//     },
+//     {
+//       path: 'notifications',
+//       name: 'Notifications',
+//       component: Notifications
+//     },
+//     {
+//       path: 'icons',
+//       name: 'Icons',
+//       component: Icons
+//     },
+//     {
+//       path: 'typography',
+//       name: 'Typography',
+//       component: Typography
+//     }
 
-  ]
-}
-let formsMenu = {
-  path: '/forms',
-  component: DashboardLayout,
-  redirect: '/forms/regular',
-  children: [
-    {
-      path: 'regular',
-      name: 'Regular Forms',
-      component: RegularForms
-    },
-    {
-      path: 'extended',
-      name: 'Extended Forms',
-      component: ExtendedForms
-    },
-    {
-      path: 'validation',
-      name: 'Validation Forms',
-      component: ValidationForms
-    },
-    {
-      path: 'wizard',
-      name: 'Wizard',
-      component: Wizard
-    }
-  ]
-}
+//   ]
+// }
+// let formsMenu = {
+//   path: '/forms',
+//   component: DashboardLayout,
+//   redirect: '/forms/regular',
+//   children: [
+//     {
+//       path: 'regular',
+//       name: 'Regular Forms',
+//       component: RegularForms
+//     },
+//     {
+//       path: 'extended',
+//       name: 'Extended Forms',
+//       component: ExtendedForms
+//     },
+//     {
+//       path: 'validation',
+//       name: 'Validation Forms',
+//       component: ValidationForms
+//     },
+//     {
+//       path: 'wizard',
+//       name: 'Wizard',
+//       component: Wizard
+//     }
+//   ]
+// }
 
-let tablesMenu = {
-  path: '/table-list',
-  component: DashboardLayout,
-  redirect: '/table-list/regular',
-  children: [
-    {
-      path: 'regular',
-      name: 'Regular Tables',
-      component: RegularTables
-    },
-    {
-      path: 'extended',
-      name: 'Extended Tables',
-      component: ExtendedTables
-    },
-    {
-      path: 'paginated',
-      name: 'Paginated Tables',
-      component: PaginatedTables
-    }]
-}
+// let tablesMenu = {
+//   path: '/table-list',
+//   component: DashboardLayout,
+//   redirect: '/table-list/regular',
+//   children: [
+//     {
+//       path: 'regular',
+//       name: 'Regular Tables',
+//       component: RegularTables
+//     },
+//     {
+//       path: 'extended',
+//       name: 'Extended Tables',
+//       component: ExtendedTables
+//     },
+//     {
+//       path: 'paginated',
+//       name: 'Paginated Tables',
+//       component: PaginatedTables
+//     }]
+// }
 
-let mapsMenu = {
-  path: '/maps',
-  component: DashboardLayout,
-  redirect: '/maps/google',
-  children: [
-    {
-      path: 'google',
-      name: 'Google Maps',
-      component: GoogleMaps
-    },
-    {
-      path: 'full-screen',
-      name: 'Full Screen Map',
-      component: FullScreenMap
-    },
-    {
-      path: 'vector-map',
-      name: 'Vector Map',
-      component: VectorMaps
-    }
-  ]
-}
+// let mapsMenu = {
+//   path: '/maps',
+//   component: DashboardLayout,
+//   redirect: '/maps/google',
+//   children: [
+//     {
+//       path: 'google',
+//       name: 'Google Maps',
+//       component: GoogleMaps
+//     },
+//     {
+//       path: 'full-screen',
+//       name: 'Full Screen Map',
+//       component: FullScreenMap
+//     },
+//     {
+//       path: 'vector-map',
+//       name: 'Vector Map',
+//       component: VectorMaps
+//     }
+//   ]
+// }
 
-let pagesMenu = {
-  path: '/pages',
-  component: DashboardLayout,
-  redirect: '/pages/user',
-  children: [
-    {
-      path: 'user',
-      name: 'User Page',
-      component: User
-    },
-    {
-      path: 'timeline',
-      name: 'Timeline Page',
-      component: TimeLine
-    }
-  ]
-}
+// let pagesMenu = {
+//   path: '/pages',
+//   component: DashboardLayout,
+//   redirect: '/pages/user',
+//   children: [
+//     {
+//       path: 'user',
+//       name: 'User Page',
+//       component: User
+//     },
+//     {
+//       path: 'timeline',
+//       name: 'Timeline Page',
+//       component: TimeLine
+//     }
+//   ]
+// }
 
-let loginPage = {
-  path: '/login',
-  name: 'Login',
-  component: Login
-}
+// let loginPage = {
+//   path: '/login',
+//   name: 'Login',
+//   component: Login
+// }
 
-let registerPage = {
-  path: '/register',
-  name: 'Register',
-  component: Register
-}
+// let registerPage = {
+//   path: '/register',
+//   name: 'Register',
+//   component: Register
+// }
 
-let lockPage = {
-  path: '/lock',
-  name: 'Lock',
-  component: Lock
-}
+// let lockPage = {
+//   path: '/lock',
+//   name: 'Lock',
+//   component: Lock
+// }
+
 import DashboardLayout from 'src/app/DashboardLayout.vue'
 import Login from 'src/app/views/Login.vue'
-import PaginatedTables from 'src/app/components/PaginatedTables.vue'
 import Branches from '@/app/views/branches/Branches';
 import BranchForm from '@/app/views/branches/Form';
 import Modules from '@/app/views/modules/Modules';
@@ -209,10 +209,10 @@ import StudentForm from '@/app/views/users/StudentForm';
 import Operations from '@/app/views/users/Operations';
 import OperationForm from '@/app/views/users/OperationForm';
 import Calendar from '@/app/views/calendar/CalendarRoute.vue'
+import ActivitiesStudents from '@/app/views/activities/Students';
+import ActivitiesStudentsTimeline from '@/app/views/activities/StudentsTimeLine';
 import ActivitiesTutors from '@/app/views/activities/Tutors';
-import ActivitiesTutorsTimeline from '@/app/views/activities/TutorsTimeLine';
-import ActivitiesStudents from '@/app/views/activities/Tutors';
-import ActivitiesStudentsTimeline from '@/app/views/activities/TutorsTimeLine';
+import ActivitiesTutorsTimeline from '@/app/views/activities/StudentsTimeLine';
 
 const routes = [
   {
@@ -254,10 +254,10 @@ const routes = [
       requiresAuth: true,
     },
     children: [
-      {
-        path: '',
-        component: TimeLine
-      },
+      // {
+      //   path: '',
+      //   component: TimeLine
+      // },
       {
         path: 'tutors',
         component: ActivitiesTutors

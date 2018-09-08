@@ -1,16 +1,16 @@
 <template lang="pug">
   .row
     .col-md-12
-      h4.title Tutors Activities
+      h4.title Students Activities
     .col-md-12.card
       .card-header
         .buttons
           .row
             .col-sm-6
               .btn-group
-                router-link(to="/activities/tutors").btn.btn-primary.btn-icon.btn-fill
+                router-link(to="/activities/students").btn.btn-primary.btn-icon.btn-fill
                   i.fa.fa-list-ul
-                router-link(to="/activities/tutors/timeline").btn.btn-primary.btn-icon
+                router-link(to="/activities/students/timeline").btn.btn-primary.btn-icon
                   i.fa.fa-th-large
       .card-content.row
         .col-sm-6
@@ -30,7 +30,7 @@
             el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
             el-table-column(:min-width="120" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/activities/tutors/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                router-link(:to="`/activities/students/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
         .col-sm-6.pagination-info
           p.category Showing {{from + 1}} to {{to}} of {{total}} entries
@@ -91,10 +91,11 @@ export default {
       ],
       tableColumns: [
         {
-          prop: "tutor.name",
-          label: "Tutor",
+          prop: "student.name",
+          label: "Student",
           minWidth: 150,
-          className: "text-capitalize",
+          labelClassName: "text-capitalize",
+          className: "text-uppercase",
           sortable: true
         },
         {
@@ -108,6 +109,27 @@ export default {
         {
           prop: "attendance.class_.branch.name",
           label: "Branch",
+          minWidth: 150,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "rating",
+          label: "Rate",
+          minWidth: 160,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "is_review",
+          label: "Review",
+          minWidth: 160,
+          className: "text-capitalize",
+          sortable: true
+        },
+        {
+          prop: "tutor.name",
+          label: "Tutor",
           minWidth: 150,
           className: "text-capitalize",
           sortable: true
@@ -194,6 +216,7 @@ export default {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           embedded: {
+            student: 1,
             attendance: 1,
             "attendance.class_": 1,
             "attendance.class_.branch": 1,
@@ -214,7 +237,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.API}/attendances_tutors`, config)
+        .get(`${process.env.API}/attendances_students`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {

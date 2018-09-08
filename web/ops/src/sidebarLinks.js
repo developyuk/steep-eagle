@@ -18,12 +18,12 @@ export default [
     // path: '/activites'
     children: [
       {
-        name: 'Tutors',
-        path: '/activities/tutors'
-      },
-      {
         name: 'Students',
         path: '/activities/students'
+      },
+      {
+        name: 'Tutors',
+        path: '/activities/tutors'
       },
     ]
   },

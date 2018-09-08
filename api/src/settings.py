@@ -112,6 +112,8 @@ DOMAIN['attendances']['schema']['attendance_tutors']['schema']['data_relation'].
     {'embeddable': True})
 DOMAIN['attendances']['schema']['class_']['data_relation'].update(
     {'embeddable': True})
+DOMAIN['attendances']['schema']['module']['data_relation'].update(
+    {'embeddable': True})
 
 DOMAIN['attendances_tutors']['schema']['tutor']['data_relation'].update(
     {'embeddable': True})
@@ -120,5 +122,9 @@ DOMAIN['attendances_tutors']['schema']['attendance']['data_relation'].update(
     {'embeddable': True})
 
 DOMAIN['attendances_students']['schema']['student']['data_relation'].update(
+    {'embeddable': True})
+DOMAIN['attendances_students']['schema']['tutor']['data_relation'].update(
+    {'embeddable': True})
+DOMAIN['attendances_students']['schema']['attendance']['data_relation'].update(
     {'embeddable': True})
 # DOMAIN['attendances_students']['schema']['attendance_tutor']['data_relation'].update( {'embeddable': True})
