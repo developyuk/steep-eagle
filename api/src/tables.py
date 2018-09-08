@@ -193,3 +193,9 @@ class Notifications(CommonColumns):
     message = Column(String)
     is_read = Column(Boolean)
     data = Column(String)
+
+class Caches(CommonColumns):
+    __tablename__ = 'caches'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(String)
+    value = Column(String)

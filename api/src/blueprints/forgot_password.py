@@ -15,7 +15,7 @@ CORS(blueprint, max_age=timedelta(days=10))
 mail = Mail()
 
 resource = 'users'
-template = """ Hi %s
+template = """Hi %s
 
 ini password baru kamu ya %s"""
 

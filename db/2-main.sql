@@ -137,3 +137,11 @@ CREATE TABLE notifications (
   _updated TIMESTAMP DEFAULT Now(),
   _etag varchar(40)
 );
+CREATE TABLE caches (
+  id BIGSERIAL PRIMARY KEY,
+  key TEXT,
+  value TEXT,
+  _created TIMESTAMP DEFAULT Now(),
+  _updated TIMESTAMP DEFAULT Now(),
+  _etag varchar(40)
+);

@@ -77,9 +77,9 @@ export default {
 <style scoped lang="scss">
 @import "src/assets/scss/shared";
 
-.card {
-  // background-color: #f2f2f2;
-}
+// .card {
+//   background-color: #f2f2f2;
+// }
 
 .card-header {
   h1 {
@@ -87,19 +87,19 @@ export default {
   }
 }
 
-.form-control {
-  &,
-  &:focus {
-    // background-color: #c4c4c4;
-    // color: #fff;
-  }
-}
+// .form-control {
+//   &,
+//   &:focus {
+//     background-color: #c4c4c4;
+//     color: #fff;
+//   }
+// }
 
-::placeholder {
-  // color: #fff;
-  // font-weight: bold;
-  // text-transform: lowercase;
-}
+// ::placeholder {
+//   color: #fff;
+//   font-weight: bold;
+//   text-transform: lowercase;
+// }
 .full-page {
   background-color: #ee215b;
   height: 100vh;

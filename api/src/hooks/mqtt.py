@@ -1,9 +1,9 @@
 import os
-import json
 from copy import deepcopy
 
+from eve.render import render_json
+
 from flask import current_app as app
-from customs import JSONEncoder
 # import paho.mqtt.client as mqtt
 import paho.mqtt.publish as mqtt_publish
 
@@ -41,10 +41,10 @@ def on_deleted_item(resource_name, item):
         r = {'id': app.auth.get_request_auth_value()}
         user, *_ = getitem('users', r)
 
-        m = json.dumps({
+        m = render_json({
             'by': user,
             'on': "undoRateReview"
-        }, cls=JSONEncoder)
+        })
 
         publish("students", m)
 
@@ -62,11 +62,11 @@ def on_deleted_item(resource_name, item):
         r = {'id': app.auth.get_request_auth_value()}
         user, *_ = getitem('users', r)
 
-        m = json.dumps({
+        m = render_json({
             'on': "undo",
             'by': user,
             'class': klass
-        }, cls=JSONEncoder)
+        })
         publish("schedules", m)
 
     app.config = app_config_ori
@@ -81,11 +81,11 @@ def on_inserted(resource_name, items):
             r = {'id': app.auth.get_request_auth_value()}
             user, *_ = getitem('users', r)
 
-            m = json.dumps({
+            m = render_json({
                 'by': user,
                 'item': item,
                 'on': "successRateReview"
-            }, cls=JSONEncoder)
+            })
             publish("students", m)
 
     if resource_name == 'attendances_tutors':
@@ -99,10 +99,10 @@ def on_inserted(resource_name, items):
             r = {'id': attendance['class_']}
             klass, *_ = getitem('classes', r)
 
-            m = json.dumps({
+            m = render_json({
                 'on': "startYes",
                 'by': user,
                 'class': klass,
                 'item': item,
-            }, cls=JSONEncoder)
+            })
             publish("schedules", m)

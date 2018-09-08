@@ -20,6 +20,7 @@ app.register_blueprint(blueprints._students)
 app.register_blueprint(blueprints._tutor_stats)
 app.register_blueprint(blueprints._calendar)
 app.register_blueprint(blueprints._forgot_password)
+app.register_blueprint(blueprints._progress)
 
 db = app.data.driver
 Base.metadata.bind = db.engine

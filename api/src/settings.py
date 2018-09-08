@@ -1,8 +1,8 @@
 import os
-from pprint import pprint
+# from pprint import pprint
 
 from eve_sqlalchemy.config import DomainConfig, ResourceConfig
-from tables import Users, Branches, Classes, ClassStudents, Modules, Attendances, AttendancesTutors, AttendancesStudents, ClassesTs, Notifications, StudentGuardians
+import tables
 
 # from eve_auth_jwt import JWTAuth
 SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
@@ -71,17 +71,18 @@ MAIL_DEFAULT_SENDER = ('no-reply', 'andry.yosua@gmail.com')
 
 # The default schema is generated using DomainConfig:
 DOMAIN = DomainConfig({
-    'users': ResourceConfig(Users),
-    'branches': ResourceConfig(Branches),
-    'classes': ResourceConfig(Classes),
-    'class_students': ResourceConfig(ClassStudents),
-    'modules': ResourceConfig(Modules),
-    'attendances': ResourceConfig(Attendances),
-    'attendances_tutors': ResourceConfig(AttendancesTutors),
-    'attendances_students': ResourceConfig(AttendancesStudents),
-    'classes_ts': ResourceConfig(ClassesTs),
-    'notifications': ResourceConfig(Notifications),
-    'student_guardians': ResourceConfig(StudentGuardians),
+    'users': ResourceConfig(tables.Users),
+    'branches': ResourceConfig(tables.Branches),
+    'classes': ResourceConfig(tables.Classes),
+    'class_students': ResourceConfig(tables.ClassStudents),
+    'modules': ResourceConfig(tables.Modules),
+    'attendances': ResourceConfig(tables.Attendances),
+    'attendances_tutors': ResourceConfig(tables.AttendancesTutors),
+    'attendances_students': ResourceConfig(tables.AttendancesStudents),
+    'classes_ts': ResourceConfig(tables.ClassesTs),
+    'notifications': ResourceConfig(tables.Notifications),
+    'student_guardians': ResourceConfig(tables.StudentGuardians),
+    'caches': ResourceConfig(tables.Caches),
 }).render()
 
 DOMAIN['modules']['schema']['image'].update({'type': 'media'})

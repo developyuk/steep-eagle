@@ -82,11 +82,3 @@ class MyValidator(ValidatorSQL):
         """
         if not isinstance(value, FileStorage):
             self._error(field, "file was expected, got '%s' instead." % value)
-
-
-class JSONEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.isoformat()
-        return super(JSONEncoder, self).default(obj)

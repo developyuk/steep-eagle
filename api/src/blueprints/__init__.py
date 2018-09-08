@@ -14,3 +14,4 @@ from .students import blueprint as _students
 from .calendar import blueprint as _calendar
 from .tutor_stats import blueprint as _tutor_stats
 from .forgot_password import blueprint as _forgot_password
+from .progress import blueprint as _progress

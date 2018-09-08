@@ -3,7 +3,7 @@ import json
 
 from eve.methods import post, getitem, delete
 from eve.methods.post import post_internal
-import sqlalchemy
+from werkzeug.exceptions import NotFound
 
 _guardians = []
 
@@ -12,7 +12,7 @@ def update_student_guardians(guardians, student):
     for v2 in guardians:
         try:
             guardian, *_ = getitem('users', **{'username': v2['name']})
-        except Exception:
+        except NotFound:
             payload = {
                 'username': v2['name'],
                 'name': v2['name'],
@@ -26,7 +26,7 @@ def update_student_guardians(guardians, student):
             'student': student['id'],
             'guardian': guardian['id']
         }
-        student_guardians, *_ = post_internal('student_guardians', payload)
+        _ = post_internal('student_guardians', payload)
 
 
 def on_insert(resource_name, items):
@@ -34,6 +34,7 @@ def on_insert(resource_name, items):
         global _guardians
         for i, v in enumerate(items):
             if v['role'] == 'student':
+                v['username'] = v['name']
                 if v.get('guardians'):
                     _guardians[i] = json.loads(v.get('guardians'))
                     del v['guardians']
@@ -43,7 +44,7 @@ def on_inserted(resource_name, items):
     if resource_name == 'users':
         global _guardians
         for i, v in enumerate(items):
-            if v['role'] == 'student':
+            if v['role'] == 'student' and len(_guardians) > 0:
                 __guardians = _guardians[i]
                 update_student_guardians(__guardians, v)
 
