@@ -12,11 +12,11 @@ export default {
       tabItems: [
         {
           to: "/progress",
-          text: "Class"
+          text: "Classes"
         },
         {
           to: "/progress/students",
-          text: "Student"
+          text: "Students"
         }
       ]
     };

@@ -23,17 +23,19 @@
                 .img-container
                   img(:src='props.row.photo' :alt='props.row.name')
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
-            el-table-column(:min-width="72" fixed="right" label="Actions")
-              template(slot-scope="props")
-                router-link(:to="`/admin/tutors/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
-                  i.ti-pencil-alt
-                //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
-                //-   i.ti-close
-            el-table-column(:min-width="96" fixed="right" label="Active")
+            el-table-column(:min-width="96" label="Active")
               template(slot-scope="props")
                 p-switch(v-model="props.row.is_active" @input="onChangeLeaving($event,props.$index, props.row)" )
                   i.fa.fa-check(slot="on")
                   i.fa.fa-times(slot="off")
+            el-table-column(:min-width="72" fixed="right" label="Actions")
+              template(slot-scope="props")
+                router-link(:to="`/admin/tutors/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                  i.ti-eye
+                router-link(:to="`/admin/tutors/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                  i.ti-pencil-alt
+                //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
+                //-   i.ti-close
         .col-sm-6.pagination-info
           p.category Showing {{from + 1}} to {{to}} of {{total}} entries
         .col-sm-6

@@ -36,7 +36,7 @@
         input.form-control(type="file" name="photo" v-validate="modelValidations.photo" @change="onChangePhoto")
         small.text-danger(v-show="photo.invalid")
           | {{ getError('photo') }}
-    .form-group
+    .form-group(v-if="!isCreate")
       label.col-sm-2.control-label Active
       .col-sm-9
         p-switch(v-model="model.is_active" @input="onChangeLeaving")

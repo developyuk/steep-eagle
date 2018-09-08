@@ -32,7 +32,7 @@
                 .img-container
                   img(:src='props.row.module.image' :alt='props.row.module.name')
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
-            el-table-column(:min-width="120" fixed="right" label="Actions")
+            el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/schedules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt

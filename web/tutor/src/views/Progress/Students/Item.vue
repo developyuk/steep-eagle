@@ -10,35 +10,35 @@
         placeholder(:value="item.start_at")
         | &nbsp;-&nbsp;
         placeholder(:value="item.finish_at")
-      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances || (!!item.last_attendances && !item.last_attendances.length)") Tutor:&nbsp;
-        placeholder(:value="item.tutor.name")
-      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances && !!item.last_attendances.length") Class started by&nbsp;
-        placeholder(:value="parseLastAttendanceTutorName(item.last_attendances)")
-    button-status(:class_="item" @click-start="onClickStart")
+      //- span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances || (!!item.last_attendances && !item.last_attendances.length)") Tutor:&nbsp;
+      //-   placeholder(:value="item.tutor.name")
+      //- span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances && !!item.last_attendances.length") Class started by&nbsp;
+      //-   placeholder(:value="parseLastAttendanceTutorName(item.last_attendances)")
+    //- button-status(:class_="item" @click-start="onClickStart")
 </template>
 
 <script>
 export default {
   props: ["item"],
   components: {
-    "button-status": () => import("./ButtonStatus"),
+    // "button-status": () => import("./ButtonStatus"),
     "my-img": () => import("@/components/Img"),
     placeholder: () => import("@/components/Placeholder")
   },
   methods: {
-    onClickStart(e) {
-      this.$emit("click-start", e);
-    },
-    parseLastAttendanceTutorName(array) {
-      return array
-        .map(
-          v =>
-            !!v["attendance_tutors"].length
-              ? v["attendance_tutors"].map(w => w["tutor"]["name"])
-              : ""
-        )
-        .join(", ");
-    }
+    // onClickStart(e) {
+    //   this.$emit("click-start", e);
+    // },
+    // parseLastAttendanceTutorName(array) {
+    //   return array
+    //     .map(
+    //       v =>
+    //         !!v["attendance_tutors"].length
+    //           ? v["attendance_tutors"].map(w => w["tutor"]["name"])
+    //           : ""
+    //     )
+    //     .join(", ");
+    // }
   }
 };
 </script>

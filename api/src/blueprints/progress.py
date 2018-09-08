@@ -4,7 +4,7 @@ from copy import deepcopy
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint
 
-from eve.methods import get, put, post, getitem
+from eve.methods import get, getitem
 from eve.methods.post import post_internal
 from eve.methods.put import put_internal
 from eve.auth import requires_auth
@@ -62,6 +62,8 @@ def _group_by_class(attendances):
         if not ii:
             group = {
                 'class_id': class_id,
+                'start_at': v['attendance']['class_']['start_at'],
+                'finish_at': v['attendance']['class_']['finish_at'],
                 'module': v['attendance']['module'],
                 'branch': v['attendance']['class_']['branch'],
                 '_items': [item]

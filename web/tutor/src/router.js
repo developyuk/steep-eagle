@@ -19,15 +19,15 @@ const router = new Router({
     },
     {
       path: '/progress',
-      component: () => import('@/views/Progress/Progress'),
+      component: () => import('@/views/Progress/Classes/Progress'),
       children: [
         {
           path: "",
-          component: () => import('@/views/Progress/Progress'),
+          component: () => import('@/views/Progress/Classes/Progress'),
         },
         {
           path: "students",
-          component: () => import('@/views/Progress/Progress'),
+          component: () => import('@/views/Progress/Students/Progress'),
         },
       ],
       meta: { requiresAuth: true }

@@ -35,7 +35,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-@import "../assets/shared";
+@import "src/assets/shared";
 .tab-bottom {
   position: fixed;
   bottom: 0;

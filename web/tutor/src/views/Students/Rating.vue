@@ -30,7 +30,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  @import "../../assets/shared";
+  @import "src/assets/shared";
 
   .rating {
     /*unicode-bidi: bidi-override;*/

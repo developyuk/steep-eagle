@@ -14,14 +14,13 @@
 
                   .card-content
                     .form-group
-                      label Email
-                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter email' v-model='username')
-                    //- .form-group
-                    //-   label Password
-                    //-   input.form-control.input-no-border(type='password' name='password' placeholder='Password please'  v-model='password')
+                      label Username or Email
+                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter username or email' v-model='username')
                     .err(v-if="errMsg") {{errMsg}}
                     .success(v-if="successMsg") {{successMsg}}
                   .card-footer.text-center
+                    router-link.btn.btn-simple(to='/sign') Back
+                    | &nbsp;&nbsp;&nbsp;
                     button.btn.btn-fill.btn-wd(type='submit') Submit
       //- .full-page-background(style='background-image: url(https://images.weserv.nl/?il&w=1024&h=768&t=square&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg) ')
 </template>

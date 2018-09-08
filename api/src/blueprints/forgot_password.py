@@ -46,7 +46,14 @@ def forgot_password():
     user = app.data.find_one(resource, req, **r)
 
     if not user:
-        abort(404, description='user not found')
+        r = {
+            'email': expected_username,
+            'role': expected_role[0]
+        }
+        user = app.data.find_one(resource, req, **r)
+
+    if not user:
+        abort(404, description='username or email not found')
 
     new_password = str(uuid.uuid4())[:8]
 

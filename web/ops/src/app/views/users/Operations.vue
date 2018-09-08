@@ -25,6 +25,8 @@
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
+                router-link(:to="`/admin/operations/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                  i.ti-eye
                 router-link(:to="`/admin/operations/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
@@ -105,14 +107,14 @@ export default {
           prop: "username",
           label: "Username",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "email",
           label: "Email",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         }
       ],
