@@ -24,12 +24,14 @@
                 .img-container
                   img(:src='props.row.photo' :alt='props.row.name')
             el-table-column(v-for="column in tableColumns.slice(2)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
-            el-table-column(:min-width="120" fixed="right" label="Actions")
+            el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/admin/students/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                 //-   i.ti-close
+            el-table-column(:min-width="94" fixed="right" label="Active")
+              template(slot-scope="props")
                 p-switch(v-model="props.row.is_active" @input="onChangeLeaving($event,props.$index, props.row)" )
                   i.fa.fa-check(slot="on")
                   i.fa.fa-times(slot="off")
@@ -91,26 +93,26 @@ export default {
         {
           prop: "id",
           label: "Id",
-          minWidth: 64
+          minWidth: 72
         },
         {
           prop: "photo",
           label: "Photo",
-          minWidth: 64,
+          minWidth: 80,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "name",
           label: "Name",
-          minWidth: 200,
+          minWidth: 256,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "guardians_name",
           label: "Guardians",
-          minWidth: 200,
+          minWidth: 256,
           className: "text-capitalize",
           sortable: true
         }

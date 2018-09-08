@@ -28,7 +28,7 @@
                 .img-container
                   img(:src='props.row.attendance.module.image' :alt='props.row.attendance.module.name')
             el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
-            el-table-column(:min-width="120" fixed="right" label="Actions")
+            el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/activities/students/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
@@ -116,21 +116,21 @@ export default {
         {
           prop: "rating",
           label: "Rate",
-          minWidth: 160,
+          minWidth: 80,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "is_review",
           label: "Review",
-          minWidth: 160,
+          minWidth: 96,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "tutor.name",
           label: "Tutor",
-          minWidth: 150,
+          minWidth: 128,
           className: "text-capitalize",
           sortable: true
         },

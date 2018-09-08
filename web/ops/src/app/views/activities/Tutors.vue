@@ -28,7 +28,7 @@
                 .img-container
                   img(:src='props.row.attendance.module.image' :alt='props.row.attendance.module.name')
             el-table-column(v-for="column in tableColumns" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
-            el-table-column(:min-width="120" fixed="right" label="Actions")
+            el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/activities/tutors/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
@@ -93,14 +93,14 @@ export default {
         {
           prop: "tutor.name",
           label: "Tutor",
-          minWidth: 150,
+          minWidth: 128,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "attendance.module.name",
           label: "Module",
-          minWidth: 150,
+          minWidth: 192,
           labelClassName: "text-capitalize",
           className: "text-uppercase",
           sortable: true
@@ -108,14 +108,14 @@ export default {
         {
           prop: "attendance.class_.branch.name",
           label: "Branch",
-          minWidth: 150,
+          minWidth: 192,
           className: "text-capitalize",
           sortable: true
         },
         {
           prop: "_created",
           label: "Date",
-          minWidth: 100,
+          minWidth: 192,
           sortable: true
         }
       ],
