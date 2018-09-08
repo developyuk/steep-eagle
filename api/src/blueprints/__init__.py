@@ -7,9 +7,10 @@ dow = dict(
 utc_now = utc.localize(datetime.utcnow())
 wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
 
-from .auth import blueprint as bp_auth
-from .swagger import blueprint as bp_swagger
-from .schedules import blueprint as bp_schedules
-from .students import blueprint as bp_students
-from .calendar import blueprint as bp_calendar
-from .tutor_stats import blueprint as bp_tutor_stats
+from .auth import blueprint as _auth
+from .swagger import blueprint as _swagger
+from .schedules import blueprint as _schedules
+from .students import blueprint as _students
+from .calendar import blueprint as _calendar
+from .tutor_stats import blueprint as _tutor_stats
+from .forgot_password import blueprint as _forgot_password

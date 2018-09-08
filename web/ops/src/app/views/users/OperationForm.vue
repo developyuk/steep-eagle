@@ -12,10 +12,10 @@
               input.form-control(type="text" name="username" v-validate="modelValidations.username" v-model="model.username")
               small.text-danger(v-show="username.invalid")
                 | {{ getError('username') }}
-          .form-group
-            label.col-sm-2.control-label Password
-            .col-sm-9
-              button(@click.prevent="onClickResetPassword") Reset Password
+          //- .form-group
+          //-   label.col-sm-2.control-label Password
+          //-   .col-sm-9
+          //-     button(@click.prevent="onClickResetPassword") Reset Password
           .form-group
             label.col-sm-2.control-label Name
             .col-sm-9

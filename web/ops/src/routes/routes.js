@@ -196,6 +196,7 @@ import Overview from 'src/components/Dashboard/Views/Dashboard/Overview.vue'
 
 import DashboardLayout from 'src/app/DashboardLayout.vue'
 import Login from 'src/app/views/Login.vue'
+import ForgotPassword from 'src/app/views/ForgotPassword.vue'
 import Branches from '@/app/views/branches/Branches';
 import BranchForm from '@/app/views/branches/Form';
 import Modules from '@/app/views/modules/Modules';
@@ -215,6 +216,10 @@ import ActivitiesTutors from '@/app/views/activities/Tutors';
 import ActivitiesTutorsTimeline from '@/app/views/activities/StudentsTimeLine';
 
 const routes = [
+  {
+    path: '/forgot-password',
+    component: ForgotPassword,
+  },
   {
     path: '/sign',
     component: Login,

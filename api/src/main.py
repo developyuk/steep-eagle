@@ -13,12 +13,13 @@ app = Eve(auth=MyAuth, media=MyMediaStorage, validator=MyValidator,
           data=SQL, settings=os.path.abspath('settings.py'))
 
 app.register_blueprint(swagger)
-app.register_blueprint(blueprints.bp_swagger)
-app.register_blueprint(blueprints.bp_auth)
-app.register_blueprint(blueprints.bp_schedules)
-app.register_blueprint(blueprints.bp_students)
-app.register_blueprint(blueprints.bp_tutor_stats)
-app.register_blueprint(blueprints.bp_calendar)
+app.register_blueprint(blueprints._swagger)
+app.register_blueprint(blueprints._auth)
+app.register_blueprint(blueprints._schedules)
+app.register_blueprint(blueprints._students)
+app.register_blueprint(blueprints._tutor_stats)
+app.register_blueprint(blueprints._calendar)
+app.register_blueprint(blueprints._forgot_password)
 
 db = app.data.driver
 Base.metadata.bind = db.engine

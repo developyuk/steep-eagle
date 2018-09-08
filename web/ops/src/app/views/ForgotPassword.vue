@@ -14,16 +14,15 @@
 
                   .card-content
                     .form-group
-                      label Username
-                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter username' v-model='username')
-                    .form-group
-                      label Password
-                      input.form-control.input-no-border(type='password' name='password' placeholder='Password please'  v-model='password')
+                      label Email
+                      input.form-control.input-no-border(type='text' name='username' placeholder='Enter email' v-model='username')
+                    //- .form-group
+                    //-   label Password
+                    //-   input.form-control.input-no-border(type='password' name='password' placeholder='Password please'  v-model='password')
                     .err(v-if="errMsg") {{errMsg}}
+                    .success(v-if="successMsg") {{successMsg}}
                   .card-footer.text-center
-                    button.btn.btn-fill.btn-wd(type='submit') Let&apos;s go
-                    .forgot
-                      router-link(to='/forgot-password') Forgot your password?
+                    button.btn.btn-fill.btn-wd(type='submit') Submit
       //- .full-page-background(style='background-image: url(https://images.weserv.nl/?il&w=1024&h=768&t=square&url=dl.dropboxusercontent.com/s/y91mai1ns2bchvh/M-Ops-Login.jpg) ')
 </template>
 
@@ -34,6 +33,7 @@ export default {
   data() {
     return {
       errMsg: null,
+      successMsg: null,
       username: null,
       password: null
     };
@@ -51,14 +51,16 @@ export default {
       const formData = new FormData(e.target);
       const data = {
         username: this.username,
-        password: this.password,
         role: JSON.stringify(["operation"])
       };
       axios
-        .post(`${process.env.API}/sign`, data)
+        .post(`${process.env.API}/forgot_password`, data)
         .then(response => {
-          localStorage.setItem("token", response.data.token);
-          this.$router.push("/");
+          this.successMsg =
+            "email has been sent to. You will be redirected to login page";
+          setTimeout(() => {
+            this.$router.push("/sign");
+          }, 1000);
         })
         .catch(error => {
           console.log(error, error.response);

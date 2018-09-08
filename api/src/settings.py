@@ -50,6 +50,18 @@ MEDIA_BASE_URL = 'http://%s:9000' % os.environ['HOST_STORAGE']
 MEDIA_ENDPOINT = 'module-images'
 UPLOAD_FOLDER = '/tmp/'
 
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 465
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+# MAIL_DEBUG : default app.debug
+MAIL_USERNAME = 'andry.yosua@gmail.com'
+MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
+MAIL_DEFAULT_SENDER = ('no-reply', 'andry.yosua@gmail.com')
+# MAIL_MAX_EMAILS : default None
+# MAIL_SUPPRESS_SEND : default app.testing
+# MAIL_ASCII_ATTACHMENTS : default False
+
 # The following two lines will output the SQL statements executed by
 # SQLAlchemy. This is useful while debugging and in development, but is turned
 # off by default.

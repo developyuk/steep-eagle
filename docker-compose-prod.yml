@@ -16,6 +16,7 @@ services:
       - HOST_IP=${HOST_IP}
       - HOST_STORAGE=${HOST_STORAGE}
       - HOST_MQTT=${HOST_MQTT}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       - db
     restart: unless-stopped
