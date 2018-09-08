@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from flask import current_app as app
-from werkzeug import secure_filename
 from tables import ClassStudents
 
 

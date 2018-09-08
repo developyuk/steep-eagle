@@ -11,7 +11,7 @@ export default {
     return {
       tabItems: [
         {
-          to: "/progress",
+          to: "/progress/classes",
           text: "Classes"
         },
         {

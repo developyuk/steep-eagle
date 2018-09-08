@@ -3,7 +3,7 @@ from flask import current_app as app, jsonify, Blueprint, request, abort
 from datetime import timedelta
 from eve.auth import requires_auth
 from eve.methods import getitem
-from eve.utils import parse_request
+from . import getitem_internal
 import jwt
 import json
 
@@ -28,14 +28,12 @@ def sign():
         if not expected_role:
             raise Exception('role required')
         expected_role = json.loads(expected_role)
-
-        req = parse_request(resource)
         # req.show_deleted = True
         r = {
             'username': expected_username,
             'role': expected_role[0]
         }
-        user = app.data.find_one(resource, req, **r)
+        user, *_ = getitem_internal(resource, **r)
 
         if not user:
             raise Exception('user not found')
@@ -57,7 +55,8 @@ def sign():
 @requires_auth('/auth')
 def auth():
     try:
-        user, *_ = getitem(resource, {'id': app.auth.get_request_auth_value()})
+        user, *_ = getitem(resource,
+                                    **{'id': app.auth.get_request_auth_value()})
         allowed_key = ('name', 'username', 'email', 'role', 'photo', 'id')
         user = filter(lambda v: v[0] in allowed_key, user.items())
         return jsonify(user)

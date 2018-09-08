@@ -21,7 +21,7 @@ export default {
           text: "Student"
         },
         {
-          to: "/progress",
+          to: "/progress/classes",
           icon: "assessment",
           text: "Progress"
         }

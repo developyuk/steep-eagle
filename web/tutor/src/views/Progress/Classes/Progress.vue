@@ -16,12 +16,16 @@
 <script>
 import axios from "axios";
 import TemplateMain from "@/components/views/Main";
+import { mapState } from "vuex";
 
 export default {
   components: {
     TemplateMain,
     "tab-top": () => import("../TabTop"),
     item: () => import("./Item")
+  },
+  computed: {
+    ...mapState(["currentAuth"])
   },
   data() {
     return {
@@ -33,7 +37,7 @@ export default {
       const url = `${process.env.VUE_APP_API}/caches`;
       const config = {
         params: {
-          where: { key: "progress_classes" }
+          where: { key: `progress_classes_${this.currentAuth.id}` }
         }
       };
       axios

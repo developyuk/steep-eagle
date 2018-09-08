@@ -33,7 +33,7 @@ export default {
       const url = `${process.env.VUE_APP_API}/caches`;
       const config = {
         params: {
-          where: { key: "progress_students" }
+          where: { key: `progress_students_${this.currentAuth.id}` }
         }
       };
       axios

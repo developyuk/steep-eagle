@@ -1,0 +1,2 @@
+*/8 * * * * root /usr/bin/curl localhost:3000/progress/classes >/dev/null 2>&1
+*/8 * * * * root /usr/bin/curl localhost:3000/progress/students >/dev/null 2>&1

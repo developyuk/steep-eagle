@@ -4,10 +4,9 @@ from copy import deepcopy
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint
 
-from eve.methods import get, getitem
+from . import get_internal, getitem_internal
 from eve.methods.post import post_internal
 from eve.methods.put import put_internal
-from eve.auth import requires_auth
 from eve.render import render_json
 from werkzeug.exceptions import NotFound
 
@@ -27,7 +26,7 @@ def _class_group_avg_rating(v):
 
 
 def _class_avg_rating(v):
-    attendances_students, *_ = get('attendances_students', **{
+    attendances_students, *_ = get_internal('attendances_students', **{
         'attendance_id': v['attendance']['id']
     })
     attendances_students = attendances_students['_items']
@@ -78,7 +77,6 @@ def _group_by_class(attendances):
 
 
 @blueprint.route('/progress/classes', methods=['GET'])
-@requires_auth('/progress/classes')
 def classes():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 9999
@@ -89,40 +87,45 @@ def classes():
         'attendance.module',
     ]})
 
-    lookup = {
-        'tutor': app.auth.get_request_auth_value()
-    }
-    attendances, *_ = get('attendances_tutors', **lookup)
-    attendances = attendances['_items']
-    count_attendances = len(attendances)
-    attendances = map(_class_avg_rating, attendances)
+    users, *_ = get_internal('users', **{'role': 'tutor'})
+    users = users['_items']
 
-    attendances = _group_by_class(attendances)
+    for user in users:
+        lookup = {
+            'tutor': user['id'],
+        }
+        attendances, *_ = get_internal('attendances_tutors', **lookup)
+        attendances = attendances['_items']
+        count_attendances = len(attendances)
+        attendances = map(_class_avg_rating, attendances)
+
+        attendances = _group_by_class(attendances)
+
+        payload = {
+            '_items': attendances,
+            'meta': {
+                'total': len(attendances),
+                'total_item': count_attendances,
+            }
+        }
+        key = 'progress_classes_%s' % user['id']
+        try:
+            lookup = {'key': key}
+            res, *_ = getitem_internal('caches', **lookup)
+            payload = {
+                'value': render_json(payload)
+            }
+            res, *_ = put_internal('caches', payload, **{'id': res['id']})
+        except NotFound:
+            payload = {
+                'key': key,
+                'value': render_json(payload)
+            }
+            res, *_ = post_internal('caches', payload)
+
     app.config = app_config_ori
-
-    payload = {
-        '_items': attendances,
-        'meta': {
-            'total': len(attendances),
-            'total_item': count_attendances,
-        }
-    }
-    try:
-        lookup = {'key': 'progress_classes'}
-        res, *_ = getitem('caches', **lookup)
-        payload = {
-            'value': render_json(payload)
-        }
-        res, *_ = put_internal('caches', payload, **{'id': res['id']})
-    except NotFound:
-        payload = {
-            'key': 'progress_classes',
-            'value': render_json(payload)
-        }
-        res, *_ = post_internal('caches', payload)
-
     # print(res)
-    return jsonify(res)
+    return jsonify({})
 
 
 def _student_group_avg_rating(v):
@@ -171,7 +174,6 @@ def _student_avg_rating(v):
 
 
 @blueprint.route('/progress/students', methods=['GET'])
-@requires_auth('/progress/students')
 def students():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 9999
@@ -182,39 +184,41 @@ def students():
         'attendance.module',
         'student',
     ]})
-    lookup = {
-        'tutor': app.auth.get_request_auth_value()
-    }
-    attendances, *_ = get('attendances_students', **lookup)
-    attendances = attendances['_items']
-    attendances = map(_student_avg_rating, attendances)
-    attendances = list(attendances)
-    count_attendances = len(attendances)
+    users, *_ = get_internal('users', **{'role': 'tutor'})
+    for user in users['_items']:
+        lookup = {
+            'tutor': user['id']
+        }
+        attendances, *_ = get_internal('attendances_students', **lookup)
+        attendances = attendances['_items']
+        attendances = map(_student_avg_rating, attendances)
+        attendances = list(attendances)
+        count_attendances = len(attendances)
 
-    attendances = _group_by_student(attendances)
+        attendances = _group_by_student(attendances)
+
+        payload = {
+            '_items': attendances,
+            'meta': {
+                'total': len(attendances),
+                'total_item': count_attendances,
+            }
+        }
+        key = 'progress_students_%s' % user['id']
+        try:
+            lookup = {'key': key}
+            res, *_ = getitem_internal('caches', **lookup)
+            payload = {
+                'value': render_json(payload)
+            }
+            res, *_ = put_internal('caches', payload, **{'id': res['id']})
+        except NotFound:
+            payload = {
+                'key': key,
+                'value': render_json(payload)
+            }
+            res, *_ = post_internal('caches', payload)
 
     app.config = app_config_ori
-
-    payload = {
-        '_items': attendances,
-        'meta': {
-            'total': len(attendances),
-            'total_item': count_attendances,
-        }
-    }
-    try:
-        lookup = {'key': 'progress_students'}
-        res, *_ = getitem('caches', **lookup)
-        payload = {
-            'value': render_json(payload)
-        }
-        res, *_ = put_internal('caches', payload, **{'id': res['id']})
-    except NotFound:
-        payload = {
-            'key': 'progress_students',
-            'value': render_json(payload)
-        }
-        res, *_ = post_internal('caches', payload)
-
     # print(res)
-    return jsonify(res)
+    return jsonify({})

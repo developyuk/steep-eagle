@@ -22,8 +22,8 @@ const router = new Router({
       component: () => import('@/views/Progress/Classes/Progress'),
       children: [
         {
-          path: "",
-          component: () => import('@/views/Progress/Classes/Progress'),
+          path: "classes",
+          // component: () => import('@/views/Progress/Classes/Progress'),
         },
         {
           path: "students",

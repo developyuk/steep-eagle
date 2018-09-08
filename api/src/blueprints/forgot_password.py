@@ -9,6 +9,7 @@ from flask_mail import Mail, Message
 
 from eve.methods.patch import patch_internal
 from eve.utils import parse_request
+from . import getitem_internal
 
 blueprint = Blueprint('forgot_password', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -26,31 +27,29 @@ def forgot_password():
 
     data = request.values or request.get_json()
     if not data:
-        abort(422, description='username required')
+        abort(422, description='username or email required')
 
     expected_username = data.get('username')
     if not expected_username:
-        abort(422, description='username required')
+        abort(422, description='username or email required')
 
     expected_role = data.get('role')
     if not expected_role:
         abort(422, description='role required')
     expected_role = json.loads(expected_role)
 
-    req = parse_request(resource)
-    # req.show_deleted = True
     r = {
         'username': expected_username,
         'role': expected_role[0]
     }
-    user = app.data.find_one(resource, req, **r)
+    user, *_ = getitem_internal(resource, **r)
 
     if not user:
         r = {
             'email': expected_username,
             'role': expected_role[0]
         }
-        user = app.data.find_one(resource, req, **r)
+        user, *_ = getitem_internal(resource, **r)
 
     if not user:
         abort(404, description='username or email not found')
