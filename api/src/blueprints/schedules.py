@@ -7,7 +7,7 @@ from flask_cors import CORS
 import humanize
 from eve.auth import requires_auth
 from eve.methods import get, getitem
-from . import wib_now, utc_now
+from . import wib_now, utc_now, onDay
 
 blueprint = Blueprint('schedules', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -20,12 +20,12 @@ def last_attendance(class_):
     ]})
 
     utc_this = class_['start_at_ts'].astimezone(timezone('UTC'))
-    r = {
+    lookup = {
         '_created': '>=\'%s\'' % utc_this.strftime('%Y-%m-%d'),
         'class_id': class_['id']
     }
 
-    attendances, *_ = get('attendances', r)
+    attendances, *_ = get('attendances', **lookup)
     attendances = attendances['_items']
     # attendances = attendances['_items'][0] if len(attendances['_items']) > 0 else []
 
@@ -67,20 +67,32 @@ def exclude_other_user_attendance(v):
     return True
 
 
+def _get_next_timestamp(v):
+    dt = datetime.strptime('%sT%s' % (
+        onDay(v['day']).date(), v['start_at']), '%Y-%m-%dT%H:%M')
+    v['start_at_ts'] = timezone('Asia/Jakarta').localize(dt)
+
+    dt = datetime.strptime('%sT%s' % (
+        onDay(v['day']).date(), v['finish_at']), '%Y-%m-%dT%H:%M')
+    v['finish_at_ts'] = timezone('Asia/Jakarta').localize(dt)
+    return v
+
+
 @blueprint.route('/schedules', methods=['GET'])
 @requires_auth('/schedules')
 def schedules():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 999
-    app.config['DOMAIN']['classes_ts'].update({'embedded_fields': [
+    app.config['DOMAIN']['classes'].update({'embedded_fields': [
         'branch',
         'tutor',
         'module',
     ]})
-    classes, *_ = get('classes_ts')
+    classes, *_ = get('classes')
     classes = classes['_items']
+    classes = map(_get_next_timestamp, classes)
 
-    user, *_ = getitem('users', {'id': app.auth.get_request_auth_value()})
+    user, *_ = getitem('users', **{'id': app.auth.get_request_auth_value()})
 
     def exclude_dummies_non_tester(v):
         if 'tester' in user['username']:
@@ -108,7 +120,6 @@ def schedules():
     classes = map(parse, classes)
     classes = filter(exclude_current_user_attendance, classes)
     classes = filter(exclude_other_user_attendance, classes)
-    # classes = [parse(v) for v in classes]
     classes = groupClass(classes)
     # classes = []
 

@@ -1,14 +1,12 @@
-
-from datetime import datetime, timedelta
-
+from datetime import datetime
 # from flask import current_app as app, jsonify
 from pytz import timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, Text, func, select
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, func, select
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property, relationship
-from blueprints import dow
+from sqlalchemy.ext.hybrid import hybrid_property
+from blueprints import onDay
 
 # from sqlalchemy.dialects.postgresql import \
 #     ARRAY, BIGINT, BIT, BOOLEAN, BYTEA, CHAR, CIDR, DATE, \
@@ -62,7 +60,7 @@ class Users(CCSoftDelete):
     contact_no = Column(String)
 
     student_guardians = relationship("StudentGuardians", foreign_keys=[
-                            id], primaryjoin=(StudentGuardians.student_id == id),uselist=True)
+        id], primaryjoin=(StudentGuardians.student_id == id), uselist=True)
 
 
 class Branches(CommonColumns):
@@ -85,7 +83,7 @@ class ClassStudents(CommonColumns):
     class_id = Column(Integer, ForeignKey('classes.id'))
     student_id = Column(Integer, ForeignKey('users.id'))
 
-    class_ = relationship("ClassesTs")
+    class_ = relationship("Classes")
     student = relationship("Users")
 
 
@@ -113,13 +111,35 @@ class Classes(CommonColumns):
     )
 
 
+class ClassesTs(Classes):
+    @hybrid_property
+    def start_at_ts(self):
+        dt = datetime.strptime('%sT%s' % (
+            onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
+        return timezone('Asia/Jakarta').localize(dt)
+
+    @start_at_ts.expression
+    def start_at_ts(cls):
+        return cls
+
+    @hybrid_property
+    def finish_at_ts(self):
+        dt = datetime.strptime('%sT%s' % (
+            onDay(self.day).date(), self.finish_at), '%Y-%m-%dT%H:%M')
+        return timezone('Asia/Jakarta').localize(dt)
+
+    @finish_at_ts.expression
+    def finish_at_ts(cls):
+        return cls
+
+
 class Attendances(CommonColumns):
     __tablename__ = 'attendances'
     id = Column(Integer, primary_key=True, autoincrement=True)
     class_id = Column(Integer, ForeignKey('classes.id'))
     module_id = Column(Integer, ForeignKey('modules.id'))
 
-    class_ = relationship("ClassesTs", back_populates="attendances")
+    class_ = relationship("Classes", back_populates="attendances")
     module = relationship("Modules")
     attendance_tutors = relationship(
         "AttendancesTutors", back_populates="attendance")
@@ -159,40 +179,13 @@ class AttendancesStudents(CommonColumns):
     tutor = relationship("Users", foreign_keys=[tutor_id])
 
 
-def onDay(day):
-    now = datetime.now()
-    return now + timedelta(days=(dow[day] - now.weekday() + 7) % 7)
-
-
-class ClassesTs(Classes):
-
-    @hybrid_property
-    def start_at_ts(self):
-        dt = datetime.strptime('%sT%s' % (
-            onDay(self.day).date(), self.start_at), '%Y-%m-%dT%H:%M')
-        return timezone('Asia/Jakarta').localize(dt)
-
-    @start_at_ts.expression
-    def start_at_ts(cls):
-        return cls
-
-    @hybrid_property
-    def finish_at_ts(self):
-        dt = datetime.strptime('%sT%s' % (
-            onDay(self.day).date(), self.finish_at), '%Y-%m-%dT%H:%M')
-        return timezone('Asia/Jakarta').localize(dt)
-
-    @finish_at_ts.expression
-    def finish_at_ts(cls):
-        return cls
-
-
 class Notifications(CommonColumns):
     __tablename__ = 'notifications'
     id = Column(Integer, primary_key=True, autoincrement=True)
     message = Column(String)
     is_read = Column(Boolean)
     data = Column(String)
+
 
 class Caches(CommonColumns):
     __tablename__ = 'caches'

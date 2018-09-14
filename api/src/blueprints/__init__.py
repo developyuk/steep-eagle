@@ -13,6 +13,10 @@ utc_now = utc.localize(datetime.utcnow())
 wib_now = utc_now.astimezone(timezone("Asia/Jakarta"))
 
 
+def onDay(day):
+    now = utc_now
+    return now + timedelta(days=(dow[day] - now.weekday() + 7) % 7)
+
 def get_internal(resource, **lookup):
     response = {}
     documents = []
