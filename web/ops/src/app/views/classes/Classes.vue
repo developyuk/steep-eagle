@@ -26,7 +26,7 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'Id'")
+            el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'#'")
             el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
                 .img-container

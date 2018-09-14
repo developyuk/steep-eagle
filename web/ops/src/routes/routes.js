@@ -198,12 +198,15 @@ import DashboardLayout from 'src/app/DashboardLayout.vue'
 import Login from 'src/app/views/Login.vue'
 import ForgotPassword from 'src/app/views/ForgotPassword.vue'
 import Branches from '@/app/views/branches/Branches';
+import BranchView from '@/app/views/branches/View';
 import BranchForm from '@/app/views/branches/Form';
 import Modules from '@/app/views/modules/Modules';
+import ModuleView from '@/app/views/modules/View';
 import ModuleForm from '@/app/views/modules/Form';
 import Classes from '@/app/views/classes/Classes';
 import ClassForm from '@/app/views/classes/Form';
 import Tutors from '@/app/views/users/Tutors';
+import TutorView from '@/app/views/users/TutorView';
 import TutorForm from '@/app/views/users/TutorForm';
 import Students from '@/app/views/users/Students';
 import StudentForm from '@/app/views/users/StudentForm';
@@ -216,263 +219,284 @@ import ActivitiesTutors from '@/app/views/activities/Tutors';
 import ActivitiesTutorsTimeline from '@/app/views/activities/StudentsTimeLine';
 
 const routes = [
-  {
-    path: '/forgot-password',
-    component: ForgotPassword,
-  },
-  {
-    path: '/sign',
-    component: Login,
-  },
-  {
-    path: '/',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
+    {
+        path: '/forgot-password',
+        component: ForgotPassword,
     },
-    children: [
-      {
-        path: '',
-        name: 'Dashboard Page',
-        component: Overview
-      },
-    ]
-  },
-  {
-    path: '/dashboard',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
+    {
+        path: '/sign',
+        component: Login,
     },
-    children: [
-      {
-        path: '',
-        name: 'Dashboard Page',
-        component: Overview
-      },
-    ]
-  },
-  {
-    path: '/activities',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
+    {
+        path: '/',
+        component: DashboardLayout,
+        meta: {
+            requiresAuth: true,
+        },
+        children: [
+            {
+                path: '',
+                name: 'Dashboard Page',
+                component: Overview
+            },
+        ]
     },
-    children: [
-      // {
-      //   path: '',
-      //   component: TimeLine
-      // },
-      {
-        path: 'tutors',
-        component: ActivitiesTutors
-      },
-      {
-        path: 'tutors/timeline',
-        component: ActivitiesTutorsTimeline
-      },
-      {
-        path: 'students',
-        component: ActivitiesStudents
-      },
-      {
-        path: 'students/timeline',
-        component: ActivitiesStudentsTimeline
-      },
-    ]
-  },
-  {
-    path: '/schedules',
-    component: DashboardLayout,
-    meta: {
-      requiresAuth: true,
+    {
+        path: '/dashboard',
+        component: DashboardLayout,
+        meta: {
+            requiresAuth: true,
+        },
+        children: [
+            {
+                path: '',
+                name: 'Dashboard Page',
+                component: Overview
+            },
+        ]
     },
-    children: [
-      {
-        path: '',
-        component: Classes,
+    {
+        path: '/activities',
+        component: DashboardLayout,
         meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'create',
-        component: ClassForm,
+            requiresAuth: true,
+        },
+        children: [
+            // {
+            //   path: '',
+            //   component: TimeLine
+            // },
+            {
+                path: 'tutors',
+                component: ActivitiesTutors
+            },
+            {
+                path: 'tutors/timeline',
+                component: ActivitiesTutorsTimeline
+            },
+            {
+                path: 'students',
+                component: ActivitiesStudents
+            },
+            {
+                path: 'students/timeline',
+                component: ActivitiesStudentsTimeline
+            },
+        ]
+    },
+    {
+        path: '/schedules',
+        component: DashboardLayout,
         meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: ':id/edit',
-        component: ClassForm,
+            requiresAuth: true,
+        },
+        children: [
+            {
+                path: '',
+                component: Classes,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'create',
+                component: ClassForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: ':id/edit',
+                component: ClassForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'calendar',
+                component: Calendar
+            },
+        ]
+    },
+    {
+        path: '/admin',
+        component: DashboardLayout,
+        redirect: '/admin/modules',
+        children: [
+            {
+                path: 'branches',
+                component: Branches,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'branches/:id',
+                component: BranchView,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'branches/create',
+                component: BranchForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'branches/:id/edit',
+                component: BranchForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'modules',
+                component: Modules,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'modules/:id',
+                component: ModuleView,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'modules/create',
+                component: ModuleForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'modules/:id/edit',
+                component: ModuleForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'tutors',
+                component: Tutors,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'tutors/:id',
+                component: TutorView,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'tutors/create',
+                component: TutorForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'tutors/:id/edit',
+                component: TutorForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'students',
+                component: Students,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'students/create',
+                component: StudentForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'students/:id/edit',
+                component: StudentForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'operations',
+                component: Operations,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'operations/create',
+                component: OperationForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'operations/:id/edit',
+                component: OperationForm,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+        ],
         meta: {
-          requiresAuth: true,
+            requiresAuth: true,
         }
-      },
-      {
-        path: 'calendar',
-        component: Calendar
-      },
-    ]
-  },
-  {
-    path: '/admin',
-    component: DashboardLayout,
-    redirect: '/admin/modules',
-    children: [
-      {
-        path: 'branches',
-        component: Branches,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'branches/create',
-        component: BranchForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'branches/:id/edit',
-        component: BranchForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules',
-        component: Modules,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules/create',
-        component: ModuleForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'modules/:id/edit',
-        component: ModuleForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'tutors',
-        component: Tutors,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'tutors/create',
-        component: TutorForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'tutors/:id/edit',
-        component: TutorForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'students',
-        component: Students,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'students/create',
-        component: StudentForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'students/:id/edit',
-        component: StudentForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'operations',
-        component: Operations,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'operations/create',
-        component: OperationForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-      {
-        path: 'operations/:id/edit',
-        component: OperationForm,
-        meta: {
-          requiresAuth: true,
-        }
-      },
-    ],
-    meta: {
-      requiresAuth: true,
-    }
-  },
-  // {
-  //   path: '/',
-  //   component: DashboardLayout,
-  //   redirect: '/admin/overview',
-  //   children: [
-  //     {
-  //       path: 'calendar',
-  //       name: 'Calendar',
-  //       component: Calendar
-  //     },
-  //     {
-  //       path: 'charts',
-  //       name: 'Charts',
-  //       component: Charts
-  //     }
-  //   ]
-  // },
-  // componentsMenu,
-  // formsMenu,
-  // tablesMenu,
-  // mapsMenu,
-  // pagesMenu,
-  // loginPage,
-  // registerPage,
-  // lockPage,
-  // {
-  //   path: '/admin',
-  //   component: DashboardLayout,
-  //   redirect: '/admin/overview',
-  //   children: [
-  //     {
-  //       path: 'overview',
-  //       name: 'Overview',
-  //       component: Overview
-  //     },
-  //     {
-  //       path: 'stats',
-  //       name: 'Stats',
-  //       component: Stats
-  //     }
-  //   ]
-  // },
-  { path: '*', component: NotFound }
+    },
+    // {
+    //   path: '/',
+    //   component: DashboardLayout,
+    //   redirect: '/admin/overview',
+    //   children: [
+    //     {
+    //       path: 'calendar',
+    //       name: 'Calendar',
+    //       component: Calendar
+    //     },
+    //     {
+    //       path: 'charts',
+    //       name: 'Charts',
+    //       component: Charts
+    //     }
+    //   ]
+    // },
+    // componentsMenu,
+    // formsMenu,
+    // tablesMenu,
+    // mapsMenu,
+    // pagesMenu,
+    // loginPage,
+    // registerPage,
+    // lockPage,
+    // {
+    //   path: '/admin',
+    //   component: DashboardLayout,
+    //   redirect: '/admin/overview',
+    //   children: [
+    //     {
+    //       path: 'overview',
+    //       name: 'Overview',
+    //       component: Overview
+    //     },
+    //     {
+    //       path: 'stats',
+    //       name: 'Stats',
+    //       component: Stats
+    //     }
+    //   ]
+    // },
+    { path: '*', component: NotFound }
 ]
 
 /**

@@ -94,7 +94,7 @@ export default {
       tableColumns: [
         {
           prop: "id",
-          label: "Id",
+          label: "#",
           minWidth: 72
         },
         {

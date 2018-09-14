@@ -24,8 +24,10 @@
                   img(:src='props.row.image' :alt='props.row.name')
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
 
-            el-table-column(:min-width="32" fixed="right" label="Actions")
+            el-table-column(:min-width="48" fixed="right" label="Actions")
               template(slot-scope="props")
+                router-link(:to="`/admin/modules/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                  i.ti-eye
                 router-link(:to="`/admin/modules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
