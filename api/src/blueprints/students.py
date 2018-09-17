@@ -1,5 +1,6 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from copy import deepcopy
+# from pprint import pprint
 
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
@@ -18,30 +19,20 @@ def filter_attendance_students(v, st):
         'student_id': v['student']['id'],
         'attendance_id': st['attendance']['id'],
     }
-    attendances_students, *_ = get('attendances_students', r)
+    attendances_students, *_ = get('attendances_students', **r)
     attendances_students = attendances_students['_items']
 
     return len(attendances_students) == 0
 
 
 def filter_students_is_deleted(v):
-    r = {
-        'id': v['student']['id'],
-        'role': 'student',
-        'is_deleted': False,
-    }
-    try:
-        student, *_ = getitem('users', r)
-        return True
-    except NotFound as e:
-        return False
+    return not v['student']['is_deleted']
 
 
 def map_attendances(v):
-    vlist = filter(lambda v2: filter_attendance_students(
-        v2, v), v['attendance']['class_']['students'])
-    vlist = filter(filter_students_is_deleted,
-                   v['attendance']['class_']['students'])
+    vlist = filter(filter_students_is_deleted, v['attendance']['class_']['students'])
+    def f(v2): return filter_attendance_students(v2, v)
+    vlist = filter(f, vlist)
     vlist = list(vlist)
     v['attendance']['class_']['students'] = vlist
     return v
@@ -67,7 +58,7 @@ def students():
         '_created': '>=\'%s\'' % (utc_now - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S'),
         'tutor_id': app.auth.get_request_auth_value()
     }
-    attendances, *_ = get('attendances_tutors', r)
+    attendances, *_ = get('attendances_tutors', **r)
     attendances = attendances['_items']
 
     attendances = map(map_attendances, attendances)
@@ -88,9 +79,9 @@ def students():
 
 def dormant_students(v):
     try:
-        student, *_ = getitem('class_students', **{'student_id': v['id']})
+        _ = getitem('class_students', **{'student_id': v['id']})
         return False
-    except NotFound as e:
+    except NotFound:
         return True
 
 
@@ -114,13 +105,13 @@ def students_dormant():
     })
 
 
-@blueprint.after_request
-def add_header(response):
-    response.cache_control.max_age = app.config['CACHE_EXPIRES']
-    response.cache_control.public = True
-    response.cache_control.must_revalidate = True
+# @blueprint.after_request
+# def add_header(response):
+#     response.cache_control.max_age = app.config['CACHE_EXPIRES']
+#     response.cache_control.public = True
+#     response.cache_control.must_revalidate = True
 
-    now = datetime.now()
-    then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-    response.headers['Expires'] = then
-    return response
+#     now = datetime.now()
+#     then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
+#     response.headers['Expires'] = then
+#     return response

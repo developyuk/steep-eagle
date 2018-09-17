@@ -1,8 +1,6 @@
 
 import os
 from uuid import uuid4
-import json
-import datetime
 
 from eve.io.media import MediaStorage
 from flask import current_app as app, Response, abort
@@ -58,7 +56,7 @@ class MyMediaStorage(MediaStorage):
             content.save(location)
             minioClient.fput_object(
                 app.config['MEDIA_ENDPOINT'], name, location, content_type)
-            url = minioClient.presigned_get_object(
+            _ = minioClient.presigned_get_object(
                 app.config['MEDIA_ENDPOINT'], name)
             return name
         return ''

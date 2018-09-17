@@ -27,7 +27,7 @@
               a.dropdown-toggle.btn-rotate(data-toggle='dropdown' href='javascript:void(0)')
                 i(class='icon')
                 p.notification
-                  my-img(:src="currentAuth.photo")
+                  img(:src="currentAuth.photo")
                   b.caret
             li
               router-link(:to="`/admin/${currentAuth.role}s/${currentAuth.id}`") Profile

@@ -32,20 +32,20 @@ def tutor_stats():
         # 'students.student'
     ]})
     classes, *_ = get('classes',
-                      {'tutor_id': app.auth.get_request_auth_value()})
+                      **{'tutor_id': app.auth.get_request_auth_value()})
     classes = classes['_items']
 
     attendances_tutors, *_ = get('attendances_tutors',
-                                 {'tutor_id': app.auth.get_request_auth_value()})
+                                 **{'tutor_id': app.auth.get_request_auth_value()})
     attendances_tutors = attendances_tutors['_items']
 
-    attendances_students_feedback, *_ = get('attendances_students', {
+    attendances_students_feedback, *_ = get('attendances_students', **{
         'tutor_id': app.auth.get_request_auth_value(),
         'feedback': "!=\"\""
     })
     attendances_students_feedback = attendances_students_feedback['_items']
 
-    attendances_students_rating, *_ = get('attendances_students', {
+    attendances_students_rating, *_ = get('attendances_students', **{
         'tutor_id': app.auth.get_request_auth_value(),
         "rating_interaction": "!=0",
         "rating_cognition": "!=0",

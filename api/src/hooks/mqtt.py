@@ -2,12 +2,12 @@ import os
 from copy import deepcopy
 
 from eve.render import render_json
+from eve.methods import getitem
 
 from flask import current_app as app
 # import paho.mqtt.client as mqtt
 import paho.mqtt.publish as mqtt_publish
 
-from eve.methods import getitem
 
 is_prod = os.environ['DEBUG'] == 0
 
@@ -34,12 +34,8 @@ def on_deleted_item(resource_name, item):
     app_config_ori = deepcopy(app.config)
 
     if resource_name == 'attendances_students':
-
-        r = {'id': item['student']}
-        student, *_ = getitem('users', r)
-
         r = {'id': app.auth.get_request_auth_value()}
-        user, *_ = getitem('users', r)
+        user, *_ = getitem('users', **r)
 
         m = render_json({
             'by': user,
@@ -54,13 +50,13 @@ def on_deleted_item(resource_name, item):
         ]})
 
         r = {'id': item['attendance']}
-        attendance, *_ = getitem('attendances', r)
+        attendance, *_ = getitem('attendances', **r)
 
         r = {'id': attendance['class_']}
-        klass, *_ = getitem('classes', r)
+        klass, *_ = getitem('classes', **r)
 
         r = {'id': app.auth.get_request_auth_value()}
-        user, *_ = getitem('users', r)
+        user, *_ = getitem('users', **r)
 
         m = render_json({
             'on': "undo",
@@ -74,12 +70,9 @@ def on_deleted_item(resource_name, item):
 
 def on_inserted(resource_name, items):
     if resource_name == 'attendances_students':
-        for i, item in enumerate(items):
-            r = {'id': item['student']}
-            student, *_ = getitem('users', r)
-
+        for item in items:
             r = {'id': app.auth.get_request_auth_value()}
-            user, *_ = getitem('users', r)
+            user, *_ = getitem('users', **r)
 
             m = render_json({
                 'by': user,
@@ -89,15 +82,15 @@ def on_inserted(resource_name, items):
             publish("students", m)
 
     if resource_name == 'attendances_tutors':
-        for i, item in enumerate(items):
+        for item in items:
             r = {'id': item['attendance']}
-            attendance, *_ = getitem('attendances', r)
+            attendance, *_ = getitem('attendances', **r)
 
             r = {'id': app.auth.get_request_auth_value()}
-            user, *_ = getitem('users', r)
+            user, *_ = getitem('users', **r)
 
             r = {'id': attendance['class_']}
-            klass, *_ = getitem('classes', r)
+            klass, *_ = getitem('classes', **r)
 
             m = render_json({
                 'on': "startYes",

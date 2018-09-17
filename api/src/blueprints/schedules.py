@@ -1,6 +1,7 @@
 from pytz import timezone
 from datetime import timedelta, datetime
 from copy import deepcopy
+# from pprint import pprint
 
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
@@ -102,6 +103,7 @@ def schedules():
 
     classes = filter(lambda v: (
         v['finish_at_ts'] + timedelta(hours=2)) > wib_now, classes)
+
     classes = filter(lambda v: v['finish_at_ts'].date() < (
         wib_now + timedelta(days=5)).date(), classes)
     classes = filter(exclude_dummies_non_tester, classes)
@@ -133,13 +135,13 @@ def schedules():
     })
 
 
-@blueprint.after_request
-def add_header(response):
-    response.cache_control.max_age = app.config['CACHE_EXPIRES']
-    response.cache_control.public = True
-    response.cache_control.must_revalidate = True
+# @blueprint.after_request
+# def add_header(response):
+#     response.cache_control.max_age = app.config['CACHE_EXPIRES']
+#     response.cache_control.public = True
+#     response.cache_control.must_revalidate = True
 
-    now = datetime.now()
-    then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-    response.headers['Expires'] = then
-    return response
+#     now = datetime.now()
+#     then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
+#     response.headers['Expires'] = then
+#     return response

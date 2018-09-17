@@ -31,7 +31,7 @@ def schedules():
     classes, *_ = get('classes')
     classes = classes['_items']
 
-    user, *_ = getitem('users', {'id': app.auth.get_request_auth_value()})
+    user, *_ = getitem('users', **{'id': app.auth.get_request_auth_value()})
 
     def exclude_dummies_non_tester(v):
         if 'tester' not in user['username']:
