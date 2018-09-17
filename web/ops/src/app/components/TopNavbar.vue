@@ -30,7 +30,7 @@
                   my-img(:src="currentAuth.photo")
                   b.caret
             li
-              a(href='#') Profile
+              router-link(:to="`/admin/${currentAuth.role}s/${currentAuth.id}`") Profile
             li
               a(href='#') Settings
             li

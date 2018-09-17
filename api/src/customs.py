@@ -24,7 +24,7 @@ def auth(token):
     try:
         data = jwt.decode(token, app.config['JWT_SECRET'])
     except Exception as e:
-        raise Exception(str(e))
+        abort(400, description=str(e))
 
     return data
 

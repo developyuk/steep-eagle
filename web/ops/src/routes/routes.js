@@ -194,9 +194,9 @@ import Overview from 'src/components/Dashboard/Views/Dashboard/Overview.vue'
 //   component: Lock
 // }
 
-import DashboardLayout from 'src/app/DashboardLayout.vue'
-import Login from 'src/app/views/Login.vue'
-import ForgotPassword from 'src/app/views/ForgotPassword.vue'
+import DashboardLayout from 'src/app/DashboardLayout.vue';
+import Login from 'src/app/views/Login.vue';
+import ForgotPassword from 'src/app/views/ForgotPassword.vue';
 import Branches from '@/app/views/branches/Branches';
 import BranchView from '@/app/views/branches/View';
 import BranchForm from '@/app/views/branches/Form';
@@ -209,8 +209,10 @@ import Tutors from '@/app/views/users/Tutors';
 import TutorView from '@/app/views/users/TutorView';
 import TutorForm from '@/app/views/users/TutorForm';
 import Students from '@/app/views/users/Students';
+import StudentView from '@/app/views/users/StudentView';
 import StudentForm from '@/app/views/users/StudentForm';
 import Operations from '@/app/views/users/Operations';
+import OperationView from '@/app/views/users/OperationView';
 import OperationForm from '@/app/views/users/OperationForm';
 import Calendar from '@/app/views/calendar/CalendarRoute.vue'
 import ActivitiesStudents from '@/app/views/activities/Students';
@@ -236,7 +238,6 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'Dashboard Page',
                 component: Overview
             },
         ]
@@ -250,7 +251,6 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'Dashboard Page',
                 component: Overview
             },
         ]
@@ -422,6 +422,13 @@ const routes = [
                 }
             },
             {
+                path: 'students/:id',
+                component: StudentView,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
                 path: 'students/:id/edit',
                 component: StudentForm,
                 meta: {
@@ -431,6 +438,13 @@ const routes = [
             {
                 path: 'operations',
                 component: Operations,
+                meta: {
+                    requiresAuth: true,
+                }
+            },
+            {
+                path: 'operations/:id',
+                component: OperationView,
                 meta: {
                     requiresAuth: true,
                 }

@@ -16,39 +16,38 @@ resource = 'users'
 def sign():
     data = request.values or request.get_json()
 
-    try:
-        if not data:
-            raise Exception('username required')
-        expected_username = data.get('username')
-        if not expected_username:
-            raise Exception('username required')
-        expected_username = expected_username.lower()
-        expected_role = data.get('role')
+    if not data:
+        abort(400, description='username required')
 
-        if not expected_role:
-            raise Exception('role required')
-        expected_role = json.loads(expected_role)
-        # req.show_deleted = True
-        r = {
-            'username': expected_username,
-            'role': expected_role[0]
-        }
-        user, *_ = getitem_internal(resource, **r)
+    expected_username = data.get('username')
+    if not expected_username:
+        abort(400, description='username required')
 
-        if not user:
-            raise Exception('user not found')
+    expected_username = expected_username.lower()
+    expected_role = data.get('role')
 
-        if user['pass_']:
-            password = data.get('password')
-            if (password != user['pass_']):
-                raise Exception('password required or wrong password')
+    if not expected_role:
+        abort(400, description='role required')
 
-        return jsonify({
-            'token': jwt.encode({'id': user['id']}, app.config['JWT_SECRET'])
-        })
-    except Exception as e:
-        # raise
-        abort(400, description=str(e))
+    expected_role = json.loads(expected_role)
+    # req.show_deleted = True
+    r = {
+        'username': expected_username,
+        'role': expected_role[0]
+    }
+    user, *_ = getitem_internal(resource, **r)
+
+    if not user:
+        abort(400, description='user not found')
+
+    if user['pass_']:
+        password = data.get('password')
+        if (password != user['pass_']):
+            abort(400, description='password required or wrong password')
+
+    return jsonify({
+        'token': jwt.encode({'id': user['id']}, app.config['JWT_SECRET'])
+    })
 
 
 @blueprint.route('/auth', methods=['GET'])
@@ -56,7 +55,7 @@ def sign():
 def auth():
     try:
         user, *_ = getitem(resource,
-                                    **{'id': app.auth.get_request_auth_value()})
+                           **{'id': app.auth.get_request_auth_value()})
         allowed_key = ('name', 'username', 'email', 'role', 'photo', 'id')
         user = filter(lambda v: v[0] in allowed_key, user.items())
         return jsonify(user)
