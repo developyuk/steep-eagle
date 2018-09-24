@@ -2,11 +2,9 @@ Eve==0.8
 Eve-Swagger==0.0.11
 Flask-Cors==3.0.6
 Flask-Mail==0.9.1
+google-cloud-datastore==1.7.0
 gunicorn==19.9.0
 humanize==0.5.1
-minio==4.0.4
 paho-mqtt==1.4.0
 PyJWT==1.6.4
 pytz==2018.5
-
-google-cloud-datastore==1.7.0

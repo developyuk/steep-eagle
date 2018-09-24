@@ -1,6 +1,10 @@
 import os
 from my_eve import schema
 
+MONGO_JSON = 'steep-eagle-3c14071c3df0.json'
+ITEM_URL = 'regex("[0-9]{16}")'
+OPTIMIZE_PAGINATION_FOR_SPEED = True
+
 RESOURCE_METHODS = [
     'GET',
     'POST',
@@ -14,15 +18,12 @@ ITEM_METHODS = [
 ]
 CACHE_CONTROL = 'max-age=10,must-revalidate'
 CACHE_EXPIRES = 10
-# X_ALLOW_CREDENTIALS = True
 X_HEADERS = ['Authorization', 'Content-Type',
              'If-Match', 'If-None-Match', 'Cache-Control']
 DEBUG = os.environ['DEBUG']
 JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 X_DOMAINS = "*"
-
-OPTIMIZE_PAGINATION_FOR_SPEED = True
 
 SWAGGER_INFO = {
     'title': 'M Codingcamp API',

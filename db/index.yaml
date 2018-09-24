@@ -1,0 +1,6 @@
+indexes:
+- kind: users
+  properties:
+  - name: role
+  - name: _updated
+    direction: desc

@@ -35,34 +35,7 @@ services:
       - HOST_IP=${HOST_IP}
       - HOST_STORAGE=${HOST_STORAGE}
       - HOST_MQTT=${HOST_MQTT}
-    depends_on:
-      - db
     command: gunicorn -b 0.0.0.0:3000 --reload main:app
-  # file:
-  #   image: minio/minio
-  #   volumes:
-  #     - ./file/data:/data
-  #     - ./file/config:/root/.minio
-  #   environment:
-  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-  #   ports:
-  #     - "9000:9000"
-  #   command: server /data
-  # db-admin:
-  #   image: adminer
-  #   ports:
-  #     - "99:8080"
-  #   depends_on:
-  #     - db
-  # db:
-  #   build: ./db
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_USER=${POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #     - POSTGRES_DB=${POSTGRES_DB}
   api-doc:
     image: swaggerapi/swagger-ui
     ports:
