@@ -1,51 +1,68 @@
 version: '2'
 services:
-  api:
-    build: ./api
+  # api:
+  #   build: ./api
+  #   volumes:
+  #     - ./api/src:/app
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  #     - JWT_SECRET=${JWT_KEY}
+  #     - JWT_ISSUER=codingcamp.id
+  #     - DEBUG=1
+  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+  #     - HOST=${HOST}
+  #     - HOST_IP=${HOST_IP}
+  #     - HOST_STORAGE=${HOST_STORAGE}
+  #     - HOST_MQTT=${HOST_MQTT}
+  #     - MAIL_PASSWORD=${MAIL_PASSWORD}
+  #   depends_on:
+  #     - db
+  #   command: gunicorn -b 0.0.0.0:3000 --reload main:app
+  api-v2:
+    build: ./api-v2
     volumes:
-      - ./api/src:/app
+      - ./api-v2/src:/app
     ports:
       - "3000:3000"
     environment:
-      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - JWT_SECRET=${JWT_KEY}
-      - JWT_ISSUER=skilmu
+      - JWT_ISSUER=codingcamp.id
       - DEBUG=1
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - HOST=${HOST}
       - HOST_IP=${HOST_IP}
       - HOST_STORAGE=${HOST_STORAGE}
       - HOST_MQTT=${HOST_MQTT}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       - db
     command: gunicorn -b 0.0.0.0:3000 --reload main:app
-  file:
-    image: minio/minio
-    volumes:
-      - ./file/data:/data
-      - ./file/config:/root/.minio
-    environment:
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-    ports:
-      - "9000:9000"
-    command: server /data
-  db-admin:
-    image: adminer
-    ports:
-      - "99:8080"
-    depends_on:
-      - db
-  db:
-    build: ./db
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+  # file:
+  #   image: minio/minio
+  #   volumes:
+  #     - ./file/data:/data
+  #     - ./file/config:/root/.minio
+  #   environment:
+  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+  #   ports:
+  #     - "9000:9000"
+  #   command: server /data
+  # db-admin:
+  #   image: adminer
+  #   ports:
+  #     - "99:8080"
+  #   depends_on:
+  #     - db
+  # db:
+  #   build: ./db
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
   api-doc:
     image: swaggerapi/swagger-ui
     ports:
