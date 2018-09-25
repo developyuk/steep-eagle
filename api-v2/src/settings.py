@@ -8,7 +8,7 @@ OPTIMIZE_PAGINATION_FOR_SPEED = True
 RESOURCE_METHODS = [
     'GET',
     'POST',
-    # 'DELETE'
+    'DELETE'
 ]
 ITEM_METHODS = [
     'GET',
@@ -49,15 +49,53 @@ DOMAIN = {
     'classes': {
         'schema': schema.get('classes')
     },
-    # 'classes-students': {
-    #     'url': 'classes/<regex("[a-f0-9]{24}"):class_id>/students',
-    #     'datasource': {
-    #         'source': 'users'
-    #     },
-    #     'schema': schema.get('users')
-
-    # },
-    # 'attendances': {
-    #     'schema': schema.get('attendances')
-    # },
+    'class-students': {
+        'schema': schema.get('class-students'),
+        'internal_resource': True,
+        'disable_documentation': True,
+    },
+    'classes-students': {
+        'url': 'classes/<regex("[0-9]{16}"):class>/students',
+        'datasource': {
+            'source': 'class-students',
+        },
+        'schema': schema.get('class-students')
+    },
+    'attendances': {
+        'schema': schema.get('attendances')
+    },
+    'attendance-tutors': {
+        'internal_resource': True,
+        'disable_documentation': True,
+        'schema': schema.get('attendance-tutors')
+    },
+    'attendances-tutors': {
+        'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutors',
+        'datasource': {
+            'source': 'attendance-tutors',
+        },
+        'schema': schema.get('attendance-tutors')
+    },
+    'attendance-students': {
+        'internal_resource': True,
+        'disable_documentation': True,
+        'schema': schema.get('attendance-students')
+    },
+    'attendances-students': {
+        'url': 'attendances/<regex("[0-9]{16}"):attendance>/students',
+        'datasource': {
+            'source': 'attendance-students',
+        },
+        'schema': schema.get('attendance-students')
+    },
+    'attendances-tutors-students': {
+        'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutor/<regex("[0-9]{16}"):tutor>/students',
+        'datasource': {
+            'source': 'attendance-students',
+        },
+        'schema': schema.get('attendance-students')
+    },
+    'caches': {
+        'schema': schema.get('caches')
+    },
 }

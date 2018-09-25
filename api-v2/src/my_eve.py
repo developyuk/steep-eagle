@@ -1,22 +1,22 @@
 
 
+import json
+import ast
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
 # from eve.io.base import DataLayer
-from eve.io.mongo.mongo import Mongo
-import jwt
 from google.cloud import datastore
+from eve.io.mongo.mongo import Mongo
 from eve.utils import config, validate_filters, debug_error_message
-from werkzeug.exceptions import HTTPException
 from eve.io.mongo.parser import parse, ParseError
-import json
-import ast
+from werkzeug.exceptions import HTTPException
+import jwt
 from pprint import pprint
 
 
 def auth(token):
     try:
-        data = jwt.decode(token, app.config['JWT_SECRET'])
+        data = jwt.decode(token, config.JWT_SECRET)
     except Exception as e:
         abort(400, description=str(e))
 
@@ -32,21 +32,23 @@ class MyAuth(TokenAuth):
         user = auth(token)
 
         if len(user):
-            self.set_request_auth_value(user[app.config['ID_FIELD']])
+            self.set_request_auth_value(user[config.ID_FIELD])
         # pprint(app.auth.get_request_auth_value())
 
         return len(user)
 
 
 class GoogleCloudstore(Mongo):
+
     def init_app(self, app):
         driver = datastore.Client.from_service_account_json(
             app.config['MONGO_JSON'])
         self.driver = {'MONGO': driver}
 
-    def entity2dict(self, v):
-        v.update({app.config['ID_FIELD']: v.id})
-        return dict(v)
+    def remap_entity(self, v):
+        if not v.get(config.ID_FIELD):
+            v.update({config.ID_FIELD: v.id})
+        return v
 
     def convert_sort(self, v):
         return v[0] if v[1] == 1 else '-%s' % v[0]
@@ -149,7 +151,7 @@ class GoogleCloudstore(Mongo):
 
         cursors = query.fetch(**args)
 
-        cursors = map(self.entity2dict, cursors)
+        cursors = map(self.remap_entity, cursors)
         cursors = list(cursors)
 
         if cursors:
@@ -162,23 +164,39 @@ class GoogleCloudstore(Mongo):
         # pprint(resource)
         # pprint(lookup)
         document = dict()
+        self._mongotize(lookup, resource)
+        client_projection = self._client_projection(req)
 
-        lookup_id_field = lookup.get(app.config['ID_FIELD'])
-        if lookup_id_field:
-            key = self.pymongo(resource).key(resource, int(lookup_id_field))
+        datasource, filter_, projection, _ = self._datasource_ex(
+            resource,
+            lookup,
+            client_projection,
+            check_auth_value=check_auth_value,
+            force_auth_field_projection=force_auth_field_projection)
+
+        if (config.DOMAIN[resource]['soft_delete']) and \
+                (not req or not req.show_deleted) and \
+                (not self.query_contains_field(lookup, config.DELETED)):
+            filter_ = self.combine_queries(
+                filter_, {config.DELETED: {"$ne": True}})
+
+        filter_id_field = filter_.get(config.ID_FIELD)
+        if filter_id_field and len(filter_.keys()) == 1:
+            key = self.pymongo(datasource).key(
+                datasource, int(filter_id_field))
             cursors = self.pymongo(resource).get(key)
 
             if not cursors:
                 abort(404, description='data not found')
 
-            cursors = self.entity2dict(cursors)
+            cursors = self.remap_entity(cursors)
         else:
-            query = self.pymongo(resource).query(kind=resource)
-            for k, v in lookup.items():
+            query = self.pymongo(datasource).query(kind=datasource)
+            for k, v in filter_.items():
                 query.add_filter(k, '=', v)
             cursors = query.fetch(limit=1)
 
-            cursors = map(self.entity2dict, cursors)
+            cursors = map(self.remap_entity, cursors)
             cursors = list(cursors)
 
             if not cursors:
@@ -190,11 +208,13 @@ class GoogleCloudstore(Mongo):
         return document
 
     def insert(self, resource, doc_or_docs):
+        datasource, _, _, _ = self._datasource_ex(resource)
+
         if isinstance(doc_or_docs, dict):
             doc_or_docs = [doc_or_docs]
 
-        incomplete_key = self.pymongo(resource).key(resource)
-        allocate_ids = self.pymongo(resource).allocate_ids(
+        incomplete_key = self.pymongo(datasource).key(datasource)
+        allocate_ids = self.pymongo(datasource).allocate_ids(
             incomplete_key, len(doc_or_docs))
 
         entities = []
@@ -203,9 +223,46 @@ class GoogleCloudstore(Mongo):
             entity.update(v)
             entities.append(entity)
 
-        self.pymongo(resource).put_multi(entities)
+        self.pymongo(datasource).put_multi(entities)
 
         return [v.id for v in allocate_ids]
+
+    def _change_request(self, resource, id_, changes, original, replace=False):
+        id_field = config.DOMAIN[resource]['id_field']
+        query = {id_field: id_}
+        if config.ETAG in original:
+            query[config.ETAG] = original[config.ETAG]
+
+        datasource, filter_, _, _ = self._datasource_ex(
+            resource, query)
+
+        key = self.pymongo(datasource).key(datasource, id_)
+        entity = self.pymongo(datasource).get(key)
+        if replace:
+            original.update(changes.get('$set'))
+            entity.update(original)
+        else:
+            entity.update(changes.get('$set'))
+
+        self.pymongo(datasource).put(entity)
+
+    def remove(self, resource, lookup):
+        lookup = self._mongotize(lookup, resource)
+        datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
+
+        query = self.pymongo(datasource).query(kind=datasource)
+
+        for k, v in filter_.items():
+            query.add_filter(k, '=', int(v))
+        cursors = query.fetch()
+
+        cursors = map(self.remap_entity, cursors)
+        cursors = list(cursors)
+
+        keys = [self.pymongo(datasource).key(
+            datasource, v[config.ID_FIELD]) for v in cursors]
+
+        self.pymongo(datasource).delete_multi(keys)
 
 
 schema = {
@@ -307,12 +364,117 @@ schema = {
             },
         },
     },
+    'class-students': {
+        'class': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'classes',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'student': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'users',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+    },
     'attendances': {
         'class': {
-            'type': 'string',
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'classes',
+                'field': '_id',
+                'embeddable': True
+            },
         },
         'module': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'modules',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+    },
+    'attendance-tutors': {
+        'attendance': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'attendances',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'tutor': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'users',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+    },
+    'attendance-students': {
+        'attendance': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'attendances',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'tutor': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'users',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'student': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'users',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'is_presence': {
+            'type': 'boolean',
+            'default': False
+        },
+        'feedback': {
             'type': 'string',
+        },
+        'rating': {
+            'type': 'dict',
+            'schema': {
+                'interaction': {'type': 'integer'},
+                'cognition': {'type': 'integer'},
+                'creativity': {'type': 'integer'},
+            },
+
+        },
+    },
+    'caches': {
+        'key': {
+            'type': 'string',
+        },
+        'value': {
+            'type': 'dict',
         },
     }
 }

@@ -3,6 +3,7 @@ from flask import current_app as app, jsonify, Blueprint, request, abort
 from datetime import timedelta
 from eve.auth import requires_auth
 from eve.methods import getitem
+from eve.utils import config
 from eve.methods.get import getitem_internal
 import jwt
 import json
@@ -46,7 +47,7 @@ def sign():
             abort(400, description='password required or wrong password')
 
     return jsonify({
-        'token': jwt.encode({app.config['ID_FIELD']: user[app.config['ID_FIELD']]}, app.config['JWT_SECRET'])
+        'token': jwt.encode({config.ID_FIELD: user[config.ID_FIELD]}, config.JWT_SECRET)
     })
 
 
@@ -54,12 +55,13 @@ def sign():
 @requires_auth('/auth')
 def auth():
     try:
-        lookup = {app.config['ID_FIELD']: app.auth.get_request_auth_value()}
+        lookup = {config.ID_FIELD: app.auth.get_request_auth_value()}
         user, *_ = getitem(resource, **lookup)
         allowed_key = ('name', 'username', 'email', 'role',
-                       'photo', app.config['ID_FIELD'])
+                       'photo', config.ID_FIELD, config.ETAG)
         user = filter(lambda v: v[0] in allowed_key, user.items())
-        return jsonify(dict(user))
+        user = dict(user)
+        return jsonify(user)
     except Exception as e:
         abort(400, description=str(e))
 
