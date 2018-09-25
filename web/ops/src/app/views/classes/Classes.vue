@@ -34,7 +34,7 @@
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :labelClassName="column.labelClassName" :sortable="column.sortable")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/schedules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/schedules/${props.row._id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                   i.ti-close
@@ -171,7 +171,7 @@ export default {
           preConfirm: text => {
             if (text === row.module.name) {
               return axios
-                .delete(`${process.env.API}/classes/${row.id}`, {
+                .delete(`${process.env.API}/classes/${row._id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {
@@ -237,7 +237,7 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.API}/classes_ts`, config)
+        .get(`${process.env.API}/classes`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {

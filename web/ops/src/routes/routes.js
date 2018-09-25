@@ -331,15 +331,15 @@ const routes = [
                 }
             },
             {
-                path: 'branches/:id',
-                component: BranchView,
+                path: 'branches/create',
+                component: BranchForm,
                 meta: {
                     requiresAuth: true,
                 }
             },
             {
-                path: 'branches/create',
-                component: BranchForm,
+                path: 'branches/:id',
+                component: BranchView,
                 meta: {
                     requiresAuth: true,
                 }
@@ -359,15 +359,15 @@ const routes = [
                 }
             },
             {
-                path: 'modules/:id',
-                component: ModuleView,
+                path: 'modules/create',
+                component: ModuleForm,
                 meta: {
                     requiresAuth: true,
                 }
             },
             {
-                path: 'modules/create',
-                component: ModuleForm,
+                path: 'modules/:id',
+                component: ModuleView,
                 meta: {
                     requiresAuth: true,
                 }
@@ -387,15 +387,15 @@ const routes = [
                 }
             },
             {
-                path: 'tutors/:id',
-                component: TutorView,
+                path: 'tutors/create',
+                component: TutorForm,
                 meta: {
                     requiresAuth: true,
                 }
             },
             {
-                path: 'tutors/create',
-                component: TutorForm,
+                path: 'tutors/:id',
+                component: TutorView,
                 meta: {
                     requiresAuth: true,
                 }
@@ -443,15 +443,15 @@ const routes = [
                 }
             },
             {
-                path: 'operations/:id',
-                component: OperationView,
+                path: 'operations/create',
+                component: OperationForm,
                 meta: {
                     requiresAuth: true,
                 }
             },
             {
-                path: 'operations/create',
-                component: OperationForm,
+                path: 'operations/:id',
+                component: OperationView,
                 meta: {
                     requiresAuth: true,
                 }

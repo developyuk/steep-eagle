@@ -30,9 +30,9 @@
                   i.fa.fa-times(slot="off")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/tutors/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                router-link(:to="`/admin/tutors/${props.row._id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
-                router-link(:to="`/admin/tutors/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/admin/tutors/${props.row._id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                 //-   i.ti-close
@@ -153,7 +153,7 @@ export default {
         preConfirm: text => {
           if (text === row.name) {
             return axios
-              .patch(`${process.env.API}/users/${row.id}`, data, config)
+              .patch(`${process.env.API}/users/${row._id}`, data, config)
               .then(response => {
                 row._etag = response.data._etag;
                 this.getData();

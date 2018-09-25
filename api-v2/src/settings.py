@@ -4,6 +4,7 @@ from my_eve import schema
 MONGO_JSON = 'steep-eagle-3c14071c3df0.json'
 ITEM_URL = 'regex("[0-9]{16}")'
 OPTIMIZE_PAGINATION_FOR_SPEED = True
+PAGINATION_LIMIT = 9999
 
 RESOURCE_METHODS = [
     'GET',
@@ -38,7 +39,8 @@ SWAGGER_INFO = {
 
 DOMAIN = {
     'users': {
-        'schema': schema.get('users')
+        'schema': schema.get('users'),
+        'soft_delete': True
     },
     'branches': {
         'schema': schema.get('branches')

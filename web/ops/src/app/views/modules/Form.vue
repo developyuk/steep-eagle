@@ -103,7 +103,7 @@ export default {
         } else {
           axios
             .patch(
-              `${process.env.API}/modules/${this.model.id}`,
+              `${process.env.API}/modules/${this.model._id}`,
               data,
               config
             )

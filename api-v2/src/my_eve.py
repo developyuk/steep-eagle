@@ -130,9 +130,12 @@ class GoogleCloudstore(Mongo):
 
         query = self.pymongo(datasource).query(kind=datasource)
 
-        # if len(spec) > 0:
-        #     for k, v in spec.items():
-        #         query.add_filter(k, '=', v)
+        if spec.get('$and'):
+            del spec['$and']
+
+        if len(spec) > 0:
+            for k, v in spec.items():
+                query.add_filter(k, '=', v)
 
         if sort is not None:
             sort = map(self.convert_sort, sort)
@@ -161,8 +164,7 @@ class GoogleCloudstore(Mongo):
 
     def find_one(self, resource, req, check_auth_value=True,
                  force_auth_field_projection=False, **lookup):
-        # pprint(resource)
-        # pprint(lookup)
+
         document = dict()
         self._mongotize(lookup, resource)
         client_projection = self._client_projection(req)
@@ -207,6 +209,32 @@ class GoogleCloudstore(Mongo):
         document = cursors
         return document
 
+    def find_one_raw(self, resource, **lookup):
+        document = dict()
+        id_field = config.DOMAIN[resource]['id_field']
+        _id = lookup.get(id_field)
+        datasource, filter_, _, _ = self._datasource_ex(resource,
+                                                        {id_field: _id},
+                                                        None)
+
+        lookup = self._mongotize(lookup, resource)
+
+        filter_id_field = filter_.get(config.ID_FIELD)
+        if filter_id_field and len(filter_.keys()) == 1:
+            key = self.pymongo(datasource).key(
+                datasource, int(filter_id_field))
+            cursors = self.pymongo(resource).get(key)
+
+            if not cursors:
+                abort(404, description='data not found')
+
+            cursors = self.remap_entity(cursors)
+        else:
+            pass
+        document = cursors
+        return document
+        # return self.pymongo(resource).db[datasource].find_one(lookup)
+
     def insert(self, resource, doc_or_docs):
         datasource, _, _, _ = self._datasource_ex(resource)
 
@@ -250,14 +278,25 @@ class GoogleCloudstore(Mongo):
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
 
-        query = self.pymongo(datasource).query(kind=datasource)
+        filter_id_field = filter_.get(config.ID_FIELD)
+        if filter_id_field and len(filter_.keys()) == 1:
+            key = self.pymongo(datasource).key(
+                datasource, int(filter_id_field))
+            cursors = self.pymongo(resource).get(key)
 
-        for k, v in filter_.items():
-            query.add_filter(k, '=', int(v))
-        cursors = query.fetch()
+            if not cursors:
+                abort(404, description='data not found')
 
-        cursors = map(self.remap_entity, cursors)
-        cursors = list(cursors)
+            cursors = self.remap_entity(cursors)
+            cursors = [cursors]
+        else:
+            query = self.pymongo(datasource).query(kind=datasource)
+            for k, v in filter_.items():
+                query.add_filter(k, '=', int(v))
+            cursors = query.fetch()
+
+            cursors = map(self.remap_entity, cursors)
+            cursors = list(cursors)
 
         keys = [self.pymongo(datasource).key(
             datasource, v[config.ID_FIELD]) for v in cursors]

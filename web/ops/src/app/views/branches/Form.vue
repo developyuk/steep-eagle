@@ -83,7 +83,7 @@ export default {
           };
           axios
             .patch(
-              `${process.env.API}/branches/${this.model.id}`,
+              `${process.env.API}/branches/${this.model._id}`,
               data,
               config
             )

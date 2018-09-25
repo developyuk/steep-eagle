@@ -26,9 +26,9 @@
 
             el-table-column(:min-width="48" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/modules/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                router-link(:to="`/admin/modules/${props.row._id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
-                router-link(:to="`/admin/modules/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/admin/modules/${props.row._id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                   i.ti-close
@@ -125,7 +125,7 @@ export default {
           preConfirm: text => {
             if (text === row.name) {
               return axios
-                .delete(`${process.env.API}/modules/${row.id}`, {
+                .delete(`${process.env.API}/modules/${row._id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {

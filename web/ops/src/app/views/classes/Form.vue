@@ -157,7 +157,7 @@ export default {
       if (eval(v)) {
         url = `${process.env.API}/users`;
         params = {
-          where: { role: "student", is_deleted: false },
+          where: { role: "student" },
           sort: "name",
           max_results: 9999
         };
@@ -173,7 +173,7 @@ export default {
         .then(response => {
           this.selects.students = response.data._items.map(v => {
             return {
-              value: v.id,
+              value: v._id,
               label: v.name.toUpperCase(),
               image: v.photo
             };
@@ -228,7 +228,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(`${process.env.API}/classes/${this.model.id}`, data, config)
+            .patch(`${process.env.API}/classes/${this.model._id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -261,7 +261,7 @@ export default {
       .then(response => {
         this.selects.modules = response.data._items.map(v => {
           return {
-            value: v.id,
+            value: v._id,
             label: v.name.toUpperCase(),
             image: v.image
           };
@@ -272,22 +272,22 @@ export default {
       .get(`${process.env.API}/branches`, { params })
       .then(response => {
         this.selects.branches = response.data._items.map(v => {
-          return { value: v.id, label: v.name.toUpperCase() };
+          return { value: v._id, label: v.name.toUpperCase() };
         });
       })
       .catch(error => console.log(error, error.response));
     axios
       .get(`${process.env.API}/users`, {
         params: {
-          where: { role: "tutor", is_deleted: false },
-          sort: "name",
+          where: { role: "tutor" },
+          // sort: "name",
           max_results: 9999
         }
       })
       .then(response => {
         this.selects.tutors = response.data._items.map(v => {
           return {
-            value: v.id,
+            value: v._id,
             label: v.name.toUpperCase(),
             image: v.photo
           };
@@ -304,7 +304,7 @@ export default {
       .then(response => {
         this.selects.students = response.data._items.map(v => {
           return {
-            value: v.id,
+            value: v._id,
             label: v.name.toUpperCase(),
             image: v.photo
           };
@@ -317,13 +317,21 @@ export default {
 
       axios
         .get(`${process.env.API}/classes/${id}`, {
-          params: { embedded: { students: 1, "students.student": 1 } },
+          params: {
+            embedded: {
+              // branch: 1,
+              // module: 1,
+              // tutor: 1,
+              students: 1,
+              "students.student": 1
+            }
+          },
           headers: { "If-None-Match": this.model._etag }
         })
         .then(response => {
           const data = response.data;
           this.model = data;
-          this.model.students = data.students.map(v => v.student.id);
+          this.model.students = data.students.map(v => v.student._id);
         })
         .catch(error => console.log(error, error.response));
     }

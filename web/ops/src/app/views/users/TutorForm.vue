@@ -32,9 +32,9 @@
           .form-group.row
             label.col-sm-2.control-label Contact no.
             .col-sm-9
-              input.form-control(type="text" name="contact_no" v-validate="modelValidations.contact_no" v-model="model.contact_no")
-              small.text-danger(v-show="contact_no.invalid")
-                | {{ getError('contact_no') }}
+              input.form-control(type="text" name="contact" v-validate="modelValidations.contact" v-model="model.contact")
+              small.text-danger(v-show="contact.invalid")
+                | {{ getError('contact') }}
           .form-group
             label.col-sm-2.control-label Photo
             .col-sm-9
@@ -66,7 +66,7 @@ export default {
     PSwitch
   },
   computed: {
-    ...mapFields(["name", "username", "email", "photo", "contact_no"])
+    ...mapFields(["name", "username", "email", "photo", "contact"])
   },
   mixins: [mixinNotify],
   data() {
@@ -77,7 +77,7 @@ export default {
         username: "",
         email: "",
         photo: "",
-        contact_no: ""
+        contact: ""
       },
       modelValidations: {
         name: {
@@ -86,7 +86,7 @@ export default {
         username: {
           required: true
         },
-        contact_no: {},
+        contact: {},
         email: {
           email: true
         },
@@ -105,7 +105,7 @@ export default {
         is_deleted: !e
       };
       axios
-        .patch(`${process.env.API}/users/${this.model.id}`, data, config)
+        .patch(`${process.env.API}/users/${this.model._id}`, data, config)
         .then(response => {
           this.model._etag = response.data._etag;
 
@@ -143,7 +143,7 @@ export default {
         data.append("name", this.model.name);
         data.append("username", this.model.username);
         data.append("email", this.model.email);
-        data.append("contact_no", this.model.contact_no);
+        data.append("contact", this.model.contact);
         data.append("role", "tutor");
         if (this.model.photo) {
           data.append("photo", this.model.photo);
@@ -176,7 +176,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(`${process.env.API}/users/${this.model.id}`, data, config)
+            .patch(`${process.env.API}/users/${this.model._id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
