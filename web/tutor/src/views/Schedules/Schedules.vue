@@ -44,14 +44,14 @@ const placeholderSchedules = _range(3).map(v => {
   const items = _range(2).map(vv => {
     return {
       id: vv,
-      start_at: "",
+      startAt: "",
       module: {
         image: "",
         name: ""
       },
-      finish_at_ts: "",
-      start_at_ts: "",
-      finish_at: "",
+      finishAtTs: "",
+      startAtTs: "",
+      finishAt: "",
       tutor: {
         profile: {
           name: ""
@@ -133,12 +133,21 @@ export default {
     getSchedules(params = { forceRefresh: false }) {
       const url = `${process.env.VUE_APP_API}/schedules`;
 
-      const headers = {};
+      const config = {};
+      config["params"] = {
+        embedded: {
+          branch: true,
+          tutor: true,
+          module: true
+        },
+        max_results: 999
+      };
+      config["headers"] = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";
       }
       axios
-        .get(url, { headers })
+        .get(url, config)
         .then(response => {
           this.classes = response.data._items;
         })

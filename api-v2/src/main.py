@@ -14,6 +14,8 @@ app = Eve(auth=my.JwtAuth,
 
 app.register_blueprint(swagger)
 app.register_blueprint(blueprints._auth)
+app.register_blueprint(blueprints._students)
+app.register_blueprint(blueprints._schedules)
 
 app.on_fetched_resource += hooks.resource.on_fetched_resource       # pylint: disable=no-member
 app.on_fetched_item += hooks.resource.on_fetched_item               # pylint: disable=no-member

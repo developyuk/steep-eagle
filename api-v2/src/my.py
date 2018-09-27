@@ -34,12 +34,13 @@ class JwtAuth(TokenAuth):
 
     def check_auth(self, token, allowed_roles, resource, method):
         user = auth(token)
+        is_exist = len(user)
 
-        if len(user):
+        if is_exist:
             self.set_request_auth_value(user[config.ID_FIELD])
         # pprint(app.auth.get_request_auth_value())
 
-        return len(user)
+        return is_exist
 
 
 class GoogleMediaStorage(MediaStorage):

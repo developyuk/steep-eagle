@@ -39,3 +39,13 @@ GET http://127.0.0.1:3000/classes
 &page=1
 &embedded={"branch":true,"module":true,"tutor":true}
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOjU3MTIwODg5MzY3NDI5MTJ9.zq9a4uy732We7lClYCGSrAxDIRqnzY4j2SvW-RqF4gk
+
+###
+curl 'http://127.0.0.1:3000/students/dormant?sort=_deleted,name&max_results=9999' 
+-H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOjU3MTIwODg5MzY3NDI5MTJ9.zq9a4uy732We7lClYCGSrAxDIRqnzY4j2SvW-RqF4gk' 
+--compressed
+
+###
+curl 'http://192.168.2.50:3000/schedules?embedded={"branch":true,"tutor":true,"module":true}&max_results=999' 
+-H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOjU3MTE2NzM0NjU3NjU4ODh9.JlKimThR7iQK6O0D7vVqeu3UK4LWUrYbSguGC-ir-Zs' 
+--compressed

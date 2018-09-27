@@ -23,8 +23,8 @@ export default {
     ...mapState(["currentAuth"]),
     status() {
       const class_ = this.class_;
-      const msts = moment(class_.start_at_ts);
-      const mfts = moment(class_.finish_at_ts);
+      const msts = moment(class_.startAtTs);
+      const mfts = moment(class_.finishAtTs);
       const mnow = moment();
       let status = "disabled";
       const ls = class_.last_attendances;

@@ -59,7 +59,7 @@ export default {
       const username = this.username.substring(0, this.username.length - 3);
       const data = {
         username: username,
-        role: JSON.stringify(["tutor"])
+        role: ["tutor"]
       };
       this.errMsg = "";
 
@@ -115,8 +115,8 @@ form.login {
   .mdc-text-field {
     width: 100%;
   }
-  .logo {
-  }
+  // .logo {
+  // }
 }
 
 button {

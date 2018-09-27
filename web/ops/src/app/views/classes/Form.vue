@@ -164,7 +164,7 @@ export default {
       } else {
         url = `${process.env.API}/students/dormant`;
         params = {
-          sort: "name",
+          sort: "_deleted,name",
           max_results: 9999
         };
       }
@@ -299,7 +299,7 @@ export default {
     axios
       .get(`${process.env.API}/students/dormant`, {
         params: {
-          sort: "name",
+          sort: "_deleted,name",
           max_results: 9999
         }
       })
