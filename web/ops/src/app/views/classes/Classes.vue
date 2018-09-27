@@ -26,7 +26,7 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'#'")
+            //- el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'#'")
             el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
                 .img-container
@@ -126,21 +126,21 @@ export default {
           sortable: true
         },
         {
-          prop: "start_at",
+          prop: "startAt",
           label: "Start",
           minWidth: 100,
           sortable: true
         },
         {
-          prop: "finish_at",
+          prop: "finishAt",
           label: "Finish",
           minWidth: 100,
           sortable: true
         },
         {
-          prop: "students_sum",
+          prop: "studentsTotal",
           label: "Total Students",
-          minWidth: 128+16,
+          minWidth: 128 + 16,
           sortable: true
         }
       ],
@@ -244,8 +244,12 @@ export default {
             v.students_sum = v.students.length;
             return v;
           });
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }

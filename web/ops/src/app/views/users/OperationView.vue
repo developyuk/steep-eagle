@@ -27,7 +27,7 @@ export default {
     const id = this.$route.params.id;
     if (id) {
       let config = {
-        params: { where: { role: "tutor" } }
+        params: { where: { role: "operation" } }
       };
       if (this.model._etag) {
         config.headers = { "If-None-Match": this.model._etag };

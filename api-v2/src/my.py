@@ -1,17 +1,21 @@
 
 
+from uuid import uuid4
+from pprint import pprint
 import json
 import ast
+import os
+from copy import deepcopy
+
+import jwt
+from google.cloud import datastore, storage
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
-# from eve.io.base import DataLayer
-from google.cloud import datastore
+from eve.io.media import MediaStorage
 from eve.io.mongo.mongo import Mongo
-from eve.utils import config, validate_filters, debug_error_message
 from eve.io.mongo.parser import parse, ParseError
+from eve.utils import config, validate_filters, debug_error_message
 from werkzeug.exceptions import HTTPException
-import jwt
-from pprint import pprint
 
 
 def auth(token):
@@ -23,7 +27,7 @@ def auth(token):
     return data
 
 
-class MyAuth(TokenAuth):
+class JwtAuth(TokenAuth):
     def authenticate(self):
         resp = Response(None, 401)
         abort(401, description='Please provide proper credentials', response=resp)
@@ -36,6 +40,31 @@ class MyAuth(TokenAuth):
         # pprint(app.auth.get_request_auth_value())
 
         return len(user)
+
+
+class GoogleMediaStorage(MediaStorage):
+    def put(self, content, filename=None, content_type=None, resource=None):
+        if resource in ('modules', 'users'):
+            ext = filename.rsplit('.', 1)[1].lower()
+            name = uuid4().hex+'.'+ext
+            # name = secure_filename(content.filename)
+            location = os.path.join(app.config['UPLOAD_FOLDER'], name)
+            content.save(location)
+            client = storage.Client.from_service_account_json(
+                app.config['MONGO_JSON'])
+            bucket = client.bucket(app.config['MEDIA_ENDPOINT'])
+            blob = bucket.blob(name)
+
+            blob.upload_from_filename(location, content_type=content_type)
+
+            return name
+
+    def get(self, id_or_filename, resource=None):
+        if resource in ('modules', 'users'):
+            return id_or_filename
+
+    def delete(self, id_or_filename, resource=None):
+        pass
 
 
 class GoogleCloudstore(Mongo):
@@ -52,6 +81,50 @@ class GoogleCloudstore(Mongo):
 
     def convert_sort(self, v):
         return v[0] if v[1] == 1 else '-%s' % v[0]
+
+    def combine_queries(self, query_a, query_b):
+        query = deepcopy(query_a)
+        query.update(query_b)
+
+        return query
+
+    def convert_queries(self, _queries):
+        queries = []
+        for k, v in _queries.items():
+            op = '='
+            if isinstance(v, dict):
+                for k2, v2 in v.items():
+                    if k2 == '$ne' and k == '_deleted' and v2:
+                        op = '<'
+                    if k2 == '$ne' and k == '_deleted' and not v2:
+                        op = '>'
+
+                    q = {
+                        'property_name': k,
+                        'operator': op,
+                        'value': v2
+                    }
+                    queries.append(q)
+
+            elif isinstance(v, list):
+                for v2 in v:
+                    for k3, v3 in v2.items():
+                        if k == '$or' and k3 == '_id':
+                            k = k3
+                        q = {
+                            'property_name': k,
+                            'operator': op,
+                            'value': v3
+                        }
+                        queries.append(q)
+            else:
+                q = {
+                    'property_name': k,
+                    'operator': op,
+                    'value': v
+                }
+                queries.append(q)
+        return queries
 
     def find(self, resource, req, sub_resource_lookup):
         args = dict()
@@ -130,32 +203,56 @@ class GoogleCloudstore(Mongo):
 
         query = self.pymongo(datasource).query(kind=datasource)
 
-        if spec.get('$and'):
-            del spec['$and']
-
+        # pprint(datasource)
+        # pprint(spec)
+        index_id_field = -1
         if len(spec) > 0:
-            for k, v in spec.items():
-                query.add_filter(k, '=', v)
+            _spec = self.convert_queries(spec)
 
-        if sort is not None:
-            sort = map(self.convert_sort, sort)
-            query.order = tuple(sort)
+            for k, v in enumerate(_spec):
+                if v['property_name'] == '_id':
+                    index_id_field = k
 
-        if client_projection:
-            projection = list(projection.keys())
-            projection.remove('_id')
+        if index_id_field >= 0:
+            key = self.pymongo(datasource).key(
+                datasource, int(_spec[index_id_field]['value']))
+            cursors = self.pymongo(resource).get(key)
 
-            for v in spec.keys():
-                try:
-                    projection.remove(v)
-                except ValueError:
-                    pass
-            query.projection = tuple(projection)
+            if cursors:
+                # pprint(_filter_)
+                for v in _spec:
+                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
+                        cursors = None
+            if cursors:
+                cursors = self.remap_entity(cursors)
+                cursors = [cursors]
+        else:
+            _spec = self.convert_queries(spec)
 
-        cursors = query.fetch(**args)
+            for v in _spec:
+                query.add_filter(**v)
 
-        cursors = map(self.remap_entity, cursors)
-        cursors = list(cursors)
+            if sort is not None:
+                sort = map(self.convert_sort, sort)
+                query.order = tuple(sort)
+
+            # if client_projection:
+            #     projection = list(projection.keys())
+            #     projection.remove('_id')
+
+            #     for v in spec.keys():
+            #         try:
+            #             projection.remove(v)
+            #         except ValueError:
+            #             pass
+            #     query.projection = tuple(projection)
+
+            cursors = query.fetch(**args)
+
+            # pprint(query.filters)
+            # pprint(query.order)
+            cursors = map(self.remap_entity, cursors)
+            cursors = list(cursors)
 
         if cursors:
             documents = cursors
@@ -164,9 +261,8 @@ class GoogleCloudstore(Mongo):
 
     def find_one(self, resource, req, check_auth_value=True,
                  force_auth_field_projection=False, **lookup):
-
-        document = dict()
         self._mongotize(lookup, resource)
+
         client_projection = self._client_projection(req)
 
         datasource, filter_, projection, _ = self._datasource_ex(
@@ -183,34 +279,43 @@ class GoogleCloudstore(Mongo):
                 filter_, {config.DELETED: {"$ne": True}})
 
         filter_id_field = filter_.get(config.ID_FIELD)
-        if filter_id_field and len(filter_.keys()) == 1:
+        cursors = None
+        # pprint(datasource)
+        # pprint(filter_)
+        if filter_id_field:
             key = self.pymongo(datasource).key(
                 datasource, int(filter_id_field))
             cursors = self.pymongo(resource).get(key)
 
-            if not cursors:
-                abort(404, description='data not found')
-
-            cursors = self.remap_entity(cursors)
+            if cursors:
+                _filter_ = self.convert_queries(filter_)
+                # pprint(_filter_)
+                for v in _filter_:
+                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
+                        cursors = None
+            if cursors:
+                cursors = self.remap_entity(cursors)
         else:
             query = self.pymongo(datasource).query(kind=datasource)
-            for k, v in filter_.items():
-                query.add_filter(k, '=', v)
+
+            _filter_ = self.convert_queries(filter_)
+            for v in _filter_:
+                query.add_filter(**v)
             cursors = query.fetch(limit=1)
 
             cursors = map(self.remap_entity, cursors)
             cursors = list(cursors)
 
-            if not cursors:
-                abort(404, description='data not found')
+            if cursors:
+                cursors = cursors[0]
 
-            cursors = cursors[0]
-
-        document = cursors
-        return document
+            # pprint(query.filters)
+            # pprint(query.order)
+            # pprint(cursors)
+        return cursors
 
     def find_one_raw(self, resource, **lookup):
-        document = dict()
+
         id_field = config.DOMAIN[resource]['id_field']
         _id = lookup.get(id_field)
         datasource, filter_, _, _ = self._datasource_ex(resource,
@@ -220,19 +325,20 @@ class GoogleCloudstore(Mongo):
         lookup = self._mongotize(lookup, resource)
 
         filter_id_field = filter_.get(config.ID_FIELD)
-        if filter_id_field and len(filter_.keys()) == 1:
+        cursors = None
+        if filter_id_field:
             key = self.pymongo(datasource).key(
                 datasource, int(filter_id_field))
             cursors = self.pymongo(resource).get(key)
 
             if not cursors:
-                abort(404, description='data not found')
+                abort(404, description='item not found')
 
             cursors = self.remap_entity(cursors)
         else:
             pass
-        document = cursors
-        return document
+
+        return cursors
         # return self.pymongo(resource).db[datasource].find_one(lookup)
 
     def insert(self, resource, doc_or_docs):
@@ -279,13 +385,13 @@ class GoogleCloudstore(Mongo):
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
 
         filter_id_field = filter_.get(config.ID_FIELD)
-        if filter_id_field and len(filter_.keys()) == 1:
+        if filter_id_field:
             key = self.pymongo(datasource).key(
                 datasource, int(filter_id_field))
             cursors = self.pymongo(resource).get(key)
 
             if not cursors:
-                abort(404, description='data not found')
+                abort(404, description='item not found')
 
             cursors = self.remap_entity(cursors)
             cursors = [cursors]
@@ -305,10 +411,9 @@ class GoogleCloudstore(Mongo):
 
 
 schema = {
-    'users': {
+    'user': {
         'username': {
-            'type': 'string',
-            'required': True
+            'type': 'string'
         },
         'password': {
             'type': 'string',
@@ -316,7 +421,7 @@ schema = {
         'role': {
             'type': 'string',
             'required': True,
-            'allowed': ['tutor', 'operation', 'guardian']
+            'allowed': ['tutor', 'operation', 'student', 'guardian']
         },
         'email': {
             'type': 'string',
@@ -343,7 +448,7 @@ schema = {
             'type': 'string',
         },
     },
-    'branches': {
+    'branch': {
         'name': {
             'type': 'string',
             'required': True
@@ -352,7 +457,7 @@ schema = {
             'type': 'string',
         },
     },
-    'modules': {
+    'module': {
         'name': {
             'type': 'string',
             'required': True
@@ -361,7 +466,7 @@ schema = {
             'type': 'media',
         },
     },
-    'classes': {
+    'class': {
         'day': {
             'type': 'string',
             'required': True,
@@ -403,7 +508,7 @@ schema = {
             },
         },
     },
-    'class-students': {
+    'class-student': {
         'class': {
             'type': 'integer',
             'required': True,
@@ -423,7 +528,7 @@ schema = {
             },
         },
     },
-    'attendances': {
+    'attendance': {
         'class': {
             'type': 'integer',
             'required': True,
@@ -443,7 +548,7 @@ schema = {
             },
         },
     },
-    'attendance-tutors': {
+    'attendance-tutor': {
         'attendance': {
             'type': 'integer',
             'required': True,
@@ -463,7 +568,7 @@ schema = {
             },
         },
     },
-    'attendance-students': {
+    'attendance-student': {
         'attendance': {
             'type': 'integer',
             'required': True,
@@ -508,7 +613,7 @@ schema = {
 
         },
     },
-    'caches': {
+    'cache': {
         'key': {
             'type': 'string',
         },

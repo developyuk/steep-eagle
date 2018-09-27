@@ -1,7 +1,7 @@
 import os
-from my_eve import schema
+from my import schema
 
-MONGO_JSON = 'steep-eagle-3c14071c3df0.json'
+MONGO_JSON = 'steep-eagle-7d9be40b59f4.json'
 ITEM_URL = 'regex("[0-9]{16}")'
 OPTIMIZE_PAGINATION_FOR_SPEED = True
 PAGINATION_LIMIT = 9999
@@ -26,6 +26,12 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 X_DOMAINS = "*"
 
+RETURN_MEDIA_AS_BASE64_STRING = False
+RETURN_MEDIA_AS_URL = True
+MEDIA_BASE_URL = 'https://storage.googleapis.com'
+MEDIA_ENDPOINT = 'steep-eagle-files'
+UPLOAD_FOLDER = '/tmp/'
+
 SWAGGER_INFO = {
     'title': 'M Codingcamp API',
     'version': '1.0',
@@ -39,65 +45,65 @@ SWAGGER_INFO = {
 
 DOMAIN = {
     'users': {
-        'schema': schema.get('users'),
+        'schema': schema.get('user'),
         'soft_delete': True
     },
     'branches': {
-        'schema': schema.get('branches')
+        'schema': schema.get('branch')
     },
     'modules': {
-        'schema': schema.get('modules')
+        'schema': schema.get('module')
     },
     'classes': {
-        'schema': schema.get('classes')
+        'schema': schema.get('class')
     },
-    'class-students': {
-        'schema': schema.get('class-students'),
+    'classes_students': {
+        'schema': schema.get('class-student'),
         'internal_resource': True,
         'disable_documentation': True,
     },
     'classes-students': {
         'url': 'classes/<regex("[0-9]{16}"):class>/students',
         'datasource': {
-            'source': 'class-students',
+            'source': 'classes_students',
         },
-        'schema': schema.get('class-students')
+        'schema': schema.get('class-student')
     },
     'attendances': {
-        'schema': schema.get('attendances')
+        'schema': schema.get('attendance')
     },
-    'attendance-tutors': {
-        'internal_resource': True,
-        'disable_documentation': True,
-        'schema': schema.get('attendance-tutors')
+    'attendances_tutors': {
+        # 'internal_resource': True,
+        # 'disable_documentation': True,
+        'schema': schema.get('attendance-tutor')
     },
     'attendances-tutors': {
         'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutors',
         'datasource': {
-            'source': 'attendance-tutors',
+            'source': 'attendances_tutors',
         },
-        'schema': schema.get('attendance-tutors')
+        'schema': schema.get('attendance-tutor')
     },
-    'attendance-students': {
-        'internal_resource': True,
-        'disable_documentation': True,
-        'schema': schema.get('attendance-students')
+    'attendances_students': {
+        # 'internal_resource': True,
+        # 'disable_documentation': True,
+        'schema': schema.get('attendance-student')
     },
     'attendances-students': {
         'url': 'attendances/<regex("[0-9]{16}"):attendance>/students',
         'datasource': {
-            'source': 'attendance-students',
+            'source': 'attendances_students',
         },
-        'schema': schema.get('attendance-students')
+        'schema': schema.get('attendance-student')
     },
     'attendances-tutors-students': {
         'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutor/<regex("[0-9]{16}"):tutor>/students',
         'datasource': {
-            'source': 'attendance-students',
+            'source': 'attendances_students',
         },
-        'schema': schema.get('attendance-students')
+        'schema': schema.get('attendance-student')
     },
     'caches': {
-        'schema': schema.get('caches')
+        'schema': schema.get('cache')
     },
 }

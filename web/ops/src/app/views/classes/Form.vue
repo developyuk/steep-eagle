@@ -16,15 +16,15 @@
           .form-group
             label.col-sm-2.control-label Start at
             .col-sm-9
-              el-time-select(v-model='model.start_at', :picker-options="{ start: '07:00', step: '00:30', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.start_at")
-              small.text-danger(v-show="start_at.invalid")
-                | {{ getError('start_at') }}
+              el-time-select(v-model='model.startAt', :picker-options="{ start: '07:00', step: '00:30', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.startAt")
+              small.text-danger(v-show="startAt.invalid")
+                | {{ getError('startAt') }}
           .form-group
             label.col-sm-2.control-label Finish at
             .col-sm-9
-              el-time-select(v-model='model.finish_at', :picker-options="{ start: '07:00', step: '00:30', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.finish_at")
-              small.text-danger(v-show="finish_at.invalid")
-                | {{ getError('finish_at') }}
+              el-time-select(v-model='model.finishAt', :picker-options="{ start: '07:00', step: '00:30', end: '23:00' }", placeholder='Select time', v-validate="modelValidations.finishAt")
+              small.text-danger(v-show="finishAt.invalid")
+                | {{ getError('finishAt') }}
           .form-group
             label.col-sm-2.control-label Module
             .col-sm-9
@@ -90,8 +90,8 @@ export default {
   computed: {
     ...mapFields([
       "day",
-      "start_at",
-      "finish_at",
+      "startAt",
+      "finishAt",
       "module",
       "branch",
       "tutor",
@@ -119,8 +119,8 @@ export default {
       isCreate: true,
       model: {
         day: "",
-        start_at: "",
-        finish_at: "",
+        startAt: "",
+        finishAt: "",
         module: "",
         branch: "",
         tutor: "",
@@ -131,10 +131,10 @@ export default {
         day: {
           required: true
         },
-        start_at: {
+        startAt: {
           required: true
         },
-        finish_at: {
+        finishAt: {
           required: true
         },
         module: {
@@ -193,12 +193,12 @@ export default {
         }
         const data = {
           day: this.model.day,
-          start_at: this.model.start_at,
-          finish_at: this.model.finish_at,
+          startAt: this.model.startAt,
+          finishAt: this.model.finishAt,
           module: this.model.module,
           branch: this.model.branch,
           tutor: this.model.tutor,
-          students_: this.model.students
+          // students_: this.model.students
         };
         if (this.isCreate) {
           axios
@@ -280,15 +280,17 @@ export default {
       .get(`${process.env.API}/users`, {
         params: {
           where: { role: "tutor" },
-          // sort: "name",
+          sort: "_deleted,name",
           max_results: 9999
         }
       })
       .then(response => {
+        console.log(response.data._items)
         this.selects.tutors = response.data._items.map(v => {
+          const name = v.name || v.username
           return {
             value: v._id,
-            label: v.name.toUpperCase(),
+            label: name.toUpperCase(),
             image: v.photo
           };
         });

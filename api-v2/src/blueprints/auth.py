@@ -30,8 +30,6 @@ def sign():
     if not expected_role:
         abort(400, description='role required')
 
-    expected_role = json.loads(expected_role)
-    # req.show_deleted = True
     r = {
         'username': expected_username,
         'role': expected_role[0]

@@ -25,9 +25,9 @@
             el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/operations/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                router-link(:to="`/admin/operations/${props.row._id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
-                router-link(:to="`/admin/operations/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/admin/operations/${props.row._id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                 //-   i.ti-close
@@ -144,7 +144,7 @@ export default {
         preConfirm: text => {
           if (text.split(" ")[0] === row.name.split(" ")[0]) {
             return axios
-              .patch(`${process.env.API}/users/${row.id}`, data, config)
+              .patch(`${process.env.API}/users/${row._id}`, data, config)
               .then(response => {
                 row._etag = response.data._etag;
                 this.getData();
@@ -208,7 +208,7 @@ export default {
     //       preConfirm: text => {
     //         if (text === row.name) {
     //           return axios
-    //             .delete(`${process.env.API}/users/${row.id}`, {
+    //             .delete(`${process.env.API}/users/${row._id}`, {
     //               headers: { "if-match": row._etag }
     //             })
     //             .then(response => {
@@ -254,7 +254,7 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
-          sort: "-_updated",
+          sort: "_deleted,-_updated",
           where: { role: "operation" }
         },
         headers: {
@@ -277,8 +277,12 @@ export default {
             v.is_active = !v.is_deleted;
             return v;
           });
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }

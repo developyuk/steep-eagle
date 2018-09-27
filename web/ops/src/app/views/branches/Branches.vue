@@ -115,7 +115,7 @@ export default {
           preConfirm: text => {
             if (text === row.name) {
               return axios
-                .delete(`${process.env.API}/branches/${row.id}`, {
+                .delete(`${process.env.API}/branches/${row._id}`, {
                   headers: { "if-match": row._etag }
                 })
                 .then(response => {
@@ -160,7 +160,8 @@ export default {
       const config = {
         params: {
           max_results: this.pagination.perPage,
-          page: this.pagination.currentPage
+          page: this.pagination.currentPage,
+          sort: "-_updated"
         },
         headers: {
           "cache-control": "no-cache"
@@ -178,8 +179,11 @@ export default {
         .get(`${process.env.API}/branches`, config)
         .then(response => {
           this.tableData = response.data._items;
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }

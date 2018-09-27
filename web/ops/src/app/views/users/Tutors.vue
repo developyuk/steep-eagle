@@ -263,7 +263,7 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
-          sort: "-_updated",
+          sort: "_deleted,-_updated",
           where: { role: "tutor" }
         },
         headers: {
@@ -286,8 +286,12 @@ export default {
             v.is_active = !v.is_deleted;
             return v;
           });
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }

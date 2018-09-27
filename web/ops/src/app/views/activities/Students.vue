@@ -250,8 +250,12 @@ export default {
             ).toFixed(2);
             return v;
           });
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }

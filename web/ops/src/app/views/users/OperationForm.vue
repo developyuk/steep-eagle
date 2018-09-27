@@ -78,7 +78,8 @@ export default {
           required: true
         },
         email: {
-          email: true
+          email: true,
+          required: true
         },
         photo: {
           image: true

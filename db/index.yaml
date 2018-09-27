@@ -2,5 +2,19 @@ indexes:
 - kind: users
   properties:
   - name: role
+  - name: _deleted
+- kind: users
+  properties:
+  - name: role
+  - name: _deleted
   - name: _updated
     direction: desc
+- kind: users
+  properties:
+  - name: _id
+  - name: _deleted
+- kind: users
+  properties:
+  - name: role
+  - name: _deleted
+  - name: name

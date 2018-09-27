@@ -3,6 +3,7 @@ Eve-Swagger==0.0.11
 Flask-Cors==3.0.6
 Flask-Mail==0.9.1
 google-cloud-datastore==1.7.0
+google-cloud-storage==1.12.0
 gunicorn==19.9.0
 humanize==0.5.1
 paho-mqtt==1.4.0

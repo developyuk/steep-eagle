@@ -18,7 +18,7 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="queriedData" border="" style="width: 100%")
-            el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
+            //- el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
             el-table-column(:key="tableColumns[1].label" :min-width="tableColumns[1].minWidth" :prop="tableColumns[1].prop" :label="tableColumns[1].label" :className="tableColumns[1].className" :sortable="tableColumns[1].sortable")
               template(slot-scope='props')
                 .img-container
@@ -31,9 +31,9 @@
                   i.fa.fa-times(slot="off")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
-                router-link(:to="`/admin/students/${props.row.id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
+                router-link(:to="`/admin/students/${props.row._id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
                   i.ti-eye
-                router-link(:to="`/admin/students/${props.row.id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
+                router-link(:to="`/admin/students/${props.row._id}/edit`").btn.btn-simple.btn-xs.btn-warning.btn-icon.edit
                   i.ti-pencil-alt
                 //- a.btn.btn-simple.btn-xs.btn-danger.btn-icon.remove(@click="handleDelete(props.$index, props.row)")
                 //-   i.ti-close
@@ -159,7 +159,7 @@ export default {
         preConfirm: text => {
           if (text.split(" ")[0] === row.name.split(" ")[0]) {
             return axios
-              .patch(`${process.env.API}/users/${row.id}`, data, config)
+              .patch(`${process.env.API}/users/${row._id}`, data, config)
               .then(response => {
                 row._etag = response.data._etag;
                 this.getData();
@@ -229,7 +229,7 @@ export default {
     //             headers: { "if-match": row._etag }
     //           };
     //           return axios
-    //             .patch(`${process.env.API}/users/${row.id}`, data, config)
+    //             .patch(`${process.env.API}/users/${row._id}`, data, config)
     //             .then(response => {
     //               return {
     //                 title: "Deleted!",
@@ -271,7 +271,7 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
-          sort: "-_updated",
+          sort: "_deleted,-_updated",
           where: { role: "student" },
           embedded: {
             student_guardians: true,
@@ -303,8 +303,12 @@ export default {
               .join(", ");
             return v;
           });
-          this.pagination.total = response.data._meta.total;
           this.pagination.currentPage = response.data._meta.page;
+
+          if (this.tableData.length == this.pagination.perPage) {
+            this.pagination.total =
+              this.pagination.currentPage * this.pagination.perPage + 1;
+          }
         })
         .catch(error => console.log(error, error.response));
     }
