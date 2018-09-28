@@ -9,7 +9,7 @@ PAGINATION_LIMIT = 9999
 RESOURCE_METHODS = [
     'GET',
     'POST',
-    'DELETE'
+    # 'DELETE'
 ]
 ITEM_METHODS = [
     'GET',
@@ -42,9 +42,36 @@ SWAGGER_INFO = {
     },
     'schemes': ['http'],
 }
+RENDERERS = ['eve.render.JSONRenderer']
+XML = False
 
 DOMAIN = {
     'users': {
+        'schema': schema.get('user'),
+        'soft_delete': True
+    },
+    'students': {
+        'datasource': {
+            'source': 'users',
+            'filter': {'role': 'student'}
+        },
+        'schema': schema.get('user'),
+        'soft_delete': True
+    },
+    'students-guardians': {
+        'url': 'students/<regex("[0-9]{16}"):student>/guardians',
+        'datasource': {
+            'source': 'users',
+            'filter': {'role': 'guardian'}
+        },
+        'schema': schema.get('user'),
+        'resource_methods': ['GET', 'POST', 'DELETE']
+    },
+    'tutors': {
+        'datasource': {
+            'source': 'users',
+            'filter': {'role': 'tutor'}
+        },
         'schema': schema.get('user'),
         'soft_delete': True
     },
@@ -67,26 +94,29 @@ DOMAIN = {
         'datasource': {
             'source': 'classes_students',
         },
-        'schema': schema.get('class-student')
+        'schema': schema.get('class-student'),
+        'resource_methods': ['GET', 'POST', 'DELETE']
     },
     'attendances': {
-        'schema': schema.get('attendance')
+        'schema': schema.get('attendance'),
+        'item_methods': ['GET']
     },
     'attendances_tutors': {
-        # 'internal_resource': True,
-        # 'disable_documentation': True,
-        'schema': schema.get('attendance-tutor')
+        'schema': schema.get('attendance-tutor'),
+        'item_methods': ['GET'],
+        'allow_unknown': True
     },
     'attendances-tutors': {
         'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutors',
         'datasource': {
             'source': 'attendances_tutors',
         },
-        'schema': schema.get('attendance-tutor')
+        'schema': schema.get('attendance-tutor'),
+        'item_methods': ['GET']
     },
     'attendances_students': {
-        # 'internal_resource': True,
-        # 'disable_documentation': True,
+        'internal_resource': True,
+        'disable_documentation': True,
         'schema': schema.get('attendance-student')
     },
     'attendances-students': {
@@ -94,16 +124,11 @@ DOMAIN = {
         'datasource': {
             'source': 'attendances_students',
         },
-        'schema': schema.get('attendance-student')
-    },
-    'attendances-tutors-students': {
-        'url': 'attendances/<regex("[0-9]{16}"):attendance>/tutor/<regex("[0-9]{16}"):tutor>/students',
-        'datasource': {
-            'source': 'attendances_students',
-        },
-        'schema': schema.get('attendance-student')
+        'schema': schema.get('attendance-student'),
+        'item_methods': ['GET']
     },
     'caches': {
-        'schema': schema.get('cache')
+        'schema': schema.get('cache'),
+        'item_methods': ['GET', 'PATCH']
     },
 }

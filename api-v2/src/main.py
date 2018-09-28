@@ -16,9 +16,13 @@ app.register_blueprint(swagger)
 app.register_blueprint(blueprints._auth)
 app.register_blueprint(blueprints._students)
 app.register_blueprint(blueprints._schedules)
+app.register_blueprint(blueprints._forgot_password)
+app.register_blueprint(blueprints._import)
+app.register_blueprint(blueprints._swagger)
 
 app.on_fetched_resource += hooks.resource.on_fetched_resource       # pylint: disable=no-member
 app.on_fetched_item += hooks.resource.on_fetched_item               # pylint: disable=no-member
+app.on_insert += hooks.resource.on_insert                           # pylint: disable=no-member
 
 app.on_fetched_resource += hooks.image_default.on_fetched_resource  # pylint: disable=no-member
 app.on_fetched_item += hooks.image_default.on_fetched_item          # pylint: disable=no-member

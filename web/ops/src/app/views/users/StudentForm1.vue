@@ -15,9 +15,9 @@
     .form-group.row
       label.col-sm-2.control-label Contact no.
       .col-sm-9
-        input.form-control(type="text" name="contact_no" v-validate="modelValidations.contact_no" v-model="model.contact_no")
-        small.text-danger(v-show="contact_no.invalid")
-          | {{ getError('contact_no') }}
+        input.form-control(type="text" name="contact" v-validate="modelValidations.contact" v-model="model.contact")
+        small.text-danger(v-show="contact.invalid")
+          | {{ getError('contact') }}
 </template>
 <script>
 import { mapFields } from "vee-validate";
@@ -25,7 +25,7 @@ import axios from "axios";
 
 export default {
   computed: {
-    ...mapFields(["name", "email", "contact_no"])
+    ...mapFields(["name", "email", "contact"])
   },
   data() {
     return {
@@ -33,7 +33,7 @@ export default {
       model: {
         name: "",
         email: "",
-        contact_no: ""
+        contact: ""
       },
       modelValidations: {
         name: {
@@ -41,7 +41,7 @@ export default {
         email: {
           email:true,
         },
-        contact_no: {}
+        contact: {}
       }
     };
   },
@@ -58,7 +58,7 @@ export default {
     // if (id) {
     //   this.isCreate = false;
     //   axios
-    //     .get(`${process.env.API}/users/${id}`, {
+    //     .get(`${process.env.API}/students/${id}`, {
     //       headers: { "If-None-Match": this.model._etag }
     //     })
     //     .then(response => {

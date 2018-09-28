@@ -1,16 +1,26 @@
+from datetime import timedelta
+import json
+import jwt
+
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint, request, abort
-from datetime import timedelta
 from eve.auth import requires_auth
 from eve.methods import getitem
 from eve.utils import config
 from eve.methods.get import getitem_internal
-import jwt
-import json
+from eve_swagger import add_documentation
 
 blueprint = Blueprint('auth', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
 resource = 'users'
+
+
+add_documentation({
+    'paths': {'/sign': {'post': {
+        'summary': 'Retrieves a User token',
+        'tags': ['User'],
+    }}}
+})
 
 
 @blueprint.route('/sign', methods=['POST'])
@@ -47,6 +57,15 @@ def sign():
     return jsonify({
         'token': jwt.encode({config.ID_FIELD: user[config.ID_FIELD]}, config.JWT_SECRET)
     })
+
+
+add_documentation({
+    'paths': {'/auth': {'get': {
+        'summary': 'Retrieves a User document',
+        'tags': ['User'],
+        "security": [{"JwtAuth": []}],
+    }}}
+})
 
 
 @blueprint.route('/auth', methods=['GET'])

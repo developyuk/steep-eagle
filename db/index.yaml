@@ -5,16 +5,29 @@ indexes:
   - name: _deleted
 - kind: users
   properties:
+  - name: _deleted
+  - name: _updated
+    direction: desc
+- kind: users
+  properties:
   - name: role
   - name: _deleted
   - name: _updated
     direction: desc
 - kind: users
   properties:
-  - name: _id
-  - name: _deleted
-- kind: users
-  properties:
   - name: role
   - name: _deleted
   - name: name
+- kind: users
+  properties:
+  - name: student
+  - name: _deleted
+- kind: attendances
+  properties:
+  - name: class
+  - name: _created
+- kind: attendances
+  properties:
+  - name: module
+  - name: _created

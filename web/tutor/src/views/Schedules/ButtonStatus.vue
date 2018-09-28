@@ -26,6 +26,7 @@ export default {
       const msts = moment(class_.startAtTs);
       const mfts = moment(class_.finishAtTs);
       const mnow = moment();
+
       let status = "disabled";
       const ls = class_.last_attendances;
 
@@ -113,8 +114,7 @@ export default {
 
 // span.ongoing,
 // span.late-ongoing,
-.start-other
-{
+.start-other {
   text-transform: uppercase;
   background-color: map-get($palettes, blue);
   color: #fff;

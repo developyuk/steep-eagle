@@ -95,14 +95,14 @@ export default {
           prop: "photo",
           label: "Photo",
           minWidth: 80,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "name",
           label: "Name",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         // {
@@ -123,7 +123,7 @@ export default {
           prop: "contact_no",
           label: "Contact no.",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         }
       ],
@@ -135,9 +135,7 @@ export default {
       const config = {
         headers: { "If-Match": row._etag }
       };
-      const data = {
-        is_deleted: !e
-      };
+      const is_deleted = !e;
 
       swal({
         // title: "Input something",
@@ -152,16 +150,22 @@ export default {
         buttonsStyling: false,
         preConfirm: text => {
           if (text === row.name) {
-            return axios
-              .patch(`${process.env.API}/users/${row._id}`, data, config)
+            const url = `${process.env.API}/tutors/${row._id}`;
+            let _axios = axios;
+            if (is_deleted) {
+              _axios = _axios.delete(url, config);
+            } else {
+              _axios = _axios.patch(url, {}, config);
+            }
+            return _axios
               .then(response => {
                 row._etag = response.data._etag;
                 this.getData();
                 return {
-                  title: data.is_deleted ? "Inactivation" : "Activation",
+                  title: is_deleted ? "Inactivation" : "Activation",
                   type: "success",
                   text: `<strong>${text}</strong> is ${
-                    data.is_deleted ? "inactive" : "active"
+                    is_deleted ? "inactive" : "active"
                   }.`
                 };
               })
@@ -217,7 +221,7 @@ export default {
     //       preConfirm: text => {
     //         if (text === row.name) {
     //           return axios
-    //             .delete(`${process.env.API}/users/${row.id}`, {
+    //             .delete(`${process.env.API}/tutors/${row._id}`, {
     //               headers: { "if-match": row._etag }
     //             })
     //             .then(response => {
@@ -263,8 +267,8 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
-          sort: "_deleted,-_updated",
-          where: { role: "tutor" }
+          show_deleted: true,
+          sort: "_deleted,-_updated"
         },
         headers: {
           "cache-control": "no-cache"
@@ -279,11 +283,11 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.API}/users`, config)
+        .get(`${process.env.API}/tutors`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {
-            v.is_active = !v.is_deleted;
+            v.is_active = !v._deleted;
             return v;
           });
           this.pagination.currentPage = response.data._meta.page;

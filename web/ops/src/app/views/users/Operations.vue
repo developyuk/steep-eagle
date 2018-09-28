@@ -93,14 +93,14 @@ export default {
           prop: "photo",
           label: "Photo",
           minWidth: 80,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "name",
           label: "Name",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
@@ -254,6 +254,7 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
+          show_deleted: true,
           sort: "_deleted,-_updated",
           where: { role: "operation" }
         },
@@ -274,7 +275,7 @@ export default {
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {
-            v.is_active = !v.is_deleted;
+            v.is_active = !v._deleted;
             return v;
           });
           this.pagination.currentPage = response.data._meta.page;

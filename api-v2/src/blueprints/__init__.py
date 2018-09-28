@@ -21,8 +21,9 @@ def onDay(day):
 from .auth import blueprint as _auth
 from .students import blueprint as _students
 from .schedules import blueprint as _schedules
-# from .swagger import blueprint as _swagger
+from .swagger import blueprint as _swagger
+from .forgot_password import blueprint as _forgot_password
+from ._import import blueprint as _import
 # from .calendar import blueprint as _calendar
 # from .tutor_stats import blueprint as _tutor_stats
-# from .forgot_password import blueprint as _forgot_password
 # from .progress import blueprint as _progress

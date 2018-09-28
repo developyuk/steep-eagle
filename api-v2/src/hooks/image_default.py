@@ -27,7 +27,7 @@ def on_fetched_resource(resource_name, response):
         for v in response['_items']:
             _gen_image(v)
 
-    if resource_name == 'users':
+    if resource_name in ('users', 'students', 'tutors'):
         for v in response['_items']:
             _gen_image(v, 'photo')
 
@@ -44,5 +44,5 @@ def on_fetched_item(resource_name, response):
     if resource_name == 'modules':
         _gen_image(response)
 
-    if resource_name == 'users':
+    if resource_name in ('users', 'students', 'tutors'):
         _gen_image(response, 'photo')

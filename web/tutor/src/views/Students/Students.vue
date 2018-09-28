@@ -144,7 +144,7 @@ export default {
       return [i, ii];
     },
     getStudentsAttendances(params = { forceRefresh: false }) {
-      const url = `${process.env.VUE_APP_API}/students`;
+      const url = `${process.env.VUE_APP_API}/students/attendances`;
       const headers = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";

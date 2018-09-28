@@ -134,14 +134,6 @@ export default {
       const url = `${process.env.VUE_APP_API}/schedules`;
 
       const config = {};
-      config["params"] = {
-        embedded: {
-          branch: true,
-          tutor: true,
-          module: true
-        },
-        max_results: 999
-      };
       config["headers"] = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";

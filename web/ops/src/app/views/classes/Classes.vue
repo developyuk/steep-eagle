@@ -217,12 +217,12 @@ export default {
         params: {
           sort: "-_updated",
           max_results: this.pagination.perPage,
-          page: this.pagination.currentPage,
-          embedded: {
-            branch: true,
-            module: true,
-            tutor: true
-          }
+          page: this.pagination.currentPage
+          // embedded: {
+          //   branch: true,
+          //   module: true,
+          //   tutor: true
+          // }
         },
         headers: {
           "cache-control": "no-cache"
@@ -240,9 +240,22 @@ export default {
         .get(`${process.env.API}/classes`, config)
         .then(response => {
           this.tableData = response.data._items;
-          this.tableData = this.tableData.map(v => {
-            v.students_sum = v.students.length;
-            return v;
+          this.tableData.forEach(v => {
+            axios
+              .get(`${process.env.API}/modules/${v.module}`)
+              .then(response => {
+                v.module = response.data;
+                axios
+                  .get(`${process.env.API}/branches/${v.branch}`)
+                  .then(response => {
+                    v.branch = response.data;
+                  });
+                axios
+                  .get(`${process.env.API}/tutors/${v.tutor}`)
+                  .then(response => {
+                    v.tutor = response.data;
+                  });
+              });
           });
           this.pagination.currentPage = response.data._meta.page;
 

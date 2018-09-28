@@ -1,9 +1,5 @@
-/file/
 /.idea/
 /.vscode/
-/migrate/*.csv
-/web/nginx-log
 **/letsencrypt
 .env
-*.old*
 *-lock.json

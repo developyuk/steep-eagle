@@ -26,14 +26,12 @@ export default {
   mounted() {
     const id = this.$route.params.id;
     if (id) {
-      let config = {
-        params: { where: { role: "tutor" } }
-      };
+      let config = {};
       if (this.model._etag) {
         config.headers = { "If-None-Match": this.model._etag };
       }
       axios
-        .get(`${process.env.API}/users/${id}`, config)
+        .get(`${process.env.API}/students/${id}`, config)
         .then(response => {
           this.model = response.data;
         })

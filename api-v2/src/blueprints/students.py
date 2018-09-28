@@ -9,6 +9,7 @@ from eve.auth import requires_auth
 from eve.methods import get, getitem
 from eve.render import send_response
 from werkzeug.exceptions import NotFound
+from eve_swagger import add_documentation
 
 blueprint = Blueprint('students', __name__)
 CORS(blueprint, max_age=timedelta(days=10))
@@ -41,8 +42,8 @@ def map_attendances(v):
     return v
 
 
-@blueprint.route('/students', methods=['GET'])
-@requires_auth('/students')
+@blueprint.route('/students/attendances', methods=['GET'])
+@requires_auth('/students/attendances')
 def students():
     app_config_ori = deepcopy(app.config)
     app.config['PAGINATION_DEFAULT'] = 999
@@ -85,12 +86,26 @@ def _dormant_students(v):
         return True
 
 
+add_documentation({
+    'paths': {'/students/dormant': {'get': {
+        'summary': 'Retrieves one or more dormant students',
+        "responses": {
+            "200": {
+                "description": "Student document fetched successfully",
+                "schema": {"$ref": "#/definitions/Student"}
+            }
+        },
+        'tags': ['Student'],
+        "security": [{"JwtAuth": []}],
+    }}}
+})
+
+
 @blueprint.route('/students/dormant', methods=['GET'])
 @requires_auth('/students/dormant')
 def students_dormant():
-    resource = 'users'
-    lookup = {'role': 'student'}
-    response = get(resource, **lookup)
+    resource = 'students'
+    response = get(resource)
     response = list(response)
     students = response[0]['_items']
 
@@ -98,15 +113,3 @@ def students_dormant():
     response[0]['_items'] = list(students)
 
     return send_response(resource, response)
-
-
-# @blueprint.after_request
-# def add_header(response):
-#     response.cache_control.max_age = app.config['CACHE_EXPIRES']
-#     response.cache_control.public = True
-#     response.cache_control.must_revalidate = True
-
-#     now = datetime.now()
-#     then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-#     response.headers['Expires'] = then
-#     return response

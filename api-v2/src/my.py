@@ -91,14 +91,19 @@ class GoogleCloudstore(Mongo):
 
     def convert_queries(self, _queries):
         queries = []
+        # pprint(_queries)
         for k, v in _queries.items():
             op = '='
+            # pprint(v)
             if isinstance(v, dict):
                 for k2, v2 in v.items():
-                    if k2 == '$ne' and k == '_deleted' and v2:
-                        op = '<'
-                    if k2 == '$ne' and k == '_deleted' and not v2:
-                        op = '>'
+                    if k2 == '$ne':
+                        if k == '_deleted' and v2:
+                            op = '<'
+                        if k == '_deleted' and not v2:
+                            op = '>'
+                    if k2 == '$gte':
+                        op = '>='
 
                     q = {
                         'property_name': k,
@@ -119,6 +124,10 @@ class GoogleCloudstore(Mongo):
                         }
                         queries.append(q)
             else:
+                try:
+                    v = int(v)
+                except ValueError:
+                    pass
                 q = {
                     'property_name': k,
                     'operator': op,
@@ -126,6 +135,63 @@ class GoogleCloudstore(Mongo):
                 }
                 queries.append(q)
         return queries
+
+    def get_or_query(self, datasource, filters, sort=None, args=None):
+        cursors = None
+
+        index_id_field = -1
+        if len(filters) > 0:
+            _filters = self.convert_queries(filters)
+
+            for k, v in enumerate(_filters):
+                if v['property_name'] == '_id':
+                    index_id_field = k
+
+        if index_id_field >= 0:
+            key = self.pymongo(datasource).key(
+                datasource, _filters[index_id_field]['value'])
+            cursors = self.pymongo(datasource).get(key)
+
+            if cursors:
+                # pprint(_filters)
+                for v in _filters:
+                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
+                        cursors = None
+            if cursors:
+                cursors = [cursors]
+        else:
+            query = self.pymongo(datasource).query(kind=datasource)
+            _filters = self.convert_queries(filters)
+
+            for v in _filters:
+                query.add_filter(**v)
+
+            if sort is not None:
+                sort = map(self.convert_sort, sort)
+                query.order = tuple(sort)
+
+            # if client_projection:
+            #     projection = list(projection.keys())
+            #     projection.remove('_id')
+
+            #     for v in spec.keys():
+            #         try:
+            #             projection.remove(v)
+            #         except ValueError:
+            #             pass
+            #     query.projection = tuple(projection)
+
+            if args:
+                cursors = query.fetch(**args)
+            else:
+                cursors = query.fetch()
+
+            # pprint(query.filters)
+            # pprint(query.order)
+        cursors = map(self.remap_entity, cursors)
+        cursors = list(cursors)
+
+        return cursors
 
     def find(self, resource, req, sub_resource_lookup):
         args = dict()
@@ -202,58 +268,7 @@ class GoogleCloudstore(Mongo):
             spec[config.LAST_UPDATED] = \
                 {'$gt': req.if_modified_since}
 
-        query = self.pymongo(datasource).query(kind=datasource)
-
-        # pprint(datasource)
-        # pprint(spec)
-        index_id_field = -1
-        if len(spec) > 0:
-            _spec = self.convert_queries(spec)
-
-            for k, v in enumerate(_spec):
-                if v['property_name'] == '_id':
-                    index_id_field = k
-
-        if index_id_field >= 0:
-            key = self.pymongo(datasource).key(
-                datasource, int(_spec[index_id_field]['value']))
-            cursors = self.pymongo(resource).get(key)
-
-            if cursors:
-                # pprint(_filter_)
-                for v in _spec:
-                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
-                        cursors = None
-            if cursors:
-                cursors = self.remap_entity(cursors)
-                cursors = [cursors]
-        else:
-            _spec = self.convert_queries(spec)
-
-            for v in _spec:
-                query.add_filter(**v)
-
-            if sort is not None:
-                sort = map(self.convert_sort, sort)
-                query.order = tuple(sort)
-
-            # if client_projection:
-            #     projection = list(projection.keys())
-            #     projection.remove('_id')
-
-            #     for v in spec.keys():
-            #         try:
-            #             projection.remove(v)
-            #         except ValueError:
-            #             pass
-            #     query.projection = tuple(projection)
-
-            cursors = query.fetch(**args)
-
-            # pprint(query.filters)
-            # pprint(query.order)
-            cursors = map(self.remap_entity, cursors)
-            cursors = list(cursors)
+        cursors = self.get_or_query(datasource, spec, sort=sort, args=args)
 
         if cursors:
             documents = cursors
@@ -279,40 +294,11 @@ class GoogleCloudstore(Mongo):
             filter_ = self.combine_queries(
                 filter_, {config.DELETED: {"$ne": True}})
 
-        filter_id_field = filter_.get(config.ID_FIELD)
-        cursors = None
-        # pprint(datasource)
-        # pprint(filter_)
-        if filter_id_field:
-            key = self.pymongo(datasource).key(
-                datasource, int(filter_id_field))
-            cursors = self.pymongo(resource).get(key)
+        cursors = self.get_or_query(datasource, filter_)
 
-            if cursors:
-                _filter_ = self.convert_queries(filter_)
-                # pprint(_filter_)
-                for v in _filter_:
-                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
-                        cursors = None
-            if cursors:
-                cursors = self.remap_entity(cursors)
-        else:
-            query = self.pymongo(datasource).query(kind=datasource)
+        if isinstance(cursors, list) and len(cursors) > 0:
+            cursors = cursors[0]
 
-            _filter_ = self.convert_queries(filter_)
-            for v in _filter_:
-                query.add_filter(**v)
-            cursors = query.fetch(limit=1)
-
-            cursors = map(self.remap_entity, cursors)
-            cursors = list(cursors)
-
-            if cursors:
-                cursors = cursors[0]
-
-            # pprint(query.filters)
-            # pprint(query.order)
-            # pprint(cursors)
         return cursors
 
     def find_one_raw(self, resource, **lookup):
@@ -325,22 +311,16 @@ class GoogleCloudstore(Mongo):
 
         lookup = self._mongotize(lookup, resource)
 
-        filter_id_field = filter_.get(config.ID_FIELD)
-        cursors = None
-        if filter_id_field:
-            key = self.pymongo(datasource).key(
-                datasource, int(filter_id_field))
-            cursors = self.pymongo(resource).get(key)
+        cursors = self.get_or_query(datasource, lookup)
 
-            if not cursors:
-                abort(404, description='item not found')
-
-            cursors = self.remap_entity(cursors)
-        else:
-            pass
+        if isinstance(cursors, list) and len(cursors) > 0:
+            cursors = cursors[0]
 
         return cursors
-        # return self.pymongo(resource).db[datasource].find_one(lookup)
+
+    def allocate_ids(self, datasource, num_ids):
+        incomplete_key = self.pymongo(datasource).key(datasource)
+        return self.pymongo(datasource).allocate_ids(incomplete_key, num_ids)
 
     def insert(self, resource, doc_or_docs):
         datasource, _, _, _ = self._datasource_ex(resource)
@@ -348,9 +328,7 @@ class GoogleCloudstore(Mongo):
         if isinstance(doc_or_docs, dict):
             doc_or_docs = [doc_or_docs]
 
-        incomplete_key = self.pymongo(datasource).key(datasource)
-        allocate_ids = self.pymongo(datasource).allocate_ids(
-            incomplete_key, len(doc_or_docs))
+        allocate_ids = self.allocate_ids(datasource, len(doc_or_docs))
 
         entities = []
         for i, v in enumerate(doc_or_docs):
@@ -374,7 +352,7 @@ class GoogleCloudstore(Mongo):
         key = self.pymongo(datasource).key(datasource, id_)
         entity = self.pymongo(datasource).get(key)
         if replace:
-            original.update(changes.get('$set'))
+            original.update(changes)
             entity.update(original)
         else:
             entity.update(changes.get('$set'))
@@ -385,25 +363,7 @@ class GoogleCloudstore(Mongo):
         lookup = self._mongotize(lookup, resource)
         datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
 
-        filter_id_field = filter_.get(config.ID_FIELD)
-        if filter_id_field:
-            key = self.pymongo(datasource).key(
-                datasource, int(filter_id_field))
-            cursors = self.pymongo(resource).get(key)
-
-            if not cursors:
-                abort(404, description='item not found')
-
-            cursors = self.remap_entity(cursors)
-            cursors = [cursors]
-        else:
-            query = self.pymongo(datasource).query(kind=datasource)
-            for k, v in filter_.items():
-                query.add_filter(k, '=', int(v))
-            cursors = query.fetch()
-
-            cursors = map(self.remap_entity, cursors)
-            cursors = list(cursors)
+        cursors = self.get_or_query(datasource, filter_)
 
         keys = [self.pymongo(datasource).key(
             datasource, v[config.ID_FIELD]) for v in cursors]
@@ -447,6 +407,15 @@ schema = {
         },
         'contact': {
             'type': 'string',
+        },
+
+        'student': {
+            'type': 'integer',
+            'data_relation': {
+                'resource': 'students',
+                'field': '_id',
+                'embeddable': True
+            },
         },
     },
     'branch': {
@@ -503,7 +472,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'users',
+                'resource': 'tutors',
                 'field': '_id',
                 'embeddable': True
             },
@@ -523,7 +492,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'users',
+                'resource': 'students',
                 'field': '_id',
                 'embeddable': True
             },
@@ -552,7 +521,6 @@ schema = {
     'attendance-tutor': {
         'attendance': {
             'type': 'integer',
-            'required': True,
             'data_relation': {
                 'resource': 'attendances',
                 'field': '_id',
@@ -561,9 +529,8 @@ schema = {
         },
         'tutor': {
             'type': 'integer',
-            'required': True,
             'data_relation': {
-                'resource': 'users',
+                'resource': 'tutors',
                 'field': '_id',
                 'embeddable': True
             },
@@ -583,7 +550,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'users',
+                'resource': 'tutors',
                 'field': '_id',
                 'embeddable': True
             },
@@ -592,12 +559,12 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'users',
+                'resource': 'students',
                 'field': '_id',
                 'embeddable': True
             },
         },
-        'is_presence': {
+        'isPresence': {
             'type': 'boolean',
             'default': False
         },
@@ -611,7 +578,6 @@ schema = {
                 'cognition': {'type': 'integer'},
                 'creativity': {'type': 'integer'},
             },
-
         },
     },
     'cache': {

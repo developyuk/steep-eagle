@@ -101,21 +101,21 @@ export default {
           prop: "photo",
           label: "Photo",
           minWidth: 80,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "name",
           label: "Name",
           minWidth: 256,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "guardians_name",
           label: "Guardians",
           minWidth: 256,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         }
         // {
@@ -141,9 +141,7 @@ export default {
       const config = {
         headers: { "If-Match": row._etag }
       };
-      const data = {
-        is_deleted: !e
-      };
+      const is_deleted = !e;
 
       swal({
         // title: "Input something",
@@ -158,9 +156,15 @@ export default {
         buttonsStyling: false,
         preConfirm: text => {
           if (text.split(" ")[0] === row.name.split(" ")[0]) {
-            return axios
-              .patch(`${process.env.API}/users/${row._id}`, data, config)
-              .then(response => {
+            const url = `${process.env.API}/students/${row._id}`;
+            let _axios = axios;
+            if(is_deleted){
+              _axios = _axios.delete(url,config);
+            }else{
+              _axios = _axios.patch(url,{},config);
+
+            }
+            return _axios.then(response => {
                 row._etag = response.data._etag;
                 this.getData();
                 return {
@@ -229,7 +233,7 @@ export default {
     //             headers: { "if-match": row._etag }
     //           };
     //           return axios
-    //             .patch(`${process.env.API}/users/${row._id}`, data, config)
+    //             .patch(`${process.env.API}/students/${row._id}`, data, config)
     //             .then(response => {
     //               return {
     //                 title: "Deleted!",
@@ -271,8 +275,8 @@ export default {
         params: {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
+          show_deleted: true,
           sort: "_deleted,-_updated",
-          where: { role: "student" },
           embedded: {
             student_guardians: true,
             "student_guardians.guardian": true
@@ -291,11 +295,11 @@ export default {
         config.params["where"] = { or_: qList };
       }
       axios
-        .get(`${process.env.API}/users`, config)
+        .get(`${process.env.API}/students`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {
-            v.is_active = !v.is_deleted;
+            v.is_active = !v._deleted;
             v.guardians_name = v.student_guardians
               .map(v2 => {
                 return v2.guardian.name || v2.guardian.username;

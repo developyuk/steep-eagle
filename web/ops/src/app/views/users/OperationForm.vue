@@ -92,12 +92,15 @@ export default {
       const config = {
         headers: { "If-Match": this.model._etag }
       };
-      const data = {
-        is_deleted: !e
-      };
-      axios
-        .patch(`${process.env.API}/users/${this.model.id}`, data, config)
-        .then(response => {
+      const is_deleted = !e;
+      const url = `${process.env.API}/users/${this.model._id}`;
+      let _axios = axios;
+      if (is_deleted){
+        _axios = axios.delete(url,config)
+      }else{
+        _axios = axios.patch(url,{},config)
+      }
+      _axios.then(response => {
           this.model._etag = response.data._etag;
 
           this.$router.push("/admin/operations");
@@ -166,7 +169,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(`${process.env.API}/users/${this.model.id}`, data, config)
+            .patch(`${process.env.API}/users/${this.model._id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -201,10 +204,16 @@ export default {
         })
         .then(response => {
           this.model = response.data;
-          this.model.is_active = !this.model.is_deleted;
+          this.model.is_active = !this.model._deleted;
           this.model.photo = null;
         })
-        .catch(error => console.log(error, error.response));
+        .catch(error => {
+          console.log(error, error.response);
+
+          this.model = error.response.data;
+          this.model.is_active = !this.model._deleted;
+          this.model.photo = null;
+          });
     }
   }
 };

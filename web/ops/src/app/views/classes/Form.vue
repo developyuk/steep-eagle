@@ -155,10 +155,9 @@ export default {
       // console.log(v, eval(v));
       let url, params;
       if (eval(v)) {
-        url = `${process.env.API}/users`;
+        url = `${process.env.API}/students`;
         params = {
-          where: { role: "student" },
-          sort: "name",
+          sort: "_deleted,name",
           max_results: 9999
         };
       } else {
@@ -172,9 +171,10 @@ export default {
         .get(url, { params })
         .then(response => {
           this.selects.students = response.data._items.map(v => {
+            name = v.name || v.username;
             return {
               value: v._id,
-              label: v.name.toUpperCase(),
+              label: name.toUpperCase(),
               image: v.photo
             };
           });
@@ -197,9 +197,9 @@ export default {
           finishAt: this.model.finishAt,
           module: this.model.module,
           branch: this.model.branch,
-          tutor: this.model.tutor,
-          // students_: this.model.students
+          tutor: this.model.tutor
         };
+        const dataStudents = this.model.students;
         if (this.isCreate) {
           axios
             .post(`${process.env.API}/classes`, data)
@@ -249,6 +249,26 @@ export default {
                 type: "danger"
               });
             });
+          const postStudents = () => {
+            const data = dataStudents.map(v => {
+              return { class: this.model._id, student: v };
+            });
+            axios
+              .post(
+                `${process.env.API}/classes/${this.model._id}/students`,
+                data,
+                config
+              )
+              .then(response => console.log(response))
+              .catch(error => console.log(error, error.response));
+          };
+          axios
+            .delete(
+              `${process.env.API}/classes/${this.model._id}/students`,
+              config
+            )
+            .then(response => postStudents())
+            .catch(error => postStudents());
         }
       });
     }
@@ -272,22 +292,23 @@ export default {
       .get(`${process.env.API}/branches`, { params })
       .then(response => {
         this.selects.branches = response.data._items.map(v => {
-          return { value: v._id, label: v.name.toUpperCase() };
+          return {
+            value: v._id,
+            label: v.name.toUpperCase()
+          };
         });
       })
       .catch(error => console.log(error, error.response));
     axios
-      .get(`${process.env.API}/users`, {
+      .get(`${process.env.API}/tutors`, {
         params: {
-          where: { role: "tutor" },
           sort: "_deleted,name",
           max_results: 9999
         }
       })
       .then(response => {
-        console.log(response.data._items)
         this.selects.tutors = response.data._items.map(v => {
-          const name = v.name || v.username
+          const name = v.name || v.username;
           return {
             value: v._id,
             label: name.toUpperCase(),
@@ -296,44 +317,32 @@ export default {
         });
       })
       .catch(error => console.log(error, error.response));
-    axios
-      .get(`${process.env.API}/students/dormant`, {
-        params: {
-          sort: "_deleted,name",
-          max_results: 9999
-        }
-      })
-      .then(response => {
-        this.selects.students = response.data._items.map(v => {
-          return {
-            value: v._id,
-            label: v.name.toUpperCase(),
-            image: v.photo
-          };
-        });
-      })
-      .catch(error => console.log(error, error.response));
 
     if (id) {
+      this.is_all_students = true;
       this.isCreate = false;
 
       axios
         .get(`${process.env.API}/classes/${id}`, {
-          params: {
-            embedded: {
-              // branch: 1,
-              // module: 1,
-              // tutor: 1,
-              students: 1,
-              "students.student": 1
-            }
-          },
+          params: {},
           headers: { "If-None-Match": this.model._etag }
         })
         .then(response => {
-          const data = response.data;
-          this.model = data;
-          this.model.students = data.students.map(v => v.student._id);
+          this.model = Object.assign({}, this.model, response.data);
+
+          axios
+            .get(`${process.env.API}/classes/${id}/students`, {
+              params: {},
+              headers: { "If-None-Match": this.model._etag }
+            })
+            .then(response => {
+              const items = response.data._items;
+              if (items.length) {
+                this.model.students = items.map(v => v.student);
+                this.is_all_students = false;
+              }
+            })
+            .catch(error => console.log(error, error.response));
         })
         .catch(error => console.log(error, error.response));
     }

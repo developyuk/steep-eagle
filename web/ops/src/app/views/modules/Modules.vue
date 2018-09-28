@@ -93,8 +93,8 @@ export default {
           prop: "name",
           label: "Name",
           minWidth: 200,
-          className: "text-uppercase",
-          labelClassName: "text-capitalize",
+          // className: "text-uppercase",
+          // labelClassName: "text-capitalize",
           sortable: true
         }
       ],

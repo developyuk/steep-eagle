@@ -50,7 +50,7 @@ export default {
       const formData = new FormData(e.target);
       const data = {
         username: this.username,
-        role: JSON.stringify(["operation"])
+        role: ["operation"]
       };
       axios
         .post(`${process.env.API}/forgot_password`, data)

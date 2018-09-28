@@ -44,8 +44,9 @@ export default {
         ...this.$refs.firstStep.model
       };
       this.model.guardians = [this.$refs.secondStep.model];
-      this.model.guardians = this.model.guardians.filter(v => {
-        return v.contact_no || v.email;
+      this.model.guardians = this.model.guardians.map(v => {
+        v.role = "guardian";
+        return v;
       });
 
       const data = new FormData();
@@ -66,12 +67,9 @@ export default {
       if (this.model.dob) {
         data.append("dob", this.model.dob);
       }
-      if (this.model.guardians.length > 0) {
-        data.append("guardians", JSON.stringify(this.model.guardians));
-      }
       if (this.isCreate) {
         axios
-          .post(`${process.env.API}/users`, data)
+          .post(`${process.env.API}/students`, data)
           .then(response => {
             this.model._etag = response.data._etag;
 
@@ -97,7 +95,7 @@ export default {
           headers: { "If-Match": this.model._etag }
         };
         axios
-          .patch(`${process.env.API}/users/${this.model.id}`, data, config)
+          .patch(`${process.env.API}/students/${this.model._id}`, data, config)
           .then(response => {
             this.model._etag = response.data._etag;
 
@@ -119,6 +117,19 @@ export default {
             });
           });
       }
+
+      if (this.model.guardians.length) {
+        const url = `${process.env.API}/students/${this.model._id}/guardians`;
+        const postGuardians = () => {
+          axios
+            .post(url, this.model.guardians)
+            .then(response => console.log(response));
+        };
+        axios
+          .delete(url)
+          .then(response => postGuardians())
+          .catch(error => postGuardians());
+      }
     }
   },
   mounted() {
@@ -127,7 +138,7 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.API}/users/${id}`, {
+        .get(`${process.env.API}/students/${id}`, {
           headers: { "If-None-Match": this.$refs.firstStep.model._etag }
         })
         .then(response => {
@@ -137,7 +148,18 @@ export default {
           this.$refs.firstStep.model.photo = null;
         })
         .catch(error => console.log(error, error.response));
-      // this.$refs.secondStep.model
+
+      axios
+        .get(`${process.env.API}/students/${id}/guardians`, {
+          headers: { "If-None-Match": this.$refs.firstStep.model._etag }
+        })
+        .then(response => {
+          const items = response.data._items;
+          if (items.length) {
+            this.$refs.secondStep.model = items[0];
+          }
+        })
+        .catch(error => console.log(error, error.response));
     }
   }
 };
