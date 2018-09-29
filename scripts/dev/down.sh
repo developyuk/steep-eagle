@@ -2,4 +2,4 @@
 set -x
 
 docker-compose down
-docker stop emq220 && docker rm emq220
+# docker stop emq220 && docker rm emq220

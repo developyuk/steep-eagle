@@ -23,6 +23,7 @@ app.register_blueprint(blueprints._swagger)
 app.on_fetched_resource += hooks.resource.on_fetched_resource       # pylint: disable=no-member
 app.on_fetched_item += hooks.resource.on_fetched_item               # pylint: disable=no-member
 app.on_insert += hooks.resource.on_insert                           # pylint: disable=no-member
+app.on_inserted += hooks.resource.on_inserted                       # pylint: disable=no-member
 
 app.on_fetched_resource += hooks.image_default.on_fetched_resource  # pylint: disable=no-member
 app.on_fetched_item += hooks.image_default.on_fetched_item          # pylint: disable=no-member

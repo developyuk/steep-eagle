@@ -10,10 +10,10 @@
         placeholder(:value="item.startAt")
         | &nbsp;-&nbsp;
         placeholder(:value="item.finishAt")
-      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances || (!!item.last_attendances && !item.last_attendances.length)") Tutor:&nbsp;
+      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances._items || (!!item.last_attendances._items && !item.last_attendances._items.length)") Tutor:&nbsp;
         placeholder(:value="item.tutor.name")
-      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances && !!item.last_attendances.length") Class started by&nbsp;
-        placeholder(:value="parseLastAttendanceTutorName(item.last_attendances)")
+      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances._items && !!item.last_attendances._items.length") Class started by&nbsp;
+        placeholder(:value="parseLastAttendanceTutorName(item.last_attendances._items)")
     button-status(:class_="item" @click-start="onClickStart")
 </template>
 
@@ -29,15 +29,8 @@ export default {
     onClickStart(e) {
       this.$emit("click-start", e);
     },
-    parseLastAttendanceTutorName(array) {
-      return array
-        .map(
-          v =>
-            !!v["attendance_tutors"].length
-              ? v["attendance_tutors"].map(w => w["tutor"]["name"])
-              : ""
-        )
-        .join(", ");
+    parseLastAttendanceTutorName(list) {
+      return list.length ? list.map(v => v['tutor']['name']).join(", "):"";
     }
   }
 };

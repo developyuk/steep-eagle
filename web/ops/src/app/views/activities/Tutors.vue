@@ -86,7 +86,7 @@ export default {
       propsToSearch: [
         "student.name",
         "attendance.module.name",
-        "attendance.class_.branch.name",
+        "attendance.class.branch.name",
         "tutor.name"
       ],
       tableColumns: [
@@ -106,7 +106,7 @@ export default {
           sortable: true
         },
         {
-          prop: "attendance.class_.branch.name",
+          prop: "attendance.class.branch.name",
           label: "Branch",
           minWidth: 192,
           className: "text-capitalize",
@@ -194,15 +194,15 @@ export default {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           embedded: {
-            attendance: 1,
-            "attendance.class_": 1,
-            "attendance.class_.branch": 1,
-            "attendance.module": 1,
-            tutor: 1
+            attendance: true,
+            "attendance.class": true,
+            "attendance.class.branch": true,
+            "attendance.module": true,
+            tutor: true
           }
         },
         headers: {
-          "cache-control": "no-cache"
+          // "cache-control": "no-cache"
         }
       };
       if (!!this.searchQuery) {
@@ -217,16 +217,36 @@ export default {
         .get(`${process.env.API}/attendances_tutors`, config)
         .then(response => {
           this.tableData = response.data._items;
-          this.tableData = this.tableData.map(v => {
-            v.is_review = !!v.feedback ? "Yes" : "No";
-            v.rating = (
-              (v.rating_interaction +
-                v.rating_cognition +
-                v.rating_creativity) /
-              3
-            ).toFixed(2);
-            return v;
-          });
+          // this.tableData.forEach(v => {    
+          //   axios
+          //     .get(`${process.env.API}/modules/${v.attendance.module}`)
+          //     .then(response => v.attendance.module = response.data)
+          //     .catch(error => console.log(error, error.response));
+
+          //   axios
+          //     .get(`${process.env.API}/classes/${v.attendance.class}`)
+          //     .then(response => {
+          //       v.attendance.class = response.data;
+
+          //       axios
+          //         .get(`${process.env.API}/branches/${v.attendance.class.branch}`)
+          //         .then(response => v.attendance.class.branch = response.data)
+          //         .catch(error => console.log(error, error.response));
+          //     })
+          //     .catch(error => console.log(error, error.response));        
+          //   // axios
+          //   //   .get(`${process.env.API}/attendances/${v.attendance}`)
+          //   //   .then(response => {
+          //   //     v.attendance = response.data;
+
+          //   //   })
+          //   //   .catch(error => console.log(error, error.response));
+
+          //   axios
+          //     .get(`${process.env.API}/tutors/${v.tutor}`)
+          //     .then(response => v.tutor = response.data)
+          //     .catch(error => console.log(error, error.response));
+          // });
           this.pagination.currentPage = response.data._meta.page;
 
           if (this.tableData.length == this.pagination.perPage) {

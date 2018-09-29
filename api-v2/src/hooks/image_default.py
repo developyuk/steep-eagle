@@ -1,4 +1,5 @@
 import random
+from pprint import pprint
 
 # https://www.shareicon.net/pack/doraemon
 
@@ -30,6 +31,11 @@ def on_fetched_resource(resource_name, response):
     if resource_name in ('users', 'students', 'tutors'):
         for v in response['_items']:
             _gen_image(v, 'photo')
+
+    if resource_name == 'classes_students':
+        for v in response['_items']:
+            if v.get('student'):
+                _gen_image(v['student'], 'photo')
 
     if resource_name == 'attendances_tutors':
         for v in response['_items']:

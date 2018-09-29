@@ -270,6 +270,11 @@ export default {
             .then(response => postStudents())
             .catch(error => postStudents());
         }
+
+          axios
+            .put(`${process.env.API}/schedules`)
+            .then(response => console.log(response))
+            .catch(error => console.log(error, error.response));
       });
     }
   },

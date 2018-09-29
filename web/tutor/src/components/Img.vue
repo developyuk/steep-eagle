@@ -1,6 +1,6 @@
 <template lang="pug">
-  transition(appear-active-class="animated flipInY" leave-active-class="animated flipOutY")
-    img(:src="src" :key="src")
+  //- transition(appear-active-class="animated fadeIn" leave-active-class="animated fadeOut")
+  img(:src="src" :key="src")
 </template>
 
 <script>

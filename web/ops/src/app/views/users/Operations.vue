@@ -259,7 +259,7 @@ export default {
           where: { role: "operation" }
         },
         headers: {
-          "cache-control": "no-cache"
+          // "cache-control": "no-cache"
         }
       };
       if (!!this.searchQuery) {

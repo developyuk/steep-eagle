@@ -86,7 +86,7 @@ export default {
       propsToSearch: [
         "student.name",
         "attendance.module.name",
-        "attendance.class_.branch.name",
+        "attendance.class.branch.name",
         "tutor.name"
       ],
       tableColumns: [
@@ -107,7 +107,7 @@ export default {
           sortable: true
         },
         {
-          prop: "attendance.class_.branch.name",
+          prop: "attendance.class.branch.name",
           label: "Branch",
           minWidth: 150,
           className: "text-capitalize",
@@ -216,16 +216,16 @@ export default {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           embedded: {
-            student: 1,
-            attendance: 1,
-            "attendance.class_": 1,
-            "attendance.class_.branch": 1,
-            "attendance.module": 1,
-            tutor: 1
+            student: true,
+            attendance: true,
+            "attendance.class": true,
+            "attendance.class.branch": true,
+            "attendance.module": true,
+            tutor: true
           }
         },
         headers: {
-          "cache-control": "no-cache"
+          // "cache-control": "no-cache"
         }
       };
       if (!!this.searchQuery) {
@@ -243,9 +243,9 @@ export default {
           this.tableData = this.tableData.map(v => {
             v.is_review = !!v.feedback ? "Yes" : "No";
             v.rating = (
-              (v.rating_interaction +
-                v.rating_cognition +
-                v.rating_creativity) /
+              (v.rating.interaction +
+                v.rating.cognition +
+                v.rating.creativity) /
               3
             ).toFixed(2);
             return v;

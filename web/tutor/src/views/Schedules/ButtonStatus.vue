@@ -28,7 +28,7 @@ export default {
       const mnow = moment();
 
       let status = "disabled";
-      const ls = class_.last_attendances;
+      const ls = class_.last_attendances._items;
 
       if (
         !!ls &&
@@ -41,10 +41,11 @@ export default {
 
         if (
           !!this.currentAuth &&
-          !!lsItems[0].attendance_tutors[0].tutor &&
-          !!lsItems[0].attendance_tutors[0].tutor.id &&
+          !!lsItems.length &&
+          !!lsItems[0].tutor &&
+          !!lsItems[0].tutor._id &&
           !lsItems.filter(v => {
-            return v.attendance_tutors[0].tutor.id === this.currentAuth.id;
+            return v.tutor._id === this.currentAuth._id;
           }).length >= 1
         ) {
           if (mls.isBefore(mfts)) {
@@ -77,7 +78,7 @@ export default {
   },
   methods: {
     start(e) {
-      this.$emit("click-start", { id: this.class_.id });
+      this.$emit("click-start", { id: this.class_._id });
     }
   },
   mounted() {

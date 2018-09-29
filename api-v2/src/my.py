@@ -134,9 +134,12 @@ class GoogleCloudstore(Mongo):
                     'value': v
                 }
                 queries.append(q)
+
+        # pprint(queries)
         return queries
 
     def get_or_query(self, datasource, filters, sort=None, args=None):
+        # pprint(datasource)
         cursors = None
 
         index_id_field = -1

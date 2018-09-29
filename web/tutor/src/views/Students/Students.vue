@@ -4,17 +4,17 @@
     .mdc-list-group(v-else)
       template(v-for="(v, i) in attendances")
         h3.mdc-list-group__subheader
-          placeholder(:value="v.attendance.class_.module.name").module
+          placeholder(:value="v.attendance.module.name").module
           br
-          placeholder(:value="v.attendance.class_.branch.name").branch
+          placeholder(:value="v.attendance.class.branch.name").branch
           | &nbsp;&nbsp;
           .day-time
-            placeholder(:value="v.attendance.class_.start_at" val-empty="00:00")
+            placeholder(:value="v.attendance.class.startAt" val-empty="00:00")
             | &nbsp;-&nbsp;
-            placeholder(:value="v.attendance.class_.finish_at" val-empty="00:00")
+            placeholder(:value="v.attendance.class.finishAt" val-empty="00:00")
         ul.mdc-list
-          template(v-for="(vv,ii) in v.attendance.class_.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v.id" :sid="v.attendance.id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
+          template(v-for="(vv,ii) in v.students")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v._id" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
             hr.mdc-list-divider
 
     snackbar(@mounted="onMountedSnackbar")
@@ -32,57 +32,39 @@ import _range from "lodash/range";
 import TemplateMain from "@/components/views/Main";
 
 const placeholderStudents = _range(2).map(v => {
-  const students = _range(3).map(vv => {
-    return {
-      class_id: 12,
-      student_id: 84,
-      id: 71,
-      student: {
-        username: "bruce banner",
-        _updated: "Fri, 06 Jul 2018 21:46:21 GMT",
-        pass_: null,
-        email: null,
-        role: "student",
-        profile: {
-          dob: null,
-          photo: null,
-          user_id: 84,
-          name: ""
-        },
-        id: 84
-      }
-    };
-  });
   return {
     attendance: {
-      class_id: 12,
-      class_: {
-        branch_id: 1,
-        start_at: "",
-        module_id: 10,
-        module: {
-          name: "",
-          image:
-            "https://images.weserv.nl/?il&bg=2084C6&w=96&h=96&t=square&url=dl.dropboxusercontent.com/s/kt4ww4h0s4ptldr/html.png",
-          id: 10
-        },
-        students,
-        tutor_id: 83,
-        finish_at: "",
+      class: {
+        startAt: "",
+        finishAt: "",
         branch: {
           name: "",
-          address: null,
-          id: 1
+          id: v
         },
-        id: 12,
-        day: "saturday"
+        _id: v,
+        day: ""
       },
-      id: 29
+      _id: v,
+      module: {
+        _id: v,
+        name: ""
+      }
     },
-    tutor_id: 83,
-
-    attendance_id: 29,
-    id: 29
+    tutor: v,
+    _id: v,
+    students: _range(3).map(vv => {
+      return {
+        class: vv,
+        _id: vv,
+        student: {
+          username: "",
+          name: "",
+          photo:
+            "https://images.weserv.nl/?il&w=64&url=www.shareicon.net/download/2016/01/16/249030_nobita_256x256.png",
+          _id: vv
+        }
+      };
+    })
   };
 });
 
@@ -114,17 +96,15 @@ export default {
       const { sid, uid } = e;
       const [i, ii] = this.getAttendanceIndex(sid, uid);
 
-      const item = _cloneDeep(
-        this.attendances[i].attendance.class_.students[ii]
-      );
+      const item = _cloneDeep(this.attendances[i].students[ii]);
       this.attendances.forEach((v, i, a) => {
-        v.attendance.class_.students.forEach((v2, i2, a2) => {
+        v.students.forEach((v2, i2, a2) => {
           this.$set(a2[i2], "isActive", false);
         });
       });
       setTimeout(_ => {
         this.$set(
-          this.attendances[i].attendance.class_.students[ii],
+          this.attendances[i].students[ii],
           "isActive",
           !item["isActive"]
         );
@@ -136,8 +116,8 @@ export default {
       uid = parseInt(uid);
 
       i = _findIndex(this.attendances, v => {
-        ii = _findIndex(v.attendance.class_.students, vv => {
-          return vv.student.id === uid && v.id === sid;
+        ii = _findIndex(v.students, vv => {
+          return vv.student._id === uid && v._id === sid;
         });
         return ii > -1;
       });
@@ -174,15 +154,18 @@ export default {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
         const { on: msgOn, by: msgBy } = parsedMessage;
-        const isCurrentUser = msgBy.id === this.currentAuth.id;
+        const isCurrentUser = msgBy.id === this.currentAuth._id;
         const by = isCurrentUser ? "You" : msgBy.username;
 
-        const { item:msgItem } = parsedMessage;
+        const { item: msgItem } = parsedMessage;
         //          const [i, ii] = this.getAttendanceIndex(sid, uid);
 
         switch (msgOn) {
           case "undoRateReview": {
-            setTimeout(_ => this.getStudentsAttendances({ forceRefresh: true }), 100);
+            setTimeout(
+              _ => this.getStudentsAttendances({ forceRefresh: true }),
+              100
+            );
             let snackbarOpts = {
               message: `${by} undo a progress`
               // message: `Undo ${name.split(" ")[0].toUpperCase()}`
@@ -192,7 +175,10 @@ export default {
           }
           case "successRateReview": {
             const { by: msgBy } = parsedMessage;
-            setTimeout(_ => this.getStudentsAttendances({ forceRefresh: true }), 100);
+            setTimeout(
+              _ => this.getStudentsAttendances({ forceRefresh: true }),
+              100
+            );
 
             let snackbarOpts = {
               message: `${by} submitted a progress`

@@ -174,7 +174,7 @@ export default {
           page: this.pagination.currentPage
         },
         headers: {
-          "cache-control": "no-cache"
+          // "cache-control": "no-cache"
         }
       };
       if (!!this.searchQuery) {

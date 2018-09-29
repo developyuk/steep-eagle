@@ -12,7 +12,7 @@
           span.text
             placeholder(:value="v.text")
         .mdc-list
-          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv.id}`" @click-start="onClickStart")
+          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv._id}`" @click-start="onClickStart")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onMountedDialog")
@@ -41,34 +41,33 @@ import TemplateMain from "@/components/views/Main";
 import MyDialog from "@/components/Dialog";
 
 const placeholderSchedules = _range(3).map(v => {
-  const items = _range(2).map(vv => {
-    return {
-      id: vv,
-      startAt: "",
-      module: {
-        image: "",
-        name: ""
-      },
-      finishAtTs: "",
-      startAtTs: "",
-      finishAt: "",
-      tutor: {
-        profile: {
-          name: ""
-        },
-        email: ""
-      },
-      branch: {
-        name: ""
-      }
-    };
-  });
   return {
     date: v,
     text: "",
     dateDay: "",
     day: "",
-    _items: items
+    _items: _range(2).map(vv => {
+    return {
+      _id: vv,
+      module: {
+        image: "https://via.placeholder.com/48?text=image",
+        name: ""
+      },
+      startAt: "",
+      finishAt: "",
+      finishAtTs: "",
+      startAtTs: "",
+      tutor: {
+        name: "",
+        username: "",
+        email: ""
+      },
+      branch: {
+        name: ""
+      },
+      last_attendances:{_items:[]}
+    };
+  })
   };
 });
 
@@ -86,7 +85,7 @@ export default {
       pin: null,
       classes: placeholderSchedules,
       currentClass: {
-        id: 0,
+        _id: 0,
         module: { name: "" }
       },
       dialog: null,
@@ -112,16 +111,24 @@ export default {
     },
     checkPin(e) {
       if (this.pin === "1234") {
-        const url = `${process.env.VUE_APP_API}/attendances_tutors`;
-        const params = {
-          class_: this.currentClass.id,
-          tutor: this.currentAuth.id
+        const data = {
+          'class': this.currentClass._id
         };
 
         axios
-          .post(url, params)
+          .post(`${process.env.VUE_APP_API}/attendances_tutors`, data)
           .then(response => {
             this.pin = null;
+
+            axios
+              .put(`${process.env.VUE_APP_API}/schedules`, data)
+              .then(response => console.log(response))
+              .catch(error => console.log(error));
+
+            axios
+              .put(`${process.env.VUE_APP_API}/students/attendances`)
+              .then(response => console.log(response))
+              .catch(error => console.log(error));
           })
           .catch(error => console.log(error));
 
@@ -131,15 +138,13 @@ export default {
       }
     },
     getSchedules(params = { forceRefresh: false }) {
-      const url = `${process.env.VUE_APP_API}/schedules`;
-
       const config = {};
       config["headers"] = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";
       }
       axios
-        .get(url, config)
+        .get(`${process.env.VUE_APP_API}/schedules`, config)
         .then(response => {
           this.classes = response.data._items;
         })
@@ -148,7 +153,7 @@ export default {
     findClassById(id) {
       let i, ii;
       i = _findIndex(this.classes, v => {
-        ii = _findIndex(v._items, { id });
+        ii = _findIndex(v._items, { _id:id });
         return ii > -1;
       });
       //        console.log(i, ii, this.classes);
@@ -174,7 +179,7 @@ export default {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
         const { on: msgOn, by: msgBy } = parsedMessage;
-        const isCurrentUser = msgBy.id === this.currentAuth.id;
+        const isCurrentUser = msgBy.id === this.currentAuth._id;
         const by = isCurrentUser ? "You" : msgBy.username;
 
         if (msgOn === "startYes") {
@@ -262,13 +267,13 @@ export default {
       font-size: 1rem;
     }
     .day {
-      font-size: 0.5625rem;
+      font-size: 0.625rem;
       text-transform: capitalize;
     }
   }
   .text {
     float: right;
-    font-size: 0.625rem;
+    font-size: 0.7rem;
     text-transform: capitalize;
     color: map-get($palettes, green-darken1);
   }

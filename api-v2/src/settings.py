@@ -1,7 +1,7 @@
 import os
 from my import schema
 
-MONGO_JSON = 'steep-eagle-7d9be40b59f4.json'
+MONGO_JSON = os.environ['MONGO_JSON']
 ITEM_URL = 'regex("[0-9]{16}")'
 OPTIMIZE_PAGINATION_FOR_SPEED = True
 PAGINATION_LIMIT = 9999
@@ -115,8 +115,6 @@ DOMAIN = {
         'item_methods': ['GET']
     },
     'attendances_students': {
-        'internal_resource': True,
-        'disable_documentation': True,
         'schema': schema.get('attendance-student')
     },
     'attendances-students': {

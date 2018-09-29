@@ -61,48 +61,53 @@ export default {
       this.ratingInteraction = e;
     },
     submit() {
-      //        const url = `${process.env.VUE_APP_API}/attendances/${this.stid}/students/${this.uid}`;
-      const url = `${process.env.VUE_APP_API}/attendances_students`;
+      const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
       const data = {
-        // attendance_tutor: this.stid,
-        attendance: this.sid,
         tutor: this.tid,
         student: this.uid,
-        rating_interaction: parseInt(this.ratingInteraction),
-        rating_creativity: parseInt(this.ratingCreativity),
-        rating_cognition: parseInt(this.ratingCognition),
+        rating: {
+          interaction: parseInt(this.ratingInteraction),
+          creativity: parseInt(this.ratingCreativity),
+          cognition: parseInt(this.ratingCognition)
+        },
         feedback: this.review,
-        is_presence: true
+        isPresence: true
       };
 
       axios
         .post(url, data)
-        // .then(response => { })
-        .catch(error => {
-          console.log(error);
-        });
+        .then(response => {
+          axios
+            .put(`${process.env.VUE_APP_API}/students/attendances`)
+            .then(response => console.log(response))
+            .catch(error => console.log(error));
+        })
+        .catch(error => console.log(error));
     },
     absence() {
-      const url = `${process.env.VUE_APP_API}/attendances_students`;
+      const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
       const data = {
-        // attendance_tutor: this.stid,
-        attendance: this.sid,
         tutor: this.tid,
         student: this.uid,
-        rating_interaction: parseInt(this.ratingInteraction),
-        rating_creativity: parseInt(this.ratingCreativity),
-        rating_cognition: parseInt(this.ratingCognition),
+        rating: {
+          interaction: parseInt(this.ratingInteraction),
+          creativity: parseInt(this.ratingCreativity),
+          cognition: parseInt(this.ratingCognition)
+        },
         feedback: this.review,
-        is_presence: false
+        isPresence: false
       };
       console.log(data);
 
       axios
         .post(url, data)
-        // .then(response => { })
-        .catch(error => {
-          console.log(error);
-        });
+        .then(response => {
+          axios
+            .put(`${process.env.VUE_APP_API}/students/attendances`)
+            .then(response => console.log(response))
+            .catch(error => console.log(error));
+        })
+        .catch(error => console.log(error));
     }
   },
   mounted() {

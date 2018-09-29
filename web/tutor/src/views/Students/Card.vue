@@ -8,7 +8,7 @@
     hr.mdc-list-divider(v-if="isActive")
 
     //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student.id" :name="student.name")
+    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student._id" :name="student.name")
 </template>
 
 <script>
@@ -59,7 +59,7 @@ export default {
       //            let url = `${process.env.VUE_APP_API}/attendances_students`;
       //            let params = {
       //              attendance_tutor: this.stid,
-      //              student: this.student.id,
+      //              student: this.student._id,
       //
       //              rating_interaction: 0,
       //              rating_creativity: 0,
@@ -74,10 +74,10 @@ export default {
       //                  .publish(this.currentMqtt.topic, JSON.stringify({
       //                    sid: this.stid,
       //                    sts: {
-      //                      id: response.data.id,
+      //                      id: response.data._id,
       //                      et: response.data._etag,
       //                    },
-      //                    uid: this.student.id,
+      //                    uid: this.student._id,
       //                    name: this.student.name,
       //                    by: this.currentAuth,
       //                    on: "successRateReview",
@@ -98,7 +98,7 @@ export default {
       .on("tap", e => {
         this.$emit("tap-student", {
           sid: this.stid,
-          uid: this.student.id,
+          uid: this.student._id,
           name: this.student.name
         });
       });
