@@ -217,7 +217,7 @@ export default {
         .get(`${process.env.API}/attendances_tutors`, config)
         .then(response => {
           this.tableData = response.data._items;
-          // this.tableData.forEach(v => {    
+          // this.tableData.forEach(v => {
           //   axios
           //     .get(`${process.env.API}/modules/${v.attendance.module}`)
           //     .then(response => v.attendance.module = response.data)
@@ -233,7 +233,7 @@ export default {
           //         .then(response => v.attendance.class.branch = response.data)
           //         .catch(error => console.log(error, error.response));
           //     })
-          //     .catch(error => console.log(error, error.response));        
+          //     .catch(error => console.log(error, error.response));
           //   // axios
           //   //   .get(`${process.env.API}/attendances/${v.attendance}`)
           //   //   .then(response => {

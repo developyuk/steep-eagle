@@ -1,0 +1,79 @@
+# vars
+@host = https://mtutor.codingcamp.id/api
+@host_gds = http://127.0.0.1:3000
+@username = xxx
+@password = xxx
+
+###
+# @name sign
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "password":"{{password}}",
+    "role":"[\"operation\"]"
+} 
+
+### 
+# @name user
+GET {{host}}/auth
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### 
+GET {{host}}/branches
+?max_results=9999
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### 
+GET {{host}}/modules
+?max_results=9999
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### 
+GET {{host}}/users
+?max_results=9999
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### 
+GET {{host}}/classes
+?max_results=9999
+&embedded={"module":true,"branch":true,"tutor":true,"students":true,"students.student":true}
+Authorization: Bearer {{sign.response.body.$.token}}
+
+
+###
+# @name sign
+POST {{host_gds}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "password":"{{password}}",
+    "role":["operation"]
+} 
+### 
+PUT {{host_gds}}/import/branches
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+< ./branches.json
+### 
+PUT {{host_gds}}/import/modules
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+< ./modules.json
+
+### 
+PUT {{host_gds}}/import/users
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+< ./users.json
+### 
+PUT {{host_gds}}/import/classes
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+< ./classes.json

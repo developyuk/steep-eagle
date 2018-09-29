@@ -1,0 +1,51 @@
+# vars
+@host = http://192.168.2.50:3000
+@username = xxx
+
+### 
+# @name sign
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",    
+    "role":["tutor"]
+} 
+### auth
+GET {{host}}/auth
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### 
+GET {{host}}/users/4942783253053440
+Authorization: Bearer {{sign.response.body.$.token}}
+
+### put schedules to caches
+PUT {{host}}/schedules
+?max_results=999
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+### get schedules
+GET {{host}}/schedules
+Authorization: Bearer {{sign.response.body.$.token}}
+
+###
+POST {{host}}/attendances_tutors
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+{
+    "class":5654456649646080
+}
+
+###
+GET {{host}}/attendances_tutors
+?embedded={"attendance":true,"attendance.module":true,"attendance.class":true,"attendance.class.branch":true}
+Authorization: Bearer {{sign.response.body.$.token}}
+
+###
+PUT http://192.168.2.50:3000/students/attendances
+Authorization: Bearer {{sign.response.body.$.token}}
+###
+GET http://192.168.2.50:3000/students/attendances
+Authorization: Bearer {{sign.response.body.$.token}}
