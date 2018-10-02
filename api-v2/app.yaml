@@ -1,0 +1,7 @@
+service: api
+runtime: python37
+api_version: 1
+threadsafe: true
+
+- url: /.*
+  script: auto
