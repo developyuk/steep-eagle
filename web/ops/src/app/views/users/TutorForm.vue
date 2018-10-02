@@ -103,7 +103,7 @@ export default {
       };
       const is_deleted = !e;
       let _axios = axios;
-      const url = `${process.env.API}/tutors/${this.model._id}`;
+      const url = `${process.env.API}/users/${this.model._id}`;
       if (is_deleted) {
         _axios = _axios.delete(url, config);
       } else {
@@ -154,7 +154,7 @@ export default {
         }
         if (this.isCreate) {
           axios
-            .post(`${process.env.API}/tutors`, data)
+            .post(`${process.env.API}/users`, data)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -180,7 +180,7 @@ export default {
             headers: { "If-Match": this.model._etag }
           };
           axios
-            .patch(`${process.env.API}/tutors/${this.model._id}`, data, config)
+            .patch(`${process.env.API}/users/${this.model._id}`, data, config)
             .then(response => {
               this.model._etag = response.data._etag;
 
@@ -210,10 +210,10 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.API}/tutors/${id}`, {
+        .get(`${process.env.API}/users/${id}`, {
           headers: { "If-None-Match": this.model._etag },
           params: {
-            show_deleted: true
+            // show_deleted: true
           }
         })
         .then(response => {

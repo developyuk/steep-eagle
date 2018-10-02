@@ -89,7 +89,7 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["name"],
+      propsToSearch: ["username","name","email"],
       tableColumns: [
         {
           prop: "photo",
@@ -105,13 +105,13 @@ export default {
           // className: "text-capitalize",
           sortable: true
         },
-        // {
-        //   prop: "username",
-        //   label: "Username",
-        //   minWidth: 200,
-        //   className: "text-capitalize",
-        //   sortable: true
-        // },
+        {
+          prop: "username",
+          label: "Username",
+          minWidth: 200,
+          // className: "text-capitalize",
+          sortable: true
+        },
         {
           prop: "email",
           label: "Email",
@@ -150,7 +150,7 @@ export default {
         buttonsStyling: false,
         preConfirm: text => {
           if (text === row.name) {
-            const url = `${process.env.API}/tutors/${row._id}`;
+            const url = `${process.env.API}/users/${row._id}`;
             let _axios = axios;
             if (is_deleted) {
               _axios = _axios.delete(url, config);
@@ -221,7 +221,7 @@ export default {
     //       preConfirm: text => {
     //         if (text === row.name) {
     //           return axios
-    //             .delete(`${process.env.API}/tutors/${row._id}`, {
+    //             .delete(`${process.env.API}/users/${row._id}`, {
     //               headers: { "if-match": row._etag }
     //             })
     //             .then(response => {
@@ -268,7 +268,8 @@ export default {
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
           show_deleted: true,
-          sort: "_deleted,-_updated"
+          sort: "_deleted,-_updated",
+          where:{role:'tutor'}
         },
         headers: {
           // "cache-control": "no-cache"
@@ -277,13 +278,13 @@ export default {
       if (!!this.searchQuery) {
         const qList = this.propsToSearch.map(v => {
           const q = {};
-          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = { or_: qList };
+        config.params["where"] = {$and:[{ $or: qList },{role:'tutor'}]};
       }
       axios
-        .get(`${process.env.API}/tutors`, config)
+        .get(`${process.env.API}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {

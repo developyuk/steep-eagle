@@ -6,7 +6,6 @@ sh ./scripts/dev/down.sh
 
 docker-compose build
 # echo "waiting mqtt server ready to connect"
-# #sleep 1m
 # sleep 13
 docker-compose up -d
 docker-compose logs --follow --tail 50

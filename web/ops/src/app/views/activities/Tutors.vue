@@ -208,10 +208,10 @@ export default {
       if (!!this.searchQuery) {
         const qList = this.propsToSearch.map(v => {
           const q = {};
-          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = { or_: qList };
+        config.params["where"] = { $or: qList };
       }
       axios
         .get(`${process.env.API}/attendances_tutors`, config)

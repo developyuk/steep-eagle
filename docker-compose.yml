@@ -34,8 +34,8 @@ services:
       - DEBUG=1
       - HOST=${HOST}
       - HOST_IP=${HOST_IP}
-      - HOST_STORAGE=${HOST_STORAGE}
       - HOST_MQTT=${HOST_MQTT}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     command: gunicorn --bind 0.0.0.0:3000 --timeout 90 --graceful-timeout 90 --reload main:app
   api-doc:
     image: swaggerapi/swagger-ui

@@ -31,7 +31,7 @@ export default {
         config.headers = { "If-None-Match": this.model._etag };
       }
       axios
-        .get(`${process.env.API}/students/${id}`, config)
+        .get(`${process.env.API}/users/${id}`, config)
         .then(response => {
           this.model = response.data;
         })

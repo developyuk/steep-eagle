@@ -7,6 +7,7 @@ from flask_mail import Mail, Message
 from flask import current_app as app, jsonify, Blueprint, request, abort
 from eve.methods.patch import patch_internal
 from eve.methods.get import getitem_internal
+from eve.utils import config
 from eve_swagger import add_documentation
 
 
@@ -66,7 +67,7 @@ def forgot_password():
     new_password = str(uuid.uuid4())[:8]
 
     _ = patch_internal(
-        resource, {'password': new_password}, **{'_id': user['_id']})
+        resource, {'password': new_password}, **{config.ID_FIELD: user[config.ID_FIELD]})
 
     body = template % (expected_username, new_password)
 

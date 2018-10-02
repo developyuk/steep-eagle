@@ -117,7 +117,7 @@ export default {
         is_deleted: !e
       };
       axios
-        .patch(`${process.env.API}/students/${this.model._id}`, data, config)
+        .patch(`${process.env.API}/users/${this.model._id}`, data, config)
         .then(response => {
           this.model._etag = response.data._etag;
 
@@ -154,7 +154,7 @@ export default {
     // if (id) {
     //   this.isCreate = false;
     //   axios
-    //     .get(`${process.env.API}/students/${id}`, {
+    //     .get(`${process.env.API}/users/${id}`, {
     //       headers: { "If-None-Match": this.model._etag }
     //     })
     //     .then(response => {

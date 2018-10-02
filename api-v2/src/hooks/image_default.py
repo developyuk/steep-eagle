@@ -1,6 +1,8 @@
 import random
 from pprint import pprint
 
+from eve.utils import config
+
 # https://www.shareicon.net/pack/doraemon
 
 
@@ -25,20 +27,20 @@ def _gen_image(response, attr='image'):
 
 def on_fetched_resource(resource_name, response):
     if resource_name == 'modules':
-        for v in response['_items']:
+        for v in response[config.ITEMS]:
             _gen_image(v)
 
     if resource_name in ('users', 'students', 'tutors'):
-        for v in response['_items']:
+        for v in response[config.ITEMS]:
             _gen_image(v, 'photo')
 
     if resource_name == 'classes_students':
-        for v in response['_items']:
+        for v in response[config.ITEMS]:
             if v.get('student'):
                 _gen_image(v['student'], 'photo')
 
     if resource_name == 'attendances_tutors':
-        for v in response['_items']:
+        for v in response[config.ITEMS]:
             # print(v['attendance']['class_'])
             if type(v['attendance']) is dict and type(v['attendance']['class_']) is dict and type(v['attendance']['class_']['students'][0]) is dict:
                 # if type(v['attendance']) is not int and type(v['attendance']['class_']['students'][0]) is dict:

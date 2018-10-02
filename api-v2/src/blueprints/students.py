@@ -10,6 +10,7 @@ from eve.methods import get, getitem
 from eve.methods.put import put_internal
 from eve.methods.post import post_internal
 from eve.render import send_response
+from eve.utils import config
 from werkzeug.exceptions import NotFound
 
 from shared.datetime import utc_now
@@ -21,11 +22,11 @@ CORS(blueprint, max_age=timedelta(days=10))
 def attendance_students(item, at):
     lookup = {
         '_created': {'$gte': at['_created'].replace(hour=0, minute=0, second=0, microsecond=0)},
-        'student': item['student']['_id'],
-        'attendance': at['attendance']['_id'],
+        'student': item['student'][config.ID_FIELD],
+        'attendance': at['attendance'][config.ID_FIELD],
     }
     attendances_students, *_ = get('attendances_students', **lookup)
-    attendances_students = attendances_students['_items']
+    attendances_students = attendances_students[config.ITEMS]
 
     return len(attendances_students) == 0
 
@@ -46,17 +47,17 @@ def put_students():
         'tutor': app.auth.get_request_auth_value()
     }
     attendances, *_ = get('attendances_tutors', **lookup)
-    attendances = attendances['_items']
+    attendances = attendances[config.ITEMS]
 
     app.config['DOMAIN']['classes_students'].update({'embedded_fields': [
         'student',
     ]})
     for v in attendances:
         lookup = {
-            'class': v['attendance']['class']['_id']
+            'class': v['attendance']['class'][config.ID_FIELD]
         }
         students, *_ = get('classes_students', **lookup)
-        students = students['_items']
+        students = students[config.ITEMS]
 
         # students = map(lambda v2: map_attendances(v, v2), students)
         students = filter(lambda v2: attendance_students(v2, v), students)
@@ -64,7 +65,7 @@ def put_students():
         v['students'] = students
 
     attendances = filter(lambda v: len(v['students']) > 0, attendances)
-    attendances = {'_items': list(attendances)}
+    attendances = {config.ITEMS: list(attendances)}
 
     response = None
     resource = 'caches'
@@ -96,14 +97,14 @@ def get_students():
         row, *_ = getitem(resource, **lookup)
         attendances = row['value']
     except NotFound:
-        attendances = {'_items': []}
+        attendances = {config.ITEMS: []}
 
     return jsonify(attendances)
 
 
 def _dormant_students(v):
     try:
-        _ = getitem('classes_students', **{'student': v['_id']})
+        _ = getitem('classes_students', **{'student': v[config.ID_FIELD]})
         return False
     except NotFound:
         return True
@@ -111,14 +112,14 @@ def _dormant_students(v):
 
 add_documentation({
     'paths': {'/students/dormant': {'get': {
-        'summary': 'Retrieves one or more dormant students',
+        'summary': 'Retrieves one or more dormant users',
         "responses": {
             "200": {
                 "description": "Student document fetched successfully",
-                "schema": {"$ref": "#/definitions/Student"}
+                "schema": {"$ref": "#/definitions/User"}
             }
         },
-        'tags': ['Student'],
+        'tags': ['User'],
         "security": [{"JwtAuth": []}],
     }}}
 })
@@ -130,9 +131,9 @@ def students_dormant():
     resource = 'students'
     response = get(resource)
     response = list(response)
-    students = response[0]['_items']
+    students = response[0][config.ITEMS]
 
     students = filter(_dormant_students, students)
-    response[0]['_items'] = list(students)
+    response[0][config.ITEMS] = list(students)
 
     return send_response(resource, response)

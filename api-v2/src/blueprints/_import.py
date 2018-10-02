@@ -7,6 +7,7 @@ from flask import current_app as app, jsonify, Blueprint, request, abort
 from eve.methods import post, delete, getitem
 from eve.methods.post import post_internal
 from eve.methods.put import put
+from eve.utils import config
 from werkzeug.exceptions import NotFound
 from eve_swagger import add_documentation
 
@@ -30,7 +31,7 @@ add_documentation({
 @blueprint.route('/import/branches', methods=['PUT'])
 def _import_branches():
     data = request.json
-    items = data['_items']
+    items = data[config.ITEMS]
 
     def branch_convert(item):
         allowed_key = ('name', 'address')
@@ -68,7 +69,7 @@ add_documentation({
 @blueprint.route('/import/modules', methods=['PUT'])
 def _import_modules():
     data = request.json
-    items = data['_items']
+    items = data[config.ITEMS]
 
     def modules_convert(item):
         if item.get('image'):
@@ -115,7 +116,7 @@ add_documentation({
 @blueprint.route('/import/users', methods=['PUT'])
 def _import_users():
     data = request.json
-    items = data['_items']
+    items = data[config.ITEMS]
 
     def users_convert(item):
 
@@ -170,7 +171,7 @@ add_documentation({
 @blueprint.route('/import/classes', methods=['PUT'])
 def _import_classes():
     data = request.json
-    items = data['_items']
+    items = data[config.ITEMS]
 
     domain_ori = deepcopy(app.config['DOMAIN'])
     def classes_convert(item):
@@ -183,13 +184,13 @@ def _import_classes():
                 'name': item['module']['name']
             }
             module, *_ = getitem('modules', **lookup)
-            item['module'] = module['_id']
+            item['module'] = module[config.ID_FIELD]
         if item.get('branch'):
             lookup = {
                 'name': item['branch']['name']
             }
             branch, *_ = getitem('branches', **lookup)
-            item['branch'] = branch['_id']
+            item['branch'] = branch[config.ID_FIELD]
         if item.get('tutor'):
             resource = 'users'
             app.config['DOMAIN'][resource]['soft_delete'] = False
@@ -198,7 +199,7 @@ def _import_classes():
             }
             try:
                 tutor, *_ = getitem(resource, **lookup)
-                item['tutor'] = tutor['_id']
+                item['tutor'] = tutor[config.ID_FIELD]
             except NotFound:
                 item['tutor'] = None
 
@@ -210,7 +211,7 @@ def _import_classes():
                 }
                 try:
                     student, *_ = getitem(resource, **lookup)
-                    v['student'] = student['_id']
+                    v['student'] = student[config.ID_FIELD]
                 except NotFound:
                     v['student'] = None
 
@@ -241,7 +242,7 @@ def _import_classes():
             resource, v, skip_validation=True)
         status_all = status_all and response[2] == 201
 
-        payload = [{'class': class_['_id'], 'student': v2['student']}
+        payload = [{'class': class_[config.ID_FIELD], 'student': v2['student']}
                    for v2 in students]
         response = post_internal(resource_child, payload)
         pprint(response)

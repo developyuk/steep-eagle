@@ -7,9 +7,9 @@
         strong: placeholder(:value="item.module.name")
       placeholder(:value="item.branch.name").mdc-list-item__secondary-text
       span.mdc-list-item__secondary-text
-        placeholder(:value="item.startAt")
+        placeholder(:value="item._start")
         | &nbsp;-&nbsp;
-        placeholder(:value="item.finishAt")
+        placeholder(:value="item._finish")
       span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances._items || (!!item.last_attendances._items && !item.last_attendances._items.length)") Tutor:&nbsp;
         placeholder(:value="item.tutor.name")
       span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances._items && !!item.last_attendances._items.length") Class started by&nbsp;

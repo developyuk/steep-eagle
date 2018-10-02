@@ -58,7 +58,7 @@ export default {
     // if (id) {
     //   this.isCreate = false;
     //   axios
-    //     .get(`${process.env.API}/students/${id}`, {
+    //     .get(`${process.env.API}/users/${id}`, {
     //       headers: { "If-None-Match": this.model._etag }
     //     })
     //     .then(response => {

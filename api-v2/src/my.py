@@ -2,20 +2,14 @@
 
 from uuid import uuid4
 from pprint import pprint
-import json
-import ast
 import os
-from copy import deepcopy
 
 import jwt
-from google.cloud import datastore, storage
+from google.cloud import storage
 from flask import current_app as app, Response, abort
 from eve.auth import TokenAuth
 from eve.io.media import MediaStorage
-from eve.io.mongo.mongo import Mongo
-from eve.io.mongo.parser import parse, ParseError
-from eve.utils import config, validate_filters, debug_error_message
-from werkzeug.exceptions import HTTPException
+from eve.utils import config
 
 
 def auth(token):
@@ -68,312 +62,6 @@ class GoogleMediaStorage(MediaStorage):
         pass
 
 
-class GoogleCloudstore(Mongo):
-
-    def init_app(self, app):
-        driver = datastore.Client.from_service_account_json(
-            app.config['MONGO_JSON'])
-        self.driver = {'MONGO': driver}
-
-    def remap_entity(self, v):
-        if not v.get(config.ID_FIELD):
-            v.update({config.ID_FIELD: v.id})
-        return v
-
-    def convert_sort(self, v):
-        return v[0] if v[1] == 1 else '-%s' % v[0]
-
-    def combine_queries(self, query_a, query_b):
-        query = deepcopy(query_a)
-        query.update(query_b)
-
-        return query
-
-    def convert_queries(self, _queries):
-        queries = []
-        # pprint(_queries)
-        for k, v in _queries.items():
-            op = '='
-            # pprint(v)
-            if isinstance(v, dict):
-                for k2, v2 in v.items():
-                    if k2 == '$ne':
-                        if k == '_deleted' and v2:
-                            op = '<'
-                        if k == '_deleted' and not v2:
-                            op = '>'
-                    if k2 == '$gte':
-                        op = '>='
-
-                    q = {
-                        'property_name': k,
-                        'operator': op,
-                        'value': v2
-                    }
-                    queries.append(q)
-
-            elif isinstance(v, list):
-                for v2 in v:
-                    for k3, v3 in v2.items():
-                        if k == '$or' and k3 == '_id':
-                            k = k3
-                        q = {
-                            'property_name': k,
-                            'operator': op,
-                            'value': v3
-                        }
-                        queries.append(q)
-            else:
-                try:
-                    v = int(v)
-                except ValueError:
-                    pass
-                q = {
-                    'property_name': k,
-                    'operator': op,
-                    'value': v
-                }
-                queries.append(q)
-
-        # pprint(queries)
-        return queries
-
-    def get_or_query(self, datasource, filters, sort=None, args=None):
-        # pprint(datasource)
-        cursors = None
-
-        index_id_field = -1
-        if len(filters) > 0:
-            _filters = self.convert_queries(filters)
-
-            for k, v in enumerate(_filters):
-                if v['property_name'] == '_id':
-                    index_id_field = k
-
-        if index_id_field >= 0:
-            key = self.pymongo(datasource).key(
-                datasource, _filters[index_id_field]['value'])
-            cursors = self.pymongo(datasource).get(key)
-
-            if cursors:
-                # pprint(_filters)
-                for v in _filters:
-                    if v['property_name'] != '_id' and v['operator'] != '=' and cursors[v['property_name']] == v['value']:
-                        cursors = None
-            if cursors:
-                cursors = [cursors]
-        else:
-            query = self.pymongo(datasource).query(kind=datasource)
-            _filters = self.convert_queries(filters)
-
-            for v in _filters:
-                query.add_filter(**v)
-
-            if sort is not None:
-                sort = map(self.convert_sort, sort)
-                query.order = tuple(sort)
-
-            # if client_projection:
-            #     projection = list(projection.keys())
-            #     projection.remove('_id')
-
-            #     for v in spec.keys():
-            #         try:
-            #             projection.remove(v)
-            #         except ValueError:
-            #             pass
-            #     query.projection = tuple(projection)
-
-            if args:
-                cursors = query.fetch(**args)
-            else:
-                cursors = query.fetch()
-
-            # pprint(query.filters)
-            # pprint(query.order)
-        cursors = map(self.remap_entity, cursors)
-        cursors = list(cursors)
-
-        return cursors
-
-    def find(self, resource, req, sub_resource_lookup):
-        args = dict()
-        documents = ()
-
-        if req and req.max_results:
-            args['limit'] = req.max_results
-
-        if req and req.page > 1:
-            args['offset'] = (req.page - 1) * req.max_results
-
-        client_sort = {}
-        spec = {}
-        if req and req.sort:
-            try:
-                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
-                client_sort = ast.literal_eval(req.sort)
-            except ValueError:
-                # it's not mongo so let's see if it's a comma delimited string
-                # instead (ie. "?sort=-age, name").
-                sort = []
-                for sort_arg in [s.strip() for s in req.sort.split(",")]:
-                    if sort_arg[0] == "-":
-                        sort.append((sort_arg[1:], -1))
-                    else:
-                        sort.append((sort_arg, 1))
-                if len(sort) > 0:
-                    client_sort = sort
-            except Exception as e:
-                self.app.logger.exception(e)
-                abort(400, description=debug_error_message(str(e)))
-
-        if req and req.where:
-            try:
-                spec = self._sanitize(json.loads(req.where))
-            except HTTPException as e:
-                # _sanitize() is raising an HTTP exception; let it fire.
-                raise
-            except:
-                # couldn't parse as mongo query; give the python parser a shot.
-                try:
-                    spec = parse(req.where)
-                except ParseError:
-                    abort(400, description=debug_error_message(
-                        'Unable to parse `where` clause'
-                    ))
-
-        bad_filter = validate_filters(spec, resource)
-        if bad_filter:
-            abort(400, bad_filter)
-
-        if sub_resource_lookup:
-            spec = self.combine_queries(spec, sub_resource_lookup)
-
-        if config.DOMAIN[resource]['soft_delete'] \
-                and not (req and req.show_deleted) \
-                and not self.query_contains_field(spec, config.DELETED):
-            # Soft delete filtering applied after validate_filters call as
-            # querying against the DELETED field must always be allowed when
-            # soft_delete is enabled
-            spec = self.combine_queries(spec, {config.DELETED: {"$ne": True}})
-
-        spec = self._mongotize(spec, resource)
-
-        client_projection = self._client_projection(req)
-
-        datasource, spec, projection, sort = self._datasource_ex(
-            resource,
-            spec,
-            client_projection,
-            client_sort)
-
-        if req and req.if_modified_since:
-            spec[config.LAST_UPDATED] = \
-                {'$gt': req.if_modified_since}
-
-        cursors = self.get_or_query(datasource, spec, sort=sort, args=args)
-
-        if cursors:
-            documents = cursors
-
-        return documents
-
-    def find_one(self, resource, req, check_auth_value=True,
-                 force_auth_field_projection=False, **lookup):
-        self._mongotize(lookup, resource)
-
-        client_projection = self._client_projection(req)
-
-        datasource, filter_, projection, _ = self._datasource_ex(
-            resource,
-            lookup,
-            client_projection,
-            check_auth_value=check_auth_value,
-            force_auth_field_projection=force_auth_field_projection)
-
-        if (config.DOMAIN[resource]['soft_delete']) and \
-                (not req or not req.show_deleted) and \
-                (not self.query_contains_field(lookup, config.DELETED)):
-            filter_ = self.combine_queries(
-                filter_, {config.DELETED: {"$ne": True}})
-
-        cursors = self.get_or_query(datasource, filter_)
-
-        if isinstance(cursors, list) and len(cursors) > 0:
-            cursors = cursors[0]
-
-        return cursors
-
-    def find_one_raw(self, resource, **lookup):
-
-        id_field = config.DOMAIN[resource]['id_field']
-        _id = lookup.get(id_field)
-        datasource, filter_, _, _ = self._datasource_ex(resource,
-                                                        {id_field: _id},
-                                                        None)
-
-        lookup = self._mongotize(lookup, resource)
-
-        cursors = self.get_or_query(datasource, lookup)
-
-        if isinstance(cursors, list) and len(cursors) > 0:
-            cursors = cursors[0]
-
-        return cursors
-
-    def allocate_ids(self, datasource, num_ids):
-        incomplete_key = self.pymongo(datasource).key(datasource)
-        return self.pymongo(datasource).allocate_ids(incomplete_key, num_ids)
-
-    def insert(self, resource, doc_or_docs):
-        datasource, _, _, _ = self._datasource_ex(resource)
-
-        if isinstance(doc_or_docs, dict):
-            doc_or_docs = [doc_or_docs]
-
-        allocate_ids = self.allocate_ids(datasource, len(doc_or_docs))
-
-        entities = []
-        for i, v in enumerate(doc_or_docs):
-            entity = datastore.Entity(allocate_ids[i])
-            entity.update(v)
-            entities.append(entity)
-
-        self.pymongo(datasource).put_multi(entities)
-
-        return [v.id for v in allocate_ids]
-
-    def _change_request(self, resource, id_, changes, original, replace=False):
-        id_field = config.DOMAIN[resource]['id_field']
-        query = {id_field: id_}
-        if config.ETAG in original:
-            query[config.ETAG] = original[config.ETAG]
-
-        datasource, filter_, _, _ = self._datasource_ex(
-            resource, query)
-
-        key = self.pymongo(datasource).key(datasource, id_)
-        entity = self.pymongo(datasource).get(key)
-        if replace:
-            original.update(changes)
-            entity.update(original)
-        else:
-            entity.update(changes.get('$set'))
-
-        self.pymongo(datasource).put(entity)
-
-    def remove(self, resource, lookup):
-        lookup = self._mongotize(lookup, resource)
-        datasource, filter_, _, _ = self._datasource_ex(resource, lookup)
-
-        cursors = self.get_or_query(datasource, filter_)
-
-        keys = [self.pymongo(datasource).key(
-            datasource, v[config.ID_FIELD]) for v in cursors]
-
-        self.pymongo(datasource).delete_multi(keys)
-
-
 schema = {
     'user': {
         'username': {
@@ -415,7 +103,7 @@ schema = {
         'student': {
             'type': 'integer',
             'data_relation': {
-                'resource': 'students',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },
@@ -440,18 +128,44 @@ schema = {
         },
     },
     'class': {
-        'day': {
-            'type': 'string',
-            'required': True,
-            'allowed': ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+        'start': {
+            'type': 'datetime'
         },
-        'startAt': {
-            'type': 'string',
-            'required': True
+        'finish': {
+            'type': 'datetime'
         },
-        'finishAt': {
-            'type': 'string',
-            'required': True
+        'schedule': {
+            'type': 'dict',
+            'schema': {
+                'recurrence': {
+                    'type': 'dict',
+                    'schema': {
+                        'interval': {
+                            'type': 'integer'
+                        },
+                        'freq': {
+                            'type': 'string',
+                            'allowed': ['daily', 'weekly', 'monthly', 'yearly']
+                        },
+                        'byday': {
+                            'type': 'list',
+                            'allowed': ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                        },
+                        'until': {
+                            'type': 'datetime'
+                        },
+                        'count': {
+                            'type': 'integer'
+                        }
+                    }
+                },
+                'exclude': {
+                    'type': 'list',
+                },
+                'include': {
+                    'type': 'list',
+                },
+            }
         },
         'module': {
             'type': 'integer',
@@ -475,10 +189,29 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'tutors',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },
+        },
+    },
+    'schedules': {
+        'class': {
+            'type': 'integer',
+            'required': True,
+            'data_relation': {
+                'resource': 'classes',
+                'field': '_id',
+                'embeddable': True
+            },
+        },
+        'start': {
+            'type': 'datetime',
+            'required': True
+        },
+        'end': {
+            'type': 'datetime',
+            'required': True
         },
     },
     'class-student': {
@@ -495,7 +228,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'students',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },
@@ -533,7 +266,7 @@ schema = {
         'tutor': {
             'type': 'integer',
             'data_relation': {
-                'resource': 'tutors',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },
@@ -553,7 +286,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'tutors',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },
@@ -562,7 +295,7 @@ schema = {
             'type': 'integer',
             'required': True,
             'data_relation': {
-                'resource': 'students',
+                'resource': 'users',
                 'field': '_id',
                 'embeddable': True
             },

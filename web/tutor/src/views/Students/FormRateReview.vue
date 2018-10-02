@@ -77,10 +77,6 @@ export default {
       axios
         .post(url, data)
         .then(response => {
-          axios
-            .put(`${process.env.VUE_APP_API}/students/attendances`)
-            .then(response => console.log(response))
-            .catch(error => console.log(error));
         })
         .catch(error => console.log(error));
     },
@@ -102,10 +98,6 @@ export default {
       axios
         .post(url, data)
         .then(response => {
-          axios
-            .put(`${process.env.VUE_APP_API}/students/attendances`)
-            .then(response => console.log(response))
-            .catch(error => console.log(error));
         })
         .catch(error => console.log(error));
     }

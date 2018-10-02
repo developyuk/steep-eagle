@@ -89,7 +89,7 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["q"],
+      propsToSearch: [],
       tableColumns: [
         {
           prop: "id",
@@ -99,42 +99,42 @@ export default {
         {
           prop: "module.name",
           label: "Module",
-          minWidth: 150,
-          labelClassName: "text-capitalize",
-          className: "text-uppercase",
+          minWidth: 192,
+          // labelClassName: "text-capitalize",
+          // className: "text-uppercase",
           sortable: true
         },
         {
           prop: "branch.name",
           label: "Branch",
-          minWidth: 150,
-          className: "text-capitalize",
+          minWidth: 192,
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "tutor.name",
           label: "Tutor",
-          minWidth: 150,
-          className: "text-capitalize",
+          minWidth: 192,
+          // className: "text-capitalize",
           sortable: true
         },
         {
-          prop: "day",
-          label: "Day",
-          minWidth: 100,
-          className: "text-capitalize",
+          prop: "_schedule",
+          label: "Schedule",
+          minWidth: 192,
+          // className: "text-capitalize",
           sortable: true
         },
         {
-          prop: "startAt",
+          prop: "_start",
           label: "Start",
-          minWidth: 100,
+          minWidth: 128,
           sortable: true
         },
         {
-          prop: "finishAt",
+          prop: "_finish",
           label: "Finish",
-          minWidth: 100,
+          minWidth: 128,
           sortable: true
         },
         {
@@ -231,10 +231,10 @@ export default {
       if (!!this.searchQuery) {
         const qList = this.propsToSearch.map(v => {
           const q = {};
-          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = { or_: qList };
+        config.params["where"] = {$or: qList };
       }
       axios
         .get(`${process.env.API}/classes`, config)
@@ -251,7 +251,7 @@ export default {
                     v.branch = response.data;
                   });
                 axios
-                  .get(`${process.env.API}/tutors/${v.tutor}`)
+                  .get(`${process.env.API}/users/${v.tutor}`)
                   .then(response => {
                     v.tutor = response.data;
                   });
@@ -284,12 +284,12 @@ export default {
 
 .module {
   font-size: 2rem;
-  text-transform: uppercase;
+  // text-transform: uppercase;
 }
 
 .branch,
 .time {
-  text-transform: capitalize;
+  // text-transform: capitalize;
 }
 
 .time {

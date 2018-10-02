@@ -87,7 +87,7 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["name"],
+      propsToSearch: ["name",'username','email'],
       tableColumns: [
         {
           prop: "photo",
@@ -265,10 +265,10 @@ export default {
       if (!!this.searchQuery) {
         const qList = this.propsToSearch.map(v => {
           const q = {};
-          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = { or_: qList };
+        config.params["where"] = {$and:[{ $or: qList },{role:'operation'}]};
       }
       axios
         .get(`${process.env.API}/users`, config)

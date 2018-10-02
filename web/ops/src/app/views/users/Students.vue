@@ -156,7 +156,7 @@ export default {
         buttonsStyling: false,
         preConfirm: text => {
           if (text.split(" ")[0] === row.name.split(" ")[0]) {
-            const url = `${process.env.API}/students/${row._id}`;
+            const url = `${process.env.API}/users/${row._id}`;
             let _axios = axios;
             if(is_deleted){
               _axios = _axios.delete(url,config);
@@ -233,7 +233,7 @@ export default {
     //             headers: { "if-match": row._etag }
     //           };
     //           return axios
-    //             .patch(`${process.env.API}/students/${row._id}`, data, config)
+    //             .patch(`${process.env.API}/users/${row._id}`, data, config)
     //             .then(response => {
     //               return {
     //                 title: "Deleted!",
@@ -277,10 +277,11 @@ export default {
           page: this.pagination.currentPage,
           show_deleted: true,
           sort: "_deleted,-_updated",
-          embedded: {
-            student_guardians: true,
-            "student_guardians.guardian": true
-          }
+          // embedded: {
+          //   student_guardians: true,
+          //   "student_guardians.guardian": true
+          // }
+          where:{role:'student'}
         },
         headers: {
           // "cache-control": "no-cache"
@@ -289,13 +290,13 @@ export default {
       if (!!this.searchQuery) {
         const qList = this.propsToSearch.map(v => {
           const q = {};
-          q[v] = `ilike(\"%${this.searchQuery}%\")`;
+          q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = { or_: qList };
+        config.params["where"] = {$and:[{ $or: qList },{role:'student'}]};
       }
       axios
-        .get(`${process.env.API}/students`, config)
+        .get(`${process.env.API}/users`, config)
         .then(response => {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {

@@ -50,30 +50,14 @@ DOMAIN = {
         'schema': schema.get('user'),
         'soft_delete': True
     },
-    'students': {
-        'datasource': {
-            'source': 'users',
-            'filter': {'role': 'student'}
-        },
-        'schema': schema.get('user'),
-        'soft_delete': True
-    },
     'students-guardians': {
-        'url': 'students/<regex("[0-9]{16}"):student>/guardians',
+        'url': 'users/<regex("[0-9]{16}"):student>/guardians',
         'datasource': {
             'source': 'users',
             'filter': {'role': 'guardian'}
         },
         'schema': schema.get('user'),
         'resource_methods': ['GET', 'POST', 'DELETE']
-    },
-    'tutors': {
-        'datasource': {
-            'source': 'users',
-            'filter': {'role': 'tutor'}
-        },
-        'schema': schema.get('user'),
-        'soft_delete': True
     },
     'branches': {
         'schema': schema.get('branch')
@@ -82,7 +66,8 @@ DOMAIN = {
         'schema': schema.get('module')
     },
     'classes': {
-        'schema': schema.get('class')
+        'schema': schema.get('class'),
+        'allow_unknown': True
     },
     'classes_students': {
         'schema': schema.get('class-student'),

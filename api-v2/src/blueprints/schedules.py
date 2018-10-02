@@ -3,14 +3,15 @@ from datetime import timedelta, datetime, time
 from pprint import pprint
 from copy import deepcopy
 
-from flask import current_app as app, jsonify, Blueprint
+from flask import current_app as app, jsonify, Blueprint, request
 from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods import get, getitem
-from eve.methods.put import put_internal
-from eve.methods.post import post_internal
-from eve.render import send_response
+# from eve.methods.put import put_internal
+# from eve.methods.post import post_internal
+# from eve.render import send_response
 from eve_swagger import add_documentation
+from eve.utils import config
 import humanize
 from werkzeug.exceptions import NotFound
 
@@ -21,90 +22,40 @@ CORS(blueprint, max_age=timedelta(days=10))
 
 
 def _last_attendance(class_):
-    domain_ori = deepcopy(app.config['DOMAIN'])
-    app.config['DOMAIN']['attendances_tutors'].update(
-        {'embedded_fields': ['tutor']})
+    # domain_ori = deepcopy(app.config['DOMAIN'])
+    # app.config['DOMAIN']['attendances_tutors'].update(
+    #     {'embedded_fields': ['tutor']})
 
-    utc_start_at = class_['startAtTs'].astimezone(timezone('UTC'))
+    utc_start_at = class_['start'].astimezone(timezone('UTC'))
     try:
         lookup = {
             '_created': {'$gte': utc_start_at},
-            'class': class_['_id']
+            'class': class_[config.ID_FIELD]
         }
         attendance, *_ = getitem('attendances', **lookup)
-        lookup = {'attendance': attendance['_id']}
+        lookup = {'attendance': attendance[config.ID_FIELD]}
         attendances_tutors, *_ = get('attendances_tutors', **lookup)
     except NotFound:
-        attendances_tutors = {'_items': []}
+        attendances_tutors = {config.ITEMS: []}
 
-    app.config['DOMAIN'] = domain_ori
+    # app.config['DOMAIN'] = domain_ori
     return attendances_tutors
-
-
-add_documentation({
-    'paths': {'/schedules': {'put': {
-        'summary': 'Replaces a Schedule document',
-        'tags': ['Schedules'],
-        "security": [{"JwtAuth": []}],
-    }}}
-})
-
-
-@blueprint.route('/schedules', methods=['PUT'])
-@requires_auth('/schedules')
-def put_schedules():
-    config_ori = deepcopy(app.config)
-    app.config['PAGINATION_DEFAULT'] = 9999
-    app.config['DOMAIN']['classes'].update({'embedded_fields': [
-        'branch',
-        'module',
-        'tutor',
-    ]})
-    classes, *_ = get('classes')
-    classes = classes['_items']
-
-    def parse_last_attendances(class_):
-        class_.update({'last_attendances': _last_attendance(class_)})
-        return class_
-    classes = map(parse_last_attendances, classes)
-    classes = {'_items': list(classes)}
-
-    response = None
-    resource = 'caches'
-    payload = {
-        'key': 'schedules',
-        'value': classes
-    }
-    lookup = {
-        'key': 'schedules'
-    }
-    try:
-        response = put_internal(resource, payload, **lookup)
-    except KeyError:
-        response = post_internal(resource, payload)
-
-    app.config = config_ori
-    return jsonify({
-        'response': response,
-        'data': classes,
-    })
 
 
 add_documentation({
     'paths': {'/schedules': {'get': {
         'summary': 'Retrieves a Schedule document',
-        'tags': ['Schedules'],
+        'tags': ['Classe'],
         "security": [{"JwtAuth": []}],
     }}}
 })
 
 
 def exclude_current_user_attendance(class_):
-
-    if not class_['last_attendances'].get('_items'):
+    if not class_['last_attendances'].get(config.ITEMS):
         return True
 
-    items = class_['last_attendances']['_items']
+    items = class_['last_attendances'][config.ITEMS]
     if len(items):
         for v2 in items:
             if v2['tutor'] == app.auth.get_request_auth_value():
@@ -113,64 +64,70 @@ def exclude_current_user_attendance(class_):
 
 
 def exclude_other_user_attendance(class_):
-    if not class_['last_attendances'].get('_items'):
+    if not class_['last_attendances'].get(config.ITEMS):
         return True
 
-    items = class_['last_attendances']['_items']
+    items = class_['last_attendances'][config.ITEMS]
     if len(items):
         if (class_['finishAtTs'] < utc_now):
             return False
     return True
 
 
-date_range = [utc_now.date() + timedelta(days=v) for v in range(7)]
-
-
-def _group(classes):
-    group_list = []
-
-    for date in date_range:
-        group = {
-            'date': date.isoformat(),
-            'dateDay': date.day,
-            'day': dow_list[date.weekday()],
-            'text': '',
-            '_items': [],
-        }
-
-        for class_ in classes:
-            if date == class_['startAtTs'].date():
-                text = humanize.naturaldelta(
-                    timedelta(days=(class_['startAtTs'].date() - utc_now.date()).days))
-                group['text'] = 'in %s' % text
-                group['_items'].append(class_)
-
-        if len(group['_items']):
-            group_list.append(group)
-
-    return group_list
-
-
 @blueprint.route('/schedules', methods=['GET'])
 @requires_auth('/schedules')
 def schedules():
-    resource = 'caches'
-    lookup = {'key': 'schedules'}
-    row, *_ = getitem(resource, **lookup)
-    classes = row['value']['_items']
+    _page = int(request.args.get("_page", 1))
+    _max_results = int(request.args.get("_max_results", 1))
 
-    classes = filter(
-        lambda v: v['finishAtTs'] > (wib_now - timedelta(hours=2)),
-        classes)
-    classes = filter(
-        lambda v: v['finishAtTs'] < (wib_now + timedelta(days=5)),
-        classes)
-    classes = filter(exclude_current_user_attendance, classes)
-    classes = filter(exclude_other_user_attendance, classes)
-    classes = list(classes)
+    date_range = ((wib_now.date()+timedelta(days=(_page-1)*_max_results)) + timedelta(days=v)
+                  for v in range(_max_results))
 
-    classes.sort(key=lambda v: v['startAtTs'])
-    classes = _group(classes)
-    classes = {'_items': classes}
+    classes, *_ = get('classes')
+    classes = classes[config.ITEMS]
+    # pprint(classes)
 
-    return jsonify(classes)
+    data = []
+    for date in date_range:
+        d = {
+            'date': date.isoformat(),
+            'delta': humanize.naturaldelta(
+                timedelta(days=(date - wib_now.date()).days)),
+            'day': date.day,
+            'weekday': dow_list[date.weekday()],
+            config.ITEMS: []
+        }
+        for class_ in classes:
+            recurrence = class_['schedule']['recurrence']
+            class_['start'] = class_['start'].replace(
+                day=date.day, month=date.month, year=date.year)
+            class_['finish'] = class_['finish'].replace(
+                day=date.day, month=date.month, year=date.year)
+
+            if recurrence['freq'] == 'daily':
+                pass
+            if recurrence['freq'] == 'weekly':
+                if recurrence['interval'] == 1:
+                    if dow_list[date.weekday()] in recurrence['byday']:
+                        d[config.ITEMS].append(class_)
+
+        if len(d[config.ITEMS]) > 0:
+            d[config.ITEMS].sort(key=lambda v: v['start'])
+
+            for v in d[config.ITEMS]:
+                v['last_attendances'] = _last_attendance(v)
+
+            d[config.ITEMS] = filter(
+                exclude_current_user_attendance, d[config.ITEMS])
+            d[config.ITEMS] = filter(
+                exclude_other_user_attendance, d[config.ITEMS])
+            d[config.ITEMS] = list(d[config.ITEMS])
+            data.append(d)
+
+    return jsonify({
+        config.ITEMS: data,
+        config.META: {
+            'page': _page,
+            'max_results': _max_results,
+        }
+    })

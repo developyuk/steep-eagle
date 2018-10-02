@@ -69,7 +69,7 @@ export default {
       }
       if (this.isCreate) {
         axios
-          .post(`${process.env.API}/students`, data)
+          .post(`${process.env.API}/users`, data)
           .then(response => {
             this.model._etag = response.data._etag;
 
@@ -95,7 +95,7 @@ export default {
           headers: { "If-Match": this.model._etag }
         };
         axios
-          .patch(`${process.env.API}/students/${this.model._id}`, data, config)
+          .patch(`${process.env.API}/users/${this.model._id}`, data, config)
           .then(response => {
             this.model._etag = response.data._etag;
 
@@ -119,7 +119,7 @@ export default {
       }
 
       if (this.model.guardians.length) {
-        const url = `${process.env.API}/students/${this.model._id}/guardians`;
+        const url = `${process.env.API}/users/${this.model._id}/guardians`;
         const postGuardians = () => {
           axios
             .post(url, this.model.guardians)
@@ -138,19 +138,19 @@ export default {
     if (id) {
       this.isCreate = false;
       axios
-        .get(`${process.env.API}/students/${id}`, {
+        .get(`${process.env.API}/users/${id}`, {
           headers: { "If-None-Match": this.$refs.firstStep.model._etag }
         })
         .then(response => {
           this.$refs.firstStep.model = response.data;
           this.$refs.firstStep.model.is_active = !this.$refs.firstStep.model
-            .is_deleted;
+            ._deleted;
           this.$refs.firstStep.model.photo = null;
         })
         .catch(error => console.log(error, error.response));
 
       axios
-        .get(`${process.env.API}/students/${id}/guardians`, {
+        .get(`${process.env.API}/users/${id}/guardians`, {
           headers: { "If-None-Match": this.$refs.firstStep.model._etag }
         })
         .then(response => {
