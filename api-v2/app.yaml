@@ -3,7 +3,7 @@ runtime: python37
 api_version: 1
 
 handlers:
-- url: /src/.*
+- url: /.*
   script: auto
 
 env_variables:

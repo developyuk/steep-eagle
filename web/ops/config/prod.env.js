@@ -1,5 +1,5 @@
 module.exports = {
   NODE_ENV: '"production"',
-  API: '"https://mtutor.codingcamp.id/api"',
-  WS: '"wss://mtutor.codingcamp.id:8084/mqtt"',
+  API: '"https://api.steep-eagle.appspot.com"',
+  WS: '"wss://iot.eclipse.org:443/ws"'
 }

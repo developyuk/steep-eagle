@@ -9,7 +9,6 @@ import hooks
 import blueprints
 
 app = Eve(auth=my.JwtAuth,
-          settings=os.path.abspath('settings.py'),
           data=my_datalayer.GoogleCloudstore,
           media=my.GoogleMediaStorage)
 
