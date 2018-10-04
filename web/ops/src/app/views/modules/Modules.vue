@@ -17,7 +17,7 @@
             label
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
-          el-table.table-striped(:data="queriedData" border="" style="width: 100%")
+          el-table.table-striped(:data="tableData" border="" style="width: 100%")
             el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
               template(slot-scope='props')
                 .img-container
@@ -40,7 +40,7 @@
 <script>
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
-import PPagination from "src/components/UIComponents/Pagination.vue";
+import PPagination from "src/app/components/Pagination.vue";
 import axios from "axios";
 import _range from "lodash/range";
 import swal from "sweetalert2";
@@ -54,9 +54,6 @@ export default {
     PPagination
   },
   computed: {
-    queriedData() {
-      return this.tableData;
-    },
     to() {
       let highBound = this.from + this.pagination.perPage;
       if (this.total < highBound) {
@@ -93,8 +90,6 @@ export default {
           prop: "name",
           label: "Name",
           minWidth: 200,
-          // className: "text-uppercase",
-          // labelClassName: "text-capitalize",
           sortable: true
         }
       ],
@@ -189,17 +184,18 @@ export default {
         .get(`${process.env.API}/modules`, config)
         .then(response => {
           this.tableData = response.data._items;
-          this.pagination.currentPage = response.data._meta.page;
+          
+          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
           if (this.tableData.length == this.pagination.perPage) {
-            this.pagination.total =
-              this.pagination.currentPage * this.pagination.perPage + 1;
+            this.pagination.total = paginationTotal + 1;
+          }else{ 
+            this.pagination.total = paginationTotal;
           }
         })
         .catch(error => console.log(error, error.response));
     }
   },
   mounted() {
-    this.getData();
   }
 };
 </script>

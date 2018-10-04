@@ -21,7 +21,7 @@
             label
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
-          el-table.table-striped(:data="queriedData" border="" style="width: 100%")
+          el-table.table-striped(:data="tableData" border="" style="width: 100%")
             el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'#'")
             el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
@@ -40,7 +40,7 @@
 <script>
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
-import PPagination from "src/components/UIComponents/Pagination.vue";
+import PPagination from "src/app/components/Pagination.vue";
 import axios from "axios";
 import _range from "lodash/range";
 import mixinNotify from "src/app/mixins/notify";
@@ -56,9 +56,6 @@ export default {
     PPagination
   },
   computed: {
-    queriedData() {
-      return this.tableData;
-    },
     to() {
       let highBound = this.from + this.pagination.perPage;
       if (this.total < highBound) {
@@ -94,22 +91,22 @@ export default {
           prop: "tutor.name",
           label: "Tutor",
           minWidth: 128,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "attendance.module.name",
           label: "Module",
           minWidth: 192,
-          labelClassName: "text-capitalize",
-          className: "text-uppercase",
+          // labelClassName: "text-capitalize",
+          // className: "text-uppercase",
           sortable: true
         },
         {
           prop: "attendance.class.branch.name",
           label: "Branch",
           minWidth: 192,
-          className: "text-capitalize",
+          // className: "text-capitalize",
           sortable: true
         },
         {
@@ -193,13 +190,13 @@ export default {
           sort: "-_created",
           max_results: this.pagination.perPage,
           page: this.pagination.currentPage,
-          embedded: {
-            attendance: true,
-            "attendance.class": true,
-            "attendance.class.branch": true,
-            "attendance.module": true,
-            tutor: true
-          }
+          // embedded: {
+          //   attendance: true,
+          //   "attendance.class": true,
+          //   "attendance.class.branch": true,
+          //   "attendance.module": true,
+          //   tutor: true
+          // }
         },
         headers: {
           // "cache-control": "no-cache"
@@ -217,48 +214,79 @@ export default {
         .get(`${process.env.API}/attendances_tutors`, config)
         .then(response => {
           this.tableData = response.data._items;
-          // this.tableData.forEach(v => {
-          //   axios
-          //     .get(`${process.env.API}/modules/${v.attendance.module}`)
-          //     .then(response => v.attendance.module = response.data)
-          //     .catch(error => console.log(error, error.response));
+          this.tableData.forEach(v => {
+            
+            v.attendance = {
+              _id:v.attendance,
+              module:{
+                _id:0,
+                name:'',
+                image:'',
+              },
+              class:{
+                _id:0,
+                name:'',
+                branch:{
+                  _id:0,
+                  name:''
+                }
+              },
+            }
+            axios
+              .get(`${process.env.API}/attendances/${v.attendance._id}`)
+              .then(response => {
+                v.attendance = response.data;
 
-          //   axios
-          //     .get(`${process.env.API}/classes/${v.attendance.class}`)
-          //     .then(response => {
-          //       v.attendance.class = response.data;
+                v.attendance.module = {
+                  _id:v.attendance.module,
+                  name:'',
+                  image:'',
+                };
+                v.attendance.class = {
+                  _id:v.attendance.class,
+                  name:'',
+                  branch:{
+                    _id:0,
+                    name:''
+                  }
+                };
+                axios
+                  .get(`${process.env.API}/modules/${v.attendance.module._id}`)
+                  .then(response => v.attendance.module = response.data)
 
-          //       axios
-          //         .get(`${process.env.API}/branches/${v.attendance.class.branch}`)
-          //         .then(response => v.attendance.class.branch = response.data)
-          //         .catch(error => console.log(error, error.response));
-          //     })
-          //     .catch(error => console.log(error, error.response));
-          //   // axios
-          //   //   .get(`${process.env.API}/attendances/${v.attendance}`)
-          //   //   .then(response => {
-          //   //     v.attendance = response.data;
+                axios
+                  .get(`${process.env.API}/classes/${v.attendance.class._id}`)
+                  .then(response => {
+                    v.attendance.class = response.data;
+                    v.attendance.class.branch = {
+                      _id:v.attendance.class.branch,
+                      name:'',
+                    };
 
-          //   //   })
-          //   //   .catch(error => console.log(error, error.response));
+                    axios
+                      .get(`${process.env.API}/branches/${v.attendance.class.branch._id}`)
+                      .then(response => v.attendance.class.branch = response.data)
+                  })
+              })
+              .catch(error => console.log(error, error.response));
 
-          //   axios
-          //     .get(`${process.env.API}/tutors/${v.tutor}`)
-          //     .then(response => v.tutor = response.data)
-          //     .catch(error => console.log(error, error.response));
-          // });
-          this.pagination.currentPage = response.data._meta.page;
+            axios
+              .get(`${process.env.API}/users/${v.tutor}`)
+              .then(response => v.tutor = response.data)
+              .catch(error => v.tutor = error.response.data);
+          });
 
+          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
           if (this.tableData.length == this.pagination.perPage) {
-            this.pagination.total =
-              this.pagination.currentPage * this.pagination.perPage + 1;
+            this.pagination.total = paginationTotal + 1;
+          }else{
+            this.pagination.total = paginationTotal;
           }
         })
         .catch(error => console.log(error, error.response));
     }
   },
   mounted() {
-    this.getData();
   }
 };
 </script>
