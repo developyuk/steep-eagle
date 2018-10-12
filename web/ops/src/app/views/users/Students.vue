@@ -298,11 +298,11 @@ export default {
           this.tableData = response.data._items;
           this.tableData = this.tableData.map(v => {
             v.is_active = !v._deleted;
-            v.guardians_name = v.student_guardians
-              .map(v2 => {
-                return v2.guardian.name || v2.guardian.username;
-              })
-              .join(", ");
+            // v.guardians_name = v.student_guardians
+            //   .map(v2 => {
+            //     return v2.guardian.name || v2.guardian.username;
+            //   })
+            //   .join(", ");
             return v;
           });
           const paginationTotal = this.pagination.currentPage * this.pagination.perPage;

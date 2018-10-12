@@ -4,14 +4,15 @@ from copy import deepcopy
 
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint, request
-from eve.methods import delete, getitem
+from eve.methods import delete
 from eve.methods.post import post_internal
+from eve.methods.get import getitem_internal
 from eve.utils import config
 from werkzeug.exceptions import NotFound
 from eve_swagger import add_documentation
 
 blueprint = Blueprint('import', __name__)
-CORS(blueprint, max_age=timedelta(days=10))
+CORS(blueprint, max_age=timedelta(seconds=10))
 
 
 def allowed_key(allowed_key, item):
@@ -183,13 +184,13 @@ def _import_classes():
             lookup = {
                 'name': item['module']['name']
             }
-            module, *_ = getitem('modules', **lookup)
+            module, *_ = getitem_internal('modules', **lookup)
             item['module'] = module[config.ID_FIELD]
         if item.get('branch'):
             lookup = {
                 'name': item['branch']['name']
             }
-            branch, *_ = getitem('branches', **lookup)
+            branch, *_ = getitem_internal('branches', **lookup)
             item['branch'] = branch[config.ID_FIELD]
         if item.get('tutor'):
             resource = 'users'
@@ -198,7 +199,7 @@ def _import_classes():
                 'username': item['tutor']['username']
             }
             try:
-                tutor, *_ = getitem(resource, **lookup)
+                tutor, *_ = getitem_internal(resource, **lookup)
                 item['tutor'] = tutor[config.ID_FIELD]
             except NotFound:
                 item['tutor'] = None
@@ -210,7 +211,7 @@ def _import_classes():
                     'username': v['student']['username']
                 }
                 try:
-                    student, *_ = getitem(resource, **lookup)
+                    student, *_ = getitem_internal(resource, **lookup)
                     v['student'] = student[config.ID_FIELD]
                 except NotFound:
                     v['student'] = None

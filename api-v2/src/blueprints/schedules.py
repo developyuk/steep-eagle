@@ -14,10 +14,10 @@ from eve.utils import config
 import humanize
 from pytz import utc
 
-from shared.datetime import wib_tz, wib_now, utc_now, dow_list
+from shared.datetime import wib_tz, wib_now, utc_now, dow_list, after_request_cache
 
 blueprint = Blueprint('schedules', __name__)
-CORS(blueprint, max_age=timedelta(days=10))
+CORS(blueprint, max_age=timedelta(seconds=10))
 
 
 def _last_attendance(attendances, attendances_tutors, class_):
@@ -195,3 +195,8 @@ def schedules():
             'max_results': _max_results,
         }
     })
+
+
+@blueprint.after_request
+def add_header(response):
+    return after_request_cache(response)

@@ -5,10 +5,11 @@ from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods.get import get_internal
-from . import dow
+from eve.utils import config
+from shared.datetime import dow, after_request_cache
 
 blueprint = Blueprint('tutor_stats', __name__)
-CORS(blueprint, max_age=timedelta(days=10))
+CORS(blueprint, max_age=timedelta(seconds=10))
 
 
 @blueprint.route('/tutor_stats', methods=['GET'])
@@ -108,11 +109,4 @@ def tutor_stats():
 
 @blueprint.after_request
 def add_header(response):
-    response.cache_control.max_age = app.config['CACHE_EXPIRES']
-    response.cache_control.public = True
-    response.cache_control.must_revalidate = True
-
-    now = datetime.now()
-    then = now + timedelta(seconds=app.config['CACHE_EXPIRES'])
-    response.headers['Expires'] = then
-    return response
+    return after_request_cache(response)

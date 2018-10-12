@@ -12,10 +12,10 @@ from eve.methods.post import post_internal
 from eve.render import send_response
 from eve.utils import config
 
-from shared.datetime import utc_now
+from shared.datetime import utc_now, after_request_cache
 
 blueprint = Blueprint('students', __name__)
-CORS(blueprint, max_age=timedelta(days=10))
+CORS(blueprint, max_age=timedelta(seconds=10))
 
 
 def attendance_students(item, at):
@@ -66,22 +66,9 @@ def get_students():
     attendances = filter(lambda v: len(v['students']) > 0, attendances)
     attendances = {config.ITEMS: list(attendances)}
 
-    # response = None
-    # resource = 'caches'
-    # payload = {
-    #     'key': 'students_attendances_%s' % app.auth.get_request_auth_value(),
-    #     'value': attendances
-    # }
-    # lookup = {
-    #     'key': 'students_attendances_%s' % app.auth.get_request_auth_value()
-    # }
-    # try:
-    #     response = put_internal(resource, payload, **lookup)
-    # except KeyError:
-    #     response = post_internal(resource, payload)
-
     app.config = config_ori
     return jsonify(attendances)
+
 
 def _dormant_students(classes_students, student):
     for v in classes_students:
@@ -124,3 +111,8 @@ def students_dormant():
     response[0][config.ITEMS] = list(students)
 
     return send_response(resource, response)
+
+
+@blueprint.after_request
+def add_header(response):
+    return after_request_cache(response)
