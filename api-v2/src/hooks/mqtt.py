@@ -9,10 +9,7 @@ from flask import current_app as app
 import paho.mqtt.publish as mqtt_publish
 
 
-port = 8883
-if os.environ['DEBUG'] == '1':
-    port = 1883
-
+port = 1883
 project_name = 'steep-eagle'
 
 
