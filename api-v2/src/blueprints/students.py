@@ -6,12 +6,11 @@ from flask_cors import CORS
 from eve_swagger import add_documentation
 from flask import current_app as app, jsonify, Blueprint
 from eve.auth import requires_auth
-from eve.methods import get, getitem
+from eve.methods.get import get_internal, getitem_internal
 from eve.methods.put import put_internal
 from eve.methods.post import post_internal
 from eve.render import send_response
 from eve.utils import config
-from werkzeug.exceptions import NotFound
 
 from shared.datetime import utc_now
 
@@ -21,42 +20,42 @@ CORS(blueprint, max_age=timedelta(days=10))
 
 def attendance_students(item, at):
     lookup = {
-        '_created': {'$gte': at['_created'].replace(hour=0, minute=0, second=0, microsecond=0)},
-        'student': item['student'][config.ID_FIELD],
+        config.DATE_CREATED: {'$gte': at[config.DATE_CREATED].replace(hour=0, minute=0, second=0, microsecond=0)},
+        'student': item['student'],
         'attendance': at['attendance'][config.ID_FIELD],
     }
-    attendances_students, *_ = get('attendances_students', **lookup)
+    attendances_students, *_ = get_internal('attendances_students', **lookup)
     attendances_students = attendances_students[config.ITEMS]
 
     return len(attendances_students) == 0
 
 
-@blueprint.route('/students/attendances', methods=['PUT'])
+@blueprint.route('/students/attendances', methods=['GET'])
 @requires_auth('/students/attendances')
-def put_students():
+def get_students():
     config_ori = deepcopy(app.config)
-    app.config['PAGINATION_DEFAULT'] = 9999
+    # app.config['PAGINATION_DEFAULT'] = 9999
     app.config['DOMAIN']['attendances_tutors'].update({'embedded_fields': [
         'attendance',
-        'attendance.module',
-        'attendance.class',
-        'attendance.class.branch',
+        # 'attendance.module',
+        # 'attendance.class',
+        # 'attendance.class.branch',
     ]})
     lookup = {
-        '_created': {'$gte': (utc_now - timedelta(hours=12))},
+        config.DATE_CREATED: {'$gte': (utc_now - timedelta(hours=12))},
         'tutor': app.auth.get_request_auth_value()
     }
-    attendances, *_ = get('attendances_tutors', **lookup)
+    attendances, *_ = get_internal('attendances_tutors', **lookup)
     attendances = attendances[config.ITEMS]
 
-    app.config['DOMAIN']['classes_students'].update({'embedded_fields': [
-        'student',
-    ]})
+    # app.config['DOMAIN']['classes_students'].update({'embedded_fields': [
+    #     'student',
+    # ]})
     for v in attendances:
         lookup = {
-            'class': v['attendance']['class'][config.ID_FIELD]
+            'class': v['attendance']['class']
         }
-        students, *_ = get('classes_students', **lookup)
+        students, *_ = get_internal('classes_students', **lookup)
         students = students[config.ITEMS]
 
         # students = map(lambda v2: map_attendances(v, v2), students)
@@ -67,47 +66,28 @@ def put_students():
     attendances = filter(lambda v: len(v['students']) > 0, attendances)
     attendances = {config.ITEMS: list(attendances)}
 
-    response = None
-    resource = 'caches'
-    payload = {
-        'key': 'students_attendances_%s' % app.auth.get_request_auth_value(),
-        'value': attendances
-    }
-    lookup = {
-        'key': 'students_attendances_%s' % app.auth.get_request_auth_value()
-    }
-    try:
-        response = put_internal(resource, payload, **lookup)
-    except KeyError:
-        response = post_internal(resource, payload)
+    # response = None
+    # resource = 'caches'
+    # payload = {
+    #     'key': 'students_attendances_%s' % app.auth.get_request_auth_value(),
+    #     'value': attendances
+    # }
+    # lookup = {
+    #     'key': 'students_attendances_%s' % app.auth.get_request_auth_value()
+    # }
+    # try:
+    #     response = put_internal(resource, payload, **lookup)
+    # except KeyError:
+    #     response = post_internal(resource, payload)
 
     app.config = config_ori
-    return jsonify({
-        'response': response,
-        'data': attendances,
-    })
-
-
-@blueprint.route('/students/attendances', methods=['GET'])
-@requires_auth('/students/attendances')
-def get_students():
-    resource = 'caches'
-    lookup = {'key': 'students_attendances_%s' % app.auth.get_request_auth_value()}
-    try:
-        row, *_ = getitem(resource, **lookup)
-        attendances = row['value']
-    except NotFound:
-        attendances = {config.ITEMS: []}
-
     return jsonify(attendances)
 
-
-def _dormant_students(v):
-    try:
-        _ = getitem('classes_students', **{'student': v[config.ID_FIELD]})
-        return False
-    except NotFound:
-        return True
+def _dormant_students(classes_students, student):
+    for v in classes_students:
+        if v['student'] == student[config.ID_FIELD]:
+            return False
+    return True
 
 
 add_documentation({
@@ -128,12 +108,19 @@ add_documentation({
 @blueprint.route('/students/dormant', methods=['GET'])
 @requires_auth('/students/dormant')
 def students_dormant():
-    resource = 'students'
-    response = get(resource)
+    resource = 'users'
+    lookup = {
+        'role': 'student'
+    }
+    response = get_internal(resource, **lookup)
     response = list(response)
     students = response[0][config.ITEMS]
 
-    students = filter(_dormant_students, students)
+    classes_students, *_ = get_internal('classes_students')
+    classes_students = classes_students[config.ITEMS]
+
+    students = filter(lambda v: _dormant_students(
+        classes_students, v), students)
     response[0][config.ITEMS] = list(students)
 
     return send_response(resource, response)
