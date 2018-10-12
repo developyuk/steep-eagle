@@ -3,23 +3,30 @@ import Router from 'vue-router'
 import axios from "axios";
 import store from './store';
 
+import Schedules from '@/views/Schedules/Schedules';
+import Students from '@/views/Students/Students';
+import ProgressClasses from '@/views/Progress/Classes/Progress';
+import ProgressStudents from '@/views/Progress/Students/Progress';
+import Search from '@/views/Search/Search';
+import Sign from '@/views/Sign';
+
 Vue.use(Router);
 
 const router = new Router({
   routes: [
     {
       path: '/',
-      component: () => import('@/views/Schedules/Schedules'),
+      component: Schedules,
       meta: { requiresAuth: true }
     },
     {
       path: '/students',
-      component: () => import('@/views/Students/Students'),
+      component: Students,
       meta: { requiresAuth: true }
     },
     {
       path: '/progress',
-      component: () => import('@/views/Progress/Classes/Progress'),
+      component: ProgressClasses,
       children: [
         {
           path: "classes",
@@ -27,29 +34,29 @@ const router = new Router({
         },
         {
           path: "students",
-          component: () => import('@/views/Progress/Students/Progress'),
+          component: ProgressStudents,
         },
       ],
       meta: { requiresAuth: true }
     },
     {
       path: '/search',
-      component: () => import('@/views/Search/Search'),
+      component: Search,
       children: [
         {
           path: "",
-          component: () => import('@/views/Search/Search'),
+          component: Search,
         },
         {
           path: "students",
-          component: () => import('@/views/Search/Search'),
+          component: Search,
         },
       ],
       meta: { requiresAuth: true, isAside: true }
     },
     {
       path: '/sign',
-      component: () => import('@/views/Sign'),
+      component: Sign,
     }
   ]
 });

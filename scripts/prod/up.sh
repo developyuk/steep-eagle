@@ -24,12 +24,14 @@ set -x
 # docker-compose -f docker-compose-prod.yml build
 # docker-compose -f docker-compose-prod.yml up -d --scale api=4 --remove-orphans
 # # docker-compose -f docker-compose-prod.yml logs --follow --tail 50
+MYPWD=$(pwd)
 
-cd $(pwd)/web/ops
+cd $MYPWD/web/ops
 npm run build
-cd $(pwd)/web/tutor
+cd $MYPWD/web/tutor
 npm run build
-mv $(pwd)/api-v2/app.yaml $(pwd)/api-v2/src/
-mv $(pwd)/api-v2/requirements $(pwd)/api-v2/src/
+mv $MYPWD/api-v2/app.yaml $MYPWD/api-v2/src/
+mv $MYPWD/api-v2/requirements.txt $MYPWD/api-v2/src/
 
-gcloud app deploy $(pwd)/web/ops/app.yaml $(pwd)/web/tutor/app.yaml $(pwd)/api-v2/src/app.yaml
+cd $MYPWD
+gcloud app deploy $MYPWD/web/ops/app.yaml $MYPWD/web/tutor/app.yaml $MYPWD/api-v2/src/app.yaml
