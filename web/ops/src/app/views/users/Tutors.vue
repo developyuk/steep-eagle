@@ -86,7 +86,7 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["username","name","email"],
+      propsToSearch: ["username", "name", "email"],
       tableColumns: [
         {
           prop: "photo",
@@ -98,21 +98,21 @@ export default {
         {
           prop: "name",
           label: "Name",
-          minWidth: 128,
+          minWidth: 192,
           // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "username",
           label: "Username",
-          minWidth: 200,
+          minWidth: 128,
           // className: "text-capitalize",
           sortable: true
         },
         {
           prop: "email",
           label: "Email",
-          minWidth: 128,
+          minWidth: 192,
           // className: "text-capitalize",
           sortable: true
         },
@@ -266,7 +266,7 @@ export default {
           page: this.pagination.currentPage,
           show_deleted: true,
           sort: "_deleted,-_updated",
-          where:{role:'tutor'}
+          where: { role: "tutor" }
         },
         headers: {
           // "cache-control": "no-cache"
@@ -278,7 +278,7 @@ export default {
           q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = {$and:[{ $or: qList },{role:'tutor'}]};
+        config.params["where"] = { $and: [{ $or: qList }, { role: "tutor" }] };
       }
       axios
         .get(`${process.env.API}/users`, config)
@@ -288,18 +288,18 @@ export default {
             v.is_active = !v._deleted;
             return v;
           });
-          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
+          const paginationTotal =
+            this.pagination.currentPage * this.pagination.perPage;
           if (this.tableData.length == this.pagination.perPage) {
             this.pagination.total = paginationTotal + 1;
-          }else{
+          } else {
             this.pagination.total = paginationTotal;
           }
         })
         .catch(error => console.log(error, error.response));
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 <style>

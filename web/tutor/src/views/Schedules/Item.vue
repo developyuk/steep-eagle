@@ -18,19 +18,23 @@
 </template>
 
 <script>
+import ButtonStatus from "./ButtonStatus";
+import MyImg from "@/components/Img";
+import Placeholder from "@/components/Placeholder";
+
 export default {
   props: ["item"],
   components: {
-    "button-status": () => import("./ButtonStatus"),
-    "my-img": () => import("@/components/Img"),
-    placeholder: () => import("@/components/Placeholder")
+    ButtonStatus,
+    MyImg,
+    Placeholder
   },
   methods: {
     onClickStart(e) {
       this.$emit("click-start", e);
     },
     parseLastAttendanceTutorName(list) {
-      return list.length ? list.map(v => v['tutor']['name']).join(", "):"";
+      return list.length ? list.map(v => v["tutor"]["name"]).join(", ") : "";
     }
   }
 };
@@ -57,7 +61,7 @@ $size: 3rem;
   margin-right: 1rem;
   img {
     width: 4rem;
-    height: 4rem;
+    // height: 4rem;
     border-radius: 0.5rem;
   }
 }
@@ -73,8 +77,8 @@ $size: 3rem;
 .mdc-list-item__secondary-text {
   text-transform: capitalize;
   font-size: 0.65rem;
-  &:before{
-    height: .875rem;
+  &:before {
+    height: 0.875rem;
   }
   &.tutor {
     color: map-get($palettes, purple);

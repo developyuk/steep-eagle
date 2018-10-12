@@ -4,7 +4,7 @@ from copy import deepcopy
 from flask import current_app as app, jsonify, Blueprint
 from flask_cors import CORS
 from eve.auth import requires_auth
-from eve.methods import get
+from eve.methods.get import get_internal
 from . import dow
 
 blueprint = Blueprint('tutor_stats', __name__)

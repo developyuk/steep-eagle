@@ -18,12 +18,14 @@
 </template>
 
 <script>
+import MyImg from "@/components/Img";
+import Placeholder from "@/components/Placeholder";
+
 export default {
   props: ["item"],
   components: {
     // "button-status": () => import("./ButtonStatus"),
-    "my-img": () => import("@/components/Img"),
-    placeholder: () => import("@/components/Placeholder")
+    MyImg, Placeholder
   },
   methods: {
     // onClickStart(e) {
@@ -80,8 +82,8 @@ $size: 3rem;
 .mdc-list-item__secondary-text {
   text-transform: capitalize;
   font-size: 0.65rem;
-  &:before{
-    height: .875rem;
+  &:before {
+    height: 0.875rem;
   }
   &.tutor {
     color: map-get($palettes, purple);

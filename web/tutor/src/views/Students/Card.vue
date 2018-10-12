@@ -8,7 +8,7 @@
     hr.mdc-list-divider(v-if="isActive")
 
     //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student._id" :name="student.name")
+    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student._id" :name="student.name" @absenced="onAbsenced" @presenced="onPresenced")
 </template>
 
 <script>
@@ -17,13 +17,12 @@ import _debounce from "lodash/debounce";
 import { getCorrectEventName } from "@material/animation";
 import { mapState } from "vuex";
 import Hammer from "hammerjs";
+import MyImg from "@/components/Img";
+import FormRateReview from "./FormRateReview";
+import Placeholder from "@/components/Placeholder";
 
 export default {
-  components: {
-    "form-rate-review": () => import("./FormRateReview"),
-    "my-img": () => import("@/components/Img"),
-    placeholder: () => import("@/components/Placeholder")
-  },
+  components: { FormRateReview, MyImg, Placeholder },
   props: ["stid", "student", "isActive", "index", "sid", "tid"],
   computed: {
     ...mapState(["currentAuth", "currentMqtt"])
@@ -44,64 +43,71 @@ export default {
     // setPosition(v = 0) {
     //   this.$el.style.marginLeft = `${v}px`;
     // }
+    onAbsenced(e) {
+      this.$emit("absenced", e);
+    },
+    onPresenced(e) {
+      this.$emit("presenced", e);
+    }
   },
   mounted() {
     const $el = this.$el.querySelector(".mdc-list-item");
 
     this.hammertime = new Hammer($el, {});
     this.hammertime.get("pan").set({ direction: Hammer.DIRECTION_HORIZONTAL });
-
-    this.hammertime
-      //        .on('panend', e => {
-      //          if (Math.abs(e.deltaX) > this.$el.closest('.mdc-list').offsetWidth * (1 / 3)) {
-      //
-      //
-      //            let url = `${process.env.VUE_APP_API}/attendances_students`;
-      //            let params = {
-      //              attendance_tutor: this.stid,
-      //              student: this.student._id,
-      //
-      //              rating_interaction: 0,
-      //              rating_creativity: 0,
-      //              rating_cognition: 0,
-      //              feedback: "",
-      //              is_presence: false,
-      //            };
-      //            axios.post(url, params)
-      //              .then(response => {
-      //                console.log(response.data);
-      //                this.currentMqtt.mqtt
-      //                  .publish(this.currentMqtt.topic, JSON.stringify({
-      //                    sid: this.stid,
-      //                    sts: {
-      //                      id: response.data._id,
-      //                      et: response.data._etag,
-      //                    },
-      //                    uid: this.student._id,
-      //                    name: this.student.name,
-      //                    by: this.currentAuth,
-      //                    on: "successRateReview",
-      //                  }));
-      //              })
-      //              .catch(error => {
-      //                console.log(error);
-      //              });
-      //          } else {
-      //            this.setPosition();
-      //          }
-      //
-      //        })
-      //        .on('panleft panright', e => {
-      //          console.log(e);
-      //          this.setPosition(e.deltaX);
-      //        })
-      .on("tap", e => {
-        this.$emit("tap-student", {
-          sid: this.stid,
-          uid: this.student._id,
-          name: this.student.name
-        });
+    this.hammertime.on("tap", e => {
+      this.$emit("tap-student", {
+        sid: this.stid,
+        uid: this.student._id,
+        name: this.student.name
       });
+    });
+    // .on("panend", e => {
+    //   if (
+    //     Math.abs(e.deltaX) >
+    //     this.$el.closest(".mdc-list").offsetWidth * (1 / 3)
+    //   ) {
+    //     let url = `${process.env.VUE_APP_API}/attendances_students`;
+    //     let params = {
+    //       attendance_tutor: this.stid,
+    //       student: this.student._id,
+
+    //       rating_interaction: 0,
+    //       rating_creativity: 0,
+    //       rating_cognition: 0,
+    //       feedback: "",
+    //       is_presence: false
+    //     };
+    //     axios
+    //       .post(url, params)
+    //       .then(response => {
+    //         console.log(response.data);
+    //         this.currentMqtt.mqtt.publish(
+    //           this.currentMqtt.topic,
+    //           JSON.stringify({
+    //             sid: this.stid,
+    //             sts: {
+    //               id: response.data._id,
+    //               et: response.data._etag
+    //             },
+    //             uid: this.student._id,
+    //             name: this.student.name,
+    //             by: this.currentAuth,
+    //             on: "successRateReview"
+    //           })
+    //         );
+    //       })
+    //       .catch(error => {
+    //         console.log(error);
+    //       });
+    //   } else {
+    //     this.setPosition();
+    //   }
+    // })
+    // .on("panleft panright", e => {
+    //   console.log(e);
+    //   this.setPosition(e.deltaX);
+    // });
   }
 };
 </script>

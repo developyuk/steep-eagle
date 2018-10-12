@@ -55,14 +55,12 @@
 import MyDrawer from "@/components/Drawer";
 import { mapState, mapMutations, mapActions } from "vuex";
 import { MDCList } from "@material/list";
+import MyImg from "@/components/Img";
+import TabBottom from "@/components/TabBottom";
+import MyHeader from "@/components/headers/Header";
 
 export default {
-  components: {
-    MyDrawer,
-    "my-img": () => import("@/components/Img"),
-    "tab-bottom": () => import("@/components/TabBottom"),
-    "my-header": () => import("@/components/headers/Header")
-  },
+  components: { MyDrawer, MyImg, TabBottom, MyHeader },
   computed: {
     ...mapState(["currentAuth", "currentStats"])
   },

@@ -35,8 +35,6 @@ services:
       - JWT_SECRET=${JWT_KEY}
       - JWT_ISSUER=skilmu
       - DEBUG=0
-      - HOST=${HOST}
-      - HOST_IP=${HOST_IP}
       - HOST_MQTT=${HOST_MQTT}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:

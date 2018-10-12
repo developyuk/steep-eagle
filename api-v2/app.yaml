@@ -11,3 +11,4 @@ env_variables:
   JWT_SECRET: 'xhyk88xwaZh2R942Cs4D82PRjAdzJSSs'
   JWT_ISSUER: 'codingcamp.id'
   DEBUG: 0
+  HOST_MQTT: 'iot.eclipse.org'

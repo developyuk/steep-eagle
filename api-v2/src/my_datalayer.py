@@ -3,6 +3,7 @@ from copy import deepcopy
 from pprint import pprint
 import ast
 import json
+import dateutil.parser
 
 from google.cloud import datastore
 from flask import current_app as app, Response, abort
@@ -49,16 +50,32 @@ class GoogleCloudstore(Mongo):
                 'operator': '=',
                 'value': v,
             }
+
         if filter_:
             for k, v in filter_.items():
                 if isinstance(v, dict):
                     for k2, v2 in v.items():
                         f = _get_equal(k, v)
+
+                        try:
+                            v2 = int(v2)
+                        except (ValueError, TypeError):
+                            pass
+
+                        if k == config.DATE_CREATED and isinstance(v2, str):
+                            v2 = dateutil.parser.parse(v2)
+
                         if k2 == '$ne':
                             f = {
                                 'property_name': k,
                                 'operator': '<',
                                 'value': v2,
+                            }
+                        if k2 == '$ne' and k == config.DELETED:
+                            f = {
+                                'property_name': k,
+                                'operator': '=',
+                                'value': not v2,
                             }
                         if k2 == '$gte':
                             f = {
@@ -68,9 +85,13 @@ class GoogleCloudstore(Mongo):
                             }
                         query.add_filter(**f)
                 else:
+                    try:
+                        v = int(v)
+                    except ValueError:
+                        pass
                     f = _get_equal(k, v)
                     query.add_filter(**f)
-        pprint(query.filters)
+        # pprint(query.filters)
 
     def _find_one(self, resource, datasource, filter_, projection=None):
         args = {
@@ -87,10 +108,10 @@ class GoogleCloudstore(Mongo):
         return document
 
     def _find(self, resource, datasource, **args):
-        pprint(f'resource={resource}')
-        pprint(f'datasource={datasource}')
         filter_ = args.get('filter')
-        pprint(f'filter={filter_}')
+        # pprint(f'resource={resource}')
+        # pprint(f'datasource={datasource}')
+        # pprint(f'filter={filter_}')
 
         documents = []
 
@@ -104,28 +125,40 @@ class GoogleCloudstore(Mongo):
                             'filter': v2
                         }
                         d = self._find(resource, datasource, **v2_args)
+                        # pprint(f'd={len(d)}')
                         data.append(d)
 
-                    # pprint(docs)
-                    key = config.ID_FIELD
-                    if k == '$and':
-                        values = set.intersection(
-                            *({d[config.ID_FIELD] for d in seq} for seq in data))
-                    elif k == '$or':
-                        values = set.union(
-                            *({d[config.ID_FIELD] for d in seq} for seq in data))
+                    # pprint('data')
+                    # pprint(data)
+                    data_id_field = ({d[config.ID_FIELD]
+                                      for d in seq} for seq in data)
 
+                    # pprint('data_id_field')
+                    # pprint(list(map(list,data_id_field)))
+
+                    if k == '$and':
+                        values = set.intersection(*data_id_field)
+                    elif k == '$or':
+                        values = set.union(*data_id_field)
+
+                    # pprint(f"values={values}")
                     filters = [{config.ID_FIELD: v} for v in values]
                     offset = args.get('skip')
                     offset = offset if offset else 0
                     limit = args.get('limit')
                     limit = limit if limit else 5
                     filters = tuple(filters)[offset:offset+limit]
-                    pprint(filters)
+                    # pprint(f"filters={filters}")
 
-                    for v2 in filters:
-                        d = self._find_one(resource, datasource, v2)
-                        documents.append(d)
+                    if not len(filters):
+                        return []
+
+                    keys = map(lambda v: self.pymongo(resource).key(
+                        datasource, v[config.ID_FIELD]), filters)
+
+                    documents = self.pymongo(resource).get_multi(list(keys))
+                    documents = map(self.set_id_field, documents)
+                    documents = list(documents)
 
                     return documents
 
@@ -149,11 +182,13 @@ class GoogleCloudstore(Mongo):
                 kind=datasource, order=order)
 
             self.add_filter(query, filter_)
+            # pprint(query.filters)
 
             documents = query.fetch(limit=args.get(
                 'limit'), offset=args.get('skip'))
 
         documents = map(self.set_id_field, documents)
+        documents = list(documents)
         return documents
 
     def allocate_ids(self, datasource, num_ids):
@@ -192,7 +227,7 @@ class GoogleCloudstore(Mongo):
 
         key = self.pymongo(datasource).key(datasource, id_)
         entity = self.pymongo(datasource).get(key)
-
+        # pprint(f'{resource} {datasource} {filter_} {changes}')
         entity.update(changes.get('$set'))
 
         self.pymongo(datasource).put(entity)

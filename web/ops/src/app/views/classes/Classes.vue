@@ -231,41 +231,37 @@ export default {
           q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = {$or: qList };
+        config.params["where"] = { $or: qList };
       }
       axios
         .get(`${process.env.API}/classes`, config)
         .then(response => {
           this.tableData = response.data._items;
-          this.tableData.forEach(v => {
-            axios
-              .get(`${process.env.API}/modules/${v.module}`)
-              .then(response => {
-                v.module = response.data;
-                axios
-                  .get(`${process.env.API}/branches/${v.branch}`)
-                  .then(response => {
-                    v.branch = response.data;
-                  });
-                axios
-                  .get(`${process.env.API}/users/${v.tutor}`)
-                  .then(response => {
-                    v.tutor = response.data;
-                  });
-              });
+          this.tableData.forEach((v, i) => {
+            setTimeout(_ => {
+              axios
+                .get(`${process.env.API}/modules/${v.module}`)
+                .then(response => (v.module = response.data));
+              axios
+                .get(`${process.env.API}/branches/${v.branch}`)
+                .then(response => (v.branch = response.data));
+              axios
+                .get(`${process.env.API}/users/${v.tutor}`)
+                .then(response => (v.tutor = response.data));
+            }, i * 500);
           });
-          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
+          const paginationTotal =
+            this.pagination.currentPage * this.pagination.perPage;
           if (this.tableData.length == this.pagination.perPage) {
             this.pagination.total = paginationTotal + 1;
-          }else{
+          } else {
             this.pagination.total = paginationTotal;
           }
         })
         .catch(error => console.log(error, error.response));
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 <style scoped lang="scss">

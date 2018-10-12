@@ -33,12 +33,11 @@ import { mapState } from "vuex";
 //  import {mapState, mapMutations} from 'vuex';
 import { MDCRipple } from "@material/ripple";
 import { MDCTextField } from "@material/textfield";
+import Rating from "./Rating";
 
 export default {
   props: ["stid", "uid", "name", "sid", "tid"],
-  components: {
-    rating: () => import("./Rating")
-  },
+  components: { Rating },
   computed: {
     ...mapState(["currentAuth", "currentMqtt"])
   },
@@ -74,11 +73,9 @@ export default {
         isPresence: true
       };
 
-      axios
-        .post(url, data)
-        .then(response => {
-        })
-        .catch(error => console.log(error));
+      axios.post(url, data).then(response => {
+        this.$emit("presenced", response.data);
+      });
     },
     absence() {
       const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
@@ -93,13 +90,10 @@ export default {
         feedback: this.review,
         isPresence: false
       };
-      console.log(data);
 
-      axios
-        .post(url, data)
-        .then(response => {
-        })
-        .catch(error => console.log(error));
+      axios.post(url, data).then(response => {
+        this.$emit("absenced", response.data);
+      });
     }
   },
   mounted() {

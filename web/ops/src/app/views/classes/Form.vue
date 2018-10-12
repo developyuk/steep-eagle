@@ -9,7 +9,7 @@
           .form-group
             label.col-sm-2.control-label Day
             .col-sm-9
-              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Day', v-model='model.schedule', v-validate="modelValidations.schedule")
+              el-select.select-primary(filterable, default-first-option, size='large', placeholder='Select Day', v-model='model._day', v-validate="modelValidations.schedule")
                 el-option.select-primary(v-for='option in selects.days', :value='option.value', :label='option.label', :key='option.label')
               small.text-danger(v-show="schedule.invalid")
                 | {{ getError('schedule') }}
@@ -159,12 +159,12 @@ export default {
         params = {
           sort: "_deleted,name",
           max_results: 9999,
-          where:{role:'student'}
+          where: { role: "student" }
         };
       } else {
         url = `${process.env.API}/students/dormant`;
         params = {
-          sort: "_deleted,name",
+          sort: "name",
           max_results: 9999
         };
       }
@@ -193,7 +193,7 @@ export default {
           return false;
         }
         const data = {
-          day: this.model.schedule,
+          day: this.model._day,
           startAt: this.model._start,
           finishAt: this.model._finish,
           module: this.model.module,
@@ -251,7 +251,7 @@ export default {
               });
             });
           const postStudents = () => {
-            if(dataStudents.length){
+            if (dataStudents.length) {
               const data = dataStudents.map(v => {
                 return { class: this.model._id, student: v };
               });
@@ -307,7 +307,7 @@ export default {
         params: {
           sort: "_deleted,name",
           max_results: 9999,
-          where:{role:'tutor'}
+          where: { role: "tutor" }
         }
       })
       .then(response => {

@@ -3,10 +3,9 @@
 </template>
 
 <script>
+import Tab from "@/components/Tab";
 export default {
-  components: {
-    tab: () => import("@/components/Tab")
-  },
+  components: { Tab },
   data() {
     return {
       tabItems: [

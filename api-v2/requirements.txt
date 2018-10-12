@@ -8,4 +8,5 @@ gunicorn==19.9.0
 humanize==0.5.1
 paho-mqtt==1.4.0
 PyJWT==1.6.4
+python-dateutil==2.7.3
 pytz==2018.5

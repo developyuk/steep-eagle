@@ -23,19 +23,15 @@ export default {
     ...mapState(["currentAuth"]),
     status() {
       const class_ = this.class_;
-      const msts = moment(class_.startAtTs);
-      const mfts = moment(class_.finishAtTs);
+      const msts = moment(class_.start);
+      const mfts = moment(class_.finish);
       const mnow = moment();
 
       let status = "disabled";
       const ls = class_.last_attendances._items;
+      // console.log(class_,class_.last_attendances._items);
 
-      if (
-        !!ls &&
-        !!ls.length &&
-        !!ls[0]._created &&
-        msts.diff(mnow, "days") < 1
-      ) {
+      if ( !!ls.length && msts.diff(mnow, "days") < 1 ) {
         const lsItems = ls;
         const mls = moment(lsItems[0]._created);
 
@@ -65,6 +61,7 @@ export default {
         //   }
         // }
       } else {
+        // console.log(class_,class_.start,class_.finish,msts, mfts, mnow);
         if (msts.diff(mnow, "minutes") < 5 && mfts.diff(mnow, "minutes") > 0) {
           status = "start";
         }
@@ -72,6 +69,7 @@ export default {
           status = "late";
         }
       }
+      // console.log(status)
 
       return status;
     }

@@ -6,13 +6,13 @@
         h3.mdc-list-group__subheader
           span.date-day
             .date
-              placeholder(:value="v.dateDay" val-empty="00")
+              placeholder(:value="v.day" val-empty="00")
             .day
-              placeholder(:value="v.day" val-empty="lorem ipsum")
+              placeholder(:value="v.weekday" val-empty="lorem ipsum")
           span.text
-            placeholder(:value="v.text")
+            placeholder(:value="v.delta")
         .mdc-list
-          item(v-for="(vv,ii) in v._items" :item="vv" :key="`${v.date}-${vv._id}`" @click-start="onClickStart")
+          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${v.date}-${v2._id}`" @click-start="onClickStart")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onMountedDialog")
@@ -37,8 +37,13 @@ import { mapState, mapMutations } from "vuex";
 import mqtt from "mqtt";
 import { MDCDialog } from "@material/dialog";
 import { MDCRipple } from "@material/ripple";
+
 import TemplateMain from "@/components/views/Main";
 import MyDialog from "@/components/Dialog";
+import Empty from "./Empty";
+import Item from "./Item";
+import Placeholder from "@/components/Placeholder";
+import Snackbar from "@/components/Snackbar";
 
 const placeholderSchedules = _range(3).map(v => {
   return {
@@ -47,39 +52,32 @@ const placeholderSchedules = _range(3).map(v => {
     dateDay: "",
     day: "",
     _items: _range(2).map(vv => {
-    return {
-      _id: vv,
-      module: {
-        image: "https://via.placeholder.com/48?text=image",
-        name: ""
-      },
-      startAt: "",
-      finishAt: "",
-      finishAtTs: "",
-      startAtTs: "",
-      tutor: {
-        name: "",
-        username: "",
-        email: ""
-      },
-      branch: {
-        name: ""
-      },
-      last_attendances:{_items:[]}
-    };
-  })
+      return {
+        _id: vv,
+        module: {
+          image: "https://via.placeholder.com/48?text=image",
+          name: ""
+        },
+        _start: "",
+        _finish: "",
+        finish: "",
+        start: "",
+        tutor: {
+          name: "",
+          username: "",
+          email: ""
+        },
+        branch: {
+          name: ""
+        },
+        last_attendances: { _items: [] }
+      };
+    })
   };
 });
 
 export default {
-  components: {
-    TemplateMain,
-    MyDialog,
-    empty: () => import("./Empty"),
-    item: () => import("./Item"),
-    placeholder: () => import("@/components/Placeholder"),
-    snackbar: () => import("@/components/Snackbar")
-  },
+  components: { TemplateMain, MyDialog, Empty, Item, Placeholder, Snackbar },
   data() {
     return {
       pin: null,
@@ -91,13 +89,16 @@ export default {
       dialog: null,
       snackbar: null,
       errMsg: null,
-      mqtt: null
+      mqtt: null,
+
+      undoItem: null
     };
   },
   computed: {
     ...mapState(["currentAuth"])
   },
   methods: {
+    ...mapMutations(["nextMqtt"]),
     onMountedSnackbar(e) {
       this.snackbar = e;
     },
@@ -106,32 +107,44 @@ export default {
     },
     onClickStart(e) {
       this.dialog.show();
-      const { i, ii } = this.findClassById(e.id);
-      this.currentClass = this.classes[i]._items[ii];
+      const { i, i2 } = this.findClassById(e.id);
+      this.currentClass = this.classes[i]._items[i2];
     },
     checkPin(e) {
       if (this.pin === "1234") {
         const data = {
-          'class': this.currentClass._id
+          class: this.currentClass._id
         };
+        console.log(data);
 
         axios
           .post(`${process.env.VUE_APP_API}/attendances_tutors`, data)
           .then(response => {
             this.pin = null;
+            this.undoItem = response.data;
+          });
 
-            axios
-              .put(`${process.env.VUE_APP_API}/schedules`, data)
-              .then(response => console.log(response))
-              .catch(error => console.log(error));
-
-            axios
-              .put(`${process.env.VUE_APP_API}/students/attendances`)
-              .then(response => console.log(response))
-              .catch(error => console.log(error));
-          })
-          .catch(error => console.log(error));
-
+        this.snackbar.show({
+          message: `You started a class`
+          // actionText: "Undo",
+          // actionHandler: () => {
+          //   if (this.undoItem) {
+          //     axios
+          //       .delete(
+          //         `${process.env.VUE_APP_API}/attendances_tutors/${
+          //           this.undoItem._id
+          //         }`,
+          //         { headers: { "If-Match": this.undoItem._etag } }
+          //       )
+          //       .then(response => {
+          //         this.snackbar.show({
+          //           message: `You undo a class`
+          //           // message: `Undo ${msgClass.module.name.toUpperCase()}`
+          //         });
+          //       });
+          //   }
+          // }
+        });
         this.dialog.close();
       } else {
         this.errMsg = "invalid. Check pin again!";
@@ -139,91 +152,71 @@ export default {
     },
     getSchedules(params = { forceRefresh: false }) {
       const config = {};
+      config["params"] = {
+        _page: 1,
+        _max_results: 2
+      };
       config["headers"] = {};
       if (params.forceRefresh) {
-        headers["Cache-Control"] = "no-cache";
+        config["headers"]["Cache-Control"] = "no-cache";
       }
       axios
         .get(`${process.env.VUE_APP_API}/schedules`, config)
         .then(response => {
           this.classes = response.data._items;
-        })
-        .catch(error => console.log(error));
+          // console.log(this.classes);
+          this.classes.forEach((v, i) => {
+            v._items.forEach((v2, i2) => {
+              setTimeout(_ => {
+                axios
+                  .get(`${process.env.VUE_APP_API}/modules/${v2.module}`)
+                  .then(response => this.$set(v2, "module", response.data));
+                axios
+                  .get(`${process.env.VUE_APP_API}/branches/${v2.branch}`)
+                  .then(response => this.$set(v2, "branch", response.data));
+                axios
+                  .get(`${process.env.VUE_APP_API}/users/${v2.tutor}`)
+                  .then(response => this.$set(v2, "tutor", response.data));
+              }, (i + i2) * 250);
+            });
+          });
+        });
     },
     findClassById(id) {
-      let i, ii;
+      let i, i2;
       i = _findIndex(this.classes, v => {
-        ii = _findIndex(v._items, { _id:id });
-        return ii > -1;
+        i2 = _findIndex(v._items, { _id: id });
+        return i2 > -1;
       });
       //        console.log(i, ii, this.classes);
-      return { i, ii };
+      return { i, i2 };
     }
   },
   mounted() {
-    //      new MDCRipple(this.$el.querySelector('.mdc-button'));
     this.dialog = new MDCDialog(this.$el.querySelector("#my-mdc-dialog"));
 
     this.getSchedules();
 
-    this.mqtt = {
-      topic: "schedules",
-      m: mqtt.connect(process.env.VUE_APP_WS)
-    };
-
-    this.mqtt.m
+    this.mqtt = mqtt
+      .connect(process.env.VUE_APP_WS)
       .on("connect", () => {
-        this.mqtt.m.subscribe(this.mqtt.topic);
+        const topic = `${process.env.VUE_APP_PROJECT_NAME}.schedules`;
+        this.nextMqtt({ topic, mqtt: this.mqtt });
+        this.mqtt.subscribe(topic);
       })
       .on("message", (topic, message) => {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
-        const { on: msgOn, by: msgBy } = parsedMessage;
-        const isCurrentUser = msgBy.id === this.currentAuth._id;
-        const by = isCurrentUser ? "You" : msgBy.username;
+        const { update, by } = parsedMessage;
 
-        if (msgOn === "startYes") {
-          const { class: msgClass, item: MsgItem } = parsedMessage;
-
-          setTimeout(_ => this.getSchedules({ forceRefresh: true }), 100);
-          let snackbarOpts = {
-            message: `${by} started a class`
-            // message: `Start ${msgClass.module.name.toUpperCase()}`
-          };
-
-          if (isCurrentUser) {
-            snackbarOpts = Object.assign(snackbarOpts, {
-              actionText: "Undo",
-              actionHandler: () => {
-                let url = `${process.env.VUE_APP_API}/attendances_tutors/${
-                  MsgItem.id
-                }`;
-
-                axios
-                  .delete(url, { headers: { "If-Match": MsgItem._etag } })
-                  // .then(response => { })
-                  .catch(error => console.log(error));
-              }
-            });
-          }
-          this.snackbar.show(snackbarOpts);
-        }
-        if (msgOn === "undo") {
-          const { class: msgClass } = parsedMessage;
-
-          let snackbarOpts = {
-            message: `${by} undo a class`
-            // message: `Undo ${msgClass.module.name.toUpperCase()}`
-          };
-          this.snackbar.show(snackbarOpts);
-          setTimeout(_ => this.getSchedules({ forceRefresh: true }), 100);
+        if (update) {
+          this.getSchedules({ forceRefresh: true });
         }
       });
   },
   beforeDestroy() {
-    //      console.log('beforeDestroy');
-
-    this.mqtt.m.end();
+    this.mqtt.end();
+    this.nextMqtt(null);
   }
 };
 </script>

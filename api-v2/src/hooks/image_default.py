@@ -7,7 +7,7 @@ from eve.utils import config
 
 
 def _gen_image(response, attr='image'):
-    if not response.get(attr):
+    if isinstance(response, dict) and not response.get(attr):
         response[attr] = 'https://via.placeholder.com/48?text=image'
 
         if response.get('role') == 'tutor':

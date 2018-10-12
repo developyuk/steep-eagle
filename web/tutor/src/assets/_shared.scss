@@ -67,3 +67,6 @@ h1.logo {
 .mdc-drawer--temporary .mdc-drawer__header::before{
   padding-top: 10rem !important;
 }
+.mdc-list-item__primary-text::before{
+  height: 0;
+}

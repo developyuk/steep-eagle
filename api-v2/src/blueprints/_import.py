@@ -3,10 +3,9 @@ from pprint import pprint
 from copy import deepcopy
 
 from flask_cors import CORS
-from flask import current_app as app, jsonify, Blueprint, request, abort
-from eve.methods import post, delete, getitem
+from flask import current_app as app, jsonify, Blueprint, request
+from eve.methods import delete, getitem
 from eve.methods.post import post_internal
-from eve.methods.put import put
 from eve.utils import config
 from werkzeug.exceptions import NotFound
 from eve_swagger import add_documentation
@@ -125,13 +124,13 @@ def _import_users():
         if item.get('pass_'):
             item['password'] = item['pass_']
         if item.get('is_deleted'):
-            item['_deleted'] = item['is_deleted']
+            item[config.DELETED] = item['is_deleted']
         else:
-            item['_deleted'] = False
+            item[config.DELETED] = False
         if item.get('contact_no'):
             item['contact'] = item['contact_no']
 
-        allowed_key = ('_deleted',
+        allowed_key = (config.DELETED,
                        'password', 'username', 'email', 'role', 'password', 'name', 'dob', 'address', 'school', 'grade', 'contact')
         item = filter(lambda v: v[0] in allowed_key, item.items())
         item = dict(item)
@@ -174,6 +173,7 @@ def _import_classes():
     items = data[config.ITEMS]
 
     domain_ori = deepcopy(app.config['DOMAIN'])
+
     def classes_convert(item):
         if item.get('start_at'):
             item['startAt'] = item['start_at']

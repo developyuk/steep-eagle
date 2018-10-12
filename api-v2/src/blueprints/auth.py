@@ -1,11 +1,9 @@
 from datetime import timedelta
-import json
 import jwt
 
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint, request, abort
 from eve.auth import requires_auth
-from eve.methods import getitem
 from eve.utils import config
 from eve.methods.get import getitem_internal
 from eve_swagger import add_documentation
@@ -73,7 +71,7 @@ add_documentation({
 def auth():
     try:
         lookup = {config.ID_FIELD: app.auth.get_request_auth_value()}
-        user, *_ = getitem(resource, **lookup)
+        user, *_ = getitem_internal(resource, **lookup)
         allowed_key = ('name', 'username', 'email', 'role',
                        'photo', config.ID_FIELD, config.ETAG)
         user = filter(lambda v: v[0] in allowed_key, user.items())

@@ -9,12 +9,12 @@
           placeholder(:value="v.attendance.class.branch.name").branch
           | &nbsp;&nbsp;
           .day-time
-            placeholder(:value="v.attendance.class.startAt" val-empty="00:00")
+            placeholder(:value="v.attendance.class._start" val-empty="00:00")
             | &nbsp;-&nbsp;
-            placeholder(:value="v.attendance.class.finishAt" val-empty="00:00")
+            placeholder(:value="v.attendance.class._finish" val-empty="00:00")
         ul.mdc-list
           template(v-for="(vv,ii) in v.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v._id" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v._id" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent" @absenced="onAbsenced" @presenced="onPresenced")
             hr.mdc-list-divider
 
     snackbar(@mounted="onMountedSnackbar")
@@ -30,13 +30,17 @@ import { mapState, mapMutations } from "vuex";
 import mqtt from "mqtt";
 import _range from "lodash/range";
 import TemplateMain from "@/components/views/Main";
+import Placeholder from "@/components/Placeholder";
+import Card from "./Card";
+import Empty from "./Empty";
+import Snackbar from "@/components/Snackbar";
 
 const placeholderStudents = _range(2).map(v => {
   return {
     attendance: {
       class: {
-        startAt: "",
-        finishAt: "",
+        _start: "",
+        _finish: "",
         branch: {
           name: "",
           id: v
@@ -69,13 +73,7 @@ const placeholderStudents = _range(2).map(v => {
 });
 
 export default {
-  components: {
-    TemplateMain,
-    placeholder: () => import("@/components/Placeholder"),
-    card: () => import("./Card"),
-    empty: () => import("./Empty"),
-    snackbar: () => import("@/components/Snackbar")
-  },
+  components: { TemplateMain, Placeholder, Card, Empty, Snackbar },
   computed: {
     ...mapState(["currentAuth"])
   },
@@ -89,6 +87,30 @@ export default {
   },
   methods: {
     ...mapMutations(["nextMqtt"]),
+    onProgress(e) {
+      const item = e;
+      this.snackbar.show({
+        message: `You submitted a progress`,
+        actionText: "Undo",
+        actionHandler: () => {
+          this.snackbar.show({
+            message: `You undo a progress`
+          });
+          axios.delete(
+            `${process.env.VUE_APP_API}/attendances_students/${item._id}`,
+            { headers: { "If-Match": item._etag } }
+          );
+          // .then(response => { })
+          // .catch(error => console.log(error));
+        }
+      });
+    },
+    onAbsenced(e) {
+      this.onProgress(e);
+    },
+    onPresenced(e) {
+      this.onProgress(e);
+    },
     onMountedSnackbar(e) {
       this.snackbar = e;
     },
@@ -124,91 +146,109 @@ export default {
       return [i, ii];
     },
     getStudentsAttendances(params = { forceRefresh: false }) {
-      const url = `${process.env.VUE_APP_API}/students/attendances`;
       const headers = {};
       if (params.forceRefresh) {
         headers["Cache-Control"] = "no-cache";
       }
       axios
-        .get(url, { headers })
+        .get(`${process.env.VUE_APP_API}/students/attendances`, { headers })
         .then(response => {
-          this.attendances = !!response.data._items.length
-            ? response.data._items
-            : [];
-        })
-        .catch(error => console.log(error));
+          this.attendances = response.data._items;
+          // console.log(this.attendances);
+          this.attendances.forEach((v, i) => {
+            this.$set(v.attendance, "module", {
+              _id: v.attendance.module,
+              name: ""
+            });
+            this.$set(v.attendance, "class", {
+              _id: v.attendance.class,
+              _start: "",
+              _finish: "",
+              day: "",
+              branch: {
+                _id: 0,
+                name: ""
+              }
+            });
+            v.students.forEach(v2 => {
+              this.$set(v2, "student", {
+                username: "",
+                name: "",
+                photo:
+                  "https://images.weserv.nl/?il&w=64&url=www.shareicon.net/download/2016/01/16/249030_nobita_256x256.png",
+                _id: v2.student
+              });
+            });
+            setTimeout(_ => {
+              axios
+                .get(
+                  `${process.env.VUE_APP_API}/modules/${
+                    v.attendance.module._id
+                  }`
+                )
+                .then(response =>
+                  this.$set(v.attendance, "module", response.data)
+                );
+              axios
+                .get(
+                  `${process.env.VUE_APP_API}/classes/${v.attendance.class._id}`
+                )
+                .then(response => {
+                  this.$set(v.attendance, "class", response.data);
+                  this.$set(v.attendance.class, "branch", {
+                    _id: v.attendance.class.branch,
+                    name: ""
+                  });
+                  axios
+                    .get(
+                      `${process.env.VUE_APP_API}/branches/${
+                        v.attendance.class.branch._id
+                      }`
+                    )
+                    .then(response =>
+                      this.$set(v.attendance.class, "branch", response.data)
+                    );
+                });
+              v.students.forEach(v2 => {
+                const config = {
+                  params: { where: { role: "student" } }
+                };
+                axios
+                  .get(
+                    `${process.env.VUE_APP_API}/users/${v2.student._id}`,
+                    config
+                  )
+                  .then(response => this.$set(v2, "student", response.data));
+              });
+            }, i * 500);
+
+            // this.$set(v.attendance, "class", { branch: "" });
+          });
+        });
     }
   },
   mounted() {
     this.getStudentsAttendances();
 
-    this.mqtt = mqtt.connect(process.env.VUE_APP_WS);
-
-    this.mqtt
+    this.mqtt = mqtt
+      .connect(process.env.VUE_APP_WS)
       .on("connect", () => {
-        const topic = "students";
+        const topic = `${process.env.VUE_APP_PROJECT_NAME}.students`;
         this.nextMqtt({ topic, mqtt: this.mqtt });
         this.mqtt.subscribe(topic);
       })
       .on("message", (topic, message) => {
         console.log(topic, message.toString());
         const parsedMessage = JSON.parse(message.toString());
-        const { on: msgOn, by: msgBy } = parsedMessage;
-        const isCurrentUser = msgBy.id === this.currentAuth._id;
-        const by = isCurrentUser ? "You" : msgBy.username;
+        const { update, by } = parsedMessage;
 
-        const { item: msgItem } = parsedMessage;
-        //          const [i, ii] = this.getAttendanceIndex(sid, uid);
-
-        switch (msgOn) {
-          case "undoRateReview": {
-            setTimeout(
-              _ => this.getStudentsAttendances({ forceRefresh: true }),
-              100
-            );
-            let snackbarOpts = {
-              message: `${by} undo a progress`
-              // message: `Undo ${name.split(" ")[0].toUpperCase()}`
-            };
-            this.snackbar.show(snackbarOpts);
-            break;
-          }
-          case "successRateReview": {
-            const { by: msgBy } = parsedMessage;
-            setTimeout(
-              _ => this.getStudentsAttendances({ forceRefresh: true }),
-              100
-            );
-
-            let snackbarOpts = {
-              message: `${by} submitted a progress`
-              // message: `Submit ${name.split(" ")[0].toUpperCase()}`,
-            };
-            if (isCurrentUser) {
-              snackbarOpts = Object.assign(snackbarOpts, {
-                actionText: "Undo",
-                actionHandler: () => {
-                  const url = `${
-                    process.env.VUE_APP_API
-                  }/attendances_students/${msgItem.id}`;
-
-                  axios
-                    .delete(url, { headers: { "If-Match": msgItem._etag } })
-                    // .then(response => { })
-                    .catch(error => {
-                      console.log(error);
-                    });
-                }
-              });
-            }
-            this.snackbar.show(snackbarOpts);
-            break;
-          }
+        if (update) {
+          this.getStudentsAttendances({ forceRefresh: true });
         }
       });
   },
   beforeDestroy() {
-    console.log("beforeDestroy");
+    // console.log("beforeDestroy");
 
     this.mqtt.end();
     this.nextMqtt(null);
