@@ -147,7 +147,13 @@ export default {
             ._deleted;
           this.$refs.firstStep.model.photo = null;
         })
-        .catch(error => console.log(error, error.response));
+        .catch(error => {
+          this.$refs.firstStep.model = error.response.data;
+          this.$refs.firstStep.model.is_active = !this.$refs.firstStep.model
+            ._deleted;
+          this.$refs.firstStep.model.photo = null;
+          console.log(error, error.response);
+        });
 
       axios
         .get(`${process.env.API}/users/${id}/guardians`, {

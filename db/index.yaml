@@ -3,35 +3,8 @@ indexes:
   properties:
   - name: role
   - name: _deleted
-- kind: users
-  properties:
-  - name: role
   - name: _updated
     direction: desc
-- kind: users
-  properties:
-  - name: _deleted
-  - name: _updated
-    direction: desc
-- kind: users
-  properties:
-  - name: role
-  - name: _deleted
-  - name: _updated
-    direction: desc
-- kind: users
-  properties:
-  - name: role
-  - name: _deleted
-  - name: name
-- kind: users
-  properties:
-  - name: username
-  - name: _deleted
-- kind: users
-  properties:
-  - name: student
-  - name: _deleted
 - kind: users
   properties:
   - name: _deleted
@@ -45,22 +18,10 @@ indexes:
 - kind: attendances
   properties:
   - name: class
-  - name: _created
-- kind: attendances
-  properties:
   - name: module
   - name: _created
 - kind: attendances_tutors
   properties:
   - name: attendance
   - name: tutor
-  - name: _created
-- kind: attendances_tutors
-  properties:
-  - name: tutor
-  - name: _created
-- kind: attendances_students
-  properties:
-  - name: attendance
-  - name: student
   - name: _created
