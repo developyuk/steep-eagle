@@ -16,15 +16,15 @@
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(@mounted="onMountedDialog")
+        template(slot="title") Are you sure?
         span Insert 1234 to activate&nbsp;
           placeholder(:value="currentClass.module.name.toUpperCase()" val-empty="lorem ipsum")
-          | .
-        p
-        input(type="text" name="username" v-model.trim="pin")
+        p &nbsp;
+          input(type="text" name="username" v-model.trim="pin")
         .errMsg(v-if="errMsg") {{errMsg}}
-        template(slot="footer")
-          button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel(type='button') No
-          button.mdc-button.mdc-dialog__footer__button(type='submit') Yes
+        template(slot="actions")
+          button.mdc-button.mdc-dialog__button(data-mdc-dialog-action="no" type='button') No
+          button.mdc-button.mdc-dialog__button(type='submit') Yes
     snackbar(@mounted="onMountedSnackbar")
 </template>
 
@@ -35,8 +35,6 @@ import _findIndex from "lodash/findIndex";
 import _range from "lodash/range";
 import { mapState, mapMutations } from "vuex";
 import mqtt from "mqtt";
-import { MDCDialog } from "@material/dialog";
-import { MDCRipple } from "@material/ripple";
 
 import TemplateMain from "@/components/views/Main";
 import MyDialog from "@/components/Dialog";
@@ -89,9 +87,7 @@ export default {
       dialog: null,
       snackbar: null,
       errMsg: null,
-      mqtt: null,
-
-      undoItem: null
+      mqtt: null
     };
   },
   computed: {
@@ -104,9 +100,11 @@ export default {
     },
     onMountedDialog(e) {
       this.dialog = e;
+      this.dialog.escapeKeyAction = "";
+      this.dialog.scrimClickAction = "";
     },
     onClickStart(e) {
-      this.dialog.show();
+      this.dialog.open();
       const { i, i2 } = this.findClassById(e.id);
       this.currentClass = this.classes[i]._items[i2];
     },
@@ -121,31 +119,33 @@ export default {
           .post(`${process.env.VUE_APP_API}/attendances_tutors`, data)
           .then(response => {
             this.pin = null;
-            this.undoItem = response.data;
-          });
+            const item = response.data;
 
-        this.snackbar.show({
-          message: `You started a class`
-          // actionText: "Undo",
-          // actionHandler: () => {
-          //   if (this.undoItem) {
-          //     axios
-          //       .delete(
-          //         `${process.env.VUE_APP_API}/attendances_tutors/${
-          //           this.undoItem._id
-          //         }`,
-          //         { headers: { "If-Match": this.undoItem._etag } }
-          //       )
-          //       .then(response => {
-          //         this.snackbar.show({
-          //           message: `You undo a class`
-          //           // message: `Undo ${msgClass.module.name.toUpperCase()}`
-          //         });
-          //       });
-          //   }
-          // }
-        });
-        this.dialog.close();
+            this.snackbar.show({
+              message: `You started a class`,
+              actionText: "Undo",
+              actionHandler: () => {
+                axios
+                  .delete(
+                    `${process.env.VUE_APP_API}/attendances_tutors/${item._id}`,
+                    { headers: { "If-Match": item._etag } }
+                  )
+                  .then(response => {
+                    this.snackbar.show({
+                      message: `You undo a class`
+                      // message: `Undo ${msgClass.module.name.toUpperCase()}`
+                    });
+                  });
+              }
+            });
+            this.dialog.close();
+          })
+          .catch(error => {
+            this.dialog.close();
+            this.snackbar.show({
+              message: `You failed start a class`
+            });
+          });
       } else {
         this.errMsg = "invalid. Check pin again!";
       }
@@ -193,8 +193,6 @@ export default {
     }
   },
   mounted() {
-    this.dialog = new MDCDialog(this.$el.querySelector("#my-mdc-dialog"));
-
     this.getSchedules();
 
     this.mqtt = mqtt

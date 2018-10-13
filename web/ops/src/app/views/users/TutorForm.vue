@@ -12,8 +12,7 @@
               input.form-control(type="text" name="username" v-validate="modelValidations.username" v-model="model.username")
               small.text-danger(v-show="username.invalid")
                 | {{ getError('username') }}
-        fieldset
-          .form-group
+          .form-group(v-if="!isCreate")
             label.col-sm-2.control-label Password
             .col-sm-9
               button(@click.prevent="onClickResetPassword") Reset Password

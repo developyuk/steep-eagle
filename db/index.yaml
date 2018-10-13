@@ -32,6 +32,16 @@ indexes:
   properties:
   - name: student
   - name: _deleted
+- kind: users
+  properties:
+  - name: _deleted
+  - name: username
+  - name: _id
+- kind: users
+  properties:
+  - name: _deleted
+  - name: email
+  - name: _id
 - kind: attendances
   properties:
   - name: class

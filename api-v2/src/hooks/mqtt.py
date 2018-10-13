@@ -20,7 +20,7 @@ def publish(topic, payload):
 
 
 def on_deleted_item(resource_name, item):
-    if resource_name == 'attendances-students':
+    if resource_name == 'attendances_students':
         m = json.dumps({
             'by': app.auth.get_request_auth_value(),
             'update': True,
@@ -45,7 +45,7 @@ def on_inserted(resource_name, items):
 
     if resource_name == 'attendances_tutors':
         m = json.dumps({
-            'by': str(app.auth.get_request_auth_value()),
+            'by': app.auth.get_request_auth_value(),
             'update': True,
         }, cls=MongoJSONEncoder)
         publish(f"{project_name}.schedules", m)

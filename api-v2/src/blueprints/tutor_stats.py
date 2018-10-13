@@ -9,7 +9,7 @@ from eve.utils import config
 from shared.datetime import dow, after_request_cache
 
 blueprint = Blueprint('tutor_stats', __name__)
-CORS(blueprint, max_age=timedelta(seconds=10))
+CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 
 
 @blueprint.route('/tutor_stats', methods=['GET'])
@@ -34,17 +34,17 @@ def tutor_stats():
     # ]})
     # classes, *_ = get('classes',
     #                   **{'tutor_id': app.auth.get_request_auth_value()})
-    # classes = classes['_items']
+    # classes = classes[config.ITEMS]
 
     # attendances_tutors, *_ = get('attendances_tutors',
     #                              **{'tutor_id': app.auth.get_request_auth_value()})
-    # attendances_tutors = attendances_tutors['_items']
+    # attendances_tutors = attendances_tutors[config.ITEMS]
 
     # attendances_students_feedback, *_ = get('attendances_students', **{
     #     'tutor_id': app.auth.get_request_auth_value(),
     #     'feedback': "!=\"\""
     # })
-    # attendances_students_feedback = attendances_students_feedback['_items']
+    # attendances_students_feedback = attendances_students_feedback[config.ITEMS]
 
     # attendances_students_rating, *_ = get('attendances_students', **{
     #     'tutor_id': app.auth.get_request_auth_value(),
@@ -52,7 +52,7 @@ def tutor_stats():
     #     "rating_cognition": "!=0",
     #     "rating_creativity": "!=0"
     # })
-    # attendances_students_rating = attendances_students_rating['_items']
+    # attendances_students_rating = attendances_students_rating[config.ITEMS]
 
     # classes_sum = 0
     # attendances_students_sum = 0
@@ -88,7 +88,7 @@ def tutor_stats():
     #     attendances_avg = (len(attendances_tutors) / classes_sum) * 100
 
     # app.config = app_config_ori
-    # return jsonify({'_items': {
+    # return jsonify({config.ITEMS: {
     #     'classes_sum': len(attendances_tutors),
     #     'hours_sum': round(hours_sum, 0),
     #     'feedbacks_sum': len(attendances_students_feedback),
@@ -97,14 +97,14 @@ def tutor_stats():
     #     'attendances_avg': round(attendances_avg, 2),
     # }})
 
-    return jsonify({'_items': {
+    return jsonify({
         'classes_sum': 0,
         'hours_sum': 0,
         'feedbacks_sum': 0,
         'ratings_avg': 0,
         'reviews_avg': 0,
         'attendances_avg': 0,
-    }})
+    })
 
 
 @blueprint.after_request

@@ -10,6 +10,7 @@ import blueprints
 
 app = Eve(auth=my.JwtAuth,
           data=my_datalayer.GoogleCloudstore,
+          validator=my_datalayer.GoogleCloudstoreValidator,
           media=my.GoogleMediaStorage)
 
 app.register_blueprint(swagger)

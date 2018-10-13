@@ -22,10 +22,11 @@
       .cell.shrink
         .powered powered by
           img(alt="codingcamp.id" src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
+
       my-dialog(@mounted="onDialogMounted")
         span(v-html="dialogText.opts[dialogText.idx]")
-        template(slot="footer")
-          button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--accept(type="button") Got It!
+        template(slot="actions")
+          button.mdc-button.mdc-dialog__button(data-mdc-dialog-action="yes" type="button") Got It!
 </template>
 
 <script>
@@ -82,7 +83,7 @@ export default {
     },
     onClickFaq(e, i) {
       this.dialogText.idx = i;
-      this.$dialog.show();
+      this.$dialog.open();
     },
     onDialogMounted(e) {
       this.$dialog = e;

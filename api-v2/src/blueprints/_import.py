@@ -12,7 +12,7 @@ from werkzeug.exceptions import NotFound
 from eve_swagger import add_documentation
 
 blueprint = Blueprint('import', __name__)
-CORS(blueprint, max_age=timedelta(seconds=10))
+CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 
 
 def allowed_key(allowed_key, item):

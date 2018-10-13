@@ -73,9 +73,7 @@ export default {
         isPresence: true
       };
 
-      axios.post(url, data).then(response => {
-        this.$emit("presenced", response.data);
-      });
+      this.$emit("presenced", { url, data });
     },
     absence() {
       const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
@@ -91,9 +89,7 @@ export default {
         isPresence: false
       };
 
-      axios.post(url, data).then(response => {
-        this.$emit("absenced", response.data);
-      });
+      this.$emit("absenced", { url, data });
     }
   },
   mounted() {

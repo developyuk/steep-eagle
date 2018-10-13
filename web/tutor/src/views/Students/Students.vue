@@ -17,6 +17,8 @@
             card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v._id" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent" @absenced="onAbsenced" @presenced="onPresenced")
             hr.mdc-list-divider
 
+    my-dialog(@mounted="onMountedDialog")
+      span Loading..
     snackbar(@mounted="onMountedSnackbar")
 </template>
 
@@ -29,13 +31,15 @@ import _findIndex from "lodash/findIndex";
 import { mapState, mapMutations } from "vuex";
 import mqtt from "mqtt";
 import _range from "lodash/range";
+
+import MyDialog from "@/components/Dialog";
 import TemplateMain from "@/components/views/Main";
 import Placeholder from "@/components/Placeholder";
 import Card from "./Card";
 import Empty from "./Empty";
 import Snackbar from "@/components/Snackbar";
 
-const placeholderStudents = _range(2).map(v => {
+const placeholderStudents = _range(3).map(v => {
   return {
     attendance: {
       class: {
@@ -73,7 +77,7 @@ const placeholderStudents = _range(2).map(v => {
 });
 
 export default {
-  components: { TemplateMain, Placeholder, Card, Empty, Snackbar },
+  components: { TemplateMain, Placeholder, Card, Empty, Snackbar, MyDialog },
   computed: {
     ...mapState(["currentAuth"])
   },
@@ -82,28 +86,50 @@ export default {
       attendances: placeholderStudents,
 
       snackbar: null,
+      dialog: null,
       mqtt: null
     };
   },
   methods: {
     ...mapMutations(["nextMqtt"]),
+    onMountedDialog(e) {
+      this.dialog = e;
+      this.dialog.escapeKeyAction = "";
+      this.dialog.scrimClickAction = "";
+    },
     onProgress(e) {
-      const item = e;
-      this.snackbar.show({
-        message: `You submitted a progress`,
-        actionText: "Undo",
-        actionHandler: () => {
+      const { url, data } = e;
+      this.dialog.open();
+
+      axios
+        .post(url, data)
+        .then(response => {
+          const item = response.data;
+
           this.snackbar.show({
-            message: `You undo a progress`
+            message: `You submitted a progress`,
+            actionText: "Undo",
+            actionHandler: () => {
+              this.snackbar.show({
+                message: `You undo a progress`
+              });
+              axios.delete(
+                `${process.env.VUE_APP_API}/attendances_students/${item._id}`,
+                { headers: { "If-Match": item._etag } }
+              );
+              // .then(response => { })
+              // .catch(error => console.log(error));
+            }
           });
-          axios.delete(
-            `${process.env.VUE_APP_API}/attendances_students/${item._id}`,
-            { headers: { "If-Match": item._etag } }
-          );
-          // .then(response => { })
-          // .catch(error => console.log(error));
-        }
-      });
+
+          this.dialog.close();
+        })
+        .catch(error => {
+          this.dialog.close();
+          this.snackbar.show({
+            message: `You failed submit a progress`
+          });
+        });
     },
     onAbsenced(e) {
       this.onProgress(e);
@@ -211,7 +237,7 @@ export default {
                 });
               v.students.forEach(v2 => {
                 const config = {
-                  params: { where: { role: "student" } }
+                  // params: { where: { role: "student" } }
                 };
                 axios
                   .get(

@@ -12,7 +12,7 @@ from eve_swagger import add_documentation
 
 
 blueprint = Blueprint('forgot_password', __name__)
-CORS(blueprint, max_age=timedelta(seconds=10))
+CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 mail = Mail()
 
 resource = 'users'

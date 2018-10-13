@@ -88,7 +88,7 @@ DOMAIN = {
     },
     'attendances_tutors': {
         'schema': schema.get('attendance-tutor'),
-        'item_methods': ['GET'],
+        'item_methods': ['GET', 'DELETE'],
         'allow_unknown': True
     },
     'attendances-tutors': {

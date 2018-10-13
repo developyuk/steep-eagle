@@ -19,10 +19,11 @@
         .col-sm-12
           el-table.table-striped(:data="tableData" border="" style="width: 100%")
             el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
+            el-table-column(:key="tableColumns[1].label" :min-width="tableColumns[1].minWidth" :prop="tableColumns[1].prop" :label="tableColumns[1].label" :className="tableColumns[1].className" :sortable="tableColumns[1].sortable")
               template(slot-scope='props')
                 .img-container
                   img(:src='props.row.photo' :alt='props.row.name')
-            el-table-column(v-for="column in tableColumns.slice(1)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
+            el-table-column(v-for="column in tableColumns.slice(2)" :key="column.label" :min-width="column.minWidth" :prop="column.prop" :label="column.label" :className="column.className" :sortable="column.sortable")
             el-table-column(:min-width="72" fixed="right" label="Actions")
               template(slot-scope="props")
                 router-link(:to="`/admin/operations/${props.row._id}`").btn.btn-simple.btn-xs.btn-success.btn-icon.edit
@@ -86,6 +87,11 @@ export default {
       searchQuery: "",
       propsToSearch: ["name",'username','email'],
       tableColumns: [
+        {
+          prop: "_id",
+          label: "#",
+          minWidth: 128,
+        },
         {
           prop: "photo",
           label: "Photo",

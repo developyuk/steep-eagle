@@ -41,12 +41,12 @@ export default new Vuex.Store({
       axios.get(`${process.env.VUE_APP_API}/tutor_stats`)
         .then(response => {
           const data = {
-            classes: response.data._items.classes_sum,
-            hours: response.data._items.hours_sum,
-            feedbacks: response.data._items.feedbacks_sum,
-            ratings: response.data._items.ratings_avg,
-            reviews: response.data._items.reviews_avg,
-            attendances: response.data._items.attendances_avg,
+            classes: response.data.classes_sum,
+            hours: response.data.hours_sum,
+            feedbacks: response.data.feedbacks_sum,
+            ratings: response.data.ratings_avg,
+            reviews: response.data.reviews_avg,
+            attendances: response.data.attendances_avg,
           };
           commit('nextStats', data)
         })

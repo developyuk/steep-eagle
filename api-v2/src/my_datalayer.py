@@ -10,8 +10,49 @@ from flask import current_app as app, Response, abort
 from eve.utils import config, validate_filters, debug_error_message
 from eve.io.mongo.mongo import Mongo
 from eve.io.mongo.parser import parse, ParseError
+from eve.io.mongo.validation import Validator
 import pymongo
 from werkzeug.exceptions import HTTPException
+
+
+class GoogleCloudstoreValidator(Validator):
+    def _is_value_unique(self, unique, field, value, query):
+        """ Validates that a field value is unique.
+        """
+        if unique:
+            query[field] = value
+
+            resource_config = config.DOMAIN[self.resource]
+
+            # exclude soft deleted documents if applicable
+            if resource_config['soft_delete']:
+                # be aware that, should a previously (soft) deleted document be
+                # restored, and because we explicitly ignore soft deleted
+                # documents while validating 'unique' fields, there is a chance
+                # that a unique field value will end up being now duplicated
+                # in two documents: the restored one, and the one which has
+                # been stored with the same field value while the original
+                # document was in 'deleted' state.
+
+                # we make sure to also include documents which are missing the
+                # DELETED field. This happens when soft deletes are enabled on
+                # an a resource with existing documents.
+                query[config.DELETED] = {'$ne': True}
+
+            # exclude current document
+            if self.document_id:
+                id_field = resource_config['id_field']
+                query[id_field] = {'$ne': self.document_id}
+
+            # we perform the check on the native mongo driver (and not on
+            # app.data.find_one()) because in this case we don't want the usual
+            # (for eve) query injection to interfere with this validation. We
+            # are still operating within eve's mongo namespace anyway.
+
+            datasource, _, _, _ = app.data.datasource(self.resource)
+
+            if app.data._find_one(self.resource, datasource, query):
+                self._error(field, "value '%s' is not unique" % value)
 
 
 class GoogleCloudstore(Mongo):
@@ -100,6 +141,9 @@ class GoogleCloudstore(Mongo):
         }
         document = None
         documents = self._find(resource, datasource, **args)
+
+        if not len(documents):
+            return document
 
         for d in documents:
             document = d

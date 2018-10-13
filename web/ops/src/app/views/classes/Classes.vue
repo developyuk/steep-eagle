@@ -26,6 +26,7 @@
               input.form-control.input-sm(type="search" placeholder="Search records" v-model="searchQuery" aria-controls="datatables")
         .col-sm-12
           el-table.table-striped(:data="tableData" border="" style="width: 100%")
+            el-table-column(:key="tableColumns[0].label" :min-width="tableColumns[0].minWidth" :prop="tableColumns[0].prop" :label="tableColumns[0].label" :className="tableColumns[0].className" :sortable="tableColumns[0].sortable")
             //- el-table-column(:key="'Id'" :min-width="64" :prop="'id'" :label="'#'")
             el-table-column(:key="'Image'" :min-width="100" :prop="'module.image'" :label="'Image'")
               template(slot-scope='props')
@@ -89,9 +90,9 @@ export default {
       propsToSearch: [],
       tableColumns: [
         {
-          prop: "id",
-          label: "Id",
-          minWidth: 50
+          prop: "_id",
+          label: "#",
+          minWidth: 128+64
         },
         {
           prop: "module.name",
@@ -136,8 +137,8 @@ export default {
         },
         {
           prop: "studentsTotal",
-          label: "Total Students",
-          minWidth: 128 + 16,
+          label: "Students",
+          minWidth: 128,
           sortable: true
         }
       ],

@@ -12,16 +12,16 @@
               input.form-control(type="text" name="username" v-validate="modelValidations.username" v-model="model.username")
               small.text-danger(v-show="username.invalid")
                 | {{ getError('username') }}
-          //- .form-group
-          //-   label.col-sm-2.control-label Password
-          //-   .col-sm-9
-          //-     button(@click.prevent="onClickResetPassword") Reset Password
           .form-group
             label.col-sm-2.control-label Name
             .col-sm-9
               input.form-control(type="text" name="name" v-validate="modelValidations.name" v-model="model.name")
               small.text-danger(v-show="name.invalid")
                 | {{ getError('name') }}
+          .form-group(v-if="!isCreate")
+            label.col-sm-2.control-label Password
+            .col-sm-9
+              button(@click.prevent="onClickResetPassword") Reset Password
           .form-group
             label.col-sm-2.control-label Email
             .col-sm-9
@@ -34,12 +34,12 @@
               input.form-control(type="file" name="photo" v-validate="modelValidations.photo" @change="onChangePhoto")
               small.text-danger(v-show="photo.invalid")
                 | {{ getError('photo') }}
-          .form-group(v-if="!isCreate")
-            label.col-sm-2.control-label Active
-            .col-sm-9
-              p-switch(v-model="model.is_active" @input="onChangeLeaving")
-                i.fa.fa-check(slot="on")
-                i.fa.fa-times(slot="off")
+          //- .form-group(v-if="!isCreate")
+          //-   label.col-sm-2.control-label Active
+          //-   .col-sm-9
+          //-     p-switch(v-model="model.is_active" @input="onChangeLeaving")
+          //-       i.fa.fa-check(slot="on")
+          //-       i.fa.fa-times(slot="off")
       .card-footer.text-center
         .row
           .col-sm-4.col-sm-offset-2
@@ -88,6 +88,7 @@ export default {
     };
   },
   methods: {
+    onClickResetPassword(e) {},
     onChangeLeaving(e) {
       const config = {
         headers: { "If-Match": this.model._etag }
@@ -95,12 +96,13 @@ export default {
       const is_deleted = !e;
       const url = `${process.env.API}/users/${this.model._id}`;
       let _axios = axios;
-      if (is_deleted){
-        _axios = axios.delete(url,config)
-      }else{
-        _axios = axios.patch(url,{},config)
+      if (is_deleted) {
+        _axios = axios.delete(url, config);
+      } else {
+        _axios = axios.patch(url, {}, config);
       }
-      _axios.then(response => {
+      _axios
+        .then(response => {
           this.model._etag = response.data._etag;
 
           this.$router.push("/admin/operations");
@@ -213,7 +215,7 @@ export default {
           this.model = error.response.data;
           this.model.is_active = !this.model._deleted;
           this.model.photo = null;
-          });
+        });
     }
   }
 };

@@ -10,7 +10,7 @@ from eve_swagger import add_documentation
 from shared.datetime import after_request_cache
 
 blueprint = Blueprint('auth', __name__)
-CORS(blueprint, max_age=timedelta(seconds=10))
+CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 resource = 'users'
 
 

@@ -65,7 +65,8 @@ class GoogleMediaStorage(MediaStorage):
 schema = {
     'user': {
         'username': {
-            'type': 'string'
+            'type': 'string',
+            'unique': True,
         },
         'password': {
             'type': 'string',
@@ -77,6 +78,7 @@ schema = {
         },
         'email': {
             'type': 'string',
+            'unique': True,
         },
         'name': {
             'type': 'string',

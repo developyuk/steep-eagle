@@ -17,7 +17,7 @@ from pytz import utc
 from shared.datetime import wib_tz, wib_now, utc_now, dow_list, after_request_cache
 
 blueprint = Blueprint('schedules', __name__)
-CORS(blueprint, max_age=timedelta(seconds=10))
+CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 
 
 def _last_attendance(attendances, attendances_tutors, class_):
@@ -170,7 +170,8 @@ def schedules():
                 if recurrence['interval'] == 1:
                     if dow_list[date.weekday()] in recurrence['byday']:
                         conv_time(class_, date)
-                        d[config.ITEMS].append(class_)
+                        if class_['finish'] + timedelta(hours=2) > wib_now:
+                            d[config.ITEMS].append(class_)
 
         if len(d[config.ITEMS]) > 0:
             d[config.ITEMS].sort(key=lambda v: v['start'])

@@ -1,28 +1,35 @@
 <template lang="pug">
-  aside#my-mdc-dialog.mdc-dialog(role="alertdialog" aria-labelledby="my-mdc-dialog-label" aria-describedby="my-mdc-dialog-description")
-    .mdc-dialog__surface
-      header.mdc-dialog__header
-        h2#my-mdc-dialog-label.mdc-dialog__header__title
-          slot(name="header")
-      section#my-mdc-dialog-description.mdc-dialog__body
-        slot
-      footer.mdc-dialog__footer
-        slot(name="footer")
-    .mdc-dialog__backdrop
+  #my-mdc-dialog.mdc-dialog(role="alertdialog" aria-modal="true" aria-labelledby="my-dialog-title" aria-describedby="my-dialog-content")
+    .mdc-dialog__container
+      .mdc-dialog__surface
+        h2#my-dialog-title.mdc-dialog__title
+          slot(name="title")
+        #my-dialog-content.mdc-dialog__content
+          slot
+        footer.mdc-dialog__actions
+          slot(name="actions")
+    .mdc-dialog__scrim
+
 </template>
 
 <script>
-  import {MDCDialog} from '@material/dialog';
-  import {MDCRipple} from '@material/ripple';
+import { MDCDialog, MDCDialogFoundation } from "@material/dialog";
+import { MDCRipple } from "@material/ripple";
 
-  export default {
-    mounted() {
-      const $dialog = new MDCDialog(this.$el);
-      new MDCRipple(this.$el.querySelector('.mdc-button'));
+export default {
+  mounted() {
+    const $dialog = new MDCDialog(this.$el);
 
-      this.$emit('mounted', $dialog);
+    const buttons = [...this.$el.querySelectorAll(".mdc-button")];
+    if (buttons.length) {
+      buttons.forEach(v => {
+        new MDCRipple(v);
+      });
     }
+
+    this.$emit("mounted", $dialog);
   }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
