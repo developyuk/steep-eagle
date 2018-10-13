@@ -87,7 +87,7 @@ export default {
         },
         contact: {},
         email: {
-          email: true
+          // email: true
         },
         photo: {
           image: true

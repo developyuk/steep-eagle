@@ -1,4 +1,4 @@
-service: api
+service: default
 runtime: python37
 api_version: 1
 

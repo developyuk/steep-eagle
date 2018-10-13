@@ -1,5 +1,5 @@
 module.exports = {
   NODE_ENV: '"production"',
-  API: '"https://api-dot-steep-eagle.appspot.com"',
+  API: '"https://dyuk-154708.appspot.com"',
   WS: '"wss://iot.eclipse.org:443/ws"'
 }
