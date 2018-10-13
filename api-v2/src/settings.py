@@ -29,7 +29,7 @@ X_DOMAINS = "*"
 RETURN_MEDIA_AS_BASE64_STRING = False
 RETURN_MEDIA_AS_URL = True
 MEDIA_BASE_URL = 'https://storage.googleapis.com'
-MEDIA_ENDPOINT = 'steep-eagle-files'
+MEDIA_ENDPOINT = 'm-files'
 UPLOAD_FOLDER = '/tmp/'
 
 SWAGGER_INFO = {

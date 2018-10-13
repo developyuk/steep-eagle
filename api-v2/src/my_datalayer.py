@@ -1,12 +1,11 @@
 
-from copy import deepcopy
 from pprint import pprint
 import ast
 import json
 import dateutil.parser
 
 from google.cloud import datastore
-from flask import current_app as app, Response, abort
+from flask import current_app as app, abort
 from eve.utils import config, validate_filters, debug_error_message
 from eve.io.mongo.mongo import Mongo
 from eve.io.mongo.parser import parse, ParseError

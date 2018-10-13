@@ -2,53 +2,50 @@
   #TemplateMain
     my-drawer(@mounted="onMountedDrawer")
       template(slot="header")
-        .photo
+        h3.mdc-drawer__title
           my-img(:src="currentAuth.photo")
-        .name.mdc-drawer__title {{currentAuth.name || currentAuth.username}}
-        .email.mdc-drawer__subtitle {{currentAuth.email}}
+          | {{currentAuth.name || currentAuth.username}}
+        h6.mdc-drawer__subtitle {{currentAuth.email}}
 
-      .mdc-card.mdc-elevation--z4
-        ul.mdc-list.stats-list
-          li.mdc-list-item
-            .stats.stats--icons.mdc-layout-grid
-              .mdc-layout-grid__inner
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") class
-                  .text {{currentStats.classes}} classes
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") watch_later
-                  .text {{currentStats.hours}} hours
-                .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
-                  i.material-icons.mdc-tab__icon(aria-hidden="true") stars
-                  .text {{currentStats.feedbacks}} feedbacks
-          li.mdc-list-item
-            .stats.stats--texts
-              .mdc-card.ratings
-                .title ratings given
-                .text {{currentStats.ratings}}%
-              .mdc-card.reviews
-                .title reviews given
-                .text {{currentStats.reviews}}%
-              .mdc-card.attendances
-                .title teaching attendances
-                .text {{currentStats.attendances}}%
+      ul.mdc-list.mdc-list--non-interactive
+        li.mdc-list-item(style="height:auto")
+          //- span.mdc-list-item__text Inbox
+          .stats.stats--icons.mdc-layout-grid
+            .mdc-layout-grid__inner
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") class
+                .text {{currentStats.classes}} classes
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") watch_later
+                .text {{currentStats.hours}} hours
+              .mdc-layout-grid__cell.mdc-layout-grid__cell--span-1
+                i.material-icons.mdc-tab__icon(aria-hidden="true") stars
+                .text {{currentStats.feedbacks}} feedbacks
+        li.mdc-list-item(style="height:auto")
+          //- span.mdc-list-item__text Outgoing
+          .stats.stats--texts
+            .mdc-card.ratings
+              .title ratings given
+              .text {{currentStats.ratings}}%
+            .mdc-card.reviews
+              .title reviews given
+              .text {{currentStats.reviews}}%
+            .mdc-card.attendances
+              .title teaching attendances
+              .text {{currentStats.attendances}}%
 
-        ul.mdc-list.sign-out
-          li.mdc-list-divider(role="separator")
-          li.mdc-list-item(tabindex="-1")
-            a(href='#' @click.prevent="signOut($event)")
-                i.material-icons.mdc-list-item__graphic(aria-hidden='true') power_settings_new
-                | Just sign me out !
+        li.mdc-list-divider(role="separator")
+        a.mdc-list-item.mdc-list-item--activated(href="#" aria-selected="true" @click.prevent="signOut")
+          i.material-icons.mdc-list-item__graphic(aria-hidden="true") power_settings_new
+          span.mdc-list-item__text Just sign me out !
+
     .mdc-drawer-scrim
-
-    .grid-y.grid-frame
-      //- .cell.shrink
-      my-header(:drawer="drawer")
-      //- transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
-      .cell.auto(:key="$route.fullPath")
+    
+    my-header(:drawer="drawer")
+    #mainContent(:key="$route.fullPath")
+      .mdc-top-app-bar--fixed-adjust
         slot
-      //- .cell.shrink
-      tab-bottom
+    tab-bottom
 </template>
 
 <script>
@@ -88,13 +85,7 @@ export default {
 <style scoped lang="scss">
 @import "~sass-bem";
 @import "src/assets/shared";
-.grid-frame {
-  padding-top: 56px;
-  padding-bottom: 3rem;
-}
-.cell.auto {
-  overflow: auto;
-}
+@import "@material/top-app-bar/mdc-top-app-bar";
 
 .mdc-drawer {
   .mdc-layout-grid__inner {
@@ -103,29 +94,42 @@ export default {
   .mdc-layout-grid__cell {
     text-align: center;
   }
-  .photo {
-  }
+
   img {
+    display: block;
     width: 4rem;
-    height: 4rem;
     border-radius: 50%;
-    margin-top: 1rem;
   }
-  .mdc-list-item,
-  .mdc-list-divider {
-    // position: absolute;
-    // width: 100%;
+  //   .mdc-list-item,
+  //   .mdc-list-divider {
+  //     // position: absolute;
+  //     // width: 100%;
+  //   }
+  //   .mdc-list-item {
+  //     &,
+  //     .material-icons {
+  //       color: #fff;
+  //       height: auto;
+  //     }
+  //     // bottom: 0;
+  //   }
+  //   .mdc-list-divider {
+  //     border-bottom-color: rgba(0, 0, 0, 0.12);
+  //   }
+}
+.mdc-list {
+  // position: absolute;
+  // bottom: 0;
+  // width: 100%;
+}
+.mdc-list-item {
+  &,
+  a,
+  .material-icons {
+    color: #fff;
   }
-  .mdc-list-item {
-    &,
-    .material-icons {
-      color: #fff;
-      height: auto;
-    }
-    // bottom: 0;
-  }
-  .mdc-list-divider {
-    border-bottom-color: rgba(0, 0, 0, 0.12);
+  .mdc-tab__icon {
+    opacity: 1;
   }
 }
 
@@ -139,13 +143,13 @@ export default {
     padding: 0;
     width: 100%;
     .material-icons {
-      opacity: 1;
       $size: 2rem;
       font-size: $size;
       width: $size;
     }
   }
   @include m(texts) {
+    height: calc(100vh - #{151px+62px+40px+16px+32px});
     font-size: 0.75rem;
     color: map_get($palettes, red);
     width: 100%;
@@ -154,38 +158,31 @@ export default {
       margin: 0.75rem 0;
       padding: 0.5rem 1rem;
       border-radius: 0.325rem;
-      // box-shadow: 0 0.25rem rgba(0, 0, 0, 0.25);
     }
   }
 }
-.stats-list {
-  height: calc(100% - 3rem);
-  // display: block
-  min-height: 20rem;
-  // height:100%;
-}
-.sign-out {
-  *:focus {
-    outline: 0;
-  }
-  height: auto;
-  // height: 3rem;
-  width: 100%;
-  .mdc-list-item {
-    height: 100%;
-    padding: 0.25rem 0.75rem;
-    margin: 0;
-  }
-  a {
-    color: #fff;
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    height: 2rem;
-    // padding-top: 1.5rem;
-  }
-  .mdc-list-item__graphic {
-    vertical-align: middle;
-  }
-}
+// .sign-out {
+//   *:focus {
+//     outline: 0;
+//   }
+//   height: auto;
+//   // height: 3rem;
+//   width: 100%;
+//   .mdc-list-item {
+//     height: 100%;
+//     padding: 0.25rem 0.75rem;
+//     margin: 0;
+//   }
+//   a {
+//     color: #fff;
+//     text-decoration: none;
+//     display: block;
+//     width: 100%;
+//     height: 2rem;
+//     // padding-top: 1.5rem;
+//   }
+//   .mdc-list-item__graphic {
+//     vertical-align: middle;
+//   }
+// }
 </style>

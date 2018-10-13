@@ -41,9 +41,6 @@ h1.logo {
   margin:0;
 }
 
-.mdc-list-divider {
-  border-bottom-color: #dcdcdc;
-}
 
 .hide {
   display: none;
@@ -60,13 +57,6 @@ h1.logo {
 .mdc-snackbar {
   z-index: 9;
 }
-
-.mdc-drawer--temporary .mdc-drawer__drawer {
-  max-width: 90%;
-}
-.mdc-drawer--temporary .mdc-drawer__header::before{
-  padding-top: 10rem !important;
-}
-.mdc-list-item__primary-text::before{
-  height: 0;
+.mdc-top-app-bar--fixed-adjust{
+  padding-bottom: 56px;
 }

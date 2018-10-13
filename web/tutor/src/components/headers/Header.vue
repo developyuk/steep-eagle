@@ -1,11 +1,12 @@
 <template lang="pug">
-  #header
-    header
-      .grid-x.align-middle.align-justify
-        .cell.shrink
+  header.mdc-top-app-bar.mdc-top-app-bar--fixed
+    .mdc-top-app-bar__row
+      section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
+        a.mdc-top-app-bar__navigation-icon 
           img.logo(src="img/logo.svg")
-        //- .cell.shrink
-        //-   span.search(@click="onClickSearch") search?
+      //-   span.mdc-top-app-bar__title Title
+      //- section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-end(role="toolbar")
+      //-   a.search.material-icons.mdc-top-app-bar__action-item(href="#" @click.prevent="onClickSearch" aria-label="Search" alt="Search") search
 
 </template>
 
@@ -13,6 +14,7 @@
 import _debounce from "lodash/debounce";
 import _throttle from "lodash/throttle";
 import { mapState, mapMutations, mapActions } from "vuex";
+import { MDCTopAppBar } from "@material/top-app-bar/index";
 
 export default {
   props: ["drawer"],
@@ -30,9 +32,12 @@ export default {
   },
   destroyed() {},
   mounted() {
-    this.$el
-      .querySelector("img.logo")
-      .addEventListener("click", () => (this.drawer.open = true));
+    const topAppBarElement = this.$el;
+    const topAppBar = new MDCTopAppBar(topAppBarElement);
+    topAppBar.setScrollTarget(document.querySelector("#mainContent"));
+    topAppBar.listen("MDCTopAppBar:nav", () => {
+      this.drawer.open = !this.drawer.open;
+    });
     this.updateStats();
   }
 };
@@ -42,17 +47,11 @@ export default {
 <style scoped lang="scss">
 @import "src/assets/shared";
 @import "~sass-bem";
-#header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 5;
-     max-width: 30rem;
-}
+@import "@material/top-app-bar/mdc-top-app-bar";
+
 header {
-  position: relative;
   background-color: $mdc-theme-primary;
-  overflow: hidden;
+  max-width: 30rem;
 }
 
 img.logo {
@@ -62,9 +61,7 @@ img.logo {
   filter: drop-shadow(1px 3px 1px rgba(0, 0, 0, 0.5));
 }
 
-.search {
-  font-weight: 500;
-  color: #fff;
-  margin-right: 1rem;
-}
+// .search {
+//   font-weight: 600;
+// }
 </style>

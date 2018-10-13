@@ -40,19 +40,18 @@ export default {
   bottom: 0;
   background-color: #fff;
   max-width: 30rem;
-  .mdc-tab__icon {
-    padding: 0.125rem 0;
-    $size: 2rem;
-    font-size: $size;
-    width: $size;
-  }
+
   .mdc-tab__text-label {
-    font-size: 0.5rem;
-    text-align: center;
-    padding-bottom: 0.25rem;
+    font-size: 0.675rem;
   }
   .mdc-tab--stacked {
     height: 3rem;
+    .mdc-tab__icon {
+      padding-top: 0.325rem;
+    }
+    .mdc-tab__text-label {
+      padding-bottom: 0.325rem;
+    }
   }
 }
 </style>

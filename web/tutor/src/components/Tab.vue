@@ -1,5 +1,5 @@
 <template lang="pug">
-  nav.mdc-tab-bar(role="tablist" :class="[`mdc-elevation--${elevation || 'z1'}`]")
+  .mdc-tab-bar(role="tablist" :class="[`mdc-elevation--${elevation || 'z1'}`]")
     .mdc-tab-scroller
       .mdc-tab-scroller__scroll-area
         .mdc-tab-scroller__scroll-content
@@ -17,7 +17,7 @@
 import { MDCTabBar } from "@material/tab-bar";
 
 export default {
-  props: ["items", "indicator","elevation"],
+  props: ["items", "indicator", "elevation"],
   data() {
     return {};
   },
@@ -28,7 +28,7 @@ export default {
       // } else {
       //   return this.$route.path.indexOf(path) === 0 && path.length > 1;
       // }
-      return this.$route.path === path
+      return this.$route.path === path;
     },
     onClick(e, to) {
       this.$router.push(to);
@@ -43,4 +43,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import "src/assets/shared";
+@import "@material/tab-bar/mdc-tab-bar";
+@import "@material/tab-scroller/mdc-tab-scroller";
+@import "@material/tab-indicator/mdc-tab-indicator";
+@import "@material/tab/mdc-tab";
 </style>

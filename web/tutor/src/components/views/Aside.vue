@@ -1,11 +1,8 @@
 <template lang="pug">
   #TemplateMain
-    .grid-y.grid-frame
-      .cell.shrink
-        my-header
-      //- transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
-      .cell.auto(:key="$route.fullPath")
-        slot
+    my-header
+    #main-content(:key="$route.fullPath")
+      slot
 </template>
 
 <script>
@@ -17,7 +14,7 @@ export default {
     return {};
   },
   mounted() {
-    console.log(this.$route.fullPath);
+    // console.log(this.$route.fullPath);
   }
 };
 </script>

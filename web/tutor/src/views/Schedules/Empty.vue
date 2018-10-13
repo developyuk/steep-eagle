@@ -21,9 +21,9 @@
 
   .empty {
     text-align: center;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-60%);
+    // position: absolute;
+    // top: 50%;
+    // transform: translateY(-60%);
     margin: 2rem;
     width: calc(100% - 4rem);
 

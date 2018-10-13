@@ -1,14 +1,11 @@
 from datetime import timedelta
-from copy import deepcopy
 from pprint import pprint
 
 from flask_cors import CORS
 from eve_swagger import add_documentation
 from flask import current_app as app, jsonify, Blueprint
 from eve.auth import requires_auth
-from eve.methods.get import get_internal, getitem_internal
-from eve.methods.put import put_internal
-from eve.methods.post import post_internal
+from eve.methods.get import get_internal
 from eve.render import send_response
 from eve.utils import config
 
