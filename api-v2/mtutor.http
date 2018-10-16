@@ -1,6 +1,8 @@
 # vars
-@host = http://192.168.2.50:3000
+# @host = https://api.steep-eagle.appspot.com
+@host = http://127.0.0.1:3000
 @username = xxx
+
 
 ### 
 # @name sign
@@ -11,22 +13,21 @@ Content-Type: application/json
     "username":"{{username}}",    
     "role":["tutor"]
 } 
+
 ### auth
+# @name auth
 GET {{host}}/auth
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ### 
-GET {{host}}/users/4942783253053440
+GET {{host}}/users/{{auth.response.body.$._id}}
 Authorization: Bearer {{sign.response.body.$.token}}
-
-### put schedules to caches
-PUT {{host}}/schedules
-?max_results=999
-Authorization: Bearer {{sign.response.body.$.token}}
-Content-Type: application/json
 
 ### get schedules
 GET {{host}}/schedules
+?_page=1
+&_max_results=2
+# &embedded={"module":true}
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
@@ -39,13 +40,6 @@ Content-Type: application/json
 }
 
 ###
-GET {{host}}/attendances_tutors
-?embedded={"attendance":true,"attendance.module":true,"attendance.class":true,"attendance.class.branch":true}
+GET {{host}}/students/attendances
 Authorization: Bearer {{sign.response.body.$.token}}
 
-###
-PUT http://192.168.2.50:3000/students/attendances
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-GET http://192.168.2.50:3000/students/attendances
-Authorization: Bearer {{sign.response.body.$.token}}

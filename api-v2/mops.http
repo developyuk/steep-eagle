@@ -1,4 +1,5 @@
 # vars
+# @host = https://api.steep-eagle.appspot.com
 @host = http://127.0.0.1:3000
 @studentId = 5702167830724608
 @username = xxx
@@ -16,13 +17,13 @@ Content-Type: application/json
 } 
 
 ### 
-# @name user
+# @name auth
 GET {{host}}/auth
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
-POST http://127.0.0.1:3000/forgot_password
-Content-Type: application/json;charset=UTF-8
+POST {{host}}/forgot_password
+Content-Type: application/json
 
 {
     "username":"{{username}}",
@@ -30,29 +31,59 @@ Content-Type: application/json;charset=UTF-8
 }
 
 ###
-GET http://127.0.0.1:3000/users
-# ?max_results=5
-# &page=1
+# @name users
+GET {{host}}/users
+?max_results=2
+&page=2
 # &show_deleted=true
-# &sort=_deleted,-_updated
-?where={"username":"fariz"}
-# &where={"role":"tutor"}
+# &sort=name
+# &where={"username":"kynan dhya saputra"}
+&where={"role":"operation"}
+# &where={"$or":[{"name":"t"},{"username":"t"},{"email":"t"}]}
+# &where={"$or":{"name":"t","username":"t","email":"t"}}
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
-GET {{host}}/users/{{user.response.body.$._id}}
+GET {{host}}/students/{{users.response.body.$._items.0._id}}
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
 # @name modules
 GET {{host}}/modules
-?where={"name":"/dumm/"}
+?max_results=5
+&page=1
+&sort=-_updated
+&where={"$or":[{"name":"tes"}]}
+# ?where={"name":"/dumm/"}
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
 # @name module
 GET {{host}}/modules/{{modules.response.body.$._items.0._id}}
 Authorization: Bearer {{sign.response.body.$.token}}
+
+###
+DELETE {{host}}/modules/{{modules.response.body.$._items.0._id}}
+Authorization: Bearer {{sign.response.body.$.token}}
+If-Match: {{module.response.body.$._etag}}
+
+###
+PATCH {{host}}/modules/{{modules.response.body.$._items.0._id}}
+Authorization: Bearer {{sign.response.body.$.token}}
+If-Match: {{module.response.body.$._etag}}
+Content-Type: application/json
+
+{
+    "name":"test2"
+}
+###
+POST {{host}}/modules
+Authorization: Bearer {{sign.response.body.$.token}}
+Content-Type: application/json
+
+{
+    "name":"test"
+}
 
 ###
 # @name branches
@@ -65,26 +96,8 @@ GET {{host}}/branches/{{branches.response.body.$._items.0._id}}
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
-# @name tutors
-GET {{host}}/tutors
-?sort=_deleted,-_updated
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-# @name tutor
-GET {{host}}/tutors/{{tutors.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-POST {{host}}/classes
-Authorization: Bearer {{sign.response.body.$.token}}
-Content-Type: application/json
-
-{
-    "day":"tuesday","startAt":"07:00","finishAt":"08:30",
-    "module":"{{module.response.body.$._id}}",
-    "branch":"{{branch.response.body.$._id}}",
-    "tutor":"{{tutor.response.body.$._id}}"
-}
+GET http://127.0.0.1:3000/users?max_results=5&page=1&show_deleted=true&sort=_deleted,-_updated&where={"role":"student"}
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOjYyMTgyMTY3NDEyNzM2MDB9.k2gAEpyoEMy1LJSgTWeUkYbIvT6ZQD1ffHMau6VfuTs
 
 
 ###
@@ -117,39 +130,9 @@ Content-Type: application/json
         "student":"{{studentId}}"
     }
 ]
-###
-GET {{host}}/students/dormant?sort=_deleted,name&max_results=9999
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-GET {{host}}/students/
-Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
-GET {{host}}/students/{{studentId}}
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-GET {{host}}/students/{{studentId}}/guardians
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-DELETE  {{host}}/students/{{studentId}}/guardians
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-POST {{host}}/students/{{studentId}}/guardians
-Authorization: Bearer {{sign.response.body.$.token}}
-Content-Type: application/json
-
-[
-    {
-        "name":"guardian2",
-        "email":"guardian2@ex.com",
-        "contact":"guardian2 contact",
-        "role":"guardian"
-    }
-]
-
-###
-GET http://127.0.0.1:3000/attendances_tutors
+GET {{host}}/attendances_tutors
 ?sort=-_created
 &max_results=5
 &page=1
@@ -157,7 +140,7 @@ GET http://127.0.0.1:3000/attendances_tutors
 Authorization: Bearer {{sign.response.body.$.token}}
 
 ###
-GET http://127.0.0.1:3000/attendances_students
+GET {{host}}/attendances_students
 ?sort=-_created
 &max_results=5
 &page=1
