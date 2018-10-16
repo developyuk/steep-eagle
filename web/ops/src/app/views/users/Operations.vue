@@ -85,17 +85,17 @@ export default {
         total: 0
       },
       searchQuery: "",
-      propsToSearch: ["name",'username','email'],
+      propsToSearch: ["name", "username", "email"],
       tableColumns: [
         {
           prop: "_id",
           label: "#",
-          minWidth: 128,
+          minWidth: 128
         },
         {
           prop: "photo",
           label: "Photo",
-          minWidth: 80,
+          minWidth: 64 + 32,
           // className: "text-capitalize",
           sortable: true
         },
@@ -271,7 +271,9 @@ export default {
           q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = {$and:[{ $or: qList },{role:'operation'}]};
+        config.params["where"] = {
+          $and: [{ $or: qList }, { role: "operation" }]
+        };
       }
       axios
         .get(`${process.env.API}/users`, config)
@@ -281,18 +283,18 @@ export default {
             v.is_active = !v._deleted;
             return v;
           });
-          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
+          const paginationTotal =
+            this.pagination.currentPage * this.pagination.perPage;
           if (this.tableData.length == this.pagination.perPage) {
             this.pagination.total = paginationTotal + 1;
-          }else{
+          } else {
             this.pagination.total = paginationTotal;
           }
         })
         .catch(error => console.log(error, error.response));
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 <style>

@@ -1,5 +1,5 @@
 <template lang="pug">
-  tab(:items="tabItems" elevation="z10").tab-bottom
+  tab.tab-bottom(:items="tabItems" elevation="z10")
 </template>
 
 <script>

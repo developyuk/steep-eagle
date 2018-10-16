@@ -14,7 +14,7 @@
         placeholder(:value="item.tutor.name")
       span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances._items && !!item.last_attendances._items.length") Class started by&nbsp;
         placeholder(:value="parseLastAttendanceTutorName(item.last_attendances._items)")
-    button-status(:class_="item" @click-start="onClickStart")
+    button-status(:class_="item" v-model="currentClass")
 </template>
 
 <script>
@@ -29,10 +29,17 @@ export default {
     MyImg,
     Placeholder
   },
+  data() {
+    return {
+      currentClass: null
+    };
+  },
+  watch: {
+    currentClass(v, ov) {
+      this.$emit("input", v);
+    }
+  },
   methods: {
-    onClickStart(e) {
-      this.$emit("click-start", e);
-    },
     parseLastAttendanceTutorName(list) {
       return list.length ? list.map(v => v["tutor"]["name"]).join(", ") : "";
     }

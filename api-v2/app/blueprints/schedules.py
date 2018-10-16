@@ -51,7 +51,7 @@ def _last_attendance(attendances, attendances_tutors, class_):
 
     class_attendance = {}
     for v in attendances:
-        if v['class'] == class_[config.ID_FIELD] and v[config.DATE_CREATED].astimezone(utc) >= utc_start_at:
+        if v['class'] == class_[config.ID_FIELD] and v[config.DATE_CREATED].astimezone(utc) >= (utc_start_at - timedelta(minutes=5)):
             class_attendance = v
             break
 

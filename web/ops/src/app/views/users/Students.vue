@@ -92,12 +92,12 @@ export default {
         {
           prop: "_id",
           label: "#",
-          minWidth: 128+64
+          minWidth: 128 + 64
         },
         {
           prop: "photo",
           label: "Photo",
-          minWidth: 64+32,
+          minWidth: 64 + 32,
           // className: "text-capitalize",
           sortable: true
         },
@@ -155,13 +155,13 @@ export default {
           if (text.split(" ")[0] === row.name.split(" ")[0]) {
             const url = `${process.env.API}/users/${row._id}`;
             let _axios = axios;
-            if(is_deleted){
-              _axios = _axios.delete(url,config);
-            }else{
-              _axios = _axios.patch(url,{},config);
-
+            if (is_deleted) {
+              _axios = _axios.delete(url, config);
+            } else {
+              _axios = _axios.patch(url, {}, config);
             }
-            return _axios.then(response => {
+            return _axios
+              .then(response => {
                 row._etag = response.data._etag;
                 this.getData();
                 return {
@@ -278,7 +278,7 @@ export default {
           //   student_guardians: true,
           //   "student_guardians.guardian": true
           // }
-          where:{role:'student'}
+          where: { role: "student" }
         },
         headers: {
           // "cache-control": "no-cache"
@@ -290,33 +290,38 @@ export default {
           q[v] = this.searchQuery;
           return q;
         });
-        config.params["where"] = {$and:[{ $or: qList },{role:'student'}]};
+        config.params["where"] = {
+          $and: [{ $or: qList }, { role: "student" }]
+        };
       }
-      axios
-        .get(`${process.env.API}/users`, config)
-        .then(response => {
-          this.tableData = response.data._items;
-          this.tableData = this.tableData.map(v => {
-            v.is_active = !v._deleted;
-            // v.guardians_name = v.student_guardians
-            //   .map(v2 => {
-            //     return v2.guardian.name || v2.guardian.username;
-            //   })
-            //   .join(", ");
-            return v;
-          });
-          const paginationTotal = this.pagination.currentPage * this.pagination.perPage;
-          if (this.tableData.length == this.pagination.perPage) {
-            this.pagination.total = paginationTotal + 1;
-          }else{
-            this.pagination.total = paginationTotal;
-          }
-        })
-        .catch(error => console.log(error, error.response));
+      axios.get(`${process.env.API}/users`, config).then(response => {
+        this.tableData = response.data._items;
+        this.tableData = this.tableData.map(v => {
+          v.is_active = !v._deleted;
+
+          axios
+            .get(`${process.env.API}/users/${v._id}/guardians`)
+            .then(response => {
+              const guardians_name = response.data._items
+                .map(v2 => {
+                  return v2.name || v2.username;
+                })
+                .join(", ");
+              this.$set(v, "guardians_name", guardians_name);
+            });
+          return v;
+        });
+        const paginationTotal =
+          this.pagination.currentPage * this.pagination.perPage;
+        if (this.tableData.length == this.pagination.perPage) {
+          this.pagination.total = paginationTotal + 1;
+        } else {
+          this.pagination.total = paginationTotal;
+        }
+      });
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 <style>

@@ -4,11 +4,9 @@
       .cell.auto
         form(@submit.prevent="sign").login
           h1.logo M
-          <!--img.logo(src="https://images.weserv.nl/?crop=110,95,88,107&url=dl.dropboxusercontent.com/s/psvta5uwq4s0m5y/logo2.jpg")-->
-          .mdc-text-field
-            input#my-text-field.mdc-text-field__input(v-model.trim="username" name="username" type="text" @focus="errMsg=null")
-            label.mdc-floating-label(for="my-text-field") Enter your name
-            .mdc-line-ripple
+
+          .mdc-text-field.mdc-text-field--fullwidth.mdc-text-field--dense
+            input#my-text-field.mdc-text-field__input(v-model.trim="username" name="username" type="text" @focus="errMsg=null" placeholder="Enter your name" aria-label="Enter your name")
 
           transition(enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp")
             .errMsg(v-if="!!errMsg") {{errMsg}}
@@ -16,9 +14,9 @@
             span.mdc-fab__icon.material-icons arrow_forward
           .faq
             .faq__item
-              a(@click="onClickFaq($event,0)") Why no password?
+              a(href="#" @click.prevent="onClickFaq($event,0)") Why no password?
             .faq__item
-              a(@click="onClickFaq($event,1)") I'm not sure if i registered?
+              a(href="#" @click.prevent="onClickFaq($event,1)") I'm not sure if i registered?
       .cell.shrink
         .powered powered by
           img(alt="codingcamp.id" src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
@@ -134,6 +132,7 @@ button {
     a {
       color: #9e9e9e;
       font-size: 0.875rem;
+      text-decoration: none
     }
   }
 }

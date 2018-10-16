@@ -12,10 +12,10 @@
           span.text
             placeholder(:value="v.delta")
         .mdc-list
-          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${v.date}-${v2._id}`" @click-start="onClickStart")
+          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${v.date}-${v2._id}`" v-model="currentClass")
 
     form(@submit.prevent="checkPin($event)")
-      my-dialog(@mounted="onMountedDialog")
+      my-dialog(v-model="dialog")
         template(slot="title") Are you sure?
         span Insert 1234 to activate&nbsp;
           placeholder(:value="currentClass.module.name.toUpperCase()" val-empty="lorem ipsum")
@@ -25,7 +25,9 @@
         template(slot="actions")
           button.mdc-button.mdc-dialog__button(data-mdc-dialog-action="no" type='button') No
           button.mdc-button.mdc-dialog__button(type='submit') Yes
-    snackbar(@mounted="onMountedSnackbar")
+
+    my-dialog-loading(v-model="dialogLoading" escapeKeyAction="" scrimClickAction="")
+    snackbar(v-model="snackbar")
 </template>
 
 <script>
@@ -38,6 +40,7 @@ import mqtt from "mqtt";
 
 import TemplateMain from "@/components/views/Main";
 import MyDialog from "@/components/Dialog";
+import MyDialogLoading from "@/components/DialogLoading";
 import Empty from "./Empty";
 import Item from "./Item";
 import Placeholder from "@/components/Placeholder";
@@ -75,7 +78,15 @@ const placeholderSchedules = _range(3).map(v => {
 });
 
 export default {
-  components: { TemplateMain, MyDialog, Empty, Item, Placeholder, Snackbar },
+  components: {
+    TemplateMain,
+    MyDialog,
+    MyDialogLoading,
+    Empty,
+    Item,
+    Placeholder,
+    Snackbar
+  },
   data() {
     return {
       pin: null,
@@ -85,6 +96,7 @@ export default {
         module: { name: "" }
       },
       dialog: null,
+      dialogLoading: null,
       snackbar: null,
       errMsg: null,
       mqtt: null
@@ -93,27 +105,20 @@ export default {
   computed: {
     ...mapState(["currentAuth"])
   },
+  watch: {
+    currentClass(v, ov) {
+      this.dialog.open();
+    }
+  },
   methods: {
     ...mapMutations(["nextMqtt"]),
-    onMountedSnackbar(e) {
-      this.snackbar = e;
-    },
-    onMountedDialog(e) {
-      this.dialog = e;
-      this.dialog.escapeKeyAction = "";
-      this.dialog.scrimClickAction = "";
-    },
-    onClickStart(e) {
-      this.dialog.open();
-      const { i, i2 } = this.findClassById(e.id);
-      this.currentClass = this.classes[i]._items[i2];
-    },
     checkPin(e) {
       if (this.pin === "1234") {
+        this.dialog.close();
+        this.dialogLoading.open();
         const data = {
           class: this.currentClass._id
         };
-        console.log(data);
 
         axios
           .post(`${process.env.VUE_APP_API}/attendances_tutors`, data)
@@ -125,6 +130,7 @@ export default {
               message: `You started a class`,
               actionText: "Undo",
               actionHandler: () => {
+                this.dialogLoading.open();
                 axios
                   .delete(
                     `${process.env.VUE_APP_API}/attendances_tutors/${item._id}`,
@@ -133,19 +139,19 @@ export default {
                   .then(response => {
                     this.snackbar.show({
                       message: `You undo a class`
-                      // message: `Undo ${msgClass.module.name.toUpperCase()}`
                     });
                   });
               }
             });
-            this.dialog.close();
           })
           .catch(error => {
-            this.dialog.close();
+            this.dialogLoading.close();
+            this.errMsg = "failed!";
             this.snackbar.show({
               message: `You failed start a class`
             });
           });
+        this.dialog.close();
       } else {
         this.errMsg = "invalid. Check pin again!";
       }
@@ -163,6 +169,7 @@ export default {
       axios
         .get(`${process.env.VUE_APP_API}/schedules`, config)
         .then(response => {
+          this.dialogLoading.close();
           this.classes = response.data._items;
           // console.log(this.classes);
           this.classes.forEach((v, i) => {
@@ -181,15 +188,6 @@ export default {
             });
           });
         });
-    },
-    findClassById(id) {
-      let i, i2;
-      i = _findIndex(this.classes, v => {
-        i2 = _findIndex(v._items, { _id: id });
-        return i2 > -1;
-      });
-      //        console.log(i, ii, this.classes);
-      return { i, i2 };
     }
   },
   mounted() {
@@ -208,6 +206,7 @@ export default {
         const { update, by } = parsedMessage;
 
         if (update) {
+          this.dialogLoading.open();
           this.getSchedules({ forceRefresh: true });
         }
       });

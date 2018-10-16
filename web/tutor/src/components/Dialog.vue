@@ -17,8 +17,21 @@ import { MDCDialog, MDCDialogFoundation } from "@material/dialog";
 import { MDCRipple } from "@material/ripple";
 
 export default {
+  props: ["escapeKeyAction", "scrimClickAction",'title'],
   mounted() {
     const $dialog = new MDCDialog(this.$el);
+    if (this.escapeKeyAction === "") {
+      $dialog.escapeKeyAction = "";
+    }
+    if (this.scrimClickAction === "") {
+      $dialog.scrimClickAction = "";
+    }
+    if(!this.$slots.title){
+      this.$el.querySelector('.mdc-dialog__title').classList.add('hide')
+    }
+    if(!this.$slots.actions){
+      this.$el.querySelector('.mdc-dialog__actions').classList.add('hide')
+    }
 
     const buttons = [...this.$el.querySelectorAll(".mdc-button")];
     if (buttons.length) {
@@ -27,7 +40,7 @@ export default {
       });
     }
 
-    this.$emit("mounted", $dialog);
+    this.$emit("input", $dialog);
   }
 };
 </script>

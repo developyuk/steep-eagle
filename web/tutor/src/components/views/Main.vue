@@ -1,6 +1,6 @@
 <template lang="pug">
   #TemplateMain
-    my-drawer(@mounted="onMountedDrawer")
+    my-drawer(v-model="drawer")
       template(slot="header")
         h3.mdc-drawer__title
           my-img(:src="currentAuth.photo")
@@ -67,9 +67,6 @@ export default {
     };
   },
   methods: {
-    onMountedDrawer(e) {
-      this.drawer = e;
-    },
     signOut(e) {
       localStorage.removeItem("token");
       window.location.reload();

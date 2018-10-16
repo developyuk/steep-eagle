@@ -16,7 +16,7 @@ export default {
   mounted() {
     const $drawer = new MDCDrawer(this.$el.querySelector(".mdc-drawer"));
     new MDCList(this.$el.querySelector(".mdc-list"));
-    this.$emit("mounted", $drawer);
+    this.$emit("input", $drawer);
   }
 };
 </script>

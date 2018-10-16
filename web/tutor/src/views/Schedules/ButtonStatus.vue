@@ -31,7 +31,7 @@ export default {
       const ls = class_.last_attendances._items;
       // console.log(class_,class_.last_attendances._items);
 
-      if ( !!ls.length && msts.diff(mnow, "days") < 1 ) {
+      if (!!ls.length && msts.diff(mnow, "days") < 1) {
         const lsItems = ls;
         const mls = moment(lsItems[0]._created);
 
@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     start(e) {
-      this.$emit("click-start", { id: this.class_._id });
+      this.$emit("input", this.class_);
     }
   },
   mounted() {

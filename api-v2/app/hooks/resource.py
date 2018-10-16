@@ -2,14 +2,11 @@ from pprint import pprint
 
 from flask import current_app as app, abort
 from eve.methods.get import getitem_internal
+from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
 from eve.utils import config
 from shared.datetime import wib_now, wib_tz, dow_list
 from werkzeug.exceptions import NotFound
-
-
-def gen_students_total(item):
-    item['studentsTotal'] = 0
 
 
 def conv_fetch_schedule(item, type_='resource'):
@@ -27,23 +24,37 @@ def conv_fetch_schedule(item, type_='resource'):
 def on_fetched_resource(resource_name, response):
     if resource_name == 'classes':
         for v in response[config.ITEMS]:
-            gen_students_total(v)
             conv_fetch_schedule(v, 'resource')
 
 
 def on_fetched_item(resource_name, response):
     if resource_name == 'classes':
-        gen_students_total(response)
         conv_fetch_schedule(response, 'item')
 
 
-def conv_put_recurr(item):
-    start_at = item['startAt'].split(':')
-    start_at = wib_now.replace(
-        hour=int(start_at[0]), minute=int(start_at[1]), second=0, microsecond=0)
-    finish_at = item['finishAt'].split(':')
-    finish_at = wib_now.replace(
-        hour=int(finish_at[0]), minute=int(finish_at[1]), second=0, microsecond=0)
+def conv_put_recurr(update, original=None):
+    pprint(update)
+    pprint(original)
+    if update.get('startAt'):
+        start_at = update['startAt']
+        start_at = start_at.split(':')
+        start_at = wib_now.replace(
+            hour=int(start_at[0]), minute=int(start_at[1]), second=0, microsecond=0)
+    else:
+        start_at = original['start']
+
+    if update.get('finishAt'):
+        finish_at = update['finishAt']
+        finish_at = update['finishAt'].split(':')
+        finish_at = wib_now.replace(
+            hour=int(finish_at[0]), minute=int(finish_at[1]), second=0, microsecond=0)
+    else:
+        finish_at = original['finish']
+
+    if update.get('day'):
+        day = update['day']
+    else:
+        day = original['schedule']['recurrence']['byday'][0]
 
     return {
         'start': start_at,
@@ -52,7 +63,7 @@ def conv_put_recurr(item):
             'recurrence': {
                 'interval': 1,
                 'freq': 'weekly',
-                'byday': [item['day']],
+                'byday': [day],
                 'until': None,
                 'count': None,
             },
@@ -64,14 +75,18 @@ def conv_put_recurr(item):
 
 def on_update(resource_name, updates, original):
     if resource_name == 'classes':
-        d = conv_put_recurr(updates)
+        d = conv_put_recurr(updates, original)
         updates.update(d)
-        del updates['day']
-        del updates['startAt']
-        del updates['finishAt']
+
+        if updates.get('day'):
+            del updates['day']
+        if updates.get('startAt'):
+            del updates['startAt']
+        if updates.get('finishAt'):
+            del updates['finishAt']
 
 
-def on_inserted(resource_name, items):
+def on_updated(resource_name, updates, original):
     pass
 
 
@@ -80,9 +95,13 @@ def on_insert(resource_name, items):
         for i, v in enumerate(items):
             d = conv_put_recurr(v)
             items[i].update(d)
-            del items[i]['day']
-            del items[i]['startAt']
-            del items[i]['finishAt']
+
+            if v.get('day'):
+                del items[i]['day']
+            if v.get('startAt'):
+                del items[i]['startAt']
+            if v.get('finishAt'):
+                del items[i]['finishAt']
 
     if resource_name == 'attendances_tutors':
         for i, v in enumerate(items):
@@ -130,3 +149,15 @@ def on_insert(resource_name, items):
                     'tutor': app.auth.get_request_auth_value(),
                 })
         # pprint(items)
+
+
+def on_inserted(resource_name, items):
+    if resource_name == 'classes-students':
+        # pprint(items)
+        payload = {
+            'studentsTotal': len(items)
+        }
+        lookup = {
+            config.ID_FIELD: items[0]['class']
+        }
+        patch_internal('classes', payload, **lookup)

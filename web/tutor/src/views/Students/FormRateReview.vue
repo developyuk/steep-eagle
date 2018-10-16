@@ -8,20 +8,21 @@
         .cognition.clearfix
           span.title cognition
           span.stars
-            rating(name="rating_cognition" @change="onChangeCognition")
+            rating(name="rating_cognition" v-model="ratingCognition")
         .creativity.clearfix
           span.title creativity
           span.stars
-            rating(name="rating_creativity" @change="onChangeCreativity")
+            rating(name="rating_creativity" v-model="ratingCreativity")
         .interaction.clearfix
           span.title interaction
           span.stars
-            rating(name="rating_interaction" @change="onChangeInteraction")
+            rating(name="rating_interaction" v-model="ratingInteraction")
       .review
         h4.title Comment for
           span.name  {{name}}
-        .mdc-text-field.mdc-text-field--textarea.mdc-text-field--fullwidth
-          textarea(v-model="review").mdc-text-field__input
+        .mdc-text-field.mdc-text-field--textarea.mdc-text-field--fullwidth.mdc-text-field--dense
+          textarea(v-model="review" id="textarea").mdc-text-field__input
+
       .submit: button(type='submit').mdc-button.mdc-button--raised submit
       .absence: a(href="#" @click.prevent="absence") or absence ?
 </template>
@@ -36,7 +37,7 @@ import { MDCTextField } from "@material/textfield";
 import Rating from "./Rating";
 
 export default {
-  props: ["stid", "uid", "name", "sid", "tid"],
+  props: ["uid", "name", "sid", "tid"],
   components: { Rating },
   computed: {
     ...mapState(["currentAuth", "currentMqtt"])
@@ -50,15 +51,6 @@ export default {
     };
   },
   methods: {
-    onChangeCognition(e) {
-      this.ratingCognition = e;
-    },
-    onChangeCreativity(e) {
-      this.ratingCreativity = e;
-    },
-    onChangeInteraction(e) {
-      this.ratingInteraction = e;
-    },
     submit() {
       const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
       const data = {
@@ -73,7 +65,7 @@ export default {
         isPresence: true
       };
 
-      this.$emit("presenced", { url, data });
+      this.$emit("input", { url, data });
     },
     absence() {
       const url = `${process.env.VUE_APP_API}/attendances/${this.sid}/students`;
@@ -89,7 +81,7 @@ export default {
         isPresence: false
       };
 
-      this.$emit("absenced", { url, data });
+      this.$emit("input", { url, data });
     }
   },
   mounted() {

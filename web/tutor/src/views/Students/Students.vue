@@ -7,19 +7,18 @@
           placeholder(:value="v.attendance.module.name").module
           br
           placeholder(:value="v.attendance.class.branch.name").branch
-          | &nbsp;&nbsp;
+
           .day-time
             placeholder(:value="v.attendance.class._start" val-empty="00:00")
             | &nbsp;-&nbsp;
             placeholder(:value="v.attendance.class._finish" val-empty="00:00")
         ul.mdc-list
           template(v-for="(vv,ii) in v.students")
-            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :stid="v._id" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent" @absenced="onAbsenced" @presenced="onPresenced")
+            card(:key="`${i}.${ii}`" :index="`${i}.${ii}`" :sid="v.attendance._id" :tid="v.tutor" :student="vv.student" :isActive="vv.isActive" @tap-student="onTapStudent" v-model="currentAttendance")
             hr.mdc-list-divider
 
-    my-dialog(@mounted="onMountedDialog")
-      span Loading..
-    snackbar(@mounted="onMountedSnackbar")
+    my-dialog-loading(v-model="dialogLoading")
+    snackbar(v-model="snackbar")
 </template>
 
 <script>
@@ -32,7 +31,7 @@ import { mapState, mapMutations } from "vuex";
 import mqtt from "mqtt";
 import _range from "lodash/range";
 
-import MyDialog from "@/components/Dialog";
+import MyDialogLoading from "@/components/DialogLoading";
 import TemplateMain from "@/components/views/Main";
 import Placeholder from "@/components/Placeholder";
 import Card from "./Card";
@@ -77,29 +76,32 @@ const placeholderStudents = _range(3).map(v => {
 });
 
 export default {
-  components: { TemplateMain, Placeholder, Card, Empty, Snackbar, MyDialog },
+  components: {
+    TemplateMain,
+    Placeholder,
+    Card,
+    Empty,
+    Snackbar,
+    MyDialogLoading
+  },
   computed: {
     ...mapState(["currentAuth"])
   },
   data() {
     return {
       attendances: placeholderStudents,
+      currentAttendance: {},
 
       snackbar: null,
-      dialog: null,
+      dialogLoading: null,
       mqtt: null
     };
   },
-  methods: {
-    ...mapMutations(["nextMqtt"]),
-    onMountedDialog(e) {
-      this.dialog = e;
-      this.dialog.escapeKeyAction = "";
-      this.dialog.scrimClickAction = "";
-    },
-    onProgress(e) {
-      const { url, data } = e;
-      this.dialog.open();
+  watch: {
+    currentAttendance(v, ov) {
+      this.dialogLoading.open();
+
+      const { url, data } = v;
 
       axios
         .post(url, data)
@@ -110,6 +112,7 @@ export default {
             message: `You submitted a progress`,
             actionText: "Undo",
             actionHandler: () => {
+              this.dialogLoading.open();
               this.snackbar.show({
                 message: `You undo a progress`
               });
@@ -121,30 +124,21 @@ export default {
               // .catch(error => console.log(error));
             }
           });
-
-          this.dialog.close();
         })
         .catch(error => {
-          this.dialog.close();
+          this.dialogLoading.close();
           this.snackbar.show({
             message: `You failed submit a progress`
           });
         });
-    },
-    onAbsenced(e) {
-      this.onProgress(e);
-    },
-    onPresenced(e) {
-      this.onProgress(e);
-    },
-    onMountedSnackbar(e) {
-      this.snackbar = e;
-    },
+    }
+  },
+  methods: {
+    ...mapMutations(["nextMqtt"]),
     onTapStudent(e) {
-      const { sid, uid } = e;
-      const [i, ii] = this.getAttendanceIndex(sid, uid);
-
+      const [i, ii] = e.split(".");
       const item = _cloneDeep(this.attendances[i].students[ii]);
+
       this.attendances.forEach((v, i, a) => {
         v.students.forEach((v2, i2, a2) => {
           this.$set(a2[i2], "isActive", false);
@@ -158,19 +152,6 @@ export default {
         );
       }, 50);
     },
-    getAttendanceIndex(sid, uid) {
-      let i, ii;
-      sid = parseInt(sid);
-      uid = parseInt(uid);
-
-      i = _findIndex(this.attendances, v => {
-        ii = _findIndex(v.students, vv => {
-          return vv.student._id === uid && v._id === sid;
-        });
-        return ii > -1;
-      });
-      return [i, ii];
-    },
     getStudentsAttendances(params = { forceRefresh: false }) {
       const headers = {};
       if (params.forceRefresh) {
@@ -179,6 +160,7 @@ export default {
       axios
         .get(`${process.env.VUE_APP_API}/students/attendances`, { headers })
         .then(response => {
+          this.dialogLoading.close();
           this.attendances = response.data._items;
           // console.log(this.attendances);
           this.attendances.forEach((v, i) => {
@@ -269,6 +251,7 @@ export default {
         const { update, by } = parsedMessage;
 
         if (update) {
+          this.dialogLoading.open();
           this.getStudentsAttendances({ forceRefresh: true });
         }
       });

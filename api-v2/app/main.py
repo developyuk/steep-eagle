@@ -27,6 +27,7 @@ app.on_fetched_item += hooks.resource.on_fetched_item           # pylint: disabl
 app.on_insert += hooks.resource.on_insert                       # pylint: disable=no-member
 app.on_inserted += hooks.resource.on_inserted                   # pylint: disable=no-member
 app.on_update += hooks.resource.on_update                       # pylint: disable=no-member
+app.on_update += hooks.resource.on_updated                      # pylint: disable=no-member
 
 app.on_fetched_resource += hooks.image_default.on_fetched_resource  # pylint: disable=no-member
 app.on_fetched_item += hooks.image_default.on_fetched_item          # pylint: disable=no-member

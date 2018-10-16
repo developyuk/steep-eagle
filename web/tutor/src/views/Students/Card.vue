@@ -1,5 +1,5 @@
 <template lang="pug">
-  li#card(:data-index="index" :data-sid="stid" :data-student="student" :data-isActive="isActive")
+  li#card
     .mdc-list-item
       .mdc-list-item__graphic
         my-img(:src="student.photo")
@@ -8,7 +8,7 @@
     hr.mdc-list-divider(v-if="isActive")
 
     //transition(enter-active-class="animated fadeIn" leave-class="animated fadeOut")
-    component(:is="currentComponent" :stid="stid" :sid="sid" :tid="tid" :uid="student._id" :name="student.name" @absenced="onAbsenced" @presenced="onPresenced")
+    component(:is="currentComponent" :sid="sid" :tid="tid" :uid="student._id" :name="student.name" v-model="currentAttendance")
 </template>
 
 <script>
@@ -23,32 +23,27 @@ import Placeholder from "@/components/Placeholder";
 
 export default {
   components: { FormRateReview, MyImg, Placeholder },
-  props: ["stid", "student", "isActive", "index", "sid", "tid"],
+  props: ["student", "isActive", "index", "sid", "tid"],
   computed: {
     ...mapState(["currentAuth", "currentMqtt"])
-  },
-  watch: {
-    isActive(v) {
-      this.currentComponent = v ? "form-rate-review" : "";
-    }
   },
   data() {
     return {
       currentComponent: "",
+      currentAttendance: {},
       direction: null,
       hammertime: null
     };
   },
-  methods: {
-    // setPosition(v = 0) {
-    //   this.$el.style.marginLeft = `${v}px`;
-    // }
-    onAbsenced(e) {
-      this.$emit("absenced", e);
+  watch: {
+    isActive(v) {
+      this.currentComponent = v ? "form-rate-review" : "";
     },
-    onPresenced(e) {
-      this.$emit("presenced", e);
+    currentAttendance(v, ov) {
+      this.$emit("input", v);
     }
+  },
+  methods: {
   },
   mounted() {
     const $el = this.$el.querySelector(".mdc-list-item");
@@ -56,58 +51,8 @@ export default {
     this.hammertime = new Hammer($el, {});
     this.hammertime.get("pan").set({ direction: Hammer.DIRECTION_HORIZONTAL });
     this.hammertime.on("tap", e => {
-      this.$emit("tap-student", {
-        sid: this.stid,
-        uid: this.student._id,
-        name: this.student.name
-      });
+      this.$emit("tap-student", this.index);
     });
-    // .on("panend", e => {
-    //   if (
-    //     Math.abs(e.deltaX) >
-    //     this.$el.closest(".mdc-list").offsetWidth * (1 / 3)
-    //   ) {
-    //     let url = `${process.env.VUE_APP_API}/attendances_students`;
-    //     let params = {
-    //       attendance_tutor: this.stid,
-    //       student: this.student._id,
-
-    //       rating_interaction: 0,
-    //       rating_creativity: 0,
-    //       rating_cognition: 0,
-    //       feedback: "",
-    //       is_presence: false
-    //     };
-    //     axios
-    //       .post(url, params)
-    //       .then(response => {
-    //         console.log(response.data);
-    //         this.currentMqtt.mqtt.publish(
-    //           this.currentMqtt.topic,
-    //           JSON.stringify({
-    //             sid: this.stid,
-    //             sts: {
-    //               id: response.data._id,
-    //               et: response.data._etag
-    //             },
-    //             uid: this.student._id,
-    //             name: this.student.name,
-    //             by: this.currentAuth,
-    //             on: "successRateReview"
-    //           })
-    //         );
-    //       })
-    //       .catch(error => {
-    //         console.log(error);
-    //       });
-    //   } else {
-    //     this.setPosition();
-    //   }
-    // })
-    // .on("panleft panright", e => {
-    //   console.log(e);
-    //   this.setPosition(e.deltaX);
-    // });
   }
 };
 </script>
