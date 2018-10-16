@@ -7,8 +7,8 @@ handlers:
   script: auto
 
 env_variables:
-  MONGO_JSON: 'steep-eagle-7d9be40b59f4.json'
-  # MONGO_JSON: 'dyuk-154708-dcbb81649094.json'
+  # MONGO_JSON: 'steep-eagle-7d9be40b59f4.json'
+  MONGO_JSON: 'dyuk-154708-dcbb81649094.json'
   JWT_SECRET: 'xhyk88xwaZh2R942Cs4D82PRjAdzJSSs'
   JWT_ISSUER: 'codingcamp.id'
   DEBUG: 0

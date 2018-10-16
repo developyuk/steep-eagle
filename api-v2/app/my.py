@@ -196,6 +196,10 @@ schema = {
                 'embeddable': True
             },
         },
+        'studentsTotal': {
+            'type': 'integer',
+            'default': 0
+        },
     },
     'schedules': {
         'class': {
@@ -211,7 +215,7 @@ schema = {
             'type': 'datetime',
             'required': True
         },
-        'end': {
+        'finish': {
             'type': 'datetime',
             'required': True
         },
