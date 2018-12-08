@@ -68,13 +68,6 @@ def _last_attendance(attendances, attendances_tutors, class_):
     return data
 
 
-add_documentation({
-    'paths': {'/schedules': {'get': {
-        'summary': 'Retrieves a Schedule document',
-        'tags': ['Classe'],
-        "security": [{"JwtAuth": []}],
-    }}}
-})
 
 
 def exclude_current_user_attendance(class_):
@@ -126,8 +119,15 @@ def embed_tutor(tutors, item):
     return item
 
 
-@blueprint.route('/schedules', methods=['GET'])
-@requires_auth('/schedules')
+add_documentation({
+    'paths': {'/schedules/groups': {'get': {
+        'summary': 'Retrieves a Schedule document grouped by date',
+        'tags': ['Classe'],
+        "security": [{"JwtAuth": []}],
+    }}}
+})
+@blueprint.route('/schedules/groups', methods=['GET'])
+@requires_auth('/schedules/groups')
 def schedules():
     _page = int(request.args.get("_page", 1))
     _max_results = int(request.args.get("_max_results", 1))
