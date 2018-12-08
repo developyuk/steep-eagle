@@ -1,2 +1,0 @@
-*/8 * * * * root /usr/bin/curl https://mtutor.codingcamp.id/api/progress/classes >/dev/null 2>&1
-*/8 * * * * root /usr/bin/curl https://mtutor.codingcamp.id/api/progress/students >/dev/null 2>&1
