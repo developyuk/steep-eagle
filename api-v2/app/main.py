@@ -4,13 +4,13 @@ from eve_swagger import swagger
 from eve import Eve
 
 import my
-import my_datalayer
+
 import hooks
 import blueprints
 
 app = Eve(auth=my.JwtAuth,
-          data=my_datalayer.GoogleCloudstore,
-          validator=my_datalayer.GoogleCloudstoreValidator,
+          data=my.GoogleCloudstore,
+          validator=my.GoogleCloudstoreValidator,
           media=my.GoogleMediaStorage)
 
 app.register_blueprint(swagger)

@@ -47,7 +47,7 @@ XML = False
 
 DOMAIN = {
     'users': {
-        'schema': schema.get('user'),
+        'schema': schema.user,
         'soft_delete': True
     },
     'students-guardians': {
@@ -56,21 +56,24 @@ DOMAIN = {
             'source': 'users',
             'filter': {'role': 'guardian'}
         },
-        'schema': schema.get('user'),
+        'schema': schema.user,
         'resource_methods': ['GET', 'POST', 'DELETE']
     },
     'branches': {
-        'schema': schema.get('branch')
+        'schema': schema.branch
     },
     'modules': {
-        'schema': schema.get('module')
+        'schema': schema.module
     },
     'classes': {
-        'schema': schema.get('class'),
+        'schema': schema.class_,
         'allow_unknown': True
     },
+    'schedules': {
+        'schema': schema.schedules,
+    },
     'classes_students': {
-        'schema': schema.get('class-student'),
+        'schema': schema.class_student,
         'internal_resource': True,
         'disable_documentation': True,
     },
@@ -79,15 +82,15 @@ DOMAIN = {
         'datasource': {
             'source': 'classes_students',
         },
-        'schema': schema.get('class-student'),
+        'schema': schema.class_student,
         'resource_methods': ['GET', 'POST', 'DELETE']
     },
     'attendances': {
-        'schema': schema.get('attendance'),
+        'schema': schema.attendance,
         'item_methods': ['GET']
     },
     'attendances_tutors': {
-        'schema': schema.get('attendance-tutor'),
+        'schema': schema.attendance_tutor,
         'item_methods': ['GET', 'DELETE'],
         'allow_unknown': True
     },
@@ -96,22 +99,22 @@ DOMAIN = {
         'datasource': {
             'source': 'attendances_tutors',
         },
-        'schema': schema.get('attendance-tutor'),
+        'schema': schema.attendance_tutor,
         'item_methods': ['GET']
     },
     'attendances_students': {
-        'schema': schema.get('attendance-student')
+        'schema': schema.attendance_student
     },
     'attendances-students': {
         'url': 'attendances/<regex("[0-9]{16}"):attendance>/students',
         'datasource': {
             'source': 'attendances_students',
         },
-        'schema': schema.get('attendance-student'),
+        'schema': schema.attendance_student,
         'item_methods': ['GET']
     },
     'caches': {
-        'schema': schema.get('cache'),
+        'schema': schema.cache,
         'item_methods': ['GET', 'PATCH']
     },
 }

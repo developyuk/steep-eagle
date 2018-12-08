@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from flask_cors import CORS
 from flask import current_app as app, jsonify, Blueprint, request
-from eve.methods import delete
+from eve.methods.delete import delete
 from eve.methods.post import post_internal
 from eve.methods.get import getitem_internal
 from eve.utils import config
