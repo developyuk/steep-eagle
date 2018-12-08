@@ -1,0 +1,4 @@
+{
+  "python.pythonPath": "api-v2/bin/python",
+  "eslint.enable": false,
+}
