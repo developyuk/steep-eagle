@@ -1,8 +1,7 @@
 # vars
 # @host = https://api.steep-eagle.appspot.com
 @host = http://127.0.0.1:3000
-@username = tester
-
+@username = tutor1
 
 ### 
 # @name sign
@@ -14,32 +13,14 @@ Content-Type: application/json
     "role":["tutor"]
 } 
 
+@sign_token = {{sign.response.body.$.token}}
+
 ### auth
 # @name auth
 GET {{host}}/auth
-Authorization: Bearer {{sign.response.body.$.token}}
+Authorization: Bearer {{sign_token}}
 
+@auth_id = {{auth.response.body.$._id}}
 ### 
-GET {{host}}/users/{{auth.response.body.$._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-### get schedules
-GET {{host}}/schedules
-?_page=1
-&_max_results=2
-# &embedded={"module":true}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-POST {{host}}/attendances_tutors
-Authorization: Bearer {{sign.response.body.$.token}}
-Content-Type: application/json
-
-{
-    "class":5654456649646080
-}
-
-###
-GET {{host}}/students/attendances
-Authorization: Bearer {{sign.response.body.$.token}}
-
+GET {{host}}/users/{{auth_id}}
+Authorization: Bearer {{sign_token}}

@@ -12,3 +12,4 @@ env_variables:
   JWT_ISSUER: 'codingcamp.id'
   DEBUG: 0
   HOST_MQTT: 'iot.eclipse.org'
+  MAIL_PASSWORD: 'buynskpuyiklfkpd'

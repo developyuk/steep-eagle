@@ -4,11 +4,14 @@ import uuid
 
 from flask_cors import CORS
 from flask_mail import Mail, Message
-from flask import current_app as app, jsonify, Blueprint, request, abort
+from flask import current_app as app, Blueprint, request, abort
 from eve.methods.patch import patch_internal
 from eve.methods.get import getitem_internal
 from eve.utils import config
 from eve_swagger import add_documentation
+from werkzeug.exceptions import NotFound
+import bcrypt
+from eve.render import send_response
 
 
 blueprint = Blueprint('forgot_password', __name__)
@@ -49,29 +52,34 @@ def forgot_password():
         'username': expected_username,
         'role': expected_role[0]
     }
-    user, *_ = getitem_internal(resource, **r)
-
-    if not user:
+    try:
+        user, *_ = getitem_internal(resource, **r)
+    except NotFound:
         r = {
             'email': expected_username,
             'role': expected_role[0]
         }
-        user, *_ = getitem_internal(resource, **r)
+        try:
+            user, *_ = getitem_internal(resource, **r)
+        except NotFound:
+            abort(404, description='username or email not found')
 
-    if not user:
-        abort(404, description='username or email not found')
-    else:
-        if not user['email']:
-            abort(422, description='username or email found, but no email')
+    if not user.get('email'):
+        abort(422, description='email not found')
 
     new_password = str(uuid.uuid4())[:8]
 
-    _ = patch_internal(
-        resource, {'password': new_password}, **{config.ID_FIELD: user[config.ID_FIELD]})
+    new_password_hashed = bcrypt.hashpw(
+        new_password.encode(), bcrypt.gensalt())
+    new_password_hashed = new_password_hashed.decode()
+
+    lookup = {config.ID_FIELD: user[config.ID_FIELD]}
+    payload = {'password': new_password_hashed}
+    _ = patch_internal(resource, payload, **lookup)
 
     body = template % (expected_username, new_password)
 
     msg = Message("Reset Password", body=body, recipients=[user['email']])
 
     mail.send(msg)
-    return jsonify({})
+    return send_response(None, ({'message': 'success'},))

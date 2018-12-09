@@ -2,17 +2,22 @@
 from datetime import timedelta
 from pprint import pprint
 
-from flask import current_app as app, jsonify, Blueprint, request
+from flask import current_app as app, Blueprint, request
 from flask_cors import CORS
 from eve.auth import requires_auth
 from eve.methods.get import get_internal
 # from eve.methods.put import put_internal
 # from eve.methods.post import post_internal
-# from eve.render import send_response
+from eve.render import send_response
 from eve_swagger import add_documentation
 from eve.utils import config
 import humanize
 from pytz import utc
+from dateutil.rrule import rrulestr
+from dateutil.parser import parse
+from eve.methods.delete import delete
+from eve.methods.post import post_internal
+from werkzeug.exceptions import NotFound
 
 from shared.datetime import wib_tz, wib_now, utc_now, dow_list, after_request_cache
 
@@ -68,8 +73,6 @@ def _last_attendance(attendances, attendances_tutors, class_):
     return data
 
 
-
-
 def exclude_current_user_attendance(class_):
     if not class_.get('last_attendances'):
         return True
@@ -99,24 +102,24 @@ def exclude_other_user_attendance(class_):
     return True
 
 
-def conv_time(class_, date):
-    class_['start'] = class_['start'].astimezone(wib_tz).replace(
-        day=date.day, month=date.month, year=date.year)
-    class_['finish'] = class_['finish'].astimezone(wib_tz).replace(
-        day=date.day, month=date.month, year=date.year)
+# def conv_time(class_, date):
+#     class_['start'] = class_['start'].astimezone(wib_tz).replace(
+#         day=date.day, month=date.month, year=date.year)
+#     class_['finish'] = class_['finish'].astimezone(wib_tz).replace(
+#         day=date.day, month=date.month, year=date.year)
 
 
-def embed_tutor(tutors, item):
-    if not len(item['last_attendances'][config.ITEMS]):
-        return item
+# def embed_tutor(tutors, item):
+#     if not len(item['last_attendances'][config.ITEMS]):
+#         return item
 
-    for v in item['last_attendances'][config.ITEMS]:
-        for v2 in tutors:
-            if v2[config.ID_FIELD] == v['tutor']:
-                v['tutor'] = v2
-                break
+#     for v in item['last_attendances'][config.ITEMS]:
+#         for v2 in tutors:
+#             if v2[config.ID_FIELD] == v['tutor']:
+#                 v['tutor'] = v2
+#                 break
 
-    return item
+#     return item
 
 
 add_documentation({
@@ -126,78 +129,155 @@ add_documentation({
         "security": [{"JwtAuth": []}],
     }}}
 })
-@blueprint.route('/schedules/groups', methods=['GET'])
-@requires_auth('/schedules/groups')
-def schedules():
-    _page = int(request.args.get("_page", 1))
-    _max_results = int(request.args.get("_max_results", 1))
 
-    date_range = ((wib_now.date()+timedelta(days=(_page-1)*_max_results)) + timedelta(days=v)
-                  for v in range(_max_results))
 
-    classes, *_ = get_internal('classes')
-    classes = classes[config.ITEMS]
+# @blueprint.route('/schedules/groups', methods=['GET'])
+# @requires_auth('/schedules/groups')
+# def schedules():
+#     _page = int(request.args.get("_page", 1))
+#     _max_results = int(request.args.get("_max_results", 1))
 
-    attendances, *_ = get_internal('attendances')
-    attendances = attendances[config.ITEMS]
+#     date_range = ((wib_now.date()+timedelta(days=(_page-1)*_max_results)) + timedelta(days=v)
+#                   for v in range(_max_results))
 
-    attendances_tutors, *_ = get_internal('attendances_tutors')
-    attendances_tutors = attendances_tutors[config.ITEMS]
+#     classes, *_ = get_internal('classes')
+#     classes = classes[config.ITEMS]
 
-    lookup = {
-        'role': 'tutor'
-    }
-    tutors, *_ = get_internal('users', **lookup)
-    tutors = tutors[config.ITEMS]
+#     attendances, *_ = get_internal('attendances')
+#     attendances = attendances[config.ITEMS]
 
-    data = []
-    for date in date_range:
-        d = {
-            'date': date.isoformat(),
-            'delta': humanize.naturaldelta(
-                timedelta(days=(date - wib_now.date()).days)),
-            'day': date.day,
-            'weekday': dow_list[date.weekday()],
-            config.ITEMS: []
-        }
-        for class_ in classes:
-            recurrence = class_['schedule']['recurrence']
+#     attendances_tutors, *_ = get_internal('attendances_tutors')
+#     attendances_tutors = attendances_tutors[config.ITEMS]
 
-            if recurrence['freq'] == 'daily':
-                pass
+#     lookup = {
+#         'role': 'tutor'
+#     }
+#     tutors, *_ = get_internal('users', **lookup)
+#     tutors = tutors[config.ITEMS]
 
-            if recurrence['freq'] == 'weekly':
-                if recurrence['interval'] == 1:
-                    if dow_list[date.weekday()] in recurrence['byday']:
-                        conv_time(class_, date)
-                        if class_['finish'] + timedelta(hours=2) > wib_now:
-                            d[config.ITEMS].append(class_)
+#     data = []
+#     for date in date_range:
+#         d = {
+#             'date': date.isoformat(),
+#             'delta': humanize.naturaldelta(
+#                 timedelta(days=(date - wib_now.date()).days)),
+#             'day': date.day,
+#             'weekday': dow_list[date.weekday()],
+#             config.ITEMS: []
+#         }
+#         for class_ in classes:
+#             recurrence = class_['schedule']['recurrence']
 
-        if len(d[config.ITEMS]) > 0:
-            d[config.ITEMS].sort(key=lambda v: v['start'])
+#             if recurrence['freq'] == 'daily':
+#                 pass
 
-            for v in d[config.ITEMS]:
-                v['last_attendances'] = _last_attendance(
-                    attendances, attendances_tutors, v)
+#             if recurrence['freq'] == 'weekly':
+#                 if recurrence['interval'] == 1:
+#                     if dow_list[date.weekday()] in recurrence['byday']:
+#                         conv_time(class_, date)
+#                         if class_['finish'] + timedelta(hours=2) > wib_now:
+#                             d[config.ITEMS].append(class_)
 
-            d[config.ITEMS] = filter(
-                exclude_current_user_attendance, d[config.ITEMS])
-            d[config.ITEMS] = filter(
-                exclude_other_user_attendance, d[config.ITEMS])
-            d[config.ITEMS] = map(
-                lambda v: embed_tutor(tutors, v), d[config.ITEMS])
-            d[config.ITEMS] = list(d[config.ITEMS])
-            data.append(d)
+#         if len(d[config.ITEMS]) > 0:
+#             d[config.ITEMS].sort(key=lambda v: v['start'])
 
-    return jsonify({
-        config.ITEMS: data,
-        config.META: {
-            'page': _page,
-            'max_results': _max_results,
-        }
-    })
+#             for v in d[config.ITEMS]:
+#                 v['last_attendances'] = _last_attendance(
+#                     attendances, attendances_tutors, v)
+
+#             d[config.ITEMS] = filter(
+#                 exclude_current_user_attendance, d[config.ITEMS])
+#             d[config.ITEMS] = filter(
+#                 exclude_other_user_attendance, d[config.ITEMS])
+#             d[config.ITEMS] = map(
+#                 lambda v: embed_tutor(tutors, v), d[config.ITEMS])
+#             d[config.ITEMS] = list(d[config.ITEMS])
+#             data.append(d)
+
+#     return send_response(None, ({
+#         config.ITEMS: data,
+#         config.META: {
+#             'page': _page,
+#             'max_results': _max_results,
+#         }
+#     },))
 
 
 @blueprint.after_request
 def add_header(response):
     return after_request_cache(response)
+
+
+@blueprint.route('/crons/schedules', methods=['GET'])
+@requires_auth('/crons/schedules')
+def crons_schedules():
+    classes, *_ = get_internal('classes')
+    classes = classes[config.ITEMS]
+
+    until = utc_now + timedelta(days=14)
+    schedules = []
+    for v in classes:
+        # start = v['start'].replace(day=utc_now.day)
+        start = utc_now.replace(hour=v['start'].hour, minute=v['start'].minute)
+        days = rrulestr(f"{v['rrule']};UNTIL={until:%Y%m%dT%H%M%S%Z}",
+                        dtstart=start)
+        days = list(days)
+
+        for v2 in days:
+            finish = v2.replace(hour=v['finish'].hour,
+                                minute=v['finish'].minute)
+            schedules.append({
+                'class': v[config.ID_FIELD],
+                'start': v2,
+                'finish': finish
+            })
+    try:
+        _ = delete('schedules')
+    except NotFound:
+        pass
+
+    r = post_internal('schedules', schedules)
+    return send_response('schedules', r)
+
+
+@blueprint.route('/schedules/groups2', methods=['GET'])
+@requires_auth('/schedules/groups2')
+def schedules_groups2():
+    schedules, *_ = get_internal('schedules')
+    schedules = schedules[config.ITEMS]
+
+    # schedules = sorted(schedules, key=lambda k: k["start"])
+
+    groups = []
+    for class_ in schedules:
+        date = class_['start'].date()
+
+        date_exist = any(map(lambda v: v['date'] == date.isoformat(), groups))
+        if not date_exist:
+            d = {
+                'date': date.isoformat(),
+                'delta': humanize.naturaldelta(
+                    timedelta(days=(date - wib_now.date()).days)),
+                'day': date.day,
+                'weekday': dow_list[date.weekday()],
+                config.ITEMS: []
+            }
+            groups.append(d)
+        d[config.ITEMS].append(class_)
+
+    for v in groups:
+        for v2 in v[config.ITEMS]:
+            v2['last_attendances'] = {config.ITEMS:[]}
+
+            #     v['last_attendances'] = _last_attendance(
+            #         attendances, attendances_tutors, v)
+
+            # d[config.ITEMS] = filter(
+            #     exclude_current_user_attendance, d[config.ITEMS])
+            # d[config.ITEMS] = filter(
+            #     exclude_other_user_attendance, d[config.ITEMS])
+            # d[config.ITEMS] = map(
+            #     lambda v: embed_tutor(tutors, v), d[config.ITEMS])
+            # d[config.ITEMS] = list(d[config.ITEMS])
+
+    return send_response(None, ({config.ITEMS: groups},))

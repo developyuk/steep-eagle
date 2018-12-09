@@ -1,8 +1,8 @@
 <template lang="pug">
   template-main#schedules
-    empty(v-if="!!classes && !classes.length")
+    empty(v-if="!!schedules && !schedules.length")
     .mdc-list-group
-      template(v-for="(v,i) in classes")
+      template(v-for="(v,i) in schedules")
         h3.mdc-list-group__subheader
           span.date-day
             .date
@@ -12,7 +12,7 @@
           span.text
             placeholder(:value="v.delta")
         .mdc-list
-          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${v.date}-${v2._id}`" v-model="currentClass")
+          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${i}-${i2}`" v-model="currentClass")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(v-model="dialog")
@@ -46,36 +46,45 @@ import Item from "./Item";
 import Placeholder from "@/components/Placeholder";
 import Snackbar from "@/components/Snackbar";
 
-const placeholderSchedules = _range(3).map(v => {
+const phClass = v => {
   return {
-    date: v,
+    _id: v,
+    module: {
+      _id: v,
+      image:
+        "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
+      name: ""
+    },
+    _start: "",
+    _finish: "",
+    tutor: {
+      _id: v,
+      name: "",
+      username: "",
+      email: ""
+    },
+    branch: {
+      _id: v,
+      name: ""
+    }
+  };
+};
+const phSchedule = _ => {
+  return {
+    date: "",
     text: "",
     dateDay: "",
     day: "",
     _items: _range(2).map(vv => {
       return {
-        _id: vv,
-        module: {
-          image: "https://via.placeholder.com/48?text=image",
-          name: ""
-        },
-        _start: "",
-        _finish: "",
+        class: phClass(vv),
         finish: "",
         start: "",
-        tutor: {
-          name: "",
-          username: "",
-          email: ""
-        },
-        branch: {
-          name: ""
-        },
         last_attendances: { _items: [] }
       };
     })
   };
-});
+};
 
 export default {
   components: {
@@ -90,7 +99,7 @@ export default {
   data() {
     return {
       pin: null,
-      classes: placeholderSchedules,
+      schedules: _range(3).map(phSchedule),
       currentClass: {
         _id: 0,
         module: { name: "" }
@@ -159,34 +168,25 @@ export default {
     getSchedules(params = { forceRefresh: false }) {
       const config = {};
       config["params"] = {
-        _page: 1,
-        _max_results: 2
+        sort: "start",
+        embedded: JSON.stringify({
+          class: 1,
+          "class.module": 1,
+          "class.branch": 1,
+          "class.tutor": 1
+        })
+        // _page: 1,
+        // _max_results: 2
       };
       config["headers"] = {};
       if (params.forceRefresh) {
         config["headers"]["Cache-Control"] = "no-cache";
       }
       axios
-        .get(`${process.env.VUE_APP_API}/schedules`, config)
+        .get(`${process.env.VUE_APP_API}/schedules/groups2`, config)
         .then(response => {
           this.dialogLoading.close();
-          this.classes = response.data._items;
-          // console.log(this.classes);
-          this.classes.forEach((v, i) => {
-            v._items.forEach((v2, i2) => {
-              setTimeout(_ => {
-                axios
-                  .get(`${process.env.VUE_APP_API}/modules/${v2.module}`)
-                  .then(response => this.$set(v2, "module", response.data));
-                axios
-                  .get(`${process.env.VUE_APP_API}/branches/${v2.branch}`)
-                  .then(response => this.$set(v2, "branch", response.data));
-                axios
-                  .get(`${process.env.VUE_APP_API}/users/${v2.tutor}`)
-                  .then(response => this.$set(v2, "tutor", response.data));
-              }, (i + i2) * 250);
-            });
-          });
+          this.schedules = response.data._items;
         });
     }
   },
@@ -269,16 +269,16 @@ export default {
   }
 }
 
-.image {
-  width: 4rem;
-  height: 4rem;
-  background-color: #c3c3c3;
+// .image {
+//   width: 4rem;
+//   height: 4rem;
+//   background-color: #808080;
 
-  @include m(construct2 construct2-part-ii dummies-construct) {
-    background-color: #4f4f4f;
-  }
-  @include m(unity-2d weblite project-based dummies-web) {
-    background-color: #f2f2f2;
-  }
-}
+//   @include m(construct2 construct2-part-ii dummies-construct) {
+//     background-color: #4f4f4f;
+//   }
+//   @include m(unity-2d weblite project-based dummies-web) {
+//     background-color: #f2f2f2;
+//   }
+// }
 </style>

@@ -1,20 +1,20 @@
 <template lang="pug">
   li.mdc-list-item
     .mdc-list-item__graphic
-      my-img(:src="item.module.image")
+      my-img(:src="item.class.module.image")
     span.mdc-list-item__text
       span.mdc-list-item__primary-text
-        strong: placeholder(:value="item.module.name")
-      placeholder(:value="item.branch.name").mdc-list-item__secondary-text
+        strong: placeholder(:value="item.class.module.name")
+      placeholder(:value="item.class.branch.name").mdc-list-item__secondary-text
       span.mdc-list-item__secondary-text
-        placeholder(:value="item._start")
+        placeholder(:value="item.startTime")
         | &nbsp;-&nbsp;
-        placeholder(:value="item._finish")
+        placeholder(:value="item.finishTime")
       span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances._items || (!!item.last_attendances._items && !item.last_attendances._items.length)") Tutor:&nbsp;
-        placeholder(:value="item.tutor.name")
+        placeholder(:value="item.class.tutor.name || item.class.tutor.username")
       span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances._items && !!item.last_attendances._items.length") Class started by&nbsp;
         placeholder(:value="parseLastAttendanceTutorName(item.last_attendances._items)")
-    button-status(:class_="item" v-model="currentClass")
+    button-status(:item="item" v-model="currentClass")
 </template>
 
 <script>
@@ -70,6 +70,7 @@ $size: 3rem;
     width: 4rem;
     // height: 4rem;
     border-radius: 0.5rem;
+    background-color: map-get($palettes, gainsboro);
   }
 }
 
@@ -91,5 +92,8 @@ $size: 3rem;
     color: map-get($palettes, purple);
     font-weight: bold;
   }
+}
+.mdc-list-item__primary-text::before {
+  height: 0;
 }
 </style>

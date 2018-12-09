@@ -15,21 +15,21 @@ import { mapState } from "vuex";
 import { MDCRipple } from "@material/ripple";
 
 export default {
-  props: ["class_", "index"],
+  props: ["item", "index"],
   data() {
     return {};
   },
   computed: {
     ...mapState(["currentAuth"]),
     status() {
-      const class_ = this.class_;
-      const msts = moment(class_.start);
-      const mfts = moment(class_.finish);
+      const item = this.item;
+      const msts = moment(item.start);
+      const mfts = moment(item.finish);
       const mnow = moment();
 
       let status = "disabled";
-      const ls = class_.last_attendances._items;
-      // console.log(class_,class_.last_attendances._items);
+      const ls = item.last_attendances._items;
+      // console.log(item,item.last_attendances._items);
 
       if (!!ls.length && msts.diff(mnow, "days") < 1) {
         const lsItems = ls;
@@ -61,7 +61,7 @@ export default {
         //   }
         // }
       } else {
-        // console.log(class_,class_.start,class_.finish,msts, mfts, mnow);
+        // console.log(item,item.start,item.finish,msts, mfts, mnow);
         if (msts.diff(mnow, "minutes") < 5 && mfts.diff(mnow, "minutes") > 0) {
           status = "start";
         }
@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     start(e) {
-      this.$emit("input", this.class_);
+      this.$emit("input", this.item);
     }
   },
   mounted() {

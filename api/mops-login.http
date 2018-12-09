@@ -1,0 +1,51 @@
+# vars
+# @host = https://api.steep-eagle.appspot.com
+@host = http://127.0.0.1:3000
+@username = op1
+@password = 653caad8
+@email = andry.yosua@gmail.com
+
+###
+# @name sign
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "password":"{{password}}",
+    "role":["operation"]
+} 
+
+@sign_token = {{sign.response.body.$.token}}
+
+### 
+# @name auth
+GET {{host}}/auth
+Authorization: Bearer {{sign_token}}
+
+@auth_id = {{auth.response.body.$._id}}
+
+### forgot username
+POST {{host}}/forgot_password
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "role":["operation"]
+}
+
+### forgot email
+POST {{host}}/forgot_password
+Content-Type: application/json
+
+{
+    "username":"{{email}}",
+    "role":["operation"]
+}
+
+###
+GET {{host}}/users
+Authorization: Bearer {{sign_token}}
+###
+GET {{host}}/users/{{auth_id}}
+Authorization: Bearer {{sign_token}}

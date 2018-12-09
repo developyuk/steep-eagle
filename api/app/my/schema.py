@@ -14,6 +14,7 @@ user = {
     'email': {
         'type': 'string',
         'unique': True,
+        'required': True,
     },
     'name': {
         'type': 'string',
@@ -37,7 +38,7 @@ user = {
         'type': 'string',
     },
     'student': {
-        'type': 'integer',
+        'type': 'objectid',
         'data_relation': {
             'resource': 'users',
             'field': '_id',
@@ -68,46 +69,19 @@ module = {
 
 class_ = {
     'start': {
-        'type': 'datetime'
+        'type': 'datetime',
+        'required': True,
     },
     'finish': {
-        'type': 'datetime'
+        'type': 'datetime',
+        'required': True,
     },
-    'schedule': {
-        'type': 'dict',
-        'schema': {
-            'recurrence': {
-                'type': 'dict',
-                'schema': {
-                    'interval': {
-                        'type': 'integer'
-                    },
-                    'freq': {
-                        'type': 'string',
-                        'allowed': ['daily', 'weekly', 'monthly', 'yearly']
-                    },
-                    'byday': {
-                        'type': 'list',
-                        'allowed': ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                    },
-                    'until': {
-                        'type': 'datetime'
-                    },
-                    'count': {
-                        'type': 'integer'
-                    }
-                }
-            },
-            'exclude': {
-                'type': 'list',
-            },
-            'include': {
-                'type': 'list',
-            },
-        }
+    'rrule': {
+        'type': 'string',
+        'required': True,
     },
     'module': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'modules',
@@ -116,7 +90,7 @@ class_ = {
         },
     },
     'branch': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'branches',
@@ -125,7 +99,7 @@ class_ = {
         },
     },
     'tutor': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'users',
@@ -141,7 +115,7 @@ class_ = {
 
 schedules = {
     'class': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'classes',
@@ -157,11 +131,17 @@ schedules = {
         'type': 'datetime',
         'required': True
     },
+    'startTime': {
+        'type': 'string',
+    },
+    'finishTime': {
+        'type': 'string',
+    },
 }
 
 class_student = {
     'class': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'classes',
@@ -170,7 +150,7 @@ class_student = {
         },
     },
     'student': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'users',
@@ -182,7 +162,7 @@ class_student = {
 
 attendance = {
     'class': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'classes',
@@ -191,7 +171,7 @@ attendance = {
         },
     },
     'module': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'modules',
@@ -203,7 +183,7 @@ attendance = {
 
 attendance_tutor = {
     'attendance': {
-        'type': 'integer',
+        'type': 'objectid',
         'data_relation': {
             'resource': 'attendances',
             'field': '_id',
@@ -211,7 +191,7 @@ attendance_tutor = {
         },
     },
     'tutor': {
-        'type': 'integer',
+        'type': 'objectid',
         'data_relation': {
             'resource': 'users',
             'field': '_id',
@@ -221,7 +201,7 @@ attendance_tutor = {
 }
 attendance_student = {
     'attendance': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'attendances',
@@ -230,7 +210,7 @@ attendance_student = {
         },
     },
     'tutor': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'users',
@@ -239,7 +219,7 @@ attendance_student = {
         },
     },
     'student': {
-        'type': 'integer',
+        'type': 'objectid',
         'required': True,
         'data_relation': {
             'resource': 'users',

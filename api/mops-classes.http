@@ -1,0 +1,86 @@
+# vars
+# @host = https://api.steep-eagle.appspot.com
+@host = http://127.0.0.1:3000
+@username = op1
+@password = 653caad8
+
+###
+# @name sign
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "password":"{{password}}",
+    "role":["operation"]
+} 
+
+@sign_token = {{sign.response.body.$.token}}
+
+### 
+# @name auth
+GET {{host}}/auth
+Authorization: Bearer {{sign_token}}
+
+###
+GET {{host}}/users
+?where={"role":"tutor"}
+Authorization: Bearer {{sign_token}}
+###
+GET {{host}}/modules
+Authorization: Bearer {{sign_token}}
+###
+GET {{host}}/branches
+Authorization: Bearer {{sign_token}}
+
+###
+POST {{host}}/users
+Authorization: Bearer {{sign_token}}
+Content-Type: application/json
+
+{
+    "email":"tutor1@ex.ex",
+    "role":"tutor",
+    "username":"tutor1"
+}
+
+###
+GET {{host}}/classes
+Authorization: Bearer {{sign_token}}
+
+###
+DELETE {{host}}/classes
+Authorization: Bearer {{sign_token}}
+
+###
+# @name new_classes
+POST {{host}}/classes
+Authorization: Bearer {{sign_token}}
+Content-Type: application/json
+
+{
+    "start":"20161208T120000",
+    "finish":"20181208T143000",
+    "rrule":"FREQ=WEEKLY;INTERVAL=1;BYDAY=TU",
+    "module":"5c0c9fd4297b82002443dff6",
+    "branch":"5c0ca10c297b82000806e6ac",
+    "tutor":"5c0ca13f297b82000806e6ad"
+}
+
+@class_id = {{new_classes.response.body.$._id}}
+###
+GET {{host}}/classes/{{class_id}}
+Authorization: Bearer {{sign_token}}
+
+###
+GET {{host}}/crons/schedules
+Authorization: Bearer {{sign_token}}
+
+###
+GET {{host}}/schedules
+Authorization: Bearer {{sign_token}}
+###
+GET {{host}}/schedules/groups2
+?sort=start
+&embedded={"class":1,"class.module":1,"class.branch":1,"class.tutor":1}
+Authorization: Bearer {{sign_token}}

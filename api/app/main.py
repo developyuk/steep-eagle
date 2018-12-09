@@ -9,8 +9,6 @@ import hooks
 import blueprints
 
 app = Eve(auth=my.JwtAuth,
-          data=my.GoogleCloudstore,
-          validator=my.GoogleCloudstoreValidator,
           media=my.GoogleMediaStorage)
 
 app.register_blueprint(swagger)
@@ -22,15 +20,12 @@ app.register_blueprint(blueprints._import)
 app.register_blueprint(blueprints._tutor_stats)
 app.register_blueprint(blueprints._swagger)
 
-app.on_fetched_resource += hooks.resource.on_fetched_resource   # pylint: disable=no-member
-app.on_fetched_item += hooks.resource.on_fetched_item           # pylint: disable=no-member
-app.on_insert += hooks.resource.on_insert                       # pylint: disable=no-member
-app.on_inserted += hooks.resource.on_inserted                   # pylint: disable=no-member
-app.on_update += hooks.resource.on_update                       # pylint: disable=no-member
-app.on_update += hooks.resource.on_updated                      # pylint: disable=no-member
+app.on_insert += hooks.resource.on_insert       # pylint: disable=no-member
+app.on_inserted += hooks.resource.on_inserted   # pylint: disable=no-member
 
-app.on_fetched_resource += hooks.image_default.on_fetched_resource  # pylint: disable=no-member
-app.on_fetched_item += hooks.image_default.on_fetched_item          # pylint: disable=no-member
+app.on_insert += hooks.classes.on_insert    # pylint: disable=no-member
+
+app.on_insert += hooks.image_default.on_insert  # pylint: disable=no-member
 
 app.on_inserted += hooks.mqtt.on_inserted           # pylint: disable=no-member
 app.on_deleted_item += hooks.mqtt.on_deleted_item   # pylint: disable=no-member

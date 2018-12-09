@@ -1,9 +1,8 @@
 # vars
 # @host = https://api.steep-eagle.appspot.com
 @host = http://127.0.0.1:3000
-@studentId = 5702167830724608
-@username = xxx
-@password = xxx
+@username = op1
+@password = 653caad8
 
 ###
 # @name sign
@@ -16,117 +15,28 @@ Content-Type: application/json
     "role":["operation"]
 } 
 
+@sign_token = {{sign.response.body.$.token}}
+
 ### 
 # @name auth
 GET {{host}}/auth
-Authorization: Bearer {{sign.response.body.$.token}}
+Authorization: Bearer {{sign_token}}
 
 ###
-POST {{host}}/forgot_password
-Content-Type: application/json
-
-{
-    "username":"{{username}}",
-    "role":["operation"]
-}
+GET {{host}}/classes/{{class_id}}/students
+Authorization: Bearer {{sign_token}}
 
 ###
-# @name users
-GET {{host}}/users
-?max_results=2
-&page=2
-# &show_deleted=true
-# &sort=name
-# &where={"username":"kynan dhya saputra"}
-&where={"role":"operation"}
-# &where={"$or":[{"name":"t"},{"username":"t"},{"email":"t"}]}
-# &where={"$or":{"name":"t","username":"t","email":"t"}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
+DELETE {{host}}/classes/{{class_id}}/students
+Authorization: Bearer {{sign_token}}
 ###
-GET {{host}}/students/{{users.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-# @name modules
-GET {{host}}/modules
-?max_results=5
-&page=1
-&sort=-_updated
-&where={"$or":[{"name":"tes"}]}
-# ?where={"name":"/dumm/"}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-# @name module
-GET {{host}}/modules/{{modules.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-DELETE {{host}}/modules/{{modules.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-If-Match: {{module.response.body.$._etag}}
-
-###
-PATCH {{host}}/modules/{{modules.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-If-Match: {{module.response.body.$._etag}}
-Content-Type: application/json
-
-{
-    "name":"test2"
-}
-###
-POST {{host}}/modules
-Authorization: Bearer {{sign.response.body.$.token}}
-Content-Type: application/json
-
-{
-    "name":"test"
-}
-
-###
-# @name branches
-GET {{host}}/branches
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-# @name branch
-GET {{host}}/branches/{{branches.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-GET http://127.0.0.1:3000/users?max_results=5&page=1&show_deleted=true&sort=_deleted,-_updated&where={"role":"student"}
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOjYyMTgyMTY3NDEyNzM2MDB9.k2gAEpyoEMy1LJSgTWeUkYbIvT6ZQD1ffHMau6VfuTs
-
-
-###
-# @name classes
-GET {{host}}/classes
-?sort=-_updated
-&max_results=5
-&page=1
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-# @name class
-GET {{host}}/classes/{{classes.response.body.$._items.0._id}}
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-GET {{host}}/classes/{{class.response.body.$._id}}/students
-Authorization: Bearer {{sign.response.body.$.token}}
-
-###
-DELETE {{host}}/classes/{{class.response.body.$._id}}/students
-Authorization: Bearer {{sign.response.body.$.token}}
-###
-POST {{host}}/classes/{{class.response.body.$._id}}/students
-Authorization: Bearer {{sign.response.body.$.token}}
+POST {{host}}/classes/{{class_id}}/students
+Authorization: Bearer {{sign_token}}
 Content-Type: application/json
 
 [
     {
-        "class":"{{class.response.body.$._id}}",
+        "class":"{{class_id}}",
         "student":"{{studentId}}"
     }
 ]
@@ -137,7 +47,7 @@ GET {{host}}/attendances_tutors
 &max_results=5
 &page=1
 &embedded={"attendance":true,"attendance.class":true,"attendance.class.branch":true,"attendance.module":true,"tutor":true}
-Authorization: Bearer {{sign.response.body.$.token}}
+Authorization: Bearer {{sign_token}}
 
 ###
 GET {{host}}/attendances_students
@@ -145,4 +55,4 @@ GET {{host}}/attendances_students
 &max_results=5
 &page=1
 &embedded={"student":true,"attendance":true,"attendance.class":true,"attendance.class.branch":true,"attendance.module":true,"tutor":true}
-Authorization: Bearer {{sign.response.body.$.token}}
+Authorization: Bearer {{sign_token}}

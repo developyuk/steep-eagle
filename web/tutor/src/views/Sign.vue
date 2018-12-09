@@ -21,7 +21,7 @@
         .powered powered by
           img(alt="codingcamp.id" src="https://images.weserv.nl/?h=10&url=dl.dropboxusercontent.com/s/htl2v26j5imxgxa/Group.png")
 
-      my-dialog(@mounted="onDialogMounted")
+      my-dialog(v-model="dialog")
         span(v-html="dialogText.opts[dialogText.idx]")
         template(slot="actions")
           button.mdc-button.mdc-dialog__button(data-mdc-dialog-action="yes" type="button") Got It!
@@ -42,7 +42,7 @@ export default {
     return {
       username: "",
       errMsg: "",
-      $dialog: null,
+      dialog: null,
       dialogText: {
         idx: null,
         opts: [
@@ -81,15 +81,12 @@ export default {
     },
     onClickFaq(e, i) {
       this.dialogText.idx = i;
-      this.$dialog.open();
-    },
-    onDialogMounted(e) {
-      this.$dialog = e;
+      this.dialog.open();
     }
   },
   mounted() {
     new MDCTextField(this.$el.querySelector(".mdc-text-field"));
-    new MDCFloatingLabel(this.$el.querySelector(".mdc-floating-label"));
+    // new MDCFloatingLabel(this.$el.querySelector(".mdc-floating-label"));
     new MDCRipple(this.$el.querySelector(".mdc-fab"));
   }
 };

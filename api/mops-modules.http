@@ -1,0 +1,63 @@
+# vars
+# @host = https://api.steep-eagle.appspot.com
+@host = http://127.0.0.1:3000
+@username = op1
+@password = 653caad8
+
+###
+# @name sign
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+    "username":"{{username}}",
+    "password":"{{password}}",
+    "role":["operation"]
+} 
+
+@sign_token = {{sign.response.body.$.token}}
+
+### 
+# @name auth
+GET {{host}}/auth
+Authorization: Bearer {{sign_token}}
+
+### 
+GET {{host}}/modules
+Authorization: Bearer {{sign_token}}
+
+###
+# @name new_module
+POST {{host}}/modules
+Authorization: Bearer {{sign_token}}
+Content-Type: application/json
+
+{
+    "name":"module1"
+}
+
+@module_id = {{new_module.response.body.$._id}}
+
+###
+# @name module
+GET {{host}}/modules/{{module_id}}
+Authorization: Bearer {{sign_token}}
+
+###
+DELETE {{host}}/modules/{{module_id}}
+Authorization: Bearer {{sign_token}}
+If-Match: {{module.response.body.$._etag}}
+
+###
+PATCH {{host}}/modules/{{module_id}}
+Authorization: Bearer {{sign_token}}
+If-Match: {{module.response.body.$._etag}}
+Content-Type: application/json
+
+{
+    "name":"module2"
+}
+
+###
+DELETE {{host}}/modules
+Authorization: Bearer {{sign_token}}
