@@ -49,38 +49,35 @@ GET {{host}}/classes
 Authorization: Bearer {{sign_token}}
 
 ###
-DELETE {{host}}/classes
-Authorization: Bearer {{sign_token}}
-
-###
 # @name new_classes
 POST {{host}}/classes
 Authorization: Bearer {{sign_token}}
 Content-Type: application/json
 
 {
-    "start":"20161208T120000",
-    "finish":"20181208T143000",
+    "start":"2018-12-12 10:00:00",
+    "finish":"2019-12-10 12:30:00",
     "rrule":"FREQ=WEEKLY;INTERVAL=1;BYDAY=TU",
     "module":"5c0c9fd4297b82002443dff6",
     "branch":"5c0ca10c297b82000806e6ac",
     "tutor":"5c0ca13f297b82000806e6ad"
 }
 
+
 @class_id = {{new_classes.response.body.$._id}}
 ###
 GET {{host}}/classes/{{class_id}}
 Authorization: Bearer {{sign_token}}
+###
+GET {{host}}/classes/{{class_id}}/last_attendances
+Authorization: Bearer {{sign_token}}
 
 ###
-GET {{host}}/crons/schedules
+DELETE {{host}}/classes
 Authorization: Bearer {{sign_token}}
 
 ###
 GET {{host}}/schedules
-Authorization: Bearer {{sign_token}}
-###
-GET {{host}}/schedules/groups2
-?sort=start
-&embedded={"class":1,"class.module":1,"class.branch":1,"class.tutor":1}
+?_page=1
+&embedded={"module":1,"branch":1,"tutor":1}
 Authorization: Bearer {{sign_token}}

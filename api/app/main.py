@@ -13,8 +13,9 @@ app = Eve(auth=my.JwtAuth,
 
 app.register_blueprint(swagger)
 app.register_blueprint(blueprints._auth)
-app.register_blueprint(blueprints._students)
 app.register_blueprint(blueprints._schedules)
+app.register_blueprint(blueprints._last_attendances)
+app.register_blueprint(blueprints._students)
 app.register_blueprint(blueprints._forgot_password)
 app.register_blueprint(blueprints._import)
 app.register_blueprint(blueprints._tutor_stats)

@@ -30,7 +30,7 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ISSUER = os.environ['JWT_ISSUER']
 X_DOMAINS = "*"
 
-DATE_FORMAT = '%Y%m%dT%H%M%S'
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 RETURN_MEDIA_AS_BASE64_STRING = False
 RETURN_MEDIA_AS_URL = True
 MEDIA_BASE_URL = 'https://storage.googleapis.com'
@@ -80,9 +80,6 @@ DOMAIN = {
     },
     'classes': {
         'schema': schema.class_
-    },
-    'schedules': {
-        'schema': schema.schedules,
     },
     'classes_students': {
         'schema': schema.class_student,

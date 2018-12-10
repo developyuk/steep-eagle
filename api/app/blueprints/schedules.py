@@ -18,8 +18,8 @@ from dateutil.parser import parse
 from eve.methods.delete import delete
 from eve.methods.post import post_internal
 from werkzeug.exceptions import NotFound
-
 from shared.datetime import wib_tz, wib_now, utc_now, dow_list, after_request_cache
+import itertools
 
 blueprint = Blueprint('schedules', __name__)
 CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
@@ -208,51 +208,50 @@ def add_header(response):
     return after_request_cache(response)
 
 
-@blueprint.route('/crons/schedules', methods=['GET'])
-@requires_auth('/crons/schedules')
+@blueprint.route('/schedules', methods=['GET'])
+@requires_auth('/schedules')
 def crons_schedules():
+    dr = request.values or request.get_json() or {}
+    page = int(dr.get('_page', 1))
+    max_results = int(dr.get('_max_results', 5))
+
     classes, *_ = get_internal('classes')
     classes = classes[config.ITEMS]
 
-    until = utc_now + timedelta(days=14)
+    start = utc_now + timedelta(days=(page - 1) * max_results)
+    until = utc_now + timedelta(days=page * max_results)
+
     schedules = []
     for v in classes:
-        # start = v['start'].replace(day=utc_now.day)
-        start = utc_now.replace(hour=v['start'].hour, minute=v['start'].minute)
-        days = rrulestr(f"{v['rrule']};UNTIL={until:%Y%m%dT%H%M%S%Z}",
-                        dtstart=start)
+        dtstart = start
+        if v['start'] > utc_now:
+            dtstart = v['start']
+
+        dtuntil = until
+        if v['finish'] < utc_now:
+            dtuntil = v['finish']
+
+        days = rrulestr(v['rrule'], dtstart=dtstart)
+        days = itertools.takewhile(lambda v2: v2.date() < dtuntil.date(), days)
         days = list(days)
 
         for v2 in days:
             finish = v2.replace(hour=v['finish'].hour,
                                 minute=v['finish'].minute)
             schedules.append({
-                'class': v[config.ID_FIELD],
-                'start': v2,
-                'finish': finish
+                'class': v,
+                'nextStart': v2,
+                'nextFinish': finish
             })
-    try:
-        _ = delete('schedules')
-    except NotFound:
-        pass
 
-    r = post_internal('schedules', schedules)
-    return send_response('schedules', r)
-
-
-@blueprint.route('/schedules/groups2', methods=['GET'])
-@requires_auth('/schedules/groups2')
-def schedules_groups2():
-    schedules, *_ = get_internal('schedules')
-    schedules = schedules[config.ITEMS]
-
-    # schedules = sorted(schedules, key=lambda k: k["start"])
+        schedules = sorted(schedules, key=lambda k: k["nextStart"])
 
     groups = []
-    for class_ in schedules:
-        date = class_['start'].date()
+    for v in schedules:
+        date = v['nextStart'].date()
 
-        date_exist = any(map(lambda v: v['date'] == date.isoformat(), groups))
+        date_exist = any(
+            map(lambda v2: v2['date'] == date.isoformat(), groups))
         if not date_exist:
             d = {
                 'date': date.isoformat(),
@@ -263,21 +262,6 @@ def schedules_groups2():
                 config.ITEMS: []
             }
             groups.append(d)
-        d[config.ITEMS].append(class_)
-
-    for v in groups:
-        for v2 in v[config.ITEMS]:
-            v2['last_attendances'] = {config.ITEMS:[]}
-
-            #     v['last_attendances'] = _last_attendance(
-            #         attendances, attendances_tutors, v)
-
-            # d[config.ITEMS] = filter(
-            #     exclude_current_user_attendance, d[config.ITEMS])
-            # d[config.ITEMS] = filter(
-            #     exclude_other_user_attendance, d[config.ITEMS])
-            # d[config.ITEMS] = map(
-            #     lambda v: embed_tutor(tutors, v), d[config.ITEMS])
-            # d[config.ITEMS] = list(d[config.ITEMS])
+        d[config.ITEMS].append(v)
 
     return send_response(None, ({config.ITEMS: groups},))

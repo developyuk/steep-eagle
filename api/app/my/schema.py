@@ -113,32 +113,6 @@ class_ = {
     },
 }
 
-schedules = {
-    'class': {
-        'type': 'objectid',
-        'required': True,
-        'data_relation': {
-            'resource': 'classes',
-            'field': '_id',
-            'embeddable': True
-        },
-    },
-    'start': {
-        'type': 'datetime',
-        'required': True
-    },
-    'finish': {
-        'type': 'datetime',
-        'required': True
-    },
-    'startTime': {
-        'type': 'string',
-    },
-    'finishTime': {
-        'type': 'string',
-    },
-}
-
 class_student = {
     'class': {
         'type': 'objectid',
