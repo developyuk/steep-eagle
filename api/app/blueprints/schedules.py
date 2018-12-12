@@ -1,11 +1,11 @@
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pprint import pprint
 
 from flask import current_app as app, Blueprint, request
 from flask_cors import CORS
 from eve.auth import requires_auth
-from eve.methods.get import get_internal
+from eve.methods.get import get_internal, getitem_internal
 # from eve.methods.put import put_internal
 # from eve.methods.post import post_internal
 from eve.render import send_response
@@ -20,87 +20,58 @@ from eve.methods.post import post_internal
 from werkzeug.exceptions import NotFound
 from shared.datetime import wib_tz, wib_now, utc_now, dow_list, after_request_cache
 import itertools
+from bson import ObjectId
 
 blueprint = Blueprint('schedules', __name__)
 CORS(blueprint, max_age=timedelta(seconds=config.CACHE_EXPIRES))
 
 
-def _last_attendance(attendances, attendances_tutors, class_):
-    # domain_ori = deepcopy(app.config['DOMAIN'])
-    # app.config['DOMAIN']['attendances_tutors'].update(
-    #     {'embedded_fields': ['tutor']})
+# def _last_attendance(attendances, attendances_tutors, class_):
+#     # domain_ori = deepcopy(app.config['DOMAIN'])
+#     # app.config['DOMAIN']['attendances_tutors'].update(
+#     #     {'embedded_fields': ['tutor']})
 
-    # utc_start_at = class_['start'].astimezone(timezone('UTC'))
-    # try:
-    #     lookup = {
-    #         config.DATE_CREATED: {'$gte': utc_start_at},
-    #         'class': class_[config.ID_FIELD]
-    #     }
-    #     attendance, *_ = getitem('attendances', **lookup)
-    #     lookup = {'attendance': attendance[config.ID_FIELD]}
-    #     attendances_tutors, *_ = get('attendances_tutors', **lookup)
-    # except NotFound:
-    #     attendances_tutors = {config.ITEMS: []}
+#     # utc_start_at = class_['start'].astimezone(timezone('UTC'))
+#     # try:
+#     #     lookup = {
+#     #         config.DATE_CREATED: {'$gte': utc_start_at},
+#     #         'class': class_[config.ID_FIELD]
+#     #     }
+#     #     attendance, *_ = getitem('attendances', **lookup)
+#     #     lookup = {'attendance': attendance[config.ID_FIELD]}
+#     #     attendances_tutors, *_ = get('attendances_tutors', **lookup)
+#     # except NotFound:
+#     #     attendances_tutors = {config.ITEMS: []}
 
-    # app.config['DOMAIN'] = domain_ori
+#     # app.config['DOMAIN'] = domain_ori
 
-    data = {config.ITEMS: []}
+#     data = {config.ITEMS: []}
 
-    if not len(attendances):
-        return data
+#     if not len(attendances):
+#         return data
 
-    if not len(attendances_tutors):
-        return data
+#     if not len(attendances_tutors):
+#         return data
 
-    utc_start_at = class_['start'].astimezone(utc)
+#     utc_start_at = class_['start'].astimezone(utc)
 
-    class_attendance = {}
-    for v in attendances:
-        if v['class'] == class_[config.ID_FIELD] and v[config.DATE_CREATED].astimezone(utc) >= (utc_start_at - timedelta(minutes=5)):
-            class_attendance = v
-            break
+#     class_attendance = {}
+#     for v in attendances:
+#         if v['class'] == class_[config.ID_FIELD] and v[config.DATE_CREATED].astimezone(utc) >= (utc_start_at - timedelta(minutes=5)):
+#             class_attendance = v
+#             break
 
-    if not class_attendance.get(config.ID_FIELD):
-        return data
+#     if not class_attendance.get(config.ID_FIELD):
+#         return data
 
-    class_attendances_tutors = []
-    for v in attendances_tutors:
-        if v['attendance'] == class_attendance[config.ID_FIELD]:
-            class_attendances_tutors.append(v)
+#     class_attendances_tutors = []
+#     for v in attendances_tutors:
+#         if v['attendance'] == class_attendance[config.ID_FIELD]:
+#             class_attendances_tutors.append(v)
 
-    data = {config.ITEMS: class_attendances_tutors}
+#     data = {config.ITEMS: class_attendances_tutors}
 
-    return data
-
-
-def exclude_current_user_attendance(class_):
-    if not class_.get('last_attendances'):
-        return True
-
-    if not class_['last_attendances'].get(config.ITEMS):
-        return True
-
-    items = class_['last_attendances'][config.ITEMS]
-    if len(items):
-        for v2 in items:
-            if v2['tutor'] == app.auth.get_request_auth_value():
-                return False
-    return True
-
-
-def exclude_other_user_attendance(class_):
-    if not class_.get('last_attendances'):
-        return True
-
-    if not class_['last_attendances'].get(config.ITEMS):
-        return True
-
-    items = class_['last_attendances'][config.ITEMS]
-    if len(items):
-        if (class_['finish'] < utc_now):
-            return False
-    return True
-
+#     return data
 
 # def conv_time(class_, date):
 #     class_['start'] = class_['start'].astimezone(wib_tz).replace(
@@ -123,7 +94,7 @@ def exclude_other_user_attendance(class_):
 
 
 add_documentation({
-    'paths': {'/schedules/groups': {'get': {
+    'paths': {'/schedules': {'get': {
         'summary': 'Retrieves a Schedule document grouped by date',
         'tags': ['Classe'],
         "security": [{"JwtAuth": []}],
@@ -207,6 +178,33 @@ add_documentation({
 def add_header(response):
     return after_request_cache(response)
 
+# def exclude_current_user_attendance(class_):
+#     if not class_.get('last_attendances'):
+#         return True
+
+#     if not class_['last_attendances'].get(config.ITEMS):
+#         return True
+
+#     items = class_['last_attendances'][config.ITEMS]
+#     if len(items):
+#         for v2 in items:
+#             if v2['tutor'] == app.auth.get_request_auth_value():
+#                 return False
+#     return True
+
+
+# def exclude_other_user_attendance(class_):
+#     if not class_.get('last_attendances'):
+#         return True
+
+#     if not class_['last_attendances'].get(config.ITEMS):
+#         return True
+
+#     items = class_['last_attendances'][config.ITEMS]
+#     if len(items):
+#         if (class_['finish'] < utc_now):
+#             return False
+#     return True
 
 @blueprint.route('/schedules', methods=['GET'])
 @requires_auth('/schedules')
@@ -236,12 +234,15 @@ def crons_schedules():
         days = list(days)
 
         for v2 in days:
-            finish = v2.replace(hour=v['finish'].hour,
-                                minute=v['finish'].minute)
+            next_start = v2.replace(
+                hour=v['start'].hour, minute=v['start'].minute)
+            next_finish = v2.replace(
+                hour=v['finish'].hour, minute=v['finish'].minute)
             schedules.append({
                 'class': v,
-                'nextStart': v2,
-                'nextFinish': finish
+                'nextStart': next_start,
+                'nextFinish': next_finish,
+                'now': utc_now,
             })
 
         schedules = sorted(schedules, key=lambda k: k["nextStart"])
@@ -265,3 +266,24 @@ def crons_schedules():
         d[config.ITEMS].append(v)
 
     return send_response(None, ({config.ITEMS: groups},))
+
+
+@blueprint.route('/schedules/<regex("[a-f0-9]{24}"):cid>/last_attendances', methods=['GET'])
+@requires_auth('/schedules/cid/last_attendances')
+def classes_last_attendances(cid):
+    # utc_start_at = class_['start'].astimezone(timezone('UTC'))
+    utc_min = datetime.combine(utc_now, datetime.min.time())
+
+    try:
+        lookup = {
+            config.DATE_CREATED: {'$gte': utc_min},
+            'class': ObjectId(cid)
+        }
+        attendance, *_ = getitem_internal('attendances', **lookup)
+
+        lookup = {'attendance': attendance[config.ID_FIELD]}
+        r = get_internal('attendances_tutors', **lookup)
+    except NotFound:
+        r = ({config.ITEMS: []},)
+
+    return send_response('attendances_tutors', r)

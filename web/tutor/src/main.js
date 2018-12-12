@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 
+import VueAsyncProperties from 'vue-async-properties'
+Vue.use(VueAsyncProperties)
+
 Vue.config.productionTip = false
 
 new Vue({

@@ -2,11 +2,8 @@
   #buttonStatus
     button(v-if="status === 'start'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
     button.start-other(v-if="status === 'start-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
-    //- button(v-if="status === 'start-late-ongoing'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activated
     button(v-if="status === 'disabled'" disabled @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Start
     button(v-if="status === 'late'" @click='start($event)').mdc-button.mdc-button--raised.mdc-button--compact Activate
-    //- span.ongoing(v-if="status ==='ongoing'") Ongoing
-    //- span.late-ongoing(v-if="status ==='late-ongoing'") Activated
 </template>
 
 <script>
@@ -15,24 +12,26 @@ import { mapState } from "vuex";
 import { MDCRipple } from "@material/ripple";
 
 export default {
-  props: ["item", "index"],
+  props: ["item", "lastAttendances"],
   data() {
     return {};
   },
   computed: {
     ...mapState(["currentAuth"]),
     status() {
-      const item = this.item;
-      const msts = moment(item.start);
-      const mfts = moment(item.finish);
+      let status = "disabled";
+      if (!this.item.class._id) {
+        return status;
+      }
+
+      const msts = moment(this.item.nextStart);
+      const mfts = moment(this.item.nextFinish);
       const mnow = moment();
 
-      let status = "disabled";
-      const ls = item.last_attendances._items;
-      // console.log(item,item.last_attendances._items);
+      const lsItems = this.lastAttendances._items;
+      // console.log(msts,mfts,mnow);
 
-      if (!!ls.length && msts.diff(mnow, "days") < 1) {
-        const lsItems = ls;
+      if (!!lsItems.length && msts.diff(mnow, "days") < 1) {
         const mls = moment(lsItems[0]._created);
 
         if (
@@ -44,24 +43,16 @@ export default {
             return v.tutor._id === this.currentAuth._id;
           }).length >= 1
         ) {
+          // console.log(mls, mfts, mls.isBefore(mfts));
           if (mls.isBefore(mfts)) {
             status = "start-ongoing";
           }
-          // if (mls.isAfter(mfts)) {
-          //   status = "start-late-ongoing";
-          // }
+
           return status;
         }
-        // else {
-        //   if (mls.isBefore(mfts)) {
-        //     status = "ongoing";
-        //   }
-        //   if (mls.isAfter(mfts)) {
-        //     status = "late-ongoing";
-        //   }
-        // }
       } else {
-        // console.log(item,item.start,item.finish,msts, mfts, mnow);
+        // console.log(msts.toISOString(), mfts.toISOString(), mnow.toISOString());
+        // console.log(msts.diff(mnow, "minutes"),mfts.diff(mnow, "minutes"));
         if (msts.diff(mnow, "minutes") < 5 && mfts.diff(mnow, "minutes") > 0) {
           status = "start";
         }
@@ -69,7 +60,6 @@ export default {
           status = "late";
         }
       }
-      // console.log(status)
 
       return status;
     }
@@ -92,10 +82,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/assets/shared";
 
-.mdc-button,
-// span.ongoing,
-// span.late-ongoing
- {
+.mdc-button {
   position: absolute;
   right: 1rem;
   font-size: 1rem * (1/1.75);
@@ -111,8 +98,6 @@ export default {
   }
 }
 
-// span.ongoing,
-// span.late-ongoing,
 .start-other {
   text-transform: uppercase;
   background-color: map-get($palettes, blue);

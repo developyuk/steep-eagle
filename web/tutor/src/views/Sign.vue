@@ -70,12 +70,12 @@ export default {
           this.$router.push("/");
         })
         .catch(error => {
-          console.log(error);
+          // console.log(error);
           const { status, data } = error.response;
           if (status !== 200) {
             this.errMsg = `Check your username.`;
           } else {
-            console.log(error);
+            // console.log(error);
           }
         });
     },

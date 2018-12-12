@@ -12,14 +12,13 @@ app = Eve(auth=my.JwtAuth,
           media=my.GoogleMediaStorage)
 
 app.register_blueprint(swagger)
-app.register_blueprint(blueprints._auth)
-app.register_blueprint(blueprints._schedules)
-app.register_blueprint(blueprints._last_attendances)
-app.register_blueprint(blueprints._students)
-app.register_blueprint(blueprints._forgot_password)
-app.register_blueprint(blueprints._import)
-app.register_blueprint(blueprints._tutor_stats)
 app.register_blueprint(blueprints._swagger)
+app.register_blueprint(blueprints._auth)
+app.register_blueprint(blueprints._forgot_password)
+app.register_blueprint(blueprints._schedules)
+app.register_blueprint(blueprints._students)
+app.register_blueprint(blueprints._tutor_stats)
+app.register_blueprint(blueprints._import)
 
 app.on_insert += hooks.resource.on_insert       # pylint: disable=no-member
 app.on_inserted += hooks.resource.on_inserted   # pylint: disable=no-member

@@ -12,13 +12,13 @@
           span.text
             placeholder(:value="v.delta")
         .mdc-list
-          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${i}-${i2}`" v-model="currentClass")
+          item(v-for="(v2,i2) in v._items" :item="v2" :key="`${i}-${i2}`" v-model="currentItem")
 
     form(@submit.prevent="checkPin($event)")
       my-dialog(v-model="dialog")
         template(slot="title") Are you sure?
         span Insert 1234 to activate&nbsp;
-          placeholder(:value="currentClass.module.name.toUpperCase()" val-empty="lorem ipsum")
+          placeholder(:value="currentItem.class.module.name.toUpperCase()" val-empty="lorem ipsum")
         p &nbsp;
           input(type="text" name="username" v-model.trim="pin")
         .errMsg(v-if="errMsg") {{errMsg}}
@@ -46,29 +46,6 @@ import Item from "./Item";
 import Placeholder from "@/components/Placeholder";
 import Snackbar from "@/components/Snackbar";
 
-const phClass = v => {
-  return {
-    _id: v,
-    module: {
-      _id: v,
-      image:
-        "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
-      name: ""
-    },
-    _start: "",
-    _finish: "",
-    tutor: {
-      _id: v,
-      name: "",
-      username: "",
-      email: ""
-    },
-    branch: {
-      _id: v,
-      name: ""
-    }
-  };
-};
 const phSchedule = _ => {
   return {
     date: "",
@@ -77,10 +54,29 @@ const phSchedule = _ => {
     day: "",
     _items: _range(2).map(vv => {
       return {
-        class: phClass(vv),
-        finish: "",
-        start: "",
-        last_attendances: { _items: [] }
+        class: {
+          _id: 0,
+          module: {
+            _id: 0,
+            image:
+              "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
+            name: ""
+          },
+          _start: "",
+          _finish: "",
+          tutor: {
+            _id: 0,
+            name: "",
+            username: "",
+            email: ""
+          },
+          branch: {
+            _id: 0,
+            name: ""
+          }
+        },
+        nextFinish: "",
+        nextStart: ""
       };
     })
   };
@@ -99,10 +95,12 @@ export default {
   data() {
     return {
       pin: null,
-      schedules: _range(3).map(phSchedule),
-      currentClass: {
-        _id: 0,
-        module: { name: "" }
+      // forceSchedules: false,
+      currentItem: {
+        class: {
+          _id: 0,
+          module: { name: "" }
+        }
       },
       dialog: null,
       dialogLoading: null,
@@ -111,11 +109,38 @@ export default {
       mqtt: null
     };
   },
+  asyncData: {
+    schedules: {
+      get() {
+        const config = {
+          params: {
+            sort: "start",
+            embedded: JSON.stringify({
+              module: 1,
+              branch: 1,
+              tutor: 1
+            })
+          },
+          headers: {}
+        };
+
+        // if (this.forceSchedules) {
+        config["headers"]["Cache-Control"] = "no-cache";
+        // }
+        return axios.get(`${process.env.VUE_APP_API}/schedules`, config);
+      },
+      transform(r) {
+        this.dialogLoading.close();
+        return r.data._items;
+      },
+      default: _range(3).map(phSchedule)
+    }
+  },
   computed: {
     ...mapState(["currentAuth"])
   },
   watch: {
-    currentClass(v, ov) {
+    currentItem(v, ov) {
       this.dialog.open();
     }
   },
@@ -126,7 +151,7 @@ export default {
         this.dialog.close();
         this.dialogLoading.open();
         const data = {
-          class: this.currentClass._id
+          class: this.currentItem.class._id
         };
 
         axios
@@ -154,7 +179,6 @@ export default {
             });
           })
           .catch(error => {
-            this.dialogLoading.close();
             this.errMsg = "failed!";
             this.snackbar.show({
               message: `You failed start a class`
@@ -164,34 +188,12 @@ export default {
       } else {
         this.errMsg = "invalid. Check pin again!";
       }
-    },
-    getSchedules(params = { forceRefresh: false }) {
-      const config = {};
-      config["params"] = {
-        sort: "start",
-        embedded: JSON.stringify({
-          class: 1,
-          "class.module": 1,
-          "class.branch": 1,
-          "class.tutor": 1
-        })
-        // _page: 1,
-        // _max_results: 2
-      };
-      config["headers"] = {};
-      if (params.forceRefresh) {
-        config["headers"]["Cache-Control"] = "no-cache";
-      }
-      axios
-        .get(`${process.env.VUE_APP_API}/schedules/groups2`, config)
-        .then(response => {
-          this.dialogLoading.close();
-          this.schedules = response.data._items;
-        });
     }
   },
   mounted() {
-    this.getSchedules();
+    this.$on("schedules$reset", resettingResponse => {
+      this.dialogLoading.close();
+    });
 
     this.mqtt = mqtt
       .connect(process.env.VUE_APP_WS)
@@ -207,7 +209,7 @@ export default {
 
         if (update) {
           this.dialogLoading.open();
-          this.getSchedules({ forceRefresh: true });
+          this.schedules$refresh();
         }
       });
   },

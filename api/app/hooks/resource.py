@@ -1,12 +1,14 @@
 from pprint import pprint
+from datetime import datetime
 
 from flask import current_app as app, abort
 from eve.methods.get import getitem_internal
 from eve.methods.patch import patch_internal
 from eve.methods.post import post_internal
 from eve.utils import config
-from shared.datetime import wib_now, wib_tz, dow_list
+from shared.datetime import wib_now, wib_tz, utc_now, dow_list
 from werkzeug.exceptions import NotFound
+from bson import ObjectId
 
 
 def on_insert(resource_name, items):
@@ -16,7 +18,8 @@ def on_insert(resource_name, items):
 
             lookup = {config.ID_FIELD: class_}
             class_, *_ = getitem_internal('classes', **lookup)
-            date = wib_now.date()
+
+            utc_min = datetime.combine(utc_now, datetime.min.time())
 
             # pprint('class_')
             # pprint(class_)
@@ -25,8 +28,7 @@ def on_insert(resource_name, items):
                 lookup = {
                     'class': class_[config.ID_FIELD],
                     'module': class_['module'],
-                    config.DATE_CREATED: {'$gte': class_['start'].astimezone(wib_tz).replace(
-                        day=date.day, month=date.month, year=date.year)},
+                    config.DATE_CREATED: {'$gte': utc_min},
                 }
                 attendance, *_ = getitem_internal('attendances', **lookup)
             except NotFound:
@@ -35,9 +37,6 @@ def on_insert(resource_name, items):
                     'module': class_['module']
                 }
                 attendance, *_ = post_internal('attendances', payload)
-
-            # pprint('attendance')
-            # pprint(attendance)
 
             try:
                 lookup = {
@@ -53,9 +52,8 @@ def on_insert(resource_name, items):
                 # pprint(items)
                 items[i].update({
                     'attendance': attendance[config.ID_FIELD],
-                    'tutor': app.auth.get_request_auth_value(),
+                    'tutor': ObjectId(app.auth.get_request_auth_value()),
                 })
-        # pprint(items)
 
 
 def on_inserted(resource_name, items):

@@ -7,20 +7,24 @@
         strong: placeholder(:value="item.class.module.name")
       placeholder(:value="item.class.branch.name").mdc-list-item__secondary-text
       span.mdc-list-item__secondary-text
-        placeholder(:value="item.startTime")
+        placeholder(:value="nextStartTime")
         | &nbsp;-&nbsp;
-        placeholder(:value="item.finishTime")
-      span.mdc-list-item__secondary-text.tutor(v-if="!item.last_attendances._items || (!!item.last_attendances._items && !item.last_attendances._items.length)") Tutor:&nbsp;
+        placeholder(:value="nextFinishTime")
+      span.mdc-list-item__secondary-text.tutor(v-if="!lastAttendances._items.length") Tutor:&nbsp;
         placeholder(:value="item.class.tutor.name || item.class.tutor.username")
-      span.mdc-list-item__secondary-text.tutor(v-if="!!item.last_attendances._items && !!item.last_attendances._items.length") Class started by&nbsp;
-        placeholder(:value="parseLastAttendanceTutorName(item.last_attendances._items)")
-    button-status(:item="item" v-model="currentClass")
+      span.mdc-list-item__secondary-text.tutor(v-if="!!lastAttendances._items.length") Class started by&nbsp;
+        placeholder(:value="parseTutorName(lastAttendances._items)")
+    button-status(:item="item" v-model="currentItem" :lastAttendances="lastAttendances")
 </template>
 
 <script>
 import ButtonStatus from "./ButtonStatus";
 import MyImg from "@/components/Img";
 import Placeholder from "@/components/Placeholder";
+import axios from "axios";
+import moment from "moment";
+
+const defaultLastAttendance = { _items: [] };
 
 export default {
   props: ["item"],
@@ -31,17 +35,58 @@ export default {
   },
   data() {
     return {
-      currentClass: null
+      currentItem: null
     };
   },
   watch: {
-    currentClass(v, ov) {
+    currentItem(v, ov) {
       this.$emit("input", v);
     }
   },
   methods: {
-    parseLastAttendanceTutorName(list) {
-      return list.length ? list.map(v => v["tutor"]["name"]).join(", ") : "";
+    parseTutorName(list) {
+      return list.length
+        ? list.map(v => v.tutor.name || v.tutor.username).join(", ")
+        : "";
+    }
+  },
+  computed: {
+    nextStartTime() {
+      if (!this.item.nextStart) {
+        return "00:00";
+      }
+      return moment(this.item.nextStart).format("HH:mm");
+    },
+    nextFinishTime() {
+      if (!this.item.nextFinish) {
+        return "00:00";
+      }
+      return moment(this.item.nextFinish).format("HH:mm");
+    }
+  },
+  asyncComputed: {
+    lastAttendances: {
+      get() {
+        if (!this.item.class._id) {
+          return defaultLastAttendance;
+        }
+        const config = {
+          params: {
+            embedded: JSON.stringify({
+              tutor: 1
+            })
+          }
+        };
+        return axios.get(
+          `${process.env.VUE_APP_API}/schedules/${
+            this.item.class._id
+          }/last_attendances`,
+          config
+        );
+      },
+
+      watch: "item",
+      default: defaultLastAttendance
     }
   }
 };

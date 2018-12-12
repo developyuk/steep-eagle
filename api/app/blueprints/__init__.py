@@ -20,7 +20,6 @@ def onDay(day):
 
 from .auth import blueprint as _auth
 from .schedules import blueprint as _schedules
-from .last_attendances import blueprint as _last_attendances
 from .students import blueprint as _students
 from .forgot_password import blueprint as _forgot_password
 from ._import import blueprint as _import
